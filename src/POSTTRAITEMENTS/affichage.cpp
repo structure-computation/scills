@@ -39,11 +39,10 @@ void fake_affichage() {
     XmlNode n;
     Param process;
 
-#ifdef DIMENSION3
-    Vec<Sst<3,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SP3;
-    Vec<Interface<3,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Interface<3,TYPEREEL> > > InterP3;
+    Vec<Sst<DIM,TYPEREEL> > S3;
+    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SP3;
+    Vec<Interface<DIM,TYPEREEL> > Inter3;
+    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > InterP3;
     
     affichage_maillage(SP3, InterP3,S3, process);
     affichage_resultats(SP3, process);
@@ -52,22 +51,6 @@ void fake_affichage() {
     affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process);
     affichage_energie(SP3,Inter3, process);
-#endif
-
-#ifdef DIMENSION2
-    Vec<Sst<2,TYPEREEL> > S2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SP2;
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    Vec<VecPointedValues<Interface<2,TYPEREEL> > > InterP2;
-    
-    affichage_maillage(SP2, InterP2,S2, process);
-    affichage_resultats(SP2, process);
-    affichage_depl_pt(SP2, process);
-    affichage_var_inter(SP2,Inter2, process);
-    affichage_inter_data(Inter2, S2, process);
-    affichage_resultats_inter(InterP2, S2 , process);
-    affichage_energie(SP2,Inter2, process);
-#endif
 
 }
 

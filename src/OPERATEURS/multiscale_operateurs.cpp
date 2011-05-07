@@ -143,22 +143,12 @@ void fake_multiscale_operateurs() {
     XmlNode n;
     Param process;
 
-#ifdef DIMENSION3
-    Vec<Interface<3,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SubS3,S3;
-    Vec<VecPointedValues<Interface<3,TYPEREEL> > > SubI3;
-    Glob<3,TYPEREEL> Global3;
+    Vec<Interface<DIM,TYPEREEL> > Inter3;
+    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3,S3;
+    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
+    Glob<DIM,TYPEREEL> Global3;
 
     multiscale_operateurs(n,S3, SubS3,Inter3, SubI3, process, Global3);
-#endif
 
-#ifdef DIMENSION2
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SubS2,S2;
-    Vec<VecPointedValues<Interface<2,TYPEREEL> > > SubI2;
-    Glob<2,TYPEREEL> Global2;
-
-    multiscale_operateurs(n,S2, SubS2,Inter2, SubI2, process, Global2);
-#endif
 
 }

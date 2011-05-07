@@ -18,14 +18,12 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<3,TT> > > &S, Param &process) {
                 //S[i].t.resize(process.temps->nbpastemps+1);
                 if(process.nom_calcul=="incr") {
                     for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
-                        //S[i].t[imic].q.resize(DIMENSION*S[i].mesh.node_list.size(),0.);
                         evol_depl_pt_x[imic]=(S[i].t_post[imic].q[repddl[0]]);
                         evol_depl_pt_y[imic]=(S[i].t_post[imic].q[repddl[1]]);
                         evol_depl_pt_z[imic]=(S[i].t_post[imic].q[repddl[2]]);
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
-                        //S[i].t[imic].q.resize(DIMENSION*S[i].mesh.node_list.size(),0.);
                         evol_depl_pt_x[imic]=(S[i].t[imic].q[repddl[0]]);
                         evol_depl_pt_y[imic]=(S[i].t[imic].q[repddl[1]]);
                         evol_depl_pt_z[imic]=(S[i].t[imic].q[repddl[2]]);
@@ -160,13 +158,11 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<2,TT> > > &S, Param &process) {
                 //S[i].t.resize(process.temps->nbpastemps+1);
                 if(process.nom_calcul=="incr") {
                     for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
-                        //S[i].t[imic].q.resize(DIMENSION*S[i].mesh.node_list.size(),0.);
                         evol_depl_pt_x[imic]=(S[i].t_post[imic].q[repddl[0]]);
                         evol_depl_pt_y[imic]=(S[i].t_post[imic].q[repddl[1]]);
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
-                        //S[i].t[imic].q.resize(DIMENSION*S[i].mesh.node_list.size(),0.);
                         evol_depl_pt_x[imic]=(S[i].t[imic].q[repddl[0]]);
                         evol_depl_pt_y[imic]=(S[i].t[imic].q[repddl[1]]);
                     }

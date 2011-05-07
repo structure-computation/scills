@@ -52,27 +52,14 @@ L'ordre des opérations est le suivant :
 void fake_multiscale_geometry_mesh() {
     XmlNode n;
     Param process;
-        
-#ifdef DIMENSION3
-    Vec<Sst<3,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SubS3, Stot3;
-    Vec<Interface<3,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Interface<3,TYPEREEL> > > SubI3;
-    Vec<Boundary<3,TYPEREEL> > CL3;
+
+    Vec<Sst<DIM,TYPEREEL> > S3;
+    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3, Stot3;
+    Vec<Interface<DIM,TYPEREEL> > Inter3;
+    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
+    Vec<Boundary<DIM,TYPEREEL> > CL3;
     
     multiscale_geometry_mesh(n,S3, Inter3, process, CL3,Stot3,SubS3,SubI3) ;
-#endif
-    
-#ifdef DIMENSION2
-    Vec<Sst<2,TYPEREEL> > S2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SubS2, Stot2;
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    Vec<VecPointedValues<Interface<2,TYPEREEL> > > SubI2;
-    Vec<Boundary<2,TYPEREEL> > CL2;
-    
-    multiscale_geometry_mesh(n,S2, Inter2, process, CL2,Stot2,SubS2,SubI2) ;
-#endif
-
 }
 
 

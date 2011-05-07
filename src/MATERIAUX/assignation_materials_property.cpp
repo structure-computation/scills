@@ -47,23 +47,12 @@ void fake_assignation_materials_property() {
     XmlNode n;
     Param process;
         
-#ifdef DIMENSION3
-    Vec<Sst<3,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SubS3;
-    Vec<Interface<3,TYPEREEL> > Inter3;
+    Vec<Sst<DIM,TYPEREEL> > S3;
+    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;
+    Vec<Interface<DIM,TYPEREEL> > Inter3;
     
     assignation_materials_property_SST(n,S3,Inter3,process);
     assignation_materials_property_INTER(n, Inter3, S3, process);
-#endif
-    
-#ifdef DIMENSION2
-    Vec<Sst<2,TYPEREEL> > S2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SubS2;
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    
-    assignation_materials_property_SST(n,S2,Inter2,process);
-    assignation_materials_property_INTER(n, Inter2, S2, process);
-#endif
 
 }
 

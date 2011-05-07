@@ -9,5 +9,3 @@ template <class TV1, class TV2, class TV3, class TV4>  void multiscale_operateur
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6> void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL);
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6> void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL,const XmlNode &n);
 
-// void calcul_cohesif(const XmlNode &n,Vec<SST> &S, Vec<INTER > &Inter, Param &process,  Vec<Boundary<DIMENSION,TYPEREEL> > &CL,Glob<DIMENSION,TYPEREEL> &Global);
-

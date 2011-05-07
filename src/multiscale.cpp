@@ -43,6 +43,17 @@
 
 
 #include "containers/evaluate_nb_cycles.h"
+
+//biblioteque venant de SC_create_2
+#include <Metil/BasicVec.h>
+#include <Metil/StructCompactor.h>
+#include <Metil/CudaMetil.h>
+#include <Metil/Hdf.h>
+using namespace Metil;
+
+#include "GeometryUser.h"
+#include "DataUser.h"
+
 #ifndef INFO_TIME
 #define INFO_TIME
 #endif 
@@ -64,7 +75,7 @@ int main(int argc,char **argv) {
     /// lecture du fichier de donnees
     if ( argc!=3 and argc !=4 ) {
         std::cerr << "usage : nom_executable + dimension +  nom_complet_du_fichier_de_donnees. (+ mpi)" << std::endl;
-        std::cerr << "ex : ./multi 2 DATAFILES/test2D/statique/data_statique.xml  (+ mpi)" << std::endl;
+        std::cerr << "ex : ./SC_multi_2 num_model num_calcul  (+ mpi)" << std::endl;
         return 1;
     }
     try {
@@ -73,7 +84,7 @@ int main(int argc,char **argv) {
         /// on fait ce qu il y a faire quand on est en MPI
         if (argc == 4 and strcmp(argv[3], "mpi")==0 ) {
             definition_mpi_param(process,argc,argv);
-            if (process.rank == 0) cout << "Calcul MPI" << endl;
+            if (process.rank == 0) std::cout << "Calcul MPI" << std::endl;
         } else {
             process.rank=0;
             process.size=1;
@@ -85,10 +96,36 @@ int main(int argc,char **argv) {
     if (process.rank==0) tic1.start();
 #endif
         
-        if (process.rank == 0 ) cout << "*****************************" << endl;
-        if (process.rank == 0 ) cout << "* DECOMPOSITION DE DOMAINES *" << endl;
-        if (process.rank == 0 ) cout << "*****************************" << endl;
-        if (process.rank == 0 ) cout << endl;
+        if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
+        if (process.rank == 0 ) std::cout << "* Lecture des données venant de SC-create_2 *" << std::endl;
+        if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
+        if (process.rank == 0 ) std::cout << std::endl;
+    
+        std::string id_model = argv[ 1 ];
+        std::string id_calcul = argv[ 2 ];
+        std::string model_path = "/share/sc2/Developpement/MODEL/";
+        std::string mesh_path = model_path + "model_" + id_model + "/MESH";
+        std::string calcul_path = model_path + "model_" + id_model + "/calcul_" + id_calcul ;
+        std::string calcul_file = calcul_path + "/calcul.json" ;
+        String name_visu_hdf; 
+        name_visu_hdf << mesh_path.c_str() << "/visu_geometry.h5";
+        
+        // ******************************************************************************************************************
+        //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
+        DataUser data_user(model_path, calcul_path, id_calcul.c_str());
+        data_user.read_json_calcul(calcul_file);
+       
+        // ******************************************************************************************************************
+        //lecture de la geometrie--------------------------------------------------
+        GeometryUser geometry_user;
+        geometry_user.read_hdf5(name_visu_hdf);
+        geometry_user.split_group_edges_within_geometry(data_user);
+    
+    
+        if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
+        if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
+        if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
+        if (process.rank == 0 ) std::cout << std::endl;
 
         XmlNode n;
         n.parse_file( argv[2] );
@@ -97,46 +134,26 @@ int main(int argc,char **argv) {
         //Creation du dossier tmp
         system("mkdir -p tmp");
 
-        if (process.rank == 0 ) cout << "****************************" << endl;
-        if (process.rank == 0 ) cout << " Lecture des donnees " << endl;
-        if (process.rank == 0 ) cout << "****************************" << endl;
+        if (process.rank == 0 ) std::cout << "****************************" << std::endl;
+        if (process.rank == 0 ) std::cout << " Lecture des donnees " << std::endl;
+        if (process.rank == 0 ) std::cout << "****************************" << std::endl;
 
         /// lecture des donnees de calcul
         // donnees associees au calcul
-        process.dim=atoi(argv[1]);
+        process.dim=DIM;
         process.affichage->name_data= argv[2];
-        if (process.rank == 0 ) cout << "\tFichier lu : " << process.affichage->name_data << endl;
+        if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
+        Vec<Sst<DIM,TYPEREEL> > S;
+        Vec<Interface<DIM,TYPEREEL> > Inter;
+        Vec<Boundary<DIM,TYPEREEL> > CL;
+        Glob<DIM,TYPEREEL> Global;
+        multiscale(n,S,Inter,process,CL,Global);
 
-        ///calcul multiechelle
-        if(process.dim==2) {
-            /// definition des variables Sous-structures , Interfaces, Conditions Limites et Probleme macro global
-#ifdef DIMENSION2
-            Vec<Sst<2,TYPEREEL> > S;
-            Vec<Interface<2,TYPEREEL> > Inter;
-            Vec<Boundary<2,TYPEREEL> > CL;
-            Glob<2,TYPEREEL> Global;
-            multiscale(n,S,Inter,process,CL,Global);
-#endif
-
-        } else if(process.dim==3) {
-            /// definition des variables Sous-structures , Interfaces, Conditions Limites et Probleme macro global
-#ifdef DIMENSION3
-            Vec<Sst<3,TYPEREEL> > S;
-            Vec<Interface<3,TYPEREEL> > Inter;
-            Vec<Boundary<3,TYPEREEL> > CL;
-            Glob<3,TYPEREEL> Global;
-            multiscale(n,S,Inter,process,CL,Global);
-#endif
-
-        } else {
-            cout << "Mauvaise dimension " << endl;
-            assert(0);
-        }
-
+        
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Duree complete du programme : " ;
+    if (process.rank==0) std::cout << "Duree complete du programme : " ;
     if (process.rank==0) tic1.stop();
 #endif
         desallocation_memoire_PARAM(process);
