@@ -1,3 +1,27 @@
+ #ifdef METIL_COMP_DIRECTIVE
+// #pragma src_file LMT/include/util/solveLDL.cpp
+// #pragma src_file LMT/include/util/solveLDL_semimorse.cpp
+// #pragma src_file LMT/include/util/symamd.cpp
+// #pragma src_file LMT/include/util/symrcm.cpp
+// #pragma cpp_path /usr/include/suitesparse/
+// #pragma inc_path /usr/include/suitesparse/
+// #pragma lib_name cholmod
+// 
+// #pragma inc_path /home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/lib /home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/lib/
+// #pragma lib_name lam 
+// #pragma lib_name ldl 
+// #pragma gpu_flag --maxrregcount 62 -arch=sm_21 
+
+#pragma src_file multiscale_geometry_mesh.cpp
+#pragma src_file assignation_materials_property.cpp
+#pragma src_file multiscale_operateurs.cpp
+#pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
+#pragma src_file formulation_3_double_elasticity_isotropy_stat_Qstat.cpp
+#pragma src_file iterate_stat_Qstat.cpp
+#pragma src_file affichage.cpp
+
+#endif
+
 //librairie Hugo
 #include "containers/mat.h"
 

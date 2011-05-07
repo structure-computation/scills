@@ -1,48 +1,47 @@
-all:local 
+#parametres a modifier si necessaire
+DIM = 3
 
-codegen_py:
+DIR_SOURCES_SC = -Ibuild -Ibuild/problem_pb_elast -Isrc -Isrc/DEFINITIONS -Isrc/FORMULATIONS -Isrc/ITERATIONS -Isrc/ITERATIONS/LINEAR -Isrc/ITERATIONS/LOCAL -Isrc/ITERATIONS/ERROR -Isrc/MAILLAGE -Isrc/MATERIAUX -Isrc/MPI -Isrc/OPERATEURS -Isrc/OPERATEURS/INTER -Isrc/OPERATEURS/MACRO -Isrc/OPERATEURS/SST -Isrc/POSTTRAITEMENTS -Isrc/PROBMICRO -Isrc/UTILITAIRES 
+DIR_SOURCES_GEOMETRY = -Isrc -Isrc/GEOMETRY -Isrc/UTILS -Isrc/UTILS/hdf -Isrc/UTILS/xdmf -Isrc/UTILS/json_spirit 
+DIR_SOURCES_COMPUTE = -Isrc -Isrc/GEOMETRY -Isrc/COMPUTE -Isrc/UTILS -Isrc/UTILS/hdf -Isrc/UTILS/xdmf  -Isrc/UTILS/json_spirit 
+
+PRG_multi = SC_multi_$(DIM).exe
+DIR_build_cpu = --comp-dir build/SC_$(DIM)
+
+LOC_MC = metil_comp 
+CFLAGS= ` xml2-config --cflags`
+LIBS= -L/usr/lib/openmpi/lib -lmpi -lmpi_cxx `xml2-config  --libs`
+DIR_SOURCES_LMT =  -ILMT -ILMT/include -ILMT/include/LDL -ILMT/include/util -Iusr/include/suitesparse
+DIR_SOURCES_CUDA = -I/usr/local/cuda/include -I/home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
+DIR_SOURCES_MPI = -I/usr/lib/openmpi/include
+OPT = -ne -O3 -ffast-math -fexpensive-optimizations
+
+# all: compact_GEOMETRY 
+# all: metil_comp_create_2_cpu 
+
+# all: metil_comp_compute_cpu rsync
+all: metil_comp_multi
+# all: compact_FIELD_STRUCTURE 
+
+#codegen local rsync
+
+metil_test :
+	metil src/CALCUL/code_metil/test.met
+
+metil_comp_multi :
+	$(LOC_MC)  -o  $(PRG_multi) -DDIMENSION$(DIM) -DCPU  -DTYPEREEL=double -DLDL -DWITH_CHOLMOD -DWITH_UMFPACK -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
+
+
+codegen:
 	cd LMT/include/codegen; scons
 
-local: codegen_py
-	scons -j4 dep_py=1 arch=x86-64
 
 clean:
-	scons -c
 	cd LMT/include/codegen; scons -c
 
-vouvray: codegen_py
-	rsync --exclude '*~' --exclude '*.o' --exclude 'tmp' --exclude 'build' --exclude 'multinew*'  -auv -e ssh . caignot@vouvray:/home/caignot/MULTI_MPI
-	ssh caignot@vouvray make
 
-vouvrayviamadiran:
-	rsync --exclude '*~' --exclude '*.o' --exclude 'tmp' --exclude 'LMT.old' --exclude '_darcs/' --exclude 'build' --exclude 'multinew*' --include '*.py'  -auv -e ssh . caignot@ssh.lmt.ens-cachan.fr:/u/caignot/_CPP/MULTI_v09
-	ssh caignot@ssh.lmt.ens-cachan.fr make
 
-p4viamadiran:
-	cd src;rsync --exclude '*~' --exclude '*.o' --exclude 'tmp' --exclude 'multinew*'  -auv -e ssh . caignot@ssh.lmt.ens-cachan.fr:/u/caignot/_CPP/MULTI_MPI/src
-	ssh caignot@ssh.lmt.ens-cachan.fr 'make p4'
 
-kurofu: codegen_py
-	rsync --exclude '*~' --exclude '*.o' --exclude 'mat' -au -e ssh . leclerc@kurofu.meso.ens-cachan.fr:/home/people/leclerc/fm
-	ssh leclerc@kurofu.meso.ens-cachan.fr ". .bash_profile; cd fm; scons -j4 dep_py=0 debug=0 opt=1 arch=ia64"
 
-maekake: codegen_py
-	rsync --exclude '*~' --exclude '*.o' -au -e ssh . caignot@maekake.meso.ens-cachan.fr:/home/people/caignot/MULTI
 
-local1:
-	g++ treillis.cpp -ILMT/include -O3 -o treillis
-
-rsync:
-	rsync -auv -e ssh . alain@alain201180.no-ip.info:/home/alain/LMT/_CPP/MULTI_v09_MPI
-
-rsync_lmt:
-	rsync --exclude 'tmp' -auv -e ssh ./src alain@portalain:/home/alain/LMT/_CPP/MULTI_v09_MPI
-	rsync --exclude 'tmp' -auv -e ssh ./build alain@portalain:/home/alain/LMT/_CPP/MULTI_v09_MPI
-
-rsync_madiran:
-	rsync --exclude 'tmp' -auv -e ssh . caignot@ssh.lmt.ens-cachan.fr:/u/caignot/_CPP/MULTI_v09
-
-rsync_home:
-	rsync --exclude 'tmp' --exclude '*~' -auv -e ssh ./src alain@alain201180.no-ip.info:/home/alain/LMT/_CPP/MULTI_v09_MPI
-	rsync --exclude 'tmp' --exclude '*~' -auv -e ssh ./build alain@alain201180.no-ip.info:/home/alain/LMT/_CPP/MULTI_v09_MPI
 

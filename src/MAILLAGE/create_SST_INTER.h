@@ -208,11 +208,16 @@ void create_maillage_SST(STRUCTURE &structure,TV1 &S,Param &process) {
         melem.resize(M1.elem_list.size()+1);
         melemvoisin.resize(0);
         melemvoisin.reserve(100*M1.elem_list.size());//pourquoi 15 ? parce que ! 100 c est mieux ..
-        for(unsigned i=0;i<M1.elem_list.size();++i) {
-          melem[i]=melemvoisin.size();
-          for( SimpleConstIterator<typename TV1::template SubType<0>::T::TMESH::TM::EA *> iter=M1.get_elem_neighbours( (const typename TV1::template SubType<0>::T::TMESH::TM::EA *) M1.elem_list[i] ); iter; ++iter ){
-            melemvoisin.push_back((*iter)->number);}
-        }
+//         for(unsigned i=0;i<M1.elem_list.size();++i) {
+//           melem[i]=melemvoisin.size();
+//           for( SimpleConstIterator<typename TV1::template SubType<0>::T::TMESH::TM::EA *> iter=M1.get_elem_neighbours( (const typename TV1::template SubType<0>::T::TMESH::TM::EA *) M1.elem_list[i] ); iter; ++iter ){
+//             melemvoisin.push_back((*iter)->number);}
+//           
+//         }
+        
+        std::cout << "Probleme de compilation : revoir LMTpp sur zone commentee dans le code " << endl;
+        assert(0);
+        
         M1.clear_elem_parents();
         M1.clear_elem_children();
         
