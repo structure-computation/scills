@@ -1,0 +1,615 @@
+//
+// C++ Implementation: calculs_energies
+//
+// Description:
+//
+//
+// Author: Alain CAIGNOT <caignot@lmt.ens-cachan.fr>, (C) 2006
+//
+// Copyright: See COPYING file that comes with this distribution
+//
+//
+//librairie Hugo
+#include "containers/mat.h"
+
+#include "mesh/mesh.h"
+#include <fstream>
+#include <map>
+
+// fichiers de definition des variables
+#include "definition_PARAM_MICRO_INTER.h"
+#include "definition_PARAM.h"
+#include "definition_PARAM_AFFICHAGE.h"
+#include "definition_SST_time.h"
+#include "definition_INTER_time.h"
+
+
+/**
+Fonction permettant le calcul de l'énergie dissipée à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_ener_dissi_chap(TI &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Fchap)+Inter[i].side[0].Pt(Inter[i].side[0].t_post[j].Fchap))/2.0,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Wpchap))+
+                                         dot((Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Fchap)+Inter[i].side[1].Pt(Inter[i].side[1].t_post[j].Fchap))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Wpchap)));
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Fchap)+Inter[i].side[0].Pt(Inter[i].side[0].t[j].Fchap))/2.0,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Wpchap))+
+                                         dot((Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Fchap)+Inter[i].side[1].Pt(Inter[i].side[1].t[j].Fchap))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wpchap)));
+               }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            if ((int) process.temps->pt_cur == (int) process.temps-> nbpastemps+1) cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de l'énergie dissipée à partir de la structure Inter et du Temps avec les quantités n.
+*/
+template <class TI>
+void calcul_ener_dissi_lin(TI &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].F)+Inter[i].side[0].Pt(Inter[i].side[0].t_post[j].F))/2.0,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Wp))+
+                                         dot((Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].F)+Inter[i].side[1].Pt(Inter[i].side[1].t_post[j].F))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Wp)));
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].F)+Inter[i].side[0].Pt(Inter[i].side[0].t[j].F))/2.0,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Wp))+
+                                         dot((Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].F)+Inter[i].side[1].Pt(Inter[i].side[1].t[j].F))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wp)));
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            if ((int) process.temps->pt_cur == (int) process.temps-> nbpastemps+1) cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de l'énergie imposée à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_ener_imp_chap(TI &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort" or Inter[i].comp=="Jeu_impose") {
+            dissi_inter.set(0.);
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].t_post[j+1].Fchap+Inter[i].side[0].t_post[j].Fchap)/2.0,Inter[i].side[0].M*Inter[i].side[0].t_post[j+1].Wpchap));
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].t[j+1].Fchap+Inter[i].side[0].t[j].Fchap)/2.0,Inter[i].side[0].M*Inter[i].side[0].t[j+1].Wpchap));
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de l'énergie imposée à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_ener_imp_lin(TI &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort" or Inter[i].comp=="Jeu_impose") {
+            dissi_inter.set(0.);
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].t_post[j+1].F+Inter[i].side[0].t_post[j].F)/2.0,Inter[i].side[0].M*Inter[i].side[0].t_post[j+1].Wp));
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(
+                                         dot((Inter[i].side[0].t[j+1].F+Inter[i].side[0].t[j].F)/2.0,Inter[i].side[0].M*Inter[i].side[0].t[j+1].Wp));
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+        }
+    }
+}
+
+
+/**
+Fonction permettant le calcul de l'intégrale des efforts tangents au carré à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_Ft2_chap(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Fchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Fchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Fchap));
+                    dissi_inter[j+1]=(pow(a,2)+pow(b,2)+pow(c,2))/pow(Inter[i].measure,2);
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Fchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Fchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Fchap));
+                    dissi_inter[j+1]=(pow(a,2)+pow(b,2)+pow(c,2))/pow(Inter[i].measure,2);
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de l'intégrale des efforts tangents au carré à partir de la structure Inter et du Temps avec les quantités n.
+*/
+template <class TI>
+void calcul_Ft2_lin(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].F));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].F));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].F));
+                    dissi_inter[j+1]=(pow(a,2)+pow(b,2)+pow(c,2))/pow(Inter[i].measure,2);
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].F));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].F));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].F));
+                    dissi_inter[j+1]=(pow(a,2)+pow(b,2)+pow(c,2))/pow(Inter[i].measure,2);
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+        }
+    }
+}
+
+
+
+/**
+Fonction permettant le calcul de la moyenne des efforts normaux à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_Fn_chap(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de l'intégrale des efforts normaux à partir de la structure Inter et du Temps avec les quantités n.
+*/
+template <class TI>
+void calcul_Fn_lin(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+        }
+    }
+}
+
+
+
+
+
+
+
+/**
+Fonction permettant le calcul de la moyenne du saut de déplacement normal à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_Un_chap(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Wchap)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;            
+                }                                                                                    
+            } else {                                                                                 
+                cout << "Nom de calcul nom pris en compte" << endl;                                  
+                assert(0);                                                                           
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de la moyenne du saut de déplacement normal à partir de la structure Inter et du Temps avec les quantités n*/
+template <class TI>
+void calcul_Un_lin(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter;
+    dissi_inter.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);
+            Vec<double> vecx,vecy,vecz;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W));
+                    double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W));
+                    double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].W)-
+                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W));
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+        }
+    }
+}
+
+
+
+
+
+/**
+Fonction permettant le calcul de la moyenne du saut de déplacement tangent à partir de la structure Inter et du Temps avec les quantités chapeaux.
+*/
+template <class TI>
+void calcul_Ut_chap(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter,surf;
+    dissi_inter.resize(dissipation.size());
+    surf.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);surf.set(0.);
+            Vec<double> vecx,vecy,vecz,Un,Ut,tmp1,tmp0;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            Un.resize(Inter[i].side[0].nodeeq.size());Un.set(0.);
+            Ut.resize(Inter[i].side[0].nodeeq.size());Ut.set(0.);
+            tmp0.resize(Inter[i].side[0].nodeeq.size());tmp0.set(0.);
+            tmp1.resize(Inter[i].side[0].nodeeq.size());tmp1.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap);
+                    Un=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Wchap);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Wchap);
+                    Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    Vec<double,TI::dim> a0;a0.set(0.);
+                    tmp0.set(1.);
+                    for( unsigned k=0;k< Un.size()/TI::dim; k++){
+                       if (norm_2(Un[range(k*TI::dim,(k+1)*TI::dim)]) > 1e-6 or norm_2(Ut[range(k*TI::dim,(k+1)*TI::dim)]) < 1e-6) {
+                           tmp0[range(k*TI::dim,(k+1)*TI::dim)] = a0;
+                           Ut[range(k*TI::dim,(k+1)*TI::dim)]=a0;
+                       }
+                    }
+                    double a=dot(vecx,Ut);
+                    double b=dot(vecy,Ut);
+                    double c=dot(vecz,Ut);
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                    surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::dim;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Wchap);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap);
+                    Un=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Wchap);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wchap);
+                    Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    Vec<double,TI::dim> a0;a0.set(0.);
+                    tmp0.set(1.);
+                    for( unsigned k=0;k< Un.size()/TI::dim; k++){
+                       if (norm_2(Un[range(k*TI::dim,(k+1)*TI::dim)]) > 1e-6 or norm_2(Ut[range(k*TI::dim,(k+1)*TI::dim)]) < 1e-6) {
+                           tmp0[range(k*TI::dim,(k+1)*TI::dim)] = a0;
+                           Ut[range(k*TI::dim,(k+1)*TI::dim)]=a0;
+                       }
+                    }
+                    double a=dot(vecx,Ut);
+                    double b=dot(vecy,Ut);
+                    double c=dot(vecz,Ut);
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                    surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::dim;
+                 }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+            cout << "\t\t" << surf <<  endl;
+        }
+    }
+}
+
+/**
+Fonction permettant le calcul de la moyenne du saut de déplacement tangent à partir de la structure Inter et du Temps avec les quantités n*/
+template <class TI>
+void calcul_Ut_lin(Vec<TI> &Inter,Vec<double> &dissipation,Param &process) {
+    dissipation.set(0.);
+    Vec<double> dissi_inter,surf;
+    dissi_inter.resize(dissipation.size());
+    surf.resize(dissipation.size());
+    for(unsigned i=0;i<Inter.size();i++) {
+        if (Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") {
+            dissi_inter.set(0.);surf.set(0.);
+            Vec<double> vecx,vecy,vecz,Un,Ut,tmp1,tmp0;
+            vecx.resize(Inter[i].side[0].nodeeq.size());vecx.set(0.);
+            vecy.resize(Inter[i].side[0].nodeeq.size());vecy.set(0.);
+            vecz.resize(Inter[i].side[0].nodeeq.size());vecz.set(0.);
+            Un.resize(Inter[i].side[0].nodeeq.size());Un.set(0.);
+            Ut.resize(Inter[i].side[0].nodeeq.size());Ut.set(0.);
+            tmp0.resize(Inter[i].side[0].nodeeq.size());tmp0.set(0.);
+            tmp1.resize(Inter[i].side[0].nodeeq.size());tmp1.set(0.);
+            for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::dim ;ii++ ){
+               vecx[3*ii]=1.;
+               vecy[3*ii+1]=1.;
+               vecz[3*ii+2]=1.;
+            }
+            cout << Inter[i].measure << endl;
+            if(process.nom_calcul=="incr") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W);
+                    Un=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].W);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].W);
+                    Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    Vec<double,TI::dim> a0;a0.set(0.);
+                    tmp0.set(1.);
+                    for( unsigned k=0;k< Un.size()/TI::dim; k++){
+                       if (norm_2(Un[range(k*TI::dim,(k+1)*TI::dim)]) > 1e-6 or norm_2(Ut[range(k*TI::dim,(k+1)*TI::dim)]) < 1e-6) {
+                           tmp0[range(k*TI::dim,(k+1)*TI::dim)] = a0;
+                           Ut[range(k*TI::dim,(k+1)*TI::dim)]=a0;
+                       }
+                    }
+                    double a=dot(vecx,Ut);
+                    double b=dot(vecy,Ut);
+                    double c=dot(vecz,Ut);
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                    surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::dim;
+                }
+            } else if(process.nom_calcul=="latin") {
+                for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].W);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W);
+                    Un=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].W);
+                    tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].W);
+                    Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
+                    Vec<double,TI::dim> a0;a0.set(0.);
+                    tmp0.set(1.);
+                    for( unsigned k=0;k< Un.size()/TI::dim; k++){
+                       if (norm_2(Un[range(k*TI::dim,(k+1)*TI::dim)]) > 1e-6 or norm_2(Ut[range(k*TI::dim,(k+1)*TI::dim)]) < 1e-6) {
+                           tmp0[range(k*TI::dim,(k+1)*TI::dim)] = a0;
+                           Ut[range(k*TI::dim,(k+1)*TI::dim)]=a0;
+                       }
+                    }
+                    double a=dot(vecx,Ut);
+                    double b=dot(vecy,Ut);
+                    double c=dot(vecz,Ut);
+                    dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                    surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::dim;
+                 }
+            } else {
+                cout << "Nom de calcul nom pris en compte" << endl;
+                assert(0);
+            }
+            dissipation+=dissi_inter;
+            cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+            cout << "\t\t" << surf <<  endl;
+        }
+    }
+}
+
+
+
+
+
+

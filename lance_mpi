@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+echo '-------------------------------------------'
+echo ' coucou de lance_mpi'
+echo '-------------------------------------------'
+
+# pour voir les variables d'environnement disponibles
+
+printenv
+
+# pour voir la liste des noeuds (processeurs) attribuee pas PBS
+echo '-------------------------------------------'
+echo '    PBS_NODEFILE'
+echo '-------------------------------------------'
+cat $PBS_NODEFILE
+echo '-------------------------------------------'
+
+# ALLER DANS LE REPERTOIRE DE TRAVAIL
+echo $fic1
+cd /u/caignot/M2_2011
+mkdir -p /usrtmp/caignot
+# lancement de l'execution
+
+#mpirun.openmpi --mca pls_rsh_agent rsh  -hostfile $PBS_NODEFILE ./multinew 3 $fic1 mpi > /usrtmp/a.resu
+mpirun.openmpi ./multinew 3 $fic1 mpi > /usrtmp/caignot/a.resu
+mv /usrtmp/caignot/a.resu $fic1.resu

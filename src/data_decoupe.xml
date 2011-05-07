@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<root>
+   <mesh repertoire_des_maillages="./EXEMPLES/ALAIN/2cubes/" nom_fichier_qualification_materiaux="Vqualif.py" nom_des_maillages="decoup" nb_de_maillages="16" extension=".avs" jeu_physique="0" />
+   <materials>
+     <coefficients type="isotrope" resolution="contrainte_plane" identificateur="0" name="fibre"  elastic_modulus="200e3" poisson_ratio="0." unit="MPa" thickness="1" alpha="2e-6"/>
+     <coefficients type="isotrope" resolution="contrainte_plane" identificateur="1" name="fibre"  elastic_modulus="200e3" poisson_ratio="0." unit="MPa" thickness="1" alpha="2e-6"/>
+  </materials>
+    <proprietes_interfaces>
+         <coefficients type="contact_box" coeffrottement="0.3" box="0 0 100 100 100 100" name=""/>
+   </proprietes_interfaces>
+   <parametres sous_integration="0" type_sous_integration="p" type_base_macro="3" opti_multi="0" erreur_macro="1e-6" multiechelle="0" blocage_modes_rigides="0" mvts_bloques="Ty Tx Rz" nbitermax="100" facteur_relaxation="0.8" critere_erreur="1e-4" type_erreur="ddr" nb_threads="1" nom_calcul="latin" deltaT="0" save_depl_SST="1" save_data="0" read_data="0" critere_erreur_diss="0" reprise_calcul="0" />
+   <parametres_temporels type_de_calcul="stat" nbpastemps="12" pasdetemps="0.05" />
+   <parametres_affichage interactivite="1" affich_mesh="1" affich_resultat="1" type_affichage="Sinterieur" save_or_display="save" display_fields="dep qtrans sigma epsilon ener sigma_von_mises" list_error="1" display_error="0" repertoire_save="./tmp/3d_2_cubes/" name_data="data1" affich_depl_pt="1" coor_point="100 100 200" command_file="toto"/>
+   <direction_recherche ktype="scalaire_auto_CL" kfact="1" copydirection="1" />
+   
+   <CL>
+      <parametres box="0 0 0 0 100 200" unit="mm" comp="sym" />
+   </CL>
+   <CL>
+      <parametres box="0 0 0 100 100 0" unit="mm" comp="sym" />
+   </CL>
+   <CL>
+      <parametres box="0 0 0 100 0 200" unit="mm" comp="sym" />
+   </CL>  
+   <CL>
+      <parametres box="0 0 100 100 100 100" unit="mm" comp="effort" />
+      <fct_spatiale fonction="0;0;1" />
+      <fct_temporelle intervalle="0. 10000."  fonction="-20" />
+   </CL>
+   <parametres_micro nbinterdeg="4" boxdegrad="0.5 0.5 4.5 4.5" unit="pixel" nb_inter_casse_ini="0"/>
+   
+</root>

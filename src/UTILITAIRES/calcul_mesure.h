@@ -1,0 +1,106 @@
+
+namespace LMT {
+template<class TN,class TNG,class TD,unsigned NET>
+typename TNG::T measure( const Element<Hexa,TN,TNG,TD,NET> &elem ) {
+typedef typename TNG::T T;
+
+ T V=0.;
+   T reg0=0.71631284272709585555*elem.pos(1)[1]; T reg1=0.71631284272709585555*elem.pos(0)[1]; T reg2=0.045875854768068491385*elem.pos(0)[2]; T reg3=0.045875854768068491385*elem.pos(1)[1]; T reg4=0.45412414523193150862*elem.pos(0)[2];
+   T reg5=0.39433756729740643276*elem.pos(0)[2]; T reg6=0.39433756729740643276*elem.pos(1)[2]; T reg7=0.71631284272709585555*elem.pos(0)[2]; T reg8=0.072362291867717009992*elem.pos(1)[1]; T reg9=0.072362291867717009992*elem.pos(0)[1];
+   T reg10=0.71631284272709585555*elem.pos(1)[2]; T reg11=0.39433756729740643276*elem.pos(0)[1]; T reg12=0.39433756729740643276*elem.pos(1)[1]; T reg13=0.45412414523193150862*elem.pos(1)[2]; T reg14=0.072362291867717009992*elem.pos(0)[2];
+   T reg15=0.072362291867717009992*elem.pos(1)[2]; T reg16=0.045875854768068491385*elem.pos(0)[1]; T reg17=0.045875854768068491385*elem.pos(1)[2]; T reg18=0.45412414523193150862*elem.pos(0)[1]; T reg19=0.45412414523193150862*elem.pos(1)[1];
+   reg14=reg15-reg14; reg15=0.71631284272709585555*elem.pos(2)[2]; T reg20=0.71631284272709585555*elem.pos(2)[1]; T reg21=0.39433756729740643276*elem.pos(2)[1]; T reg22=0.045875854768068491385*elem.pos(2)[2];
+   reg7=reg10-reg7; reg10=0.10566243270259356724*elem.pos(1)[1]; T reg23=0.10566243270259356724*elem.pos(0)[2]; T reg24=0.10566243270259356724*elem.pos(1)[2]; T reg25=0.10566243270259356724*elem.pos(0)[1];
+   T reg26=0.19193544773676716169*elem.pos(1)[2]; T reg27=0.45412414523193150862*elem.pos(2)[1]; T reg28=reg3+reg16; T reg29=0.019389417668419972776*elem.pos(0)[2]; T reg30=reg4+reg13;
+   T reg31=0.45412414523193150862*elem.pos(2)[2]; T reg32=0.045875854768068491385*elem.pos(2)[1]; T reg33=0.072362291867717009992*elem.pos(2)[1]; reg1=reg0-reg1; reg0=reg19+reg18;
+   T reg34=reg17+reg2; reg6=reg5+reg6; reg9=reg8-reg9; reg11=reg12+reg11; reg5=0.19193544773676716169*elem.pos(1)[1];
+   reg8=0.019389417668419972776*elem.pos(0)[1]; reg12=0.072362291867717009992*elem.pos(2)[2]; T reg35=0.39433756729740643276*elem.pos(2)[2]; reg30=reg22+reg30; T reg36=0.045875854768068491385*elem.pos(3)[2];
+   T reg37=0.45412414523193150862*elem.pos(3)[2]; reg25=reg10-reg25; reg10=0.45412414523193150862*elem.pos(3)[1]; T reg38=0.19193544773676716169*elem.pos(0)[2]; T reg39=0.045875854768068491385*elem.pos(3)[1];
+   reg11=reg21-reg11; reg21=0.71631284272709585555*elem.pos(1)[0]; reg34=reg31+reg34; T reg40=0.39433756729740643276*elem.pos(3)[1]; T reg41=0.10566243270259356724*elem.pos(2)[1];
+   T reg42=0.072362291867717009992*elem.pos(0)[0]; T reg43=0.71631284272709585555*elem.pos(3)[2]; T reg44=0.072362291867717009992*elem.pos(1)[0]; T reg45=0.71631284272709585555*elem.pos(0)[0]; reg0=reg32+reg0;
+   T reg46=0.019389417668419972776*elem.pos(1)[2]; reg19=reg16+reg19; reg16=0.19193544773676716169*elem.pos(0)[1]; reg13=reg2+reg13; reg2=0.019389417668419972776*elem.pos(1)[1];
+   reg1=reg33+reg1; reg33=0.072362291867717009992*elem.pos(3)[1]; reg23=reg24-reg23; reg6=reg35-reg6; reg24=0.39433756729740643276*elem.pos(3)[2];
+   reg35=0.39433756729740643276*elem.pos(0)[0]; T reg47=0.39433756729740643276*elem.pos(1)[0]; reg8=reg5+reg8; reg5=0.71631284272709585555*elem.pos(3)[1]; reg14=reg15+reg14;
+   reg20=reg9+reg20; reg9=0.19193544773676716169*elem.pos(2)[1]; reg15=0.10566243270259356724*elem.pos(2)[2]; T reg48=0.19193544773676716169*elem.pos(2)[2]; reg29=reg26+reg29;
+   reg7=reg12+reg7; reg28=reg27+reg28; reg12=0.072362291867717009992*elem.pos(3)[2]; reg26=0.045875854768068491385*elem.pos(4)[1]; T reg49=0.19193544773676716169*elem.pos(4)[2];
+   reg28=reg10+reg28; T reg50=0.045875854768068491385*elem.pos(4)[2]; reg16=reg2+reg16; reg2=0.45412414523193150862*elem.pos(0)[0]; T reg51=0.45412414523193150862*elem.pos(1)[0];
+   reg4=reg17+reg4; reg12=reg7-reg12; reg33=reg1-reg33; reg1=0.19193544773676716169*elem.pos(4)[1]; reg7=0.019389417668419972776*elem.pos(2)[1];
+   reg34=reg37+reg34; reg17=0.45412414523193150862*elem.pos(4)[2]; reg18=reg3+reg18; reg35=reg47+reg35; reg45=reg21-reg45;
+   reg3=0.072362291867717009992*elem.pos(2)[0]; reg21=0.39433756729740643276*elem.pos(2)[0]; reg47=0.019389417668419972776*elem.pos(3)[2]; reg29=reg48-reg29; reg48=0.045875854768068491385*elem.pos(1)[0];
+   T reg52=0.045875854768068491385*elem.pos(0)[0]; reg15=reg23+reg15; reg23=0.10566243270259356724*elem.pos(3)[2]; T reg53=0.019389417668419972776*elem.pos(3)[1]; reg5=reg20-reg5;
+   reg20=0.019389417668419972776*elem.pos(4)[1]; reg8=reg9-reg8; reg24=reg6+reg24; reg6=0.10566243270259356724*elem.pos(4)[2]; reg9=0.019389417668419972776*elem.pos(0)[0];
+   T reg54=0.19193544773676716169*elem.pos(1)[0]; T reg55=0.10566243270259356724*elem.pos(1)[0]; T reg56=0.10566243270259356724*elem.pos(0)[0]; reg13=reg31+reg13; reg19=reg27+reg19;
+   reg38=reg46+reg38; reg0=reg39+reg0; reg27=0.71631284272709585555*elem.pos(2)[0]; reg42=reg44-reg42; reg31=0.45412414523193150862*elem.pos(4)[1];
+   reg44=0.019389417668419972776*elem.pos(2)[2]; reg46=0.10566243270259356724*elem.pos(4)[1]; reg11=reg40+reg11; reg25=reg41+reg25; reg40=0.10566243270259356724*elem.pos(3)[1];
+   reg30=reg36+reg30; reg41=0.019389417668419972776*elem.pos(4)[2]; reg43=reg14-reg43; reg30=reg17-reg30; reg13=reg36+reg13;
+   reg14=0.45412414523193150862*elem.pos(5)[1]; reg36=0.19193544773676716169*elem.pos(5)[1]; reg56=reg55-reg56; reg55=reg51+reg2; reg19=reg39+reg19;
+   reg39=0.045875854768068491385*elem.pos(2)[0]; T reg57=0.10566243270259356724*elem.pos(2)[0]; T reg58=0.19193544773676716169*elem.pos(2)[0]; reg0=reg31-reg0; reg38=reg44-reg38;
+   reg44=0.39433756729740643276*elem.pos(4)[1]; reg40=reg25-reg40; reg29=reg47+reg29; reg25=0.072362291867717009992*elem.pos(4)[2]; reg47=0.19193544773676716169*elem.pos(3)[1];
+   reg49=reg12-reg49; reg23=reg15-reg23; reg12=0.39433756729740643276*elem.pos(4)[2]; reg15=0.19193544773676716169*elem.pos(3)[2]; reg45=reg3+reg45;
+   reg3=0.072362291867717009992*elem.pos(3)[0]; reg8=reg53+reg8; reg53=0.072362291867717009992*elem.pos(4)[1]; reg9=reg54+reg9; reg54=0.19193544773676716169*elem.pos(5)[2];
+   T reg59=0.45412414523193150862*elem.pos(5)[2]; reg1=reg33-reg1; reg41=reg43-reg41; reg18=reg32+reg18; reg6=reg24-reg6;
+   reg24=0.10566243270259356724*elem.pos(5)[2]; reg32=0.39433756729740643276*elem.pos(3)[0]; reg35=reg21-reg35; reg21=0.45412414523193150862*elem.pos(2)[0]; reg33=0.019389417668419972776*elem.pos(5)[2];
+   reg43=0.045875854768068491385*elem.pos(5)[2]; reg34=reg50-reg34; T reg60=0.71631284272709585555*elem.pos(3)[0]; reg42=reg27+reg42; reg28=reg26-reg28;
+   reg27=0.019389417668419972776*elem.pos(5)[1]; T reg61=0.019389417668419972776*elem.pos(1)[0]; reg4=reg22+reg4; reg20=reg5-reg20; reg5=0.19193544773676716169*elem.pos(0)[0];
+   reg22=reg52+reg48; reg16=reg7-reg16; reg7=0.045875854768068491385*elem.pos(5)[1]; T reg62=0.10566243270259356724*elem.pos(5)[1]; reg46=reg11-reg46;
+   reg3=reg45-reg3; reg11=0.19193544773676716169*elem.pos(4)[0]; reg45=0.10566243270259356724*elem.pos(3)[0]; reg56=reg57+reg56; reg57=0.45412414523193150862*elem.pos(6)[2];
+   reg34=reg43+reg34; reg44=reg40-reg44; reg40=0.045875854768068491385*elem.pos(6)[2]; reg51=reg52+reg51; reg52=0.71631284272709585555*elem.pos(5)[1];
+   T reg63=0.10566243270259356724*elem.pos(6)[2]; reg62=reg46-reg62; reg53=reg8-reg53; reg38=reg15+reg38; reg8=0.71631284272709585555*elem.pos(4)[2];
+   reg0=reg14+reg0; reg15=0.019389417668419972776*elem.pos(2)[0]; reg46=0.019389417668419972776*elem.pos(3)[0]; reg60=reg42-reg60; reg42=0.019389417668419972776*elem.pos(4)[0];
+   T reg64=0.39433756729740643276*elem.pos(5)[1]; T reg65=0.10566243270259356724*elem.pos(6)[1]; T reg66=0.045875854768068491385*elem.pos(6)[1]; reg30=reg59+reg30; reg41=reg33+reg41;
+   reg4=reg37+reg4; reg19=reg26-reg19; reg24=reg6-reg24; reg6=0.019389417668419972776*elem.pos(6)[1]; reg26=0.39433756729740643276*elem.pos(5)[2];
+   reg33=0.71631284272709585555*elem.pos(4)[1]; reg37=0.10566243270259356724*elem.pos(4)[0]; reg1=reg36+reg1; reg36=0.71631284272709585555*elem.pos(5)[2]; reg25=reg29-reg25;
+   reg13=reg50-reg13; reg22=reg22+reg21; reg35=reg32+reg35; reg29=0.019389417668419972776*elem.pos(6)[2]; reg12=reg23-reg12;
+   reg27=reg20+reg27; reg20=0.045875854768068491385*elem.pos(3)[0]; reg23=0.45412414523193150862*elem.pos(6)[1]; reg32=0.19193544773676716169*elem.pos(6)[2]; reg9=reg58-reg9;
+   reg5=reg61+reg5; reg16=reg47+reg16; reg47=0.19193544773676716169*elem.pos(6)[1]; reg55=reg39+reg55; reg50=0.45412414523193150862*elem.pos(3)[0];
+   reg49=reg54+reg49; reg28=reg7+reg28; reg18=reg10+reg18; reg2=reg48+reg2; reg22=reg22+reg50;
+   reg26=reg12+reg26; reg10=0.10566243270259356724*elem.pos(7)[2]; reg52=reg53-reg52; reg12=0.39433756729740643276*elem.pos(6)[2]; reg9=reg46+reg9;
+   reg46=0.072362291867717009992*elem.pos(4)[0]; reg48=0.39433756729740643276*elem.pos(6)[1]; reg53=0.71631284272709585555*elem.pos(6)[1]; reg36=reg25-reg36; reg25=0.10566243270259356724*elem.pos(7)[1];
+   reg54=0.19193544773676716169*elem.pos(7)[2]; reg41=reg32+reg41; reg32=0.045875854768068491385*elem.pos(4)[0]; reg5=reg15-reg5; reg44=reg64+reg44;
+   reg15=0.71631284272709585555*elem.pos(6)[2]; reg58=0.19193544773676716169*elem.pos(7)[1]; reg47=reg27+reg47; reg18=reg31-reg18; reg27=0.45412414523193150862*elem.pos(7)[1];
+   reg31=0.19193544773676716169*elem.pos(5)[0]; reg61=0.39433756729740643276*elem.pos(4)[0]; reg19=reg14+reg19; reg14=0.019389417668419972776*elem.pos(7)[2]; reg49=reg29+reg49;
+   reg28=reg23+reg28; reg29=0.019389417668419972776*elem.pos(7)[1]; reg1=reg6+reg1; reg37=reg35-reg37; reg6=0.10566243270259356724*elem.pos(5)[0];
+   reg13=reg59+reg13; reg4=reg17-reg4; reg17=0.072362291867717009992*elem.pos(5)[1]; reg33=reg16-reg33; reg63=reg24+reg63;
+   reg55=reg20+reg55; reg16=0.45412414523193150862*elem.pos(4)[0]; reg51=reg21+reg51; reg62=reg65+reg62; reg0=reg66+reg0;
+   reg21=0.019389417668419972776*elem.pos(5)[0]; reg42=reg60-reg42; reg24=0.045875854768068491385*elem.pos(7)[1]; reg8=reg38-reg8; reg30=reg40+reg30;
+   reg35=0.19193544773676716169*elem.pos(3)[0]; reg45=reg56-reg45; reg34=reg57+reg34; reg11=reg3-reg11; reg3=0.072362291867717009992*elem.pos(5)[2];
+   reg38=0.045875854768068491385*elem.pos(7)[2]; reg56=0.45412414523193150862*elem.pos(7)[2]; reg59=0.39433756729740643276*elem.pos(5)[0]; reg61=reg45-reg61; reg13=reg57+reg13;
+   reg58=reg47-reg58; reg19=reg23+reg19; reg52=reg53+reg52; reg23=0.072362291867717009992*elem.pos(7)[1]; reg10=reg63+reg10;
+   reg45=0.39433756729740643276*elem.pos(7)[2]; reg26=reg12+reg26; reg0=reg24+reg0; reg12=0.19193544773676716169*elem.pos(6)[0]; reg42=reg21+reg42;
+   reg30=reg38+reg30; reg18=reg7+reg18; reg3=reg8-reg3; reg11=reg31+reg11; reg34=reg56+reg34;
+   reg7=0.019389417668419972776*elem.pos(6)[0]; reg8=0.072362291867717009992*elem.pos(6)[1]; reg14=reg49-reg14; reg28=reg27+reg28; reg21=0.10566243270259356724*elem.pos(6)[0];
+   reg29=reg1-reg29; reg6=reg37-reg6; reg4=reg43+reg4; reg17=reg33-reg17; reg55=reg16-reg55;
+   reg1=0.45412414523193150862*elem.pos(5)[0]; reg31=0.072362291867717009992*elem.pos(7)[2]; reg46=reg9-reg46; reg9=0.39433756729740643276*elem.pos(7)[1]; reg5=reg35+reg5;
+   reg33=0.045875854768068491385*elem.pos(5)[0]; reg36=reg15+reg36; reg44=reg48+reg44; reg54=reg41-reg54; reg15=0.71631284272709585555*elem.pos(5)[0];
+   reg22=reg32-reg22; reg2=reg39+reg2; reg35=0.71631284272709585555*elem.pos(4)[0]; reg51=reg20+reg51; reg20=0.072362291867717009992*elem.pos(6)[2];
+   reg62=reg25+reg62; reg17=reg8+reg17; reg35=reg5-reg35; reg5=0.072362291867717009992*elem.pos(5)[0]; reg4=reg40+reg4;
+   reg19=reg24+reg19; reg8=0.71631284272709585555*elem.pos(6)[0]; reg24=0.71631284272709585555*elem.pos(7)[1]; reg3=reg20+reg3; reg15=reg46-reg15;
+   reg18=reg66+reg18; reg2=reg50+reg2; reg20=0.71631284272709585555*elem.pos(7)[2]; reg25=0.045875854768068491385*elem.pos(6)[0]; reg51=reg32-reg51;
+   reg55=reg1+reg55; reg32=reg54*reg28; reg37=reg58*reg34; reg6=reg21+reg6; reg21=0.10566243270259356724*elem.pos(7)[0];
+   reg28=reg10*reg28; reg34=reg62*reg34; reg9=reg44-reg9; reg36=reg31+reg36; reg11=reg7+reg11;
+   reg45=reg26-reg45; reg52=reg23+reg52; reg13=reg38+reg13; reg7=reg29*reg30; reg22=reg22+reg33;
+   reg23=0.45412414523193150862*elem.pos(6)[0]; reg26=reg14*reg0; reg0=reg10*reg0; reg30=reg62*reg30; reg42=reg12+reg42;
+   reg61=reg59+reg61; reg12=0.39433756729740643276*elem.pos(6)[0]; reg31=0.019389417668419972776*elem.pos(7)[0]; reg38=0.19193544773676716169*elem.pos(7)[0]; reg3=reg20+reg3;
+   reg14=reg62*reg14; reg29=reg10*reg29; reg31=reg11-reg31; reg55=reg25+reg55; reg0=reg30-reg0;
+   reg11=0.045875854768068491385*elem.pos(7)[0]; reg17=reg24+reg17; reg32=reg37-reg32; reg6=reg21+reg6; reg4=reg56+reg4;
+   reg28=reg34-reg28; reg38=reg42-reg38; reg18=reg27+reg18; reg20=0.072362291867717009992*elem.pos(6)[0]; reg62=reg54*reg62;
+   reg58=reg10*reg58; reg10=0.45412414523193150862*elem.pos(7)[0]; reg22=reg22+reg23; reg5=reg35-reg5; reg26=reg7-reg26;
+   reg7=reg45*reg19; reg21=reg9*reg13; reg13=reg52*reg13; reg51=reg1+reg51; reg1=0.39433756729740643276*elem.pos(7)[0];
+   reg61=reg12+reg61; reg19=reg36*reg19; reg2=reg16-reg2; reg15=reg8+reg15; reg8=0.072362291867717009992*elem.pos(7)[0];
+   reg36=reg9*reg36; reg51=reg23+reg51; reg28=reg38*reg28; reg12=reg17*reg4; reg15=reg8+reg15;
+   reg7=reg21-reg7; reg52=reg45*reg52; reg8=reg3*reg18; reg16=0.71631284272709585555*elem.pos(7)[0]; reg62=reg58-reg62;
+   reg19=reg13-reg19; reg1=reg61-reg1; reg22=reg22+reg10; reg5=reg20+reg5; reg4=reg9*reg4;
+   reg18=reg45*reg18; reg55=reg11+reg55; reg14=reg29-reg14; reg0=reg31*reg0; reg26=reg6*reg26;
+   reg32=reg6*reg32; reg2=reg33+reg2; reg2=reg25+reg2; reg14=reg55*reg14; reg8=reg12-reg8;
+   reg3=reg9*reg3; reg52=reg36-reg52; reg62=reg22*reg62; reg51=reg11+reg51; reg26=reg0-reg26;
+   reg32=reg28-reg32; reg5=reg16+reg5; reg17=reg45*reg17; reg18=reg4-reg18; reg7=reg15*reg7;
+   reg19=reg1*reg19; reg2=reg10+reg2; reg26=reg14+reg26; reg18=reg5*reg18; reg52=reg51*reg52;
+   reg8=reg1*reg8; reg32=reg62+reg32; reg7=reg19-reg7; reg17=reg3-reg17; reg18=reg8-reg18;
+   reg32=0.25*reg32; reg26=0.25*reg26; reg17=reg2*reg17; reg7=reg52+reg7; reg18=reg17+reg18;
+   reg7=0.25*reg7; reg26=reg32+reg26; reg7=reg26+reg7; reg18=0.25*reg18; V+=reg7+reg18;
+
+
+return V;
+}
+};
+
