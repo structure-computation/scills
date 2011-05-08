@@ -28,7 +28,7 @@ metil_test :
 	metil src/CALCUL/code_metil/test.met
 
 metil_comp_multi :
-	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -DWITH_CHOLMOD -DWITH_UMFPACK -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
+	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
 
 
 codegen:
