@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 echo '-------------------------------------------'
-echo ' coucou de lance_mpi'
+echo ' Lancement multi processeurs'
 echo '-------------------------------------------'
 
 # pour voir les variables d'environnement disponibles
@@ -17,10 +17,14 @@ echo '-------------------------------------------'
 
 # ALLER DANS LE REPERTOIRE DE TRAVAIL
 echo $fic1
-cd /u/caignot/M2_2011
-mkdir -p /usrtmp/caignot
+
+SAVE_DIRECTORY=$1
+echo $SAVE_DIRECTORY
+
+#cd /u/caignot/M2_2011
+#mkdir -p /usrtmp/caignot
 # lancement de l'execution
 
 #mpirun.openmpi --mca pls_rsh_agent rsh  -hostfile $PBS_NODEFILE ./multinew 3 $fic1 mpi > /usrtmp/a.resu
-mpirun.openmpi ./multinew 3 $fic1 mpi > /usrtmp/caignot/a.resu
-mv /usrtmp/caignot/a.resu $fic1.resu
+#mpirun.openmpi ./multinew 3 $fic1 mpi > /usrtmp/caignot/a.resu
+#mv /usrtmp/caignot/a.resu $fic1.resu
