@@ -9,17 +9,19 @@ PRG_multi = SC_multi_$(DIM).exe
 DIR_build_cpu = --comp-dir build/SC_$(DIM)
 
 LOC_MC = metil_comp 
-CFLAGS= -L./src/metis-4.0 -lmetis -L/usr/lib/openmpi/lib -lmpi -lmpi_cxx ` xml2-config --cflags` 
-DIR_SOURCES_LMT =  -ILMT -ILMT/include -ILMT/include/LDL -ILMT/include/util -Iusr/include/suitesparse
-DIR_SOURCES_CUDA = -I/usr/local/cuda/include -I/home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
-DIR_SOURCES_MPI = -I/usr/lib/openmpi/include
-OPT = -ne -g3 -ggdb3 -ffast-math -fexpensive-optimizations
+CFLAGS= -LUTIL/metis -lmetis -LUTIL/openmpi/lib -lmpi -lmpi_cxx
+DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
+DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
+DIR_SOURCES_MPI = -IUTIL/openmpi
+OPT = -ne -O3 -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
 # all: metil_comp_create_2_cpu 
 
 # all: metil_comp_compute_cpu rsync
 all: metil_comp_multi
+# all: local
+
 # all: compact_FIELD_STRUCTURE 
 
 #codegen local rsync
@@ -31,13 +33,15 @@ metil_comp_multi :
 	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
 
 
-codegen:
+codegen_py:
 	cd LMT/include/codegen; scons
 
+local:  codegen_py
+	scons -j4 dep_py=1 
 
 clean:
+	scons -c
 	cd LMT/include/codegen; scons -c
-
 
 
 

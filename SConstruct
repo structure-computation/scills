@@ -105,7 +105,7 @@ env = Environment(
     CPPPATH = list_repertoires_cppflags,
 #    LINKFLAGS = ' -LUTIL/lam/lib -llammpi++ -lmpi -llam -lutil -ldl -L'+compp+'/lib'+'64'*(arch=='x86-64')+'/ ' + linkflags( ['xml2-config'] )+ldflagtd,
     LINKFLAGS = ' -LUTIL/lam/lib -lmpi_cxx -lmpi -lutil -ldl -L'+compp+'/lib'+'64'*(arch=='x86-64')+'/ ' + linkflags( ['xml2-config'] )+ldflagtd,
-    CPPFLAGS = cppf + cppflags( ['xml2-config'] )+' -DLDL '*(1-timdavis)+cppftd+' -DDIMENSION3'*dim3+' -DDIMENSION2'*dim2+' -DFORMUENDO'*formuendom+'-DFORMUORTHO'*formuortho+'  -Dcrout_alain'*crout+' -IUTIL/lam/include ',
+    CPPFLAGS = cppf + cppflags( ['xml2-config'] )+' -DLDL '*(1-timdavis)+cppftd+' -DDIMENSION3'*dim3+' -DDIMENSION2'*dim2+' -DFORMUENDO'*formuendom+'-DFORMUORTHO'*formuortho+'  -Dcrout_alain'*crout+' -IUTIL/openmpi ',
 )
 # -L/usr/lib/lam/lib -llammpi++ -lmpi -llam 
 # -LUTIL/lam/lib -llammpi++ -lmpi -llam 
