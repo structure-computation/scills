@@ -9,12 +9,11 @@ PRG_multi = SC_multi_$(DIM).exe
 DIR_build_cpu = --comp-dir build/SC_$(DIM)
 
 LOC_MC = metil_comp 
-CFLAGS= ` xml2-config --cflags`
-LIBS= -L/usr/lib/openmpi/lib -lmpi -lmpi_cxx `xml2-config  --libs`
+CFLAGS= -L./src/metis-4.0 -lmetis -L/usr/lib/openmpi/lib -lmpi -lmpi_cxx ` xml2-config --cflags` 
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -ILMT/include/LDL -ILMT/include/util -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -I/usr/local/cuda/include -I/home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
 DIR_SOURCES_MPI = -I/usr/lib/openmpi/include
-OPT = -ne -O3 -ffast-math -fexpensive-optimizations
+OPT = -ne -g3 -ggdb3 -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
 # all: metil_comp_create_2_cpu 
