@@ -113,7 +113,7 @@ int main(int argc,char **argv) {
         // ******************************************************************************************************************
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
         DataUser data_user(model_path, calcul_path, id_calcul.c_str());
-        data_user.read_json_calcul(calcul_file);
+        data_user.read_json_calcul(calcul_file, false);                         // on ne lit pas les info micro
        
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
