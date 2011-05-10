@@ -48,7 +48,7 @@ using namespace std;
 \brief Fonction principale pour un calcul sous-structuré
 */
 template<class TV1,class TV2,class TV5,class GLOB>
-void multiscale(const XmlNode &n,TV1 &S, TV2 &Inter, Param &process,  TV5 &CL,GLOB &Global) {
+void multiscale(const XmlNode &n,TV1 &S, TV2 &Inter, Param &process,  TV5 &CL,GLOB &Global, DataUser &data_user) {
 
     /// lecture des donnees de calcul
 #ifdef INFO_TIME

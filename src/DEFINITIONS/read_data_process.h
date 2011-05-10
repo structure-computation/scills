@@ -2,23 +2,39 @@ using namespace LMT;
 using namespace std;
 
 // lecture des parametres de calcul
-inline void read_data_process(Param &process, const XmlNode &n) {
-   XmlNode nm = n.get_element("parametres");
-   nm.get_attribute("sous_integration",process.sousint);
-   nm.get_attribute("type_sous_integration",process.type_sousint);
-   nm.get_attribute("blocage_modes_rigides",process.rbm.bloq);
-   nm.get_attribute("mvts_bloques",process.rbm.mvts_bloques);   
-   nm.get_attribute("nb_threads",process.nb_threads);
-   nm.get_attribute("save_data",process.save_data);
-   nm.get_attribute("read_data",process.read_data);
-   nm.get_attribute("reprise_calcul",process.reprise_calcul);
-   nm.get_attribute("deltaT",process.properties->deltaT);
-      
-   nm.get_attribute("type_base_macro",process.multiscale->type_base_macro);
-   nm.get_attribute("multiechelle",process.multiscale->multiechelle);
-   nm.get_attribute("opti_multi",process.multiscale->opti_multi);
-   nm.get_attribute("erreur_macro",process.multiscale->erreur_macro);
+inline void read_data_process(Param &process, const XmlNode &n, DataUser &data_user) {
+//    XmlNode nm = n.get_element("parametres");
+//    nm.get_attribute("sous_integration",process.sousint);
+//    nm.get_attribute("type_sous_integration",process.type_sousint);
+//    nm.get_attribute("blocage_modes_rigides",process.rbm.bloq);
+//    nm.get_attribute("mvts_bloques",process.rbm.mvts_bloques);   
+//    nm.get_attribute("nb_threads",process.nb_threads);
+//    nm.get_attribute("save_data",process.save_data);
+//    nm.get_attribute("read_data",process.read_data);
+//    nm.get_attribute("reprise_calcul",process.reprise_calcul);
+//    nm.get_attribute("deltaT",process.properties->deltaT);
+//       
+//    nm.get_attribute("type_base_macro",process.multiscale->type_base_macro);
+//    nm.get_attribute("multiechelle",process.multiscale->multiechelle);
+//    nm.get_attribute("opti_multi",process.multiscale->opti_multi);
+//    nm.get_attribute("erreur_macro",process.multiscale->erreur_macro);
 
+   process.sousint=0;
+   process.type_sousint="h";
+   process.rbm.bloq=0;
+   process.rbm.mvts_bloques="";
+   process.nb_threads=1;
+   process.save_data=1;
+   process.read_data=0;
+   process.reprise_calcul=0;
+   process.properties->deltaT=0;
+   process.multiscale->type_base_macro=0;
+   process.multiscale->multiechelle=data_user.multiechelle;
+   process.multiscale->opti_multi=0;
+   process.multiscale->erreur_macro=0;
+   
+   
+   
 //    nm.get_attribute("nb_macro_identique",process.multiscale->nbmacro_identique);   
 //    if(process.multiscale->nbmacro_identique==0){
 //       XmlNode nmacro = n.get_element("fcts_macro");
@@ -38,6 +54,31 @@ inline void read_data_process(Param &process, const XmlNode &n) {
 //       }
 //    }
 //    
+   
+   process.latin->nbitermax
+   process.latin->facteur_relaxation
+   process.latin->critere_erreur
+   process.latin->type_error
+   if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
+   process.latin->ktype
+   process.latin->kfact
+   process.latin->copydirection
+   
+   process.latin->list_error
+   process.affichage->interactivite
+   process.affichage->affich_resultat
+   process.affichage->type_affichage
+   process.affichage->display_error
+   process.affichage->affich_mesh
+   process.affichage->save
+   process.affichage->display_fields
+   process.affichage->repertoire_save
+   process.affichage->name_data
+   process.affichage->command_file
+   
+   process.temps->type_de_calcul
+   
+   
    nm.get_attribute("nbitermax",process.latin->nbitermax);
    nm.get_attribute("facteur_relaxation",process.latin->facteur_relaxation);
    nm.get_attribute("critere_erreur",process.latin->critere_erreur);

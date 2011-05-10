@@ -121,6 +121,7 @@ int main(int argc,char **argv) {
         geometry_user.read_hdf5(name_visu_hdf, false);
         geometry_user.split_group_edges_within_geometry(data_user);
     
+        structure.extension=".hdf";
     
         if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
         if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
@@ -128,7 +129,9 @@ int main(int argc,char **argv) {
         if (process.rank == 0 ) std::cout << std::endl;
 
         XmlNode n;
-        n.parse_file( argv[2] );
+        if(structure.extension!=".hdf"){
+            n.parse_file( argv[2] );
+        }
 
 
         //Creation du dossier tmp
@@ -148,7 +151,7 @@ int main(int argc,char **argv) {
         Vec<Interface<DIM,TYPEREEL> > Inter;
         Vec<Boundary<DIM,TYPEREEL> > CL;
         Glob<DIM,TYPEREEL> Global;
-        multiscale(n,S,Inter,process,CL,Global);
+        multiscale(n,S,Inter,process,CL,Global, data_user);
 
         
 #ifdef INFO_TIME
