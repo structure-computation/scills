@@ -39,7 +39,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
    //eclatement de chaque sous-structure
    double ecl=1;
    eclat_SST(S,ecl);
-   if (process.rank == 0 or process.rank == 1) cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<endl;
+   if (process.rank == 0 or process.rank == 1) std::cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<std::endl;
    
 /*   for(unsigned i=0;i<S.size();++i){
       //mise a zeros des quantites sigma_old et epsilon_old (visco uniquement)
@@ -55,7 +55,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
                assign_dep_cont_slave(S[i],S[i].t_post[imic].q);
             else if(process.nom_calcul=="latin")
                assign_dep_cont_slave(S[i],S[i].t[imic].q);
-            else{cout << "Type de calcul non reconnu dans affich_SST_resultat " << endl;assert(0);}
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
          }
@@ -86,13 +86,13 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
                assign_dep_cont_slave(S[i],S[i].t_post[imic].q); 
             else if(process.nom_calcul=="latin")
                assign_dep_cont_slave(S[i],S[i].t[imic].q);
-            else{cout << "Type de calcul non reconnu dans affich_SST_resultat " << endl;assert(0);}
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
          }
-         meshglob.sub_mesh(Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-         meshglob.sub_mesh(Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+         meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+         meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
 /*         remove_doubles(meshglob,1e-8, true);*/
          meshglob.update_skin();
          apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
@@ -332,7 +332,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
       unsigned data = process.affichage->side;// choix du cote
       DisplayParaview dp;
       typename TV2::template SubType<0>::T::TMESH meshglob;
-      if(find(process.affichage->num_inter_select,_1==-1)==1){
+      if(find(process.affichage->num_inter_select,LMT::_1==-1)==1){
          for(unsigned q=0;q<Inter.size();q++){
             unsigned side;
             if(Inter[q].type=="Ext") side=0;
@@ -359,7 +359,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
             int testinter = find_inter_in_subi(Inter, process.affichage->num_inter_select[q]);
             if (testinter != -1) {
             unsigned qs = testinter;
-            cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << endl;
+            std::cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << std::endl;
             unsigned side;
             if(Inter[qs].type=="Ext") side=0;
             else side=data;

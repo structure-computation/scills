@@ -50,36 +50,36 @@ void create_op_MACRO(TV1 &S, TV2 &Inter, Param &process,  GLOB &Global) {
 
     //reperage des ddls macro dans le probleme macro
     if (process.rank == 0)
-        cout <<  "\t Reperage ddl macro" << endl;
+        std::cout <<  "\t Reperage ddl macro" << endl;
     Repere_ddl_Inter(S,Inter,process);
 
     Mat<TYPEREEL, Sym<>, SparseLine<> > bigK;
     if (process.rank == 0)
-        cout <<  "\t Assemblage probleme macro" << endl;
+        std::cout <<  "\t Assemblage probleme macro" << endl;
     if (process.rank == 0)
         bigK=Assem_prob_macro(S,Inter,process);
     if (process.rank == 0)
-        cout <<  "\t Blocage du probleme macro" << endl;
+        std::cout <<  "\t Blocage du probleme macro" << endl;
     if (process.rank == 0)
         Global.repddlMbloq=macro_CL(Inter,process);
     //penalisation de la matrice macro
     if (process.rank == 0)
-        cout <<  "\t Penalisation du probleme macro" << endl;
+        std::cout <<  "\t Penalisation du probleme macro" << endl;
     if (process.rank == 0)
         penalisation(bigK,Global.repddlMbloq,Global.coefpenalisation);
 
     if (process.rank == 0)
-        cout << "Taille du probleme macro : " << bigK.nb_rows() << endl;
+        std::cout << "Taille du probleme macro : " << bigK.nb_rows() << endl;
     //factorisation de la matrice macro
     if (process.rank == 0)
-        cout <<  "\t Factorisation matrice macro" << endl;
+        std::cout <<  "\t Factorisation matrice macro" << endl;
     //Global.bigL=inv(bigK);
 //    Ecrire la matrice macro dans un fichier
 /*    if (process.rank == 0) {
        for(unsigned i=0;i<bigK.nb_rows();++i) {
            if (bigK(i,i)==0){
                bigK(i,i)=Global.coefpenalisation;
-               cout << "\t\tModification du terme " << i << endl;
+               std::cout << "\t\tModification du terme " << i << endl;
            }
        }
     }

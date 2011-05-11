@@ -70,7 +70,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
         }
         //res = read_ex(fcttemps.c_str(),symbols);
          //CL[j].ft=res.subs_numerical(t,ti);
-         // if (CL[j].comp == "effort") cout << CL[j].ft << endl;
+         // if (CL[j].comp == "effort") std::cout << CL[j].ft << endl;
          ////fin modif DAVID
 
     }
@@ -169,10 +169,10 @@ void assign_CL_values_space_time_latin(TV2 &Inter, TV5 &CL, Param &process) {
 
                 if (Inter[q].comp=="effort") {
                     assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
-                    //cout << "Eff " << Inter[q].side[0].Fchap << endl;
+                    //std::cout << "Eff " << Inter[q].side[0].Fchap << endl;
                 } else if (Inter[q].comp=="depl") {
                     assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
-                    //cout << "depl " <<Inter[q].side[0].Wchap << endl;
+                    //std::cout << "depl " <<Inter[q].side[0].Wchap << endl;
                 } else if (Inter[q].comp=="sym") {
                     if(process.reprise_calcul==0)
                         assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);//si on reprend le calcul les conditions sont toujours ok sinon on initialise à 0
@@ -183,7 +183,7 @@ void assign_CL_values_space_time_latin(TV2 &Inter, TV5 &CL, Param &process) {
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[pt].Fchap.set(0.0);
                 } else {
-                    cout << "Erreur d'interface ext - prelocalstage " <<endl;
+                    std::cout << "Erreur d'interface ext - prelocalstage " <<endl;
                     assert(0);
                 }
             }
@@ -234,7 +234,7 @@ void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
                     Inter[q].side[0].t[1].Wpchap = Inter[q].side[0].Pt(Inter[q].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
             } else {
-                cout << "Erreur d'interface ext - prelocalstage " <<endl;
+                std::cout << "Erreur d'interface ext - prelocalstage " <<endl;
                 assert(0);
             }
         } else if(Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique") {
@@ -242,8 +242,8 @@ void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
             if(process.temps->pt_cur==1) {
                 Inter[q].side[1].t[0].Wchap[Inter[q].side[1].ddlcorresp]=Inter[q].param_comp->jeu/2.;
                 Inter[q].side[0].t[0].Wchap=-1.*Inter[q].param_comp->jeu/2.;
-//                 if (Inter[q].num == 15 ) cout << "Jeu : " << Inter[q].side[0].t[0].Wchap << endl;
-//                 if (Inter[q].num == 15 ) cout << "Jeu : " << Inter[q].side[1].t[0].Wchap << endl;
+//                 if (Inter[q].num == 15 ) std::cout << "Jeu : " << Inter[q].side[0].t[0].Wchap << endl;
+//                 if (Inter[q].num == 15 ) std::cout << "Jeu : " << Inter[q].side[1].t[0].Wchap << endl;
             }
         }
     }

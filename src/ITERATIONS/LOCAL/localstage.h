@@ -51,11 +51,11 @@ struct etape_locale_inter {
             } else if (Inter.comp=="Jeu_impose") {
                 compt_jeu_impose(Inter,*process.temps);
             } else {
-                cout<< "Erreur : comportement interface non reconnu" << endl;
+                std::cout<< "Erreur : comportement interface non reconnu" << endl;
                 assert(0);
             }
         } else {
-            cout<< "Erreur : comportement interface non reconnu" << endl;
+            std::cout<< "Erreur : comportement interface non reconnu" << endl;
             assert(0);
         }
 

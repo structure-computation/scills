@@ -36,8 +36,8 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
                     numinter[k].push_back(S[numsst[k]].edge[j].internum);
 
             for(unsigned k=0;k<numinter[0].size();k++)
-                if(find(numinter[1],_1==numinter[0][k])==1) {
-                if(find(process.multi_mpi->listinter,_1==numinter[0][k])){
+                if(find(numinter[1],LMT::_1==numinter[0][k])==1) {
+                if(find(process.multi_mpi->listinter,LMT::_1==numinter[0][k])){
                     inter_select.push_back(numinter[0][k]);
                     break;
                 }
@@ -45,7 +45,7 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
         } else {
             for(unsigned q=0;q<Inter.size();q++)
                 if (Inter[q].type=="Int") {
-                if (find(process.multi_mpi->listinter,_1==q)) {
+                if (find(process.multi_mpi->listinter,LMT::_1==q)) {
                     if (pt_in_box(Inter[q].G,propinter[i].box)==1)
                         inter_select.push_back(q);
                 }
@@ -55,7 +55,7 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
         //assignation des proprietes aux interfaces selectionnees
         for(unsigned j=0;j<inter_select.size();j++) {
             unsigned q=inter_select[j];
-            if (process.rank == 0) cout << "\t  Interface modifiee : " << Inter[q].num << endl;
+            if (process.rank == 0) std::cout << "\t  Interface modifiee : " << Inter[q].num << std::endl;
             Inter[q].comp=propinter[i].comp;
             if (propinter[i].type=="contact_sst" or propinter[i].type=="contact_box") {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;

@@ -51,7 +51,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
 #endif
 
     if (process.rank == 0)
-        cout << "\t Reperage des ddls de bord" << endl;
+        std::cout << "\t Reperage des ddls de bord" << endl;
     apply_mt(SubS,process.nb_threads,Calc_SST_Correspddl(), process);
 */
     
@@ -60,7 +60,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
 #endif
 
     if (process.rank == 0)
-        cout << "\t Optimisation des directions de recherche" << endl;
+        std::cout << "\t Optimisation des directions de recherche" << endl;
     apply_mt(SubI,process.nb_threads,optimise_direction(),S,*process.latin);
 
 
@@ -69,7 +69,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
 #endif
 
     if (process.rank == 0)
-        cout << "\t Rigidite totale par SST" << endl;
+        std::cout << "\t Rigidite totale par SST" << endl;
     if (process.size == 1 or process.rank>0)
         apply_mt(SubS,process.nb_threads,Calc_SST_rigidite_K0_k(), Inter,process);
     
@@ -85,7 +85,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
     if (process.size>1) {
         for( unsigned i=0;i<S.size() ;i++ ) {
             for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
-                if (find(process.multi_mpi->repartition_sst[k1],_1==(int)i)) {
+                if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
                 for( unsigned jj=0;jj<S[i].edge.size() ;jj++ ){
                     if (S[i].edge[jj].datanum == 0){
                         MPI_Bcast(&Inter[S[i].edge[jj].internum].nb_macro_espace,1,MPI_INT, k1 ,MPI_COMM_WORLD);
@@ -97,7 +97,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
         }
     }
     if (process.rank == 0)
-            cout << "\t Operateurs homogeneises" << endl;
+            std::cout << "\t Operateurs homogeneises" << endl;
         if (process.size > 1 and process.rank==0 ) {
             apply_mt(S,process.nb_threads,repere_ind_interface_LE(), Inter, process);
         } else {
@@ -110,7 +110,7 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
         if (process.size>1) {
             for( unsigned i=0;i<S.size() ;i++ ) {
                 for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
-                        if (find(process.multi_mpi->repartition_sst[k1],_1==(int)i)) {
+                        if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
                         if (process.rank == (int)k1 ) MPI_Send(&S[i].nb_macro,1,MPI_INT, 0 ,201,MPI_COMM_WORLD);
                         if (process.rank == 0 ) {MPI_Status status;MPI_Recv(&S[i].nb_macro,1,MPI_INT, k1 ,201,MPI_COMM_WORLD,&status);}
                         if (process.rank == 0 ) S[i].LE.resize(S[i].nb_macro);

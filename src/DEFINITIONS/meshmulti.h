@@ -17,6 +17,9 @@
 #include "mesh/read_avs.h"
 #include "mesh/read_geof.h"
 
+#include "GeometryUser.h"
+#include "DataUser.h"
+
 using namespace std;
 using namespace LMT;
 using namespace __gnu_cxx;
@@ -105,7 +108,7 @@ struct ModifTypeElem {
             rep_nodes[i]=e.node(i)->number_in_original_mesh();
 
         for(unsigned i=0;i<nb_children;i++) {
-            typename TM::EA *ea = m.get_children_of(e,Number<number>())[i]; //element ancestor i;
+            typename TM::EA *ea = m.get_children_of(e,LMT::Number<number>())[i]; //element ancestor i;
             typename TM::Pvec G = center(*ea);
 
             Noeud_Hash<typename TE::T,TM::dim> newnoeud;
@@ -122,6 +125,97 @@ struct ModifTypeElem {
         create_new_elem_p(e,m2,rep_nodes);
     }
 };
+
+/** \ingroup  Sous_structures 
+\brief lecture du maillage à paritr de geometry_user issue de SC_create_2
+*/
+template<class TM>
+void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst) throw(std::runtime_error) {
+    //TM mesh;
+    typedef typename TM::Tpos T;
+    typedef typename TM::Pvec Pvec;
+    typedef typename TM::TNode TNode;
+    typedef typename TM::EA EA;
+  
+    // obtaining nbnode, nbelem
+    unsigned nbnode = geometry_user.find_group_elements(num_sst)->map_mesh_nodes.size();
+    unsigned nbelem = geometry_user.find_group_elements(num_sst)->nb_elements;
+  
+    //ajout des noeuds au maillage
+    map<int,TNode *> map_num_node;
+    Vec<TYPE,DIM> vec;
+    for(int i_node=0; i_node<nbnode; i_node++){
+        for(unsigned d=0; d<DIM; d++){
+            vec[d] = geometry_user.find_group_elements(num_sst)->local_nodes[d][i_node];
+        }
+        map_num_node[i_node] = mesh.add_node(vec);
+    }
+    
+    //ajout des elements
+    switch (geometry_user.find_group_elements(num_sst)->pattern_id){
+        //for Triangle
+        case 0 :{
+            int nb_node_elem = 3;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle(),DefaultBehavior(),&vn[0]));
+                ne->group = num_sst;
+            }
+            break;
+        }
+        //for Triangle_6
+        case 1 :{
+            int nb_node_elem = 6;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle_6(),DefaultBehavior(),&vn[0]));
+                ne->group = num_sst;
+            }
+            break;
+        }
+        //for Tetra
+        case 2 :{
+            int nb_node_elem = 4;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra(),DefaultBehavior(),&vn[0]));
+                ne->group = num_sst;
+            }
+            break;
+        }
+        //for Tetra_10
+        case 3 :{
+            int nb_node_elem = 10;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra_10(),DefaultBehavior(),&vn[0]));
+                ne->group = num_sst;
+            }
+            break;
+        }
+        default :{
+            std::cerr << "type de pattern non implemente" << std::endl; assert(0);                    
+        }
+        mesh.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( mesh, mesh.elem_list.size() / 2 + 1 );
+    }
+}
+
 
 
 /** \ingroup  Sous_structures 
@@ -186,6 +280,20 @@ struct Meshmulti {
             if (sousintegration == "p") sousint();
         }
     }
+    void load(GeometryUser &geometry_user,int num_sst) {///chargement du maillage à partir de geometry_user
+        if (name != "" and flag == 0) {
+#ifdef PRINT_ALLOC
+            total_allocated[ typeid(TM).name() ] += sizeof(TM);
+#endif
+            m = new TM;
+            read_mesh_geometry_user(*m, geometry_user, num_sst);
+            flag=1;
+            if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
+            node_list_size=m->node_list.size();
+            elem_list_size=m->elem_list.size();
+            if (sousintegration == "p") sousint();
+        }
+    }
     //    
     void sousint() {///sousintegration de type p
         sousintegration = "p";
@@ -194,7 +302,7 @@ struct Meshmulti {
         //1ere etape : ajout des noeuds et creation de la table de hashage
         typedef Noeud_Hash<typename Meshmulti<Carac>::TM::Tpos, Carac::dim> TNH;
         hash_map<TNH, unsigned, MyHash, NodesEq> hm;
-        apply(m->sub_mesh(Number<Carac::dim-1>()).elem_list,add_nodes(),*m,hm);
+        apply(m->sub_mesh(LMT::Number<Carac::dim-1>()).elem_list,add_nodes(),*m,hm);
         //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
 #ifdef PRINT_ALLOC
         total_allocated[ typeid(TM).name() ] += sizeof(TM);
@@ -206,8 +314,8 @@ struct Meshmulti {
         unload();
         m = m2;
         flag=1;
-        m->sub_mesh(Number<1>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
-        m->sub_mesh(Number<2>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
+        m->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
+        m->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
         if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
         node_list_size=m->node_list.size();
         elem_list_size=m->elem_list.size();

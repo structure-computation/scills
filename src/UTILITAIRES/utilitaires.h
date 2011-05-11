@@ -37,7 +37,7 @@ bool ComparVec(TV &V1, TV &V2) {
     }
     if (nbtrue==V1.size())
         res=1;
-    cout << nbtrue << endl;
+    std::cout << nbtrue << std::endl;
     return res;
 }
 
@@ -154,7 +154,7 @@ Vec<TT,static_size_,void> ProjT(Vec<TT,static_size_,void> &v1, Vec<TT,static_siz
 template<class TT,int static_size_>
 TT norm_2(Vec<TT,static_size_,void> &v) {
     TT res;
-    res=sqrt(dot(v,v));
+    res=std::sqrt(dot(v,v));
     return res;
 }
 
@@ -258,7 +258,7 @@ template<class T> bool pt_in_box(Vec<T,2> &pt, Vec<Vec<T,2>,2> &box, Vec<Vec<T,2
    T la = length(pt-box[0]);
    T lb = length(pt-box[1]);
    bool flag=0;
-   if(la<=eps or lb<=eps or abs(dot(pt-box[0],pt-box[1])+la*lb)<=eps)
+   if(la<=eps or lb<=eps or LMT::abs(dot(pt-box[0],pt-box[1])+la*lb)<=eps)
          flag=1;
    return flag;
 }
@@ -316,32 +316,32 @@ template<class T> bool intersection_box(Vec<Vec<T,2>,2> &box1, Vec<Vec<T,2>,2> &
    typedef Vec<T,2> TV;
    //boite 1
    TV P1 = (box1[0]+box1[1])/2.;
-   TV E1 = abs(box1[1]-box1[0])/2.;
+   TV E1 = LMT::abs(box1[1]-box1[0])/2.;
    //boite 2
    TV P2 = (box2[0]+box2[1])/2.;
-   TV E2 = abs(box2[1]-box2[0])/2.;
+   TV E2 = LMT::abs(box2[1]-box2[0])/2.;
 
    TV V = P2-P1;
    TV x(1,0);
    TV y(0,1);
    
-   return ( (abs(dot(V,x))<=dot(E1,x)+dot(E2,x)+eps) and (abs(dot(V,y))<=dot(E1,y)+dot(E2,y)+eps) ) ;
+   return ( (LMT::abs(dot(V,x))<=dot(E1,x)+dot(E2,x)+eps) and (LMT::abs(dot(V,y))<=dot(E1,y)+dot(E2,y)+eps) ) ;
 }
 template<class T> bool intersection_box(Vec<Vec<T,3>,2> &box1, Vec<Vec<T,3>,2> &box2, const double &eps=1e-6){
    typedef Vec<T,3> TV;
    //boite 1
    TV P1 = (box1[0]+box1[1])/2.;
-   TV E1 = abs(box1[1]-box1[0])/2.;
+   TV E1 = LMT::abs(box1[1]-box1[0])/2.;
    //boite 2
    TV P2 = (box2[0]+box2[1])/2.;
-   TV E2 = abs(box2[1]-box2[0])/2.;
+   TV E2 = LMT::abs(box2[1]-box2[0])/2.;
 
    TV V = P2-P1;
    TV x(1,0,0);
    TV y(0,1,0);
    TV z(0,0,1);
    
-   return ( (abs(dot(V,x))<=dot(E1,x)+dot(E2,x)+eps) and (abs(dot(V,y))<=dot(E1,y)+dot(E2,y)+eps) and (abs(dot(V,z))<=dot(E1,z)+dot(E2,z)+eps) );
+   return ( (LMT::abs(dot(V,x))<=dot(E1,x)+dot(E2,x)+eps) and (LMT::abs(dot(V,y))<=dot(E1,y)+dot(E2,y)+eps) and (LMT::abs(dot(V,z))<=dot(E1,z)+dot(E2,z)+eps) );
 }
 
 

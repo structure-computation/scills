@@ -22,8 +22,8 @@ struct calcerror_ener {
             tempW=Inter[q].side[data].t[imic].Wp;
             tempWchap=Inter[q].side[data].t[imic].Wpchap;
             tempFchap=Inter[q].side[data].t[imic].Fchap;
-            frac[0] += pow(dot(tempF,Inter[q].side[data].M*tempW) - dot(tempFchap,Inter[q].side[data].M*tempWchap) ,2);
-            frac[1] += pow(dot(tempF,Inter[q].side[data].M*tempW) + dot(tempFchap,Inter[q].side[data].M*tempWchap) ,2);
+            frac[0] += std::pow(dot(tempF,Inter[q].side[data].M*tempW) - dot(tempFchap,Inter[q].side[data].M*tempWchap) ,2);
+            frac[1] += std::pow(dot(tempF,Inter[q].side[data].M*tempW) + dot(tempFchap,Inter[q].side[data].M*tempWchap) ,2);
         }
     }
 };
@@ -49,7 +49,7 @@ struct calcerror_residu_depl_post {
                 Vec<TT> W1,W2;
                 W1=Inter[q].side[data].t_post[imic].Wp;
                 W2=Inter[q].side[1-data].t_post[imic].Wp;
-                frac[0] += pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
+                frac[0] += std::pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
             }
         }
     }
@@ -69,7 +69,7 @@ struct calcerror_residu_depl {
                 Vec<TT> W1,W2;
                 W1=Inter[q].side[data].t[imic].Wp;
                 W2=Inter[q].side[1-data].t[imic].Wp;
-                frac[0] += pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
+                frac[0] += std::pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
             }
         }
     }

@@ -19,6 +19,9 @@
 
 #include "create_geometry_mesh.h"
 
+#include "DataUser.h"
+#include "GeometryUser.h"
+
 using namespace LMT;
 using namespace std;
 
@@ -52,6 +55,8 @@ L'ordre des opérations est le suivant :
 void fake_multiscale_geometry_mesh() {
     XmlNode n;
     Param process;
+    DataUser data_user;
+    GeometryUser geometry_user;
 
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3, Stot3;
@@ -59,7 +64,8 @@ void fake_multiscale_geometry_mesh() {
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
     Vec<Boundary<DIM,TYPEREEL> > CL3;
     
-    multiscale_geometry_mesh(n,S3, Inter3, process, CL3,Stot3,SubS3,SubI3) ;
+//     multiscale_geometry_mesh(n,S3, Inter3, process, CL3,Stot3,SubS3,SubI3) ;
+    multiscale_geometry_mesh(data_user, geometry_user, S3, Inter3, process, CL3,Stot3,SubS3,SubI3) ;
 }
 
 

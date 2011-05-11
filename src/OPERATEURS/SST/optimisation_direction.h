@@ -13,11 +13,11 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
         unsigned ii=vois[k];
         for(unsigned j=0;j<S[ii].vois.size();++j) {
             int voisj=S[ii].vois[j];
-            //cout << "voisj " <<voisj << endl;
+            //std::cout << "voisj " <<voisj << endl;
             if (voisj!=-1) {
                 // verification si voisj est dans la boite
-                //cout << "length " << (length(S[(unsigned)voisj].G - G)<=rayon) << "norm " << (dot(S[(unsigned)voisj].G - G, normale) >=0) << "invois" << (find(vois,_1==(unsigned)voisj)==0 )<< endl;
-                if ( (length(S[(unsigned)voisj].G - G)<=rayon) and (dot(S[(unsigned)voisj].G - G, normale) >=0) and (find(vois,_1==(unsigned)voisj)==0 ) )
+                //std::cout << "length " << (length(S[(unsigned)voisj].G - G)<=rayon) << "norm " << (dot(S[(unsigned)voisj].G - G, normale) >=0) << "invois" << (find(vois,LMT::_1==(unsigned)voisj)==0 )<< endl;
+                if ( (length(S[(unsigned)voisj].G - G)<=rayon) and (dot(S[(unsigned)voisj].G - G, normale) >=0) and (find(vois,LMT::_1==(unsigned)voisj)==0 ) )
                     vois.push_back((unsigned)voisj);
             }
         }
@@ -41,7 +41,7 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
 //     // recherche si les cdg des ssts sont dans la zone
 //     Vec<unsigned> vois(ii);
 //     unsigned sizevois;
-//     //cout << "ii " << ii << "ray " << rayon  << endl;
+//     //std::cout << "ii " << ii << "ray " << rayon  << endl;
 //     do {
 //         sizevois=vois.size();
 //         find_SST_in_box(S, normale,centre, rayon, vois);
@@ -57,13 +57,13 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
 //             m.append(S[vois[i]].mesh);
 //             remove_doubles(m,1e-6);
 //         }
-//         cout << m.node_list.size() << endl;
+//         std::cout << m.node_list.size() << endl;
 //         //remove_doubles(m,1e-2);
 //         //affichmesh(m);
 //         //calcul raideur
 //         f.allocate_matrices();
 //         f.assemble();
-//         cout << "K0 assemblee " << endl;
+//         std::cout << "K0 assemblee " << endl;
 //         //    display_structure(f.matrices(Number<0>()));
 //     }
 // }
@@ -102,10 +102,10 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
 //     it+=1;
 //   }
 //   X0=X1;
-//   //cout << "X0 " <<X0 << endl;
+//   //std::cout << "X0 " <<X0 << endl;
 //   F.set(0.0);
 //   F[repddl]=NtMP*X0;
-//   //cout << "F " << F << endl;
+//   //std::cout << "F " << F << endl;
 //   X1=PN*U[repddl];
 //   res=dot(X1,X0);
 //
@@ -258,7 +258,7 @@ void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
         } else if(Inter.comp=="periodique") {
             //ben on fait rien :)
         } else {
-            cout << "optimisation direction : Type de condition limite non pris en compte" << endl;
+            std::cout << "optimisation direction : Type de condition limite non pris en compte" << endl;
             assert(0);
         }
     } else if(Inter.type=="Int") {
@@ -305,7 +305,7 @@ struct optimise_direction {
             if (INTER::dim==2)
                 L = inter.measure;
             else if (INTER::dim==3)
-                L= sqrt(inter.measure);
+                L= std::sqrt(inter.measure);
 
             //determination du module d'young correspondant
             //fonction generee a partir du __init__.py
@@ -346,10 +346,10 @@ struct optimise_direction {
                 ht = 1./kt;
                 modification_direction_CL(inter, kn, kt, hn, ht);
             } else if (process.ktype=="scalaire_eigenvalue_CL") {
-                cout << "Pas encore bien implemente" << endl;
+                std::cout << "Pas encore bien implemente" << endl;
                 assert(0);
             } else {
-                cout << "type de direction de recherche non pris en compte " << endl;
+                std::cout << "type de direction de recherche non pris en compte " << endl;
                 assert(0);
             }
 

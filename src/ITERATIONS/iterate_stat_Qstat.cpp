@@ -57,7 +57,7 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
   if(process.latin->alloc_quantites==1) {
         //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
-      cout << " Allocations des quantites d'interfaces et SST" << endl;
+      std::cout << " Allocations des quantites d'interfaces et SST" << endl;
     if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);//on alloue si on reprend un calcul a partir d un resultat en memoire
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
@@ -68,7 +68,7 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
       read_data_inter(Inter, process);
       calcul_erreur_latin(SubS, Inter, process, Global);
       if (process.rank == 0)
-        cout << "Erreur initiale apres relecture : " << process.latin->error[process.latin->iter] << endl;
+        std::cout << "Erreur initiale apres relecture : " << process.latin->error[process.latin->iter] << endl;
     }
     if (process.size == 1 or process.rank>0)
       assign_CL_values_space_time_latin(SubI, CL, process);
@@ -78,10 +78,10 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
       recopie_old_from_new(Inter,process);
     if(process.reprise_calcul>0)
       if (process.rank == 0)
-        cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
+        std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
   }
   if (process.rank == 0)
-    cout << " Processus iteratif " << endl;
+    std::cout << " Processus iteratif " << endl;
   iterate_latin(process,SubS,Inter,SubI,Global);
 };
 
@@ -100,7 +100,7 @@ template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
 void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL,const XmlNode &n) {
     //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
-        cout << " Allocations des quantites d'interfaces et SST" << endl;
+        std::cout << " Allocations des quantites d'interfaces et SST" << endl;
     if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);
     string pouet;
 #ifdef PRINT_ALLOC
@@ -115,7 +115,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
       calcul_erreur_latin(SubS, Inter, process, Global);
     if(process.reprise_calcul>0)
       if (process.rank == 0)
-        cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
+        std::cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
 
 
     if (process.reprise_calcul>0)
@@ -130,34 +130,34 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
       calcul_erreur_incr(SubS, Inter, process, Global);
     if(process.reprise_calcul>0)
       if (process.rank == 0)
-        cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
+        std::cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
 
     // A mettre ici pour la thermique seulement
     apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process);
 
     if (process.rank == 0)
-        cout<<"Processus iteratif incremental" << endl;
+        std::cout<<"Processus iteratif incremental" << endl;
     for(unsigned pt=1;pt<process.temps->nbpastemps+1;pt++) {
         process.temps->pt_cur=pt;
         if (process.rank == 0)
-            cout << "Pas de temps " << pt << endl;
+            std::cout << "Pas de temps " << pt << endl;
         
 //         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-//         cout << process.rank<< " : barrier2 : " << endl;
+//         std::cout << process.rank<< " : barrier2 : " << endl;
 
         //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
         if (process.size == 1 or process.rank>0)
             assign_CL_values_space_time_incr(SubI, CL, process);
 
 /*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-        cout << process.rank<< " : barrier3 : " << endl;*/
+        std::cout << process.rank<< " : barrier3 : " << endl;*/
         
         if(process.reprise_calcul>0)
           calcul_erreur_incr(SubS, Inter, process, Global);
         if(process.reprise_calcul>0)
           if (process.rank == 0)
-            cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
+            std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
         // A mettre ici dans le cas d'un comportement dependant du temps pour les sst
         //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
 
@@ -169,7 +169,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     }
     calcul_erreur_latin(SubS, Inter, process, Global);
     if (process.rank == 0)
-        cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+        std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
 };
 // #endif
 

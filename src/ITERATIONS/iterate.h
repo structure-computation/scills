@@ -71,7 +71,7 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
         }
         crout << process.rank<< " : relaxation : " ;
         tic.stop();
-        //cout << "\t Etape locale " << endl;
+        //std::cout << "\t Etape locale " << endl;
         //         if (process.size > 1 )
         if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);
@@ -96,7 +96,7 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
             //etape_locale(S);
             
 /*#ifdef LOOK_CONTACT_ZONE
-            if (find(process.affichage->display_fields,_1==string("contact"))) {
+            if (find(process.affichage->display_fields,LMT::_1==string("contact"))) {
                 if (process.size==1 or process.rank>0) {
                     string nom_generique = process.affichage->repertoire_save ;
                     ostringstream ss;
@@ -132,8 +132,8 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
                     //fichier.open( nom.c_str() );
                     while( test==0 ) {
                         //fichier.close();
-//                         cout << "Rank en cours : " << rank << " pour " << process.rank << endl;
-//                         cout << process.rank << " " << nom << " pt " << pt << endl;
+//                         std::cout << "Rank en cours : " << rank << " pour " << process.rank << endl;
+//                         std::cout << process.rank << " " << nom << " pt " << pt << endl;
                         if (process.rank==rank )
                             create_file_pvtu(process,"contact_",i,pt);
                         MPI_Barrier(MPI_COMM_WORLD);
@@ -158,8 +158,8 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
         if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);
         tic.start();
-        //cout << "\t Calcul d'erreur " << endl;
-        //                 cout << process.rank<< " : temps mort synchro : " ; tic.stop();tic.start();
+        //std::cout << "\t Calcul d'erreur " << endl;
+        //                 std::cout << process.rank<< " : temps mort synchro : " ; tic.stop();tic.start();
         calcul_erreur_latin(S,Inter,process,Global);
 
         crout << process.rank<< " : calcul erreur : ";
@@ -168,16 +168,16 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
 
         if (process.latin->list_error==1)
             if (process.rank == 0)
-                cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
+                std::cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
 
         if(flag_convergence==1) {
             if (process.rank == 0)
-                cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
+                std::cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
             break;
         }
         if(i==5 and min(process.latin->error)>=0.9999) {
             if (process.rank == 0)
-                cout << "**** Sortie car chargement nul impose ******" << endl;
+                std::cout << "**** Sortie car chargement nul impose ******" << endl;
         }
 
         // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements)
@@ -198,10 +198,10 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
                 double num=fracfin[0];//quantite chapeau
 
                 if (process.rank == 0){
-                    cout << "\tErreur dissipation : " << abs(num-den)/abs(num) << endl;
-//                     cout << "\tParticipation des interfaces : " << abs(fracfin[range(2,(int)Inter.size()+2)])/sum(abs(fracfin[range(2,(int)Inter.size()+2)]))*100 << endl;
+                    std::cout << "\tErreur dissipation : " << std::abs(num-den)/std::abs(num) << endl;
+//                     std::cout << "\tParticipation des interfaces : " << std::abs(fracfin[range(2,(int)Inter.size()+2)])/sum(std::abs(fracfin[range(2,(int)Inter.size()+2)]))*100 << endl;
                 }
-                if ( abs(den)>1e-9 and abs(num-den)/abs(num) <= process.latin->critere_erreur_diss) {
+                if ( std::abs(den)>1e-9 and std::abs(num-den)/std::abs(num) <= process.latin->critere_erreur_diss) {
                     flag_convergence=1;
                     process.latin->save_depl_SST=save_depl_SST;
                 }
@@ -225,9 +225,9 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
     }
     if (process.rank ==0)
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
-            cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
+            std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
-    if (process.rank ==0 and (find(process.affichage->display_fields,_1==string("contact"))))
+    if (process.rank ==0 and (find(process.affichage->display_fields,LMT::_1==string("contact"))))
         for (unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
             create_file_pvd(process,"contact_",pt);
 }
@@ -267,20 +267,20 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         tic.start();
         
 //         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-//         cout << process.rank<< " : barrier1 : " << endl;
+//         std::cout << process.rank<< " : barrier1 : " << endl;
 
-        //cout << "\t Etape lineaire " << endl;
+        //std::cout << "\t Etape lineaire " << endl;
         etape_lineaire(S,Inter,process,Global);
         
-//         cout << "Avant relaxation" << endl;
-//         cout << Inter[15].side[0].t[1].Wpchap << endl;
-//         cout << Inter[15].side[1].t[1].Wpchap << endl;
-//         cout << Inter[15].side[0].t[1].Fchap << endl;
-//         cout << Inter[15].side[1].t[1].Fchap << endl;
-//         cout << Inter[15].side[0].t[1].Wp << endl;
-//         cout << Inter[15].side[1].t[1].Wp << endl;
-//         cout << Inter[15].side[0].t[1].F << endl;
-//         cout << Inter[15].side[1].t[1].F << endl;
+//         std::cout << "Avant relaxation" << endl;
+//         std::cout << Inter[15].side[0].t[1].Wpchap << endl;
+//         std::cout << Inter[15].side[1].t[1].Wpchap << endl;
+//         std::cout << Inter[15].side[0].t[1].Fchap << endl;
+//         std::cout << Inter[15].side[1].t[1].Fchap << endl;
+//         std::cout << Inter[15].side[0].t[1].Wp << endl;
+//         std::cout << Inter[15].side[1].t[1].Wp << endl;
+//         std::cout << Inter[15].side[0].t[1].F << endl;
+//         std::cout << Inter[15].side[1].t[1].F << endl;
 
         
 /*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
@@ -306,16 +306,16 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         tic.stop();
         tic.start();
 
-/*        cout << "Avant locale" << endl;
-        cout << Inter[15].side[0].t[1].Wpchap << endl;
-        cout << Inter[15].side[1].t[1].Wpchap << endl;
-        cout << Inter[15].side[0].t[1].Fchap << endl;
-        cout << Inter[15].side[1].t[1].Fchap << endl;
-        cout << Inter[15].side[0].t[1].Wp << endl;
-        cout << Inter[15].side[1].t[1].Wp << endl;
-        cout << Inter[15].side[0].t[1].F << endl;
-        cout << Inter[15].side[1].t[1].F << endl;*/
-        //cout << "\t Etape locale " << endl;
+/*        std::cout << "Avant locale" << endl;
+        std::cout << Inter[15].side[0].t[1].Wpchap << endl;
+        std::cout << Inter[15].side[1].t[1].Wpchap << endl;
+        std::cout << Inter[15].side[0].t[1].Fchap << endl;
+        std::cout << Inter[15].side[1].t[1].Fchap << endl;
+        std::cout << Inter[15].side[0].t[1].Wp << endl;
+        std::cout << Inter[15].side[1].t[1].Wp << endl;
+        std::cout << Inter[15].side[0].t[1].F << endl;
+        std::cout << Inter[15].side[1].t[1].F << endl;*/
+        //std::cout << "\t Etape locale " << endl;
         if (process.size==1 or process.rank>0)
             etape_locale(SubI,S,process);
         //etape locale sur les sous-structures
@@ -323,9 +323,9 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         crout << process.rank<< " : etape locale : ";
         tic.stop();
         tic.start();
-//         cout << "Avant lineaire" << endl;
+//         std::cout << "Avant lineaire" << endl;
 
-        //cout << "\t Calcul d'erreur " << endl;
+        //std::cout << "\t Calcul d'erreur " << endl;
         calcul_erreur_incr(S,Inter,process,Global);
 
         crout << process.rank<< " : calcul erreur : ";
@@ -334,10 +334,10 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
 
         if (process.latin->list_error==1)
           if (process.rank == 0 )
-                cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
+                std::cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
         if(flag_convergence==1) {
             if (process.rank == 0 )
-                cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
+                std::cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
             break;
         }
         // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
@@ -359,11 +359,11 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
                 double num=fracfin[0];
 
                 if (process.rank == 0) {
-                    cout << "\tErreur dissipation : " << abs(num-den)/abs(num) << endl;
-//                     cout << "\tParticipation des interfaces : " << abs(fracfin[range(2,(int)Inter.size()+2)])/sum(abs(fracfin[range(2,(int)Inter.size()+2)]))*100 << endl;
+                    std::cout << "\tErreur dissipation : " << std::abs(num-den)/std::abs(num) << endl;
+//                     std::cout << "\tParticipation des interfaces : " << std::abs(fracfin[range(2,(int)Inter.size()+2)])/sum(std::abs(fracfin[range(2,(int)Inter.size()+2)]))*100 << endl;
                 }
-                //if (process.rank == 0) cout << "\tnum " << num << " -- den " << den << endl;
-                if ( abs(den)>1e-9 and abs(num-den)/abs(num) <= process.latin->critere_erreur_diss) {
+                //if (process.rank == 0) std::cout << "\tnum " << num << " -- den " << den << endl;
+                if ( std::abs(den)>1e-9 and std::abs(num-den)/std::abs(num) <= process.latin->critere_erreur_diss) {
                     flag_convergence=1;
                     process.latin->save_depl_SST=save_depl_SST;
                 }
@@ -386,7 +386,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
     }
     if (process.rank == 0)
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
-            cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
+            std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
 }
 

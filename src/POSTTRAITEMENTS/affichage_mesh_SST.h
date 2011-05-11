@@ -105,15 +105,15 @@ void affich_SST(TV1 &S,Param &process) {
 /*        TicToc tic1;
         tic1.start();
         cout << process.rank << " nbnode avant : " << meshglob.node_list.size() << endl;
-        meshglob.sub_mesh(Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-        meshglob.sub_mesh(Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
         remove_doubles(meshglob,1e-8, true);
         cout << process.rank << " skin : " << meshglob.skin.node_list.size() << endl;
         cout << process.rank << " Remove double : " ;
         tic1.stop();
         tic1.start();*/
-        meshglob.sub_mesh(Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-        meshglob.sub_mesh(Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
         meshglob.update_skin();
 /*        cout << process.rank << " Update skin : " ;
         tic1.stop();

@@ -29,9 +29,9 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<3,TT> > > &S, Param &process) {
                         evol_depl_pt_z[imic]=(S[i].t[imic].q[repddl[2]]);
                     }
                 }
-                cout << "evol x" << evol_depl_pt_x << endl;
-                cout << "evol y" << evol_depl_pt_y << endl;
-                cout << "evol z" << evol_depl_pt_z << endl;
+                std::cout << "evol x" << evol_depl_pt_x << endl;
+                std::cout << "evol y" << evol_depl_pt_y << endl;
+                std::cout << "evol z" << evol_depl_pt_z << endl;
                 if (process.affichage->command_file==""){
                   GnuPlot gp1;
                   gp1.plot(evol_depl_pt_x);
@@ -42,7 +42,7 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<3,TT> > > &S, Param &process) {
                   GnuPlot gp3;
                   gp3.plot(evol_depl_pt_z);
                   gp3.wait();
-                  cout  << endl;
+                  std::cout  << endl;
                 }
             }
         }
@@ -107,9 +107,9 @@ void affichage_var_inter(TV1 &S,TV2 &Inter, Param &process) {
                 }
 
 
-                if (process.affichage->param_ener[2] == 0 or process.affichage->param_ener[2] == 3) cout << "Cote : " << datanum << " , surface=" << Inter[internum].side[datanum].mesh->elem_list[elemnum]->measure_virtual() << " : " << evolFchap << endl;
-                if (process.affichage->param_ener[2] == 1 or process.affichage->param_ener[2] == 3) cout << "Cote : " << datanum << " : " << evolWchap << endl;
-                if (process.affichage->param_ener[2] == 2 ) cout << "Cote : " << datanum << " : " << evolWpchap << endl;
+                if (process.affichage->param_ener[2] == 0 or process.affichage->param_ener[2] == 3) std::cout << "Cote : " << datanum << " , surface=" << Inter[internum].side[datanum].mesh->elem_list[elemnum]->measure_virtual() << " : " << evolFchap << endl;
+                if (process.affichage->param_ener[2] == 1 or process.affichage->param_ener[2] == 3) std::cout << "Cote : " << datanum << " : " << evolWchap << endl;
+                if (process.affichage->param_ener[2] == 2 ) std::cout << "Cote : " << datanum << " : " << evolWpchap << endl;
 
                 if (process.affichage->command_file==""){
                   GnuPlot gp1;
@@ -118,7 +118,7 @@ void affichage_var_inter(TV1 &S,TV2 &Inter, Param &process) {
                   if (process.affichage->param_ener[2] == 2) gp1.plot(evolWpchap);
                   if (process.affichage->param_ener[2] == 3) gp1.plot(evolWchap,evolFchap);
                   gp1.wait();
-                  cout  << endl;
+                  std::cout  << endl;
                 }
                 if (process.affichage->param_ener[2] == 3){
                     std::ofstream os("interfaces_valeur.m",std::ofstream::app);
@@ -167,8 +167,8 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<2,TT> > > &S, Param &process) {
                         evol_depl_pt_y[imic]=(S[i].t[imic].q[repddl[1]]);
                     }
                 }
-                cout << "evol x" << evol_depl_pt_x << endl;
-                cout << "evol y" << evol_depl_pt_y << endl;
+                std::cout << "evol x" << evol_depl_pt_x << endl;
+                std::cout << "evol y" << evol_depl_pt_y << endl;
                 if (process.affichage->command_file==""){
                   GnuPlot gp1;
                   gp1.plot(evol_depl_pt_x);
@@ -176,7 +176,7 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst<2,TT> > > &S, Param &process) {
                   GnuPlot gp2;
                   gp2.plot(evol_depl_pt_y);
                   gp2.wait();
-                  cout  << endl;
+                  std::cout  << endl;
                 }
             }
         }

@@ -6,11 +6,6 @@
 #include "mesh/read_mshadv.h"
 #include "containers/algo.h"
 #include <map>
-#include "find_entity.h"
-
-#include "GeometryUser.h"
-#include "DataUser.h"
-using namespace Metil;
 // #include "definition_PARAM_AFFICHAGE.h"
 // #include "affichage_mesh_SST.h"
 
@@ -36,24 +31,29 @@ using namespace std;
 
 
 /** \ingroup Maillage_geometrie_sst
-\brief Création du nombre de Sst et affectation du numero du materiau par l'intermédiaire du data_user (fichier json)
+\brief Création du nombre de Sst et affectation du numero du materiau par l'intermédiaire du  fichier de qualification donné dans le xml
  
-La structure data_user contient une liste de group_elements correspondant à chaque sst et une id_material. Cet id_material correspond à l'identificateur des matériaux donnés dans le fichier json.
-A cette etape, on spécifie la taille du vecteur de Sous-structures par l'intermédiaire geometry_user.nb_group_elements et on assigne le numéro du matériau pour chaque sous-structure.
+Le fichier de qualification (STRUCTURE::nom_fichier_qualification_materiaux) contient un numéro pour chaque sous-structure. Ce numéro correspond à l'identificateur des matériaux donnés dans le fichier xml.
+ 
+A cette etape, on spécifie la taille du vecteur de Sous-structures par l'intermédiaire du STRUCTURE::nb_maillage renseigné dans le xml et on assigne le numéro du matériau pour chaque sous-structure.
 */
 template<class TV1>
-void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,Param &process) {
-    
-    //initialisation de la taille des sst et de leur id == num
-    S.resize(geometry_user.nb_group_elements);
+void create_SST_typmat(STRUCTURE &structure,TV1 &S,Param &process) {
+    //recherche du nom du fichier de qualification pour affectation d'un materiau
+    string namequalif=structure.nom_fichier_qualification_materiaux;
+    string namein=structure.repertoire_des_maillages;
+    namein.append(namequalif);
+    if (process.rank == 0)
+        cout << "\t Fichier de qualification : " << namein << endl;
+    std::ifstream f(namein.c_str());
+    Vec< unsigned > num_materiau;
+    //num_materiau.resize(structure.nb_maillages);//a priori >> en dessous fait un push_back !
+    f>>num_materiau;
+    //affectation du numero aux Ssts
+    S.resize(structure.nb_maillages);
     for(unsigned i=0;i<S.size();i++) {
-        S[i].num = geometry_user.group_elements[i].id;
-    }
-    
-    //assignation des numero de materiaux aux sst
-    for(int i_data_group=0; i_data_group<data_user.group_elements.size(); i_data_group++){
-        int i_mat = data_user.find_index_behaviour_materials(data_user.group_elements[i_data_group].id_material);
-        find_sst(S,data_user.group_elements[i_data_group].id)->typmat = i_mat ;
+        S[i].typmat=num_materiau[i];
+        S[i].num = i;
     }
 }
 
@@ -61,7 +61,8 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,P
 /**\ingroup Maillage_geometrie_sst
 \brief Lecture et assignation d'un maillage par sst
  
-Le maillage de chaque sst est lu à partir des données chargée dans geometry_user. Ces données viennent de SC_create_2
+Le nom générique renseigné dans le fichier xml est décliné selon le nombre de Ssts du problème (ex : nom0, nom1...) et on ajoute l'extension donnée dans le fichier xml ".avs" par defaut. Le nom générique doit nécessairement ere indicé au départ par 0.
+On crée ensuite une boite contenant tout le maillage (repérée par ses 2 points extrémité) (create_box_mesh()) et on applique à chaque élément le type de matériau ainsi que le numéro de la sst (cf. apply_mat_elem) (pour le post traitement).
  
 */
 ///Fonction generique
@@ -93,21 +94,272 @@ void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
     m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
 }
 
+// template <class TV, class T>
+// unsigned find_with_index(TV &V, T val) {
+//     for(unsigned i=0;i<V.size();++i)
+//       if ( (unsigned)V[i] == val )
+//         return i;
+//     return false;
+// }
+
+struct repart_elem_decoup {
+  template<class TE, class TV1, class TT, class TM>
+      void operator()(TE &e,TV1 &S, TT &temp, TM &M1) const {
+        int &i = *temp.d;
+
+        typedef typename TM::TNode TNode;
+        Vec<long long int> &mrepart=*temp.a;
+        //Vec<Vec<int> > nodemap=*temp.c;
+        Vec<map<int, TNode * > > &nodemap= *temp.c;
+
+        Vec<TNode *> repnodes;
+        //on prend les noeuds de l element en cours et on a la map
+        for(unsigned ii=0;ii<e.nb_nodes;ii++) {
+          repnodes.resize(e.nb_nodes);
+          typename map<int, TNode * >::const_iterator iter = nodemap[mrepart[i]].find( e.node(ii)->number_in_original_mesh() );
+          //si c est pas dans la liste on ajoute le noeud
+          if (iter == nodemap[mrepart[i]].end())
+            nodemap[mrepart[i]][e.node(ii)->number_in_original_mesh()]=S[mrepart[i]].mesh->add_node(M1.node_list[e.node(ii)->number_in_original_mesh()].pos);
+          
+          repnodes[ii]=nodemap[mrepart[i]][e.node(ii)->number_in_original_mesh()];
+        }
+        //maintenant on ajoute l'element au maillage
+        add_new_elem(e,*S[mrepart[i]].mesh.m, repnodes) ;
+        i++;
+      }
+};
+
+template<class TN>
+struct passapply {
+  Vec<map<int,TN * > > *c;
+  Vec<long long int> *a;
+//   Vec<Vec<int> > *c;
+  int *d;
+};
+
 
 template<class TV1>
-void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, Param &process) {
-    for(unsigned i=0;i<S.size();++i) {
-        std::string namein = data_user.find_group_elements(S[i].num)->name;
-        S[i].mesh.name=namein;
-        if (process.rank == 0) S[i].mesh.load(geometry_user, S[i].num);
+void create_maillage_SST(STRUCTURE &structure,TV1 &S,Param &process) {
+    if (structure.nom_des_maillages != "decoup" and structure.nom_des_maillages != "decoup_auto") {
+        for(unsigned i=0;i<S.size();++i) {
+            // lecture du nom du maillage volumique de SST
+            ostringstream ss;
+            ss << structure.repertoire_des_maillages << structure.nom_des_maillages << i << structure.extension;
+            string namein(ss.str());
+            if (process.rank == 0)
+                cout <<"\t " <<  namein << endl;
 
-        //creation de la boite englobant le maillage de la Sst (utile pour la suite)
-        if (process.rank == 0) S[i].box=create_box_mesh(*S[i].mesh.m);
-        if (process.size > 1)
-        for(unsigned j=0 ;j<S[i].box.size() ;j++ ){
-            MPI_Bcast(S[i].box[j].ptr(),S[i].box[j].size(),MPI_DOUBLE, 0,MPI_COMM_WORLD);
+            //ouverture fichier correspondant
+            std::ifstream f(namein.c_str());
+            if (structure.extension==".avs") {
+                S[i].mesh.name=namein;
+                if (process.rank == 0) S[i].mesh.load();
+
+            } else if (structure.extension==".geof") {
+                S[i].mesh.name=namein;
+                if (process.rank == 0) S[i].mesh.load();
+
+            } else{
+                if (process.rank == 0)
+                    cout << "Extension non reconnue : modifier create_maillage_SST" << endl;
+                assert(0);
+            }
+
+            //creation de la boite englobant le maillage de la Sst (utile pour la suite)
+            if (process.rank == 0) S[i].box=create_box_mesh(*S[i].mesh.m);
+            if (process.size > 1)
+            for(unsigned j=0 ;j<S[i].box.size() ;j++ ){
+                MPI_Bcast(S[i].box[j].ptr(),S[i].box[j].size(),MPI_DOUBLE, 0,MPI_COMM_WORLD);
+            }
+            if (process.rank == 0) S[i].mesh.unload();
+
         }
-        if (process.rank == 0) S[i].mesh.unload();
+    } else if (structure.nom_des_maillages == "decoup") {//ben faut faire le decoupage du maillage propose
+        //lecture du maillage propose
+        typename TV1::template SubType<0>::T::TMESH::TM M1;
+        ostringstream ss;
+        ss << structure.repertoire_des_maillages << structure.nom_des_maillages << "0" << structure.extension;
+        string namein(ss.str());
+        if (process.rank == 0)
+            cout <<"\t " <<  namein << endl;
+
+        //ouverture fichier correspondant
+        std::ifstream f(namein.c_str());
+        if (structure.extension==".avs") {
+            //lecture du fichier avs
+            read_avs(M1,f);
+        } else if (structure.extension==".mshadv") {
+            //lecture du fichier msh
+          read_mshadv(M1,f);
+        } else if (structure.extension==".geof") {
+            //lecture du fichier msh
+            read_geof(M1,f);
+        } else{
+            if (process.rank == 0)
+                cout << "Extension non reconnue : modifier create_maillage_SST" << endl;
+            assert(0);
+        }
+        cout << "Fin lecture maillage" << endl;
+        //creation de la structure qui va bien pour metis
+        M1.update_elem_neighbours();
+        cout << "Fin update neighbourgs" << endl;
+
+        Vec<long long int> melem,melemvoisin,melemvoisinok;
+        melem.resize(M1.elem_list.size()+1);
+        melemvoisin.resize(0);
+        melemvoisin.reserve(100*M1.elem_list.size());//pourquoi 15 ? parce que ! 100 c est mieux ..
+//         for(unsigned i=0;i<M1.elem_list.size();++i) {
+//           melem[i]=melemvoisin.size();
+//           for( SimpleConstIterator<typename TV1::template SubType<0>::T::TMESH::TM::EA *> iter=M1.get_elem_neighbours( (const typename TV1::template SubType<0>::T::TMESH::TM::EA *) M1.elem_list[i] ); iter; ++iter ){
+//             melemvoisin.push_back((*iter)->number);}
+//           
+//         }
+        
+        std::cout << "Probleme de compilation : revoir LMTpp sur zone commentee dans le code " << endl;
+        assert(0);
+        
+        M1.clear_elem_parents();
+        M1.clear_elem_children();
+        
+        melem[M1.elem_list.size()]=melemvoisin.size();
+        melemvoisinok.resize(melemvoisin.size());
+        melemvoisinok=melemvoisin;
+        melemvoisin.free();
+        cout << "Fin generation de la liste des voisins" << endl;
+
+        Vec<long long int> mrepart;
+        Vec<int> mopts;
+        mopts.resize(5);
+        mopts.set(0);
+        int nbcut,nbelem=M1.elem_list.size(),wgtflag=0,npart=structure.nb_maillages,numflag=0;
+        mrepart.resize(nbelem);
+        cout << nbelem << " " << melem.size() << " " << melemvoisinok.size() << endl;
+        //decoupage du maillage
+        METIS_PartGraphRecursive(&nbelem,melem.ptr(),melemvoisinok.ptr(),NULL,NULL,&wgtflag,&numflag,&npart,mopts.ptr(),&nbcut,mrepart.ptr());
+        cout << "Fin METIS : " << endl;
+
+        //posttraitement du decoupage
+//         Vec<Vec<int> > repartelem;
+//         repartelem.resize(npart);
+        //Vec<Vec<int> > nodemap;
+        Vec<map<int, typename TV1::template SubType<0>::T::TMESH::TM::TNode *> > nodemap ;
+        nodemap.resize(npart);
+        
+        passapply<typename TV1::template SubType<0>::T::TMESH::TM::TNode> temp;
+        temp.a=&mrepart;
+        temp.c=&nodemap;
+        int iter=0;
+        temp.d=&iter;
+        
+        for(unsigned i=0 ;i<S.size() ;i++ ){
+#ifdef PRINT_ALLOC
+            total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESH::TM).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESH::TM);
+#endif
+            S[i].mesh.m=new typename TV1::template SubType<0>::T::TMESH::TM;
+        }
+
+        apply(M1.elem_list,repart_elem_decoup(),S,temp,M1);
+
+        for(unsigned i=0;i<S.size();++i){
+          ostringstream ss;
+          ss << structure.repertoire_des_maillages << "decoup_auto_en_" << structure.nb_maillages << "_" << i << ".avs";
+          string namein(ss.str());
+          write_avs(*S[i].mesh.m,namein,Vec<string>(),Ascii());
+        }
+
+        cout << "Maillage sauvergarde PUTAIN" << endl;
+
+        for(unsigned i=0;i<S.size();++i){
+            S[i].box=create_box_mesh(*S[i].mesh.m);
+            S[i].mesh.unload();
+        }
+        M1.free();
+    } else if (structure.nom_des_maillages == "decoup_auto") {//ben faut faire le decoupage du maillage propose
+        //lecture du maillage propose
+        typename TV1::template SubType<0>::T::TMESH::TM M1;
+        ostringstream ss;
+        ss << structure.repertoire_des_maillages << structure.nom_des_maillages << "0" << structure.extension;
+        string namein(ss.str());
+        if (process.rank == 0)
+            cout <<"\t " <<  namein << endl;
+
+        //ouverture fichier correspondant
+        std::ifstream f(namein.c_str());
+        if (structure.extension==".avs") {
+            //lecture du fichier avs
+            read_avs(M1,f);
+        } else if (structure.extension==".mshadv") {
+            //lecture du fichier msh
+            read_mshadv(M1,f);
+        } else if (structure.extension==".geof") {
+            //lecture du fichier msh
+            read_geof(M1,f);
+        }else{
+            if (process.rank == 0)
+                cout << "Extension non reconnue : modifier create_maillage_SST" << endl;
+            assert(0);
+        }
+        cout << "Fin lecture maillage" << endl;
+        typedef typename TV1::template SubType<0>::T::TMESH::TM::Pvec Pvec;
+        Pvec mini;
+        Pvec maxi;
+        get_min_max(M1.node_list,ExtractDM<pos_DM>(),mini,maxi);
+        
+        Vec<long long int> mrepart;
+        int nbelem=M1.elem_list.size(),npart=(int)(pow(structure.nb_maillages*1.0,1.0/3.0));
+        mrepart.resize(nbelem);
+        mrepart.set(0);
+        
+//         cout << npart << endl;
+        
+        for(unsigned i=0;i<M1.elem_list.size();i++) {
+            Pvec G=center(*M1.elem_list[i]);
+            for( unsigned k=0; k<mini.size();k++ ){
+                mrepart[i]+=(int)((G[k]-mini[k])/(maxi[k]-mini[k])*npart)*(int)(pow(npart*1.0,k*1.0));
+            }
+        }
+//         cout << mrepart << endl;
+
+        Vec<map<int, typename TV1::template SubType<0>::T::TMESH::TM::TNode *> > nodemap ;
+        nodemap.resize(structure.nb_maillages);
+        
+        passapply<typename TV1::template SubType<0>::T::TMESH::TM::TNode> temp;
+        temp.a=&mrepart;
+        temp.c=&nodemap;
+        int iter=0;
+        temp.d=&iter;
+        
+        for(unsigned i=0 ;i<S.size() ;i++ ){
+#ifdef PRINT_ALLOC
+        total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESH::TM).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESH::TM);
+#endif
+            S[i].mesh.m=new typename TV1::template SubType<0>::T::TMESH::TM;
+        }
+
+        apply(M1.elem_list,repart_elem_decoup(),S,temp,M1);
+        M1.free();
+
+        for(unsigned i=0;i<S.size();++i){
+            ostringstream ss;
+            if (S[i].mesh->elem_list.size() == 0) {
+                erase_elem_nb2(S,i);
+                i--;
+            }else{
+               ss << structure.repertoire_des_maillages << "decoup_auto2_en_" << structure.nb_maillages << "_" << i << ".avs";
+               string namein(ss.str());
+               write_avs(*S[i].mesh.m,namein,Vec<string>(),Ascii());
+            }
+        }
+        structure.nb_maillages=S.size();
+        cout << "Maillage sauvergarde PUTAIN" << endl;
+
+        int nbelemnew=0;
+        for(unsigned i=0;i<S.size();++i){
+            S[i].box=create_box_mesh(*S[i].mesh.m);
+            S[i].mesh.unload();
+            nbelemnew+=S[i].mesh->elem_list.size();
+        }
+        cout << nbelem << " et " << nbelemnew << endl;
     }
 }
 
@@ -130,14 +382,14 @@ void create_perfect_interfaces(TV1 &S, TV2 &Inter, Param process) {
                 vois.push_back(j);
 
         //update_elem_neighbours
-//         std::cout << S[i].mesh.name << std::endl;
+//         cout << S[i].mesh.name << endl;
         S[i].mesh->update_skin();
 
         //2eme etape : recherche des elements communs de bord pour chacune des Sst voisines et la Sst selectionnee
         for(unsigned j=0;j<vois.size();j++) {
             unsigned num=vois[j];
             //update_elem_neighbours
-//             std::cout << "\t" << S[num].mesh.name << std::endl;
+//             cout << "\t" << S[num].mesh.name << endl;
             S[num].mesh->update_skin();
             //creation du nouveau maillage
             typename TV2::template SubType<0>::T::TMESH meshnew;
@@ -153,9 +405,9 @@ void create_perfect_interfaces(TV1 &S, TV2 &Inter, Param process) {
 #endif
                 internew.side[0].mesh=new typename TV2::template SubType<0>::T::TMESH;
                 internew.side[0].mesh->append(meshnew);
-                internew.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                internew.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                internew.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
                 internew.side[0].mesh->elem_list.change_hash_size( *internew.side[0].mesh,1);
                 internew.side[1].mesh=internew.side[0].mesh;
                 //}
@@ -204,9 +456,9 @@ void create_perfect_interfaces(TV1 &S, TV2 &Inter, Param process) {
         //3eme etape : chacun test un bout et stocke le resultat
         Vec<unsigned> resu_inter;
         resu_inter.reserve(3*totest.size()/2/process.size);
-//         std::cout << process.rank << " : " << totest << std::endl;
+//         cout << process.rank << " : " << totest << endl;
         for( unsigned i=0+(unsigned)(size/2/process.size)*process.rank;i<(unsigned)(size/2/process.size)*(1+process.rank);i++ ){
-//             std::cout << process.rank << " : " << size << " " << process.size << " " << (unsigned)(size/2/process.size) << " " << 2*i << " " << 2*i+1 << std::endl;
+//             cout << process.rank << " : " << size << " " << process.size << " " << (unsigned)(size/2/process.size) << " " << 2*i << " " << 2*i+1 << endl;
             S[totest[2*i]].mesh->update_skin();S[totest[2*i+1]].mesh->update_skin();
             typename TV2::template SubType<0>::T::TMESH meshnew;
             intersection_meshes(S[totest[2*i]].mesh->skin,S[totest[2*i+1]].mesh->skin,meshnew);
@@ -224,7 +476,7 @@ void create_perfect_interfaces(TV1 &S, TV2 &Inter, Param process) {
         }
         if (process.rank == process.size-1) {
             for( unsigned i=(unsigned)(size/2/process.size)*(1+ process.rank);i<size/2;i++){
-//                 std::cout << process.rank << " pouet : " << 2*i << " " << 2*i+1 << std::endl;
+//                 cout << process.rank << " pouet : " << 2*i << " " << 2*i+1 << endl;
                 S[totest[2*i]].mesh->update_skin();S[totest[2*i+1]].mesh->update_skin();
                 typename TV2::template SubType<0>::T::TMESH meshnew;
                 intersection_meshes(S[totest[2*i]].mesh->skin,S[totest[2*i+1]].mesh->skin,meshnew);
@@ -244,25 +496,25 @@ void create_perfect_interfaces(TV1 &S, TV2 &Inter, Param process) {
         //4eme etape : on rappatrie les resultats sur tout les pros
         size=0;
         int size2=resu_inter.size();
-//         std::cout << process.rank << " : " << resu_inter << std::endl;
+//         cout << process.rank << " : " << resu_inter << endl;
         MPI_Allreduce(&size2,&size,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
         Vec<unsigned> resu_inter_complet;
         resu_inter_complet.resize(size);
-//         std::cout << process.rank << " : " << "size : " << size << std::endl;
+//         cout << process.rank << " : " << "size : " << size << endl;
         
         Vec<int> rcount,displs1;
         rcount.resize(process.size);
         displs1.resize(process.size);
         displs1.set(0);
         MPI_Allgather(&size2,1,MPI_INT,rcount.ptr(),1,MPI_INT,MPI_COMM_WORLD);
-//         std::cout << process.rank << " : " << rcount << std::endl;
+//         cout << process.rank << " : " << rcount << endl;
         for( unsigned i=1;i<displs1.size() ;i++ ){
             displs1[i]=displs1[i-1]+rcount[i-1];
         }
-//         std::cout << process.rank << " : " << displs1 << std::endl;
+//         cout << process.rank << " : " << displs1 << endl;
         MPI_Allgatherv(resu_inter.ptr(),resu_inter.size(),MPI_INT,resu_inter_complet.ptr(), rcount.ptr(),displs1.ptr(),MPI_INT,MPI_COMM_WORLD);
         resu_inter.free();
-//         std::cout << process.rank << " : " << resu_inter_complet << std::endl;
+//         cout << process.rank << " : " << resu_inter_complet << endl;
         
         //penser a mettre le S.mesh.elem_list_size à jour a partir du rank 0
         for (unsigned i=0;i<S.size();i++){
@@ -315,7 +567,7 @@ void create_gap_interfaces(STRUCTURE &structure, TV1 &S, TV2 &Inter,Param &proce
             ss << structure.repertoire_des_maillages << structure.nom_maillages_jeu << structure.inter_jeu[i][j] <<"-"<<structure.inter_jeu[i][0] <<"-"<< structure.inter_jeu[i][1] << structure.extension;
             string namein(ss.str());
             if (process.rank == 0)
-                std::cout <<"\t " <<  namein << std::endl;
+                cout <<"\t " <<  namein << endl;
 
             //ouverture fichier correspondant
             std::ifstream f(namein.c_str());
@@ -327,9 +579,9 @@ void create_gap_interfaces(STRUCTURE &structure, TV1 &S, TV2 &Inter,Param &proce
                 internew.side[j].mesh=new typename TV2::template SubType<0>::T::TMESH;
                 read_avs(*internew.side[j].mesh,f);
                 //remise à 1 de la table de hashage pour prendre moins de place...
-                internew.side[j].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
-                internew.side[j].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
-                internew.side[j].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
                 internew.side[j].mesh->elem_list.change_hash_size( *internew.side[j].mesh,1);
 
             } else if (structure.extension==".geof") {
@@ -340,14 +592,14 @@ void create_gap_interfaces(STRUCTURE &structure, TV1 &S, TV2 &Inter,Param &proce
                 internew.side[j].mesh=new typename TV2::template SubType<0>::T::TMESH;
                 read_geof(*internew.side[j].mesh,f);
                 //remise à 1 de la table de hashage pour prendre moins de place...
-                internew.side[j].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
-                internew.side[j].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
-                internew.side[j].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
+                internew.side[j].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *internew.side[j].mesh,1);
                 internew.side[j].mesh->elem_list.change_hash_size( *internew.side[j].mesh,1);
 
             } else {
                 if (process.rank == 0)
-                    std::cout << "Extension non reconnue : modifier create_maillage_SST" << std::endl;
+                    cout << "Extension non reconnue : modifier create_maillage_SST" << endl;
                 assert(0);
             }
             //ajout des numeros des Sst voisines et cotes correspondants
@@ -373,7 +625,7 @@ template <class TV1>
 unsigned nb_zero(TV1 V,double eps){
     unsigned zob=0;
     for(unsigned i=0;i<V.size();i++)
-        if (std::abs(V[i])< eps)
+        if (abs(V[i])< eps)
             zob++;
     return zob;
         }
@@ -422,9 +674,9 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
                 internew.side.resize(1);
                 internew.side[0].mesh=new typename TV2::template SubType<0>::T::TMESH;
                 internew.side[0].mesh->append(meshnew);
-                internew.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                internew.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                internew.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                internew.side[0].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
                 internew.side[0].mesh->elem_list.change_hash_size( *internew.side[0].mesh,1);
 
 
@@ -445,9 +697,9 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
 #endif
                                 internew.side[1].mesh=new typename TV2::template SubType<0>::T::TMESH;
                                 internew.side[1].mesh->append(meshnew1);
-                                internew.side[1].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                                internew.side[1].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
-                                internew.side[1].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                                internew.side[1].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                                internew.side[1].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
+                                internew.side[1].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *internew.side[0].mesh,1);
                                 internew.side[1].mesh->elem_list.change_hash_size( *internew.side[0].mesh,1);
                                 
                                 //ajout des numeros de la Sst voisine et cote correspondant
@@ -474,7 +726,7 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
                             }
                         }
                     }
-                    if (internew.side[1].mesh==NULL) {std::cout << "On ne trouve pas de maillage pour la periodicite" << std::endl;assert(0);}
+                    if (internew.side[1].mesh==NULL) {cout << "On ne trouve pas de maillage pour la periodicite" << endl;assert(0);}
                 } else {
                     //ajout des numeros de la Sst voisine et cote correspondant
                     typename TV1::template SubType<0>::T::Edge edge;
@@ -518,9 +770,9 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
         //3eme etape : chacun test un bout et stocke le resultat
         Vec<unsigned> resu_inter;
         resu_inter.reserve(3*totest.size()/2/process.size);
-//         std::cout << process.rank << " : " << totest << std::endl;
+//         cout << process.rank << " : " << totest << endl;
         for( unsigned i=0+(unsigned)(size/2/process.size)*process.rank;i<(unsigned)(size/2/process.size)*(1+process.rank);i++ ){
-//             std::cout << process.rank << " : " << size << " " << process.size << " " << (unsigned)(size/2/process.size) << " " << 2*i << " " << 2*i+1 << std::endl;
+//             cout << process.rank << " : " << size << " " << process.size << " " << (unsigned)(size/2/process.size) << " " << 2*i << " " << 2*i+1 << endl;
             S[totest[2*i+1]].mesh->update_skin();
             typename TV2::template SubType<0>::T::TMESH meshnew;
             intersection_mesh_box(S[totest[2*i+1]].mesh->skin,CL[totest[2*i]].box,meshnew);
@@ -550,7 +802,7 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
                             }
                         }
                     }
-                    if (sizebefore==resu_inter.size()) {std::cout << "On ne trouve pas de maillage pour la periodicite" << std::endl;assert(0);}
+                    if (sizebefore==resu_inter.size()) {cout << "On ne trouve pas de maillage pour la periodicite" << endl;assert(0);}
                 } else {
                     resu_inter.push_back(totest[2*i]);
                     resu_inter.push_back(totest[2*i+1]);
@@ -561,7 +813,7 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
         }
         if (process.rank == process.size-1) {
             for( unsigned i=(unsigned)(size/2/process.size)*(1+ process.rank);i<size/2;i++){
-//                 std::cout << process.rank << " pouet : " << 2*i << " " << 2*i+1 << std::endl;
+//                 cout << process.rank << " pouet : " << 2*i << " " << 2*i+1 << endl;
                 S[totest[2*i+1]].mesh->update_skin();
                 typename TV2::template SubType<0>::T::TMESH meshnew;
                 intersection_mesh_box(S[totest[2*i+1]].mesh->skin,CL[totest[2*i]].box,meshnew);
@@ -591,7 +843,7 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
                                 }
                             }
                         }
-                        if (sizebefore==resu_inter.size()) {std::cout << "On ne trouve pas de maillage pour la periodicite" << std::endl;assert(0);}
+                        if (sizebefore==resu_inter.size()) {cout << "On ne trouve pas de maillage pour la periodicite" << endl;assert(0);}
                     } else {
                         resu_inter.push_back(totest[2*i]);
                         resu_inter.push_back(totest[2*i+1]);
@@ -604,25 +856,25 @@ void create_interfaces_CL(TV1 &S, TV2 &Inter, TV5 &CL, Param &process) {
         //4eme etape : on rappatrie les resultats sur tout les pros
         size=0;
         int size2=resu_inter.size();
-//         std::cout << process.rank << " : " << resu_inter << std::endl;
+//         cout << process.rank << " : " << resu_inter << endl;
         MPI_Allreduce(&size2,&size,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
         Vec<unsigned> resu_inter_complet;
         resu_inter_complet.resize(size);
-//         std::cout << process.rank << " : " << "size : " << size << std::endl;
+//         cout << process.rank << " : " << "size : " << size << endl;
         
         Vec<int> rcount,displs1;
         rcount.resize(process.size);
         displs1.resize(process.size);
         displs1.set(0);
         MPI_Allgather(&size2,1,MPI_INT,rcount.ptr(),1,MPI_INT,MPI_COMM_WORLD);
-//         std::cout << process.rank << " : " << rcount << std::endl;
+//         cout << process.rank << " : " << rcount << endl;
         for( unsigned i=1;i<displs1.size() ;i++ ){
             displs1[i]=displs1[i-1]+rcount[i-1];
         }
-//         std::cout << process.rank << " : " << displs1 << std::endl;
+//         cout << process.rank << " : " << displs1 << endl;
         MPI_Allgatherv(resu_inter.ptr(),resu_inter.size(),MPI_INT,resu_inter_complet.ptr(), rcount.ptr(),displs1.ptr(),MPI_INT,MPI_COMM_WORLD);
         resu_inter.free();
-//         std::cout << process.rank << " : " << resu_inter_complet << std::endl;
+//         cout << process.rank << " : " << resu_inter_complet << endl;
 
         //5eme etape modification du vecteur d interfaces, creation des edges + on met la taille de l interface dans num
         unsigned sizebefore=Inter.size();
@@ -710,20 +962,20 @@ Vec<Vec<T,3>,3> create_base_box(Vec<Vec<T,3>,2> &box) {
     T eps=1e-6;
     Pvec v = box[1]-box[0];
     Vec<Pvec,3> base;
-    if(std::abs(v[0])<=eps) {//normale x
+    if(abs(v[0])<=eps) {//normale x
         base[0]=Pvec(0.,1.,0.);
         base[1]=Pvec(0.,0.,1.);
         base[2]=Pvec(1.,0.,0.); //normale
-    } else if(std::abs(v[1])<=eps) {//normale y
+    } else if(abs(v[1])<=eps) {//normale y
         base[0]=Pvec(0.,0.,1.);
         base[1]=Pvec(1.,0.,0.);
         base[2]=Pvec(0.,1.,0.); //normale
-    } else if(std::abs(v[2])<=eps) {//normale z
+    } else if(abs(v[2])<=eps) {//normale z
         base[0]=Pvec(1.,0.,0.);
         base[1]=Pvec(0.,1.,0.);
         base[2]=Pvec(0.,0.,1.); //normale
     } else {
-        std::cout << "Plan dont la normale est differente de x, y ou z : Il est necessaire de specifier la normale dans le xml et d'adapter cette procedure en fonction" << std::endl;
+        cout << "Plan dont la normale est differente de x, y ou z : Il est necessaire de specifier la normale dans le xml et d'adapter cette procedure en fonction" << endl;
         assert(0);
     }
     return base;
@@ -858,7 +1110,7 @@ void create_mesh_from_list_elem(TM1 &m,TV &num_elem,TM2 &m2) {
                           );
 
         } else {
-            std::cout << "reperage automatique des interfaces non implemente pour ce type d'element" << std::endl;
+            cout << "reperage automatique des interfaces non implemente pour ce type d'element" << endl;
             assert(0);
 
         }
@@ -911,7 +1163,7 @@ void intersection_mesh_INTER(TM &m1, TM1 &m2, TM2 &m3) {
                           );
 
         } else {
-            std::cout << "reperage automatique des interfaces non implemente pour ce type d'element" << std::endl;
+            cout << "reperage automatique des interfaces non implemente pour ce type d'element" << endl;
             assert(0);
 
         }
@@ -935,9 +1187,9 @@ struct make_interface_inter {
 #endif
                         SubI.side[0].mesh=new typename TV2::TMESH;
                         intersection_meshes(S[numi].mesh->skin,S[numj].mesh->skin,*SubI.side[0].mesh);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
                         SubI.side[0].mesh->elem_list.change_hash_size( *SubI.side[0].mesh,1);
 
                         SubI.side[1].mesh=SubI.side[0].mesh;
@@ -960,9 +1212,9 @@ struct make_interface_CL {
 #endif
                         SubI.side[0].mesh=new typename TV2::TMESH;
                         intersection_mesh_box(S[SubI.vois[0]].mesh->skin,CL[SubI.refCL].box,*SubI.side[0].mesh);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-                        SubI.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
+                        SubI.side[0].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
                         SubI.side[0].mesh->elem_list.change_hash_size( *SubI.side[0].mesh,1);
                         S[SubI.vois[0]].mesh.unload();
                     }
@@ -975,9 +1227,9 @@ struct make_interface_CL {
 #endif
                         SubI.side[1].mesh=new typename TV2::TMESH;
                         intersection_mesh_box(S[SubI.vois[2]].mesh->skin,CL[SubI.refCL].box1,*SubI.side[1].mesh);
-                        SubI.side[1].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
-                        SubI.side[1].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
-                        SubI.side[1].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
+                        SubI.side[1].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
+                        SubI.side[1].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
+                        SubI.side[1].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *SubI.side[1].mesh,1);
                         SubI.side[1].mesh->elem_list.change_hash_size( *SubI.side[0].mesh,1);
                         S[SubI.vois[2]].mesh.unload();
                     }
@@ -995,7 +1247,7 @@ struct mesh_unload {
 struct erase_useless {
     template <class TV1>
     void operator()(TV1 &Inter) const {
-        if (Inter.side.size() == 0) std::cout << "side nul !" << std::endl;
+        if (Inter.side.size() == 0) cout << "side nul !" << endl;
         else if (Inter.side[0].mesh->elem_list.size() == 0) Inter.side.free();
     }
 };
@@ -1020,54 +1272,58 @@ On construit ici le vecteur des sous-structures et des interfaces à partir des i
 #include "containers/evaluate_nb_cycles.h"
 
 template<class TV1, class TV2, class TV3, class TV4,class TV5>
-void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,TV2 &Inter, TV5 &CL, Param &process, TV3 &Stot,TV3 &SubS,TV4 &SubI) {
+void create_SST_INTER(STRUCTURE &structure,TV1 &S,TV2 &Inter, TV5 &CL, Param &process, TV3 &Stot,TV3 &SubS,TV4 &SubI) {
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     TicToc tic1;
     if (process.rank==0) tic1.start();
-    
-    
 #endif
     if (process.rank == 0)
-        std::cout << "Creation de la geometrie des SST" <<std::endl;
-    create_SST_typmat(data_user, geometry_user,S,process);      // to be TEST
+        cout << "Creation de la geometrie des SST" <<endl;
+    create_SST_typmat(structure,S,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "create_SST_typmat : " ;
+    if (process.rank==0) cout << "create_SST_typmat : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
-    
-    
     if (process.rank == 0)
-        std::cout << "\t Lecture maillages des SST" <<std::endl;
-    create_maillage_SST(data_user, geometry_user,S,process);    // to be TEST
+        cout << "\t Lecture maillages des SST" <<endl;
+    create_maillage_SST(structure,S,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation maillage : " ;
+    if (process.rank==0) cout << "Creation maillage : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
 
+    
+//     affich_SST(S,process);
+    //mise a jour des elements et noeuds de peau
+//     if (process.rank == 0)
+//         cout << "\t Update skin" << endl;
+//     for(unsigned i=0;i<S.size();i++) {
+//         S[i].mesh.update_skin();
+//     }
 
     if (process.rank == 0)
-        std::cout << "Creation des Interfaces" <<std::endl;
+        cout << "Creation des Interfaces" <<endl;
     if (process.rank == 0)
-        std::cout << "\tParfaites" << std::endl;
-    create_perfect_interfaces(S,Inter,process);                 // TODO
+        cout << "\tParfaites" << endl;
+    create_perfect_interfaces(S,Inter,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation interfaces parfaites : " ;
+    if (process.rank==0) cout << "Creation interfaces parfaites : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
 
     if (process.rank == 0)
-        std::cout << "\tJeux physiques" << std::endl;
-//     create_gap_interfaces(structure,S,Inter,process);        // TODO
+        cout << "\tJeux physiques" << endl;
+    create_gap_interfaces(structure,S,Inter,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation interfaces jeu physique : " ;
+    if (process.rank==0) cout << "Creation interfaces jeu physique : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
@@ -1075,11 +1331,11 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
 
     //create_other_interfaces(structure,S,Inter);
     if (process.rank == 0)
-        std::cout << "\tConditions aux limites" << std::endl;
-    create_interfaces_CL(S,Inter,CL, process);                  // TODO
+        cout << "\tConditions aux limites" << endl;
+    create_interfaces_CL(S,Inter,CL, process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation interfaces conditions limites : " ;
+    if (process.rank==0) cout << "Creation interfaces conditions limites : " ;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
@@ -1089,7 +1345,7 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
     mpi_repartition(S, Inter,process,Stot,SubS,SubI);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "MPI Repartition : " ;
+    if (process.rank==0) cout << "MPI Repartition : " ;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
@@ -1103,7 +1359,7 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
     }
 
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "\t Assignation des numeros aux interfaces " << std::endl;
+    if (process.rank==0) cout << "\t Assignation des numeros aux interfaces " << endl;
     //assignation du numero de l'interface
     for(unsigned i=0;i<Inter.size();i++){
         Inter[i].num=i;

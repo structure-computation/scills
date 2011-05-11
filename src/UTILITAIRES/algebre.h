@@ -22,13 +22,13 @@ template<class TT, class STO, class TYP > void eig_jacobi(Mat<TT,STO,TYP> &A,Vec
 
 typedef Mat<TT,STO,TYP> TTM;
 
-//cout << "Attention valable pour un matrice carree symetrique" << endl;
+//std::cout << "Attention valable pour un matrice carree symetrique" << std::endl;
 TT eps=1e-8;
 TT pi=3.14159265358979;
 int n=A.nb_rows();
 int nc=A.nb_cols();
 if (nc!=n)
-{cout << "matrice non carree" <<endl;
+{std::cout << "matrice non carree" <<std::endl;
 assert(0);}
 TTM B;
 B.resize(n,n);
@@ -50,9 +50,9 @@ while (maxi>eps and nbiter<=10000) {
    maxi=0.0;
    for(unsigned i=0;i<(unsigned)n;++i){
     	for(unsigned j=i+1;j<(unsigned)n;++j){
-		if (abs((TT)A(i,j))>=maxi){
+		if (std::abs((TT)A(i,j))>=maxi){
 		pq=Vec<unsigned,2>(i,j);
-		maxi=abs((TT)A(i,j));
+		maxi=std::abs((TT)A(i,j));
 		}
     	}
     }
@@ -63,28 +63,28 @@ while (maxi>eps and nbiter<=10000) {
     TT t;
     TT theta;
 
-    if (abs((TT)A(p,q))<eps){
+    if (std::abs((TT)A(p,q))<eps){
 	t=0.0;
 	theta=0.0;
 	}
     else {
 	TT v=(A(q,q)-A(p,p))/(2.0*A(p,q));
 
-	if (abs(v)<eps){
+	if (std::abs(v)<eps){
 		t=1.0;
 		theta=pi/4.0;
 		}
         else {
 		
-		t=-1.0*v + sign(v)*sqrt(1+pow(v,2));
-		theta=1.0/2.0*(atan(1.0/v));
+		t=-1.0*v + sign(v)*std::sqrt(1+pow(v,2));
+		theta=1.0/2.0*(std::atan(1.0/v));
 		}
  	}
 	
-	TT c=1.0/sqrt(1.0+pow(t,2));
+	TT c=1.0/std::sqrt(1.0+pow(t,2));
 	TT s=c*t;
-	c=cos(theta);
-	s=sin(theta);
+	c=std::cos(theta);
+	s=std::sin(theta);
 
 
    // calcul de la matrice de rotation
@@ -108,7 +108,7 @@ while (maxi>eps and nbiter<=10000) {
 }
 
 if (nbiter==10000){
-cout << "La methode n'a pas converge au bout de 10000 iterations, l'erreur est de : " <<  maxi<< endl;
+std::cout << "La methode n'a pas converge au bout de 10000 iterations, l'erreur est de : " <<  maxi<< std::endl;
 }
 
 D.resize(n);
@@ -138,7 +138,7 @@ for(unsigned i=0;i<n;++i){
       vnorm -= dot(V[j],V[i])*V[j];
    }
    V[i]=(V[i]-vnorm);
-   V[i]/=sqrt(dot(V[i],V[i]));
+   V[i]/=std::sqrt(dot(V[i],V[i]));
 }
 
 };
@@ -155,7 +155,7 @@ for(unsigned i=0;i<n;++i){
       vnorm -= dot(V[j],V[i])*V[j];
    }
    V[i]=(V[i]-vnorm);
-    V[i]/=sqrt(dot(V[i],V[i]));
+    V[i]/=std::sqrt(dot(V[i],V[i]));
 }
 
 };
@@ -163,15 +163,15 @@ for(unsigned i=0;i<n;++i){
 
  template<class TM> void affichsparse(TM &M){
    for(unsigned i=0;i<M.nb_rows();++i){
-   //cout <<M.data[i].indices.size()  << endl;
+   //std::cout <<M.data[i].indices.size()  << std::endl;
       for(unsigned j=0;j<M.data[i].indices.size();++j){
-         cout << "("<< i << ","<< M.data[i].indices[j] << ") "<< M.data[i].data[j]<< endl;
+         std::cout << "("<< i << ","<< M.data[i].indices[j] << ") "<< M.data[i].data[j]<< std::endl;
          }}
  };
  
   template<class TM> void affichsparse_row(TM &M, unsigned i){
       for(unsigned j=0;j<M.data[i].indices.size();++j)
-         cout << "("<< i << ","<< M.data[i].indices[j] << ") "<< M.data[i].data[j]<< endl;
+         std::cout << "("<< i << ","<< M.data[i].indices[j] << ") "<< M.data[i].data[j]<< std::endl;
  };
 
 template<class TV,class TT> TV mini(TV &v, TT &minim){

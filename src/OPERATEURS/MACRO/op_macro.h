@@ -12,11 +12,11 @@ template<class TV1> void renum_loc(TV1 &S, Vec<unsigned> &repSloc, Vec<unsigned>
       for(unsigned j=0;j<vois.size();++j){
          int jj=vois[j];
          if (jj!=-1){
-            if ( (find(repSglob,_1==(unsigned)jj)==0) and (find(newrepSloc,_1==(unsigned)jj)==0) )
+            if ( (find(repSglob,LMT::_1==(unsigned)jj)==0) and (find(newrepSloc,LMT::_1==(unsigned)jj)==0) )
                newrepSloc.push_back((unsigned)jj); // ajout du voisin s'il n'est pas deja dans la liste repSglob et si ce n'est pas le bord
          }
          unsigned q=S[k].edge[j].internum;
-         if ( find(numI,_1==q)==0 )
+         if ( find(numI,LMT::_1==q)==0 )
             numI.push_back(q); // ajout du numero d'interface s'il n'est pas deja dans numI
       }
    }
@@ -72,7 +72,7 @@ template<class TV1, class TV2> void Repere_ddl_Inter(TV1 &S, TV2 &Inter, Param &
 template<class TV1,class TV2> Mat<TYPEREEL, Sym<>, SparseLine<> > Assem_prob_macro(TV1 &S, TV2 &Inter, Param &process){
    Mat<TYPEREEL, Sym<>, SparseLine<> > bigK;
    bigK.resize(process.multiscale->sizeM);
-//    cout << bigK.size() << endl;
+//    std::cout << bigK.size() << endl;
    for(unsigned i=0;i<S.size();++i){
       Vec<unsigned> LErep,Krep;
       for(unsigned j=0;j<S[i].edge.size();++j){
@@ -84,10 +84,10 @@ template<class TV1,class TV2> Mat<TYPEREEL, Sym<>, SparseLine<> > Assem_prob_mac
       }
       //TODO macro adaptation des signes de LE pour approche en effort
       bigK[Krep]+=S[i].LE(LErep,LErep);
-      //cout << "SST " << i << endl;
-      //cout << LErep << endl;
-      //cout << Krep << endl;
-      //cout << S[i].LE(LErep,LErep).diag() << endl;
+      //std::cout << "SST " << i << endl;
+      //std::cout << LErep << endl;
+      //std::cout << Krep << endl;
+      //std::cout << S[i].LE(LErep,LErep).diag() << endl;
    }
    return bigK;        
 };
@@ -110,7 +110,7 @@ template<class T> void bloqrbm(Vec<Interface<3,T> > &Inter, Param &process,Vec<u
    T eps=1e-10;
 
    for(unsigned l=0;l<translations.size();++l){
-      if (find(process.rbm.mvts_bloques,_1==translations[l])==1){
+      if (find(process.rbm.mvts_bloques,LMT::_1==translations[l])==1){
          for(unsigned q=0;q<Inter.size();++q){
             if( length(Inter[q].BPI[2]-vectbase[l])<eps or length(-1.0*Inter[q].BPI[2]-vectbase[l])<eps ){
                repddlMbloq.push_back(Inter[q].repddl[2]);// blocage translation selon N3
@@ -126,7 +126,7 @@ template<class T> void bloqrbm(Vec<Interface<3,T> > &Inter, Param &process,Vec<u
 
 
    for(unsigned l=0;l<rotations.size();++l){
-      if (find(process.rbm.mvts_bloques,_1==rotations[l])==1){
+      if (find(process.rbm.mvts_bloques,LMT::_1==rotations[l])==1){
          for(unsigned q=0;q<Inter.size();++q){
             if( length(Inter[q].BPI[2]-vectbase2[l])<eps or length(-1.0*Inter[q].BPI[2]-vectbase2[l])<eps ){
                repddlMbloq.push_back(Inter[q].repddl[5]); // blocage rotation autour de N3
@@ -167,14 +167,14 @@ template<class T> Vec<unsigned> macro_CL(Vec<Interface<3,T> > &Inter, Param &pro
    if (bloq==0){ // blocage des mvts de corps rigide
       for(unsigned q=0;q<Inter.size();++q){
          if (Inter[q].type=="Ext"){
-            cout << "Blocage mvts corps rigide : interface " << q << endl;
+            std::cout << "Blocage mvts corps rigide : interface " << q << endl;
             repddlMbloq.append(Inter[q].repddl[range(6)]);
             break;
          }
       }
    }
    else if (process.rbm.bloq==1){
-      cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
+      std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
       bloqrbm(Inter, process,repddlMbloq);
    }
   
@@ -197,7 +197,7 @@ template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<u
    T eps=1e-10;
 
    for(unsigned l=0;l<translations.size();++l){
-      if (find(process.rbm.mvts_bloques,_1==translations[l])==1){
+      if (find(process.rbm.mvts_bloques,LMT::_1==translations[l])==1){
          for(unsigned q=0;q<Inter.size();++q){
             if( length(Inter[q].BPI[1]-vectbase[l])<eps or length(-1.0*Inter[q].BPI[1]-vectbase[l])<eps ){
                repddlMbloq.push_back(Inter[q].repddl[1]);// blocage translation selon N3
@@ -214,7 +214,7 @@ template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<u
 
 
    for(unsigned l=0;l<rotations.size();++l){
-      if (find(process.rbm.mvts_bloques,_1==rotations[l])==1){
+      if (find(process.rbm.mvts_bloques,LMT::_1==rotations[l])==1){
          for(unsigned q=0;q<Inter.size();++q){
             if( length(Inter[q].BPI[1]-vectbase2[l])<eps or length(-1.0*Inter[q].BPI[1]-vectbase2[l])<eps ){
                repddlMbloq.push_back(Inter[q].repddl[2]); // blocage rotation autour de N3
@@ -255,7 +255,7 @@ template<class T> Vec<unsigned> macro_CL(Vec<Interface<2,T> > &Inter, Param &pro
    if (bloq==0 && process.rbm.bloq==0){ // blocage des mvts de corps rigide
       for(unsigned q=0;q<Inter.size();++q){
          if (Inter[q].type=="Ext"){
-            cout << "\t Blocage mvts corps rigide : interface " << q << endl;
+            std::cout << "\t Blocage mvts corps rigide : interface " << q << endl;
             repddlMbloq.append(Inter[q].repddl[range(3)]);
             break;
          }
@@ -263,7 +263,7 @@ template<class T> Vec<unsigned> macro_CL(Vec<Interface<2,T> > &Inter, Param &pro
 
    }
    else if (process.rbm.bloq==1){
-      cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
+      std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
       bloqrbm(Inter, process,repddlMbloq);
    }
 
