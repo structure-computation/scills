@@ -39,8 +39,6 @@ void  definition_mpi_param(TP &process,T1 &argc, T2 &argv) {
 
 template <class TS,class TI, class TP, class T1, class T2>
 void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
-
-
     ///Lecture du fichier de repartion et creation des vecteurs de pointeurs de SST
     if (process.size>1) {//il s agit de creer un vecteur de vecteur qui donnera le numero des SST a parcourir par processeur
         string namein=process.structure->repertoire_des_maillages;

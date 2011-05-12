@@ -130,7 +130,7 @@ struct ModifTypeElem {
 \brief lecture du maillage à paritr de geometry_user issue de SC_create_2
 */
 template<class TM>
-void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst) throw(std::runtime_error) {
+void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_sst) throw(std::runtime_error) {
     //TM mesh;
     typedef typename TM::Tpos T;
     typedef typename TM::Pvec Pvec;
@@ -138,21 +138,21 @@ void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst)
     typedef typename TM::EA EA;
   
     // obtaining nbnode, nbelem
-    unsigned nbnode = geometry_user.find_group_elements(num_sst)->map_mesh_nodes.size();
-    unsigned nbelem = geometry_user.find_group_elements(num_sst)->nb_elements;
+    unsigned nbnode = geometry_user.find_group_elements(id_sst)->map_mesh_nodes.size();
+    unsigned nbelem = geometry_user.find_group_elements(id_sst)->nb_elements;
   
     //ajout des noeuds au maillage
     map<int,TNode *> map_num_node;
     Vec<TYPE,DIM> vec;
     for(int i_node=0; i_node<nbnode; i_node++){
         for(unsigned d=0; d<DIM; d++){
-            vec[d] = geometry_user.find_group_elements(num_sst)->local_nodes[d][i_node];
+            vec[d] = geometry_user.find_group_elements(id_sst)->local_nodes[d][i_node];
         }
         map_num_node[i_node] = mesh.add_node(vec);
     }
     
     //ajout des elements
-    switch (geometry_user.find_group_elements(num_sst)->pattern_id){
+    switch (geometry_user.find_group_elements(id_sst)->pattern_id){
         //for Triangle
         case 0 :{
             int nb_node_elem = 3;
@@ -160,10 +160,10 @@ void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst)
             vn.resize(nb_node_elem);
             for(int i_elem=0; i_elem<nbelem; i_elem++) {
                 for(int i_node=0; i_node<nb_node_elem; i_node++) {
-                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
                 }
                 typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle(),DefaultBehavior(),&vn[0]));
-                ne->group = num_sst;
+                ne->group = id_sst;
             }
             break;
         }
@@ -174,10 +174,10 @@ void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst)
             vn.resize(nb_node_elem);
             for(int i_elem=0; i_elem<nbelem; i_elem++) {
                 for(int i_node=0; i_node<nb_node_elem; i_node++) {
-                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
                 }
                 typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle_6(),DefaultBehavior(),&vn[0]));
-                ne->group = num_sst;
+                ne->group = id_sst;
             }
             break;
         }
@@ -188,10 +188,10 @@ void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst)
             vn.resize(nb_node_elem);
             for(int i_elem=0; i_elem<nbelem; i_elem++) {
                 for(int i_node=0; i_node<nb_node_elem; i_node++) {
-                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
                 }
                 typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra(),DefaultBehavior(),&vn[0]));
-                ne->group = num_sst;
+                ne->group = id_sst;
             }
             break;
         }
@@ -202,10 +202,10 @@ void read_mesh_geometry_user(TM &mesh, GeometryUser &geometry_user, int num_sst)
             vn.resize(nb_node_elem);
             for(int i_elem=0; i_elem<nbelem; i_elem++) {
                 for(int i_node=0; i_node<nb_node_elem; i_node++) {
-                    vn[i_node] = map_num_node[geometry_user.find_group_elements(num_sst)->local_connectivities[i_node][i_elem]];
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
                 }
                 typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra_10(),DefaultBehavior(),&vn[0]));
-                ne->group = num_sst;
+                ne->group = id_sst;
             }
             break;
         }
@@ -245,6 +245,10 @@ struct Meshmulti {
     Vec<double,Carac::dim> f_vol;//champs de force volumique
     double elastic_modulus,poisson_ratio,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,v1,v2,alpha_1,alpha_2,alpha_3,viscosite;
     string type_formulation;
+    
+    //ajout pour les données venant de SC_create_2
+    int id_sst;
+    GeometryUser *geometry_user;  //pointeur vers geometry_user
     //
     Meshmulti() {
         flag=0;
@@ -271,8 +275,7 @@ struct Meshmulti {
             total_allocated[ typeid(TM).name() ] += sizeof(TM);
 #endif
             m = new TM;
-            if ((const int &)name.find(".avs")!=-1) read_avs(*m,name.c_str());
-            if ((const int &)name.find(".geof")!=-1) read_geof(*m,name.c_str());
+            read_mesh_sst_geometry_user(*m, *geometry_user, id_sst);
             flag=1;
             if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
             node_list_size=m->node_list.size();
@@ -280,18 +283,14 @@ struct Meshmulti {
             if (sousintegration == "p") sousint();
         }
     }
-    void load(GeometryUser &geometry_user,int num_sst) {///chargement du maillage à partir de geometry_user
+    void load(GeometryUser &geometry_user_,int id_sst_) {///chargement du maillage à partir de geometry_user
         if (name != "" and flag == 0) {
 #ifdef PRINT_ALLOC
             total_allocated[ typeid(TM).name() ] += sizeof(TM);
 #endif
-            m = new TM;
-            read_mesh_geometry_user(*m, geometry_user, num_sst);
-            flag=1;
-            if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
-            node_list_size=m->node_list.size();
-            elem_list_size=m->elem_list.size();
-            if (sousintegration == "p") sousint();
+            //ajout pour SC_create_2
+            id_sst = id_sst_;
+            geometry_user = &geometry_user_;
         }
     }
     //    
