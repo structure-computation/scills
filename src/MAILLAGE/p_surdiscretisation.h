@@ -94,7 +94,7 @@ using namespace std;
 //       rep_nodes[i]=e.node(i)->number_in_original_mesh();
 //    
 //    for(unsigned i=0;i<nb_children;i++){
-//      typename TM::EA *ea = m.get_children_of(e,Number<number>())[i]; //element ancestor i;
+//      typename TM::EA *ea = m.get_children_of(e,LMT::Number<number>())[i]; //element ancestor i;
 //      typename TM::Pvec G = center(*ea);
 //      
 //      Noeud_Hash<typename TE::T,TM::dim> newnoeud;
@@ -124,14 +124,14 @@ La procédure est la suivante :
 - Ayant ainsi repéré les numéros de tous les nouveaux noeuds obtenus pour un élément donné, on peut modifier cet élément. On l'élimine et on le remplace par un élément de degré plus élevé s'appuyant sur les noeuds dont les numéros ont été relevés.
 */
 template<unsigned number,class TM> void p_surdiscretise(TM &m){
-   m.sub_mesh(Number<1>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
-   m.sub_mesh(Number<2>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
+   m.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
+   m.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
    m.update_elem_children();
    m.update_elem_parents();   
    //1ere etape : ajout des noeuds et creation de la table de hashage
    typedef Noeud_Hash<typename TM::Tpos, TM::dim> TNH;
    hash_map<TNH, unsigned, MyHash, NodesEq> hm;
-   apply(m.sub_mesh(Number<number>()).elem_list,add_nodes(),m,hm);
+   apply(m.sub_mesh(LMT::Number<number>()).elem_list,add_nodes(),m,hm);
    
    //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
    TM m2;

@@ -17,60 +17,60 @@ void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<string> &fields_to_s
     string name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << endl;
+    os << process.size << std::endl;
     if (process.size==1 or process.rank>0)
       for( unsigned i=0;i<S.size() ;i++ ){
       for( unsigned kk=0;kk<S[i].edge.size() ;kk++ ){
         unsigned q=S[i].edge[kk].internum;
         unsigned j=S[i].edge[kk].datanum;
 //    for(unsigned q=0;q<Inter.size();q++) {
-        os<< "Inter " << Inter[q].num <<endl;
+        os<< "Inter " << Inter[q].num <<std::endl;
 //        for(unsigned j=0;j<Inter[q].side.size();j++) {
-            os << "Side " << j << endl;
+            os << "Side " << j << std::endl;
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-                os << "Pastemps " << pt<<endl;
+                os << "Pastemps " << pt<<std::endl;
                 for(unsigned k=0;k<fields_to_save.size();k++) {
                     if(fields_to_save[k]=="Fchap") {
-                        os << "Fchap" <<endl;
+                        os << "Fchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Fchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Fchap.size() );
-                        //if (pt == 2) cout << process.rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << endl;
+                        //if (pt == 2) std::cout << process.rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << std::endl;
                     } else if(fields_to_save[k]=="F") {
-                        os << "F" <<endl;
+                        os << "F" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t[pt].F.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].F.size() );
                     } else if(fields_to_save[k]=="Wchap") {
-                        os << "Wchap" <<endl;
+                        os << "Wchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wchap.size() );
                     } else if(fields_to_save[k]=="Wpchap") {
-                        os << "Wpchap" <<endl;
+                        os << "Wpchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wpchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wpchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wpchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wpchap.size() );
                     } else if(fields_to_save[k]=="W") {
-                        os << "W" <<endl;
+                        os << "W" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].W.ptr(), sizeof(T)*Inter[q].side[j].t[pt].W.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].W.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].W.size() );
                     } else if(fields_to_save[k]=="Wp") {
-                        os << "Wp" <<endl;
+                        os << "Wp" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wp.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wp.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wp.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wp.size() );
                     } else if(fields_to_save[k]=="WtildeM") {
-                        os << "WtildeM" <<endl;
+                        os << "WtildeM" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].WtildeM.ptr(), sizeof(T)*Inter[q].side[j].t[pt].WtildeM.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].WtildeM.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].WtildeM.size() );
                     } else {
-                        cout << "Erreur dans le choix des champs a sauvegarder " << endl;
+                        std::cout << "Erreur dans le choix des champs a sauvegarder " << std::endl;
                         assert(0);
                     }
                 }
-                os << "finchamps"<<endl;
+                os << "finchamps"<<std::endl;
             }
-            os << "finPastemps" <<endl;
-         os << "finSide" <<endl;
+            os << "finPastemps" <<std::endl;
+         os << "finSide" <<std::endl;
          }
     }
-    os << "fin"<<endl;
+    os << "fin"<<std::endl;
     os.close();
 }
 
@@ -98,12 +98,12 @@ void read_data_inter(TV2 &Inter, Param &process) {
     if (is ) {
       getline(is,str);
       if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
-        cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << endl;
+        std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
       } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
-        cout << "Aucun fichier de sauvegarde a lire" << endl;
+        std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
         assert(0);
     }
     is.close();
@@ -134,7 +134,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
                 //lecture numero du cote
                 string str2;
                 getline(is,str2);
-                //cout << str2 << endl;
+                //std::cout << str2 << std::endl;
                 if(str2=="finSide") {
                     break;
                 } else {
@@ -167,7 +167,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
                                 } else if(str4=="F") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t[pt].F.size() );
                                   if(process.nom_calcul=="incr") is.read( (char *)Inter[q].side[j].t_post[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].F.size() );
-                                  //cout << Inter[q].side[j].t_post[pt].F << endl;
+                                  //std::cout << Inter[q].side[j].t_post[pt].F << std::endl;
                                 } else if(str4=="Wchap") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wchap.size() );
                                   if(process.nom_calcul=="incr") is.read( (char *)Inter[q].side[j].t_post[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wchap.size() );
@@ -186,7 +186,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
                                 } else if(str4=="finchamps") {
                                     break;
                                 }  else {
-                                    cout << "Erreur dans le choix des champs a lire " << endl;
+                                    std::cout << "Erreur dans le choix des champs a lire " << std::endl;
                                     assert(0);
                                 }
                             }
@@ -218,28 +218,28 @@ void save_data_sst(TV1 &S, Param &process, Vec<string> &fields_to_save) {
     string name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << endl;
+    os << process.size << std::endl;
     if (process.latin->save_depl_SST ==1)
     for(unsigned q=0;q<S.size();q++) {
-        os<< "S " << S[q].num <<endl;
+        os<< "S " << S[q].num <<std::endl;
         for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-            os << "Pastemps " << pt <<endl;
+            os << "Pastemps " << pt <<std::endl;
             for(unsigned k=0;k<fields_to_save.size();k++) {
                 if(fields_to_save[k]=="q") {
-                    os << "q" << endl;
+                    os << "q" << std::endl;
                     if(process.nom_calcul=="latin") os.write( (char *)S[q].t[pt].q.ptr(), sizeof(T)*S[q].t[pt].q.size() );
                     if(process.nom_calcul=="incr")  os.write( (char *)S[q].t_post[pt].q.ptr(), sizeof(T)*S[q].t_post[pt].q.size() );
-                    //cout << process.rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << endl;
+                    //std::cout << process.rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << std::endl;
                 } else {
-                    cout << "Erreur dans le choix des champs a sauvegarder " << endl;
+                    std::cout << "Erreur dans le choix des champs a sauvegarder " << std::endl;
                     assert(0);
                 }
             }
-            os << "finchamps"<<endl;
+            os << "finchamps"<<std::endl;
         }
-        os << "finPastemps" <<endl;
+        os << "finPastemps" <<std::endl;
     }
-    os << "fin"<<endl;
+    os << "fin"<<std::endl;
     os.close();
 }
 
@@ -262,12 +262,12 @@ void read_data_sst(TV1 &S, Param &process) {
     if (is) {
       getline(is,str);
       if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
-        cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << endl;
+        std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
       } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
-      cout << "Aucun fichier de sauvegarde a lire" << endl;
+      std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
       assert(0);
     }
     is.close();
@@ -313,14 +313,14 @@ void read_data_sst(TV1 &S, Param &process) {
                         //lecture nom du champ
                         string str4;
                         getline(is,str4);
-                        //cout << str4 << endl;
+                        //std::cout << str4 << std::endl;
                         if(str4=="q") {
                           if(process.nom_calcul=="latin") is.read( (char *)S[q].t[pt].q.ptr(), sizeof(T)*S[q].t[pt].q.size() );
                           if(process.nom_calcul=="incr") is.read( (char *)S[q].t_post[pt].q.ptr(), sizeof(T)*S[q].t_post[pt].q.size() );
                          } else if(str4=="finchamps") {
                             break;
                         } else {
-                            cout << "Erreur dans le choix des champs a lire " << endl;
+                            std::cout << "Erreur dans le choix des champs a lire " << std::endl;
                             assert(0);
                         }
                     }

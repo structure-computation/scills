@@ -59,7 +59,7 @@ void fake_assignation_materials_property() {
 
 template <class TV1, class TV2>
 void assignation_materials_property_SST(const XmlNode &n, TV1 &S, TV2 &Inter,Param &process){
-   if (process.rank == 0) cout << "\t Assignation du materiau aux SST" << endl;
+   if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
    // lecture des proprietes materiau des ssts
    Vec<SstCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > matprop;
    read_material_properties(matprop,process,n); 
@@ -73,7 +73,7 @@ void assignation_materials_property_SST(const XmlNode &n, TV1 &S, TV2 &Inter,Par
 
 template <class TV1, class TV2>
 void assignation_materials_property_INTER(const XmlNode &n, TV2 &Inter, TV1 &S, Param &process){
-   if (process.rank == 0) cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << endl;
+   if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
    Vec<InterCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > propinter;
    read_propinter(propinter,n);
    modif_inter(Inter,propinter,S,process);

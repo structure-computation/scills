@@ -51,10 +51,10 @@ void testMN(TMAT &N,TM &mesh,TVe &nodeeq, INTER &inter) {
     xbord.resize(N.nb_cols(),0.0);
     for(unsigned i=0;i<mesh.node_list.size();++i) {
         xbord[range(i*dim,(i+1)*dim)]=mesh.node_list[i].pos;
-        cout << mesh.node_list[i].pos << endl;
+        std::cout << mesh.node_list[i].pos << std::endl;
     }
-    cout << "\n" << endl;
-    cout << "xbord" << xbord <<endl;
+    std::cout << "\n" << std::endl;
+    std::cout << "xbord" << xbord <<std::endl;
 
     TV xinter;
     xinter.resize(N.nb_rows(),0.0);
@@ -62,8 +62,8 @@ void testMN(TMAT &N,TM &mesh,TVe &nodeeq, INTER &inter) {
         xinter[range(i*dim,(i+1)*dim)]=nodeeq[i];
     }
     //
-    cout << "xinter " << xinter << endl;
-    cout <<  "Nxbord-xinter" << N*xbord-xinter << endl;
+    std::cout << "xinter " << xinter << std::endl;
+    std::cout <<  "Nxbord-xinter" << N*xbord-xinter << std::endl;
 
 
 };
@@ -81,10 +81,10 @@ Cette fonction est par contre nécessairement utile pour des maillages d'interfac
 struct  Corresp_ddlinter {
     template<class INTER >
     void operator()(INTER &Inter) const {
-        //cout << Inter.vois << endl;
+        //std::cout << Inter.vois << std::endl;
         if (Inter.side.size()==2) {
             if (Inter.side[0].nodeeq.size() != Inter.side[1].nodeeq.size()) {
-              cout << "attention maillages incompatibles - non implemente (nbnodeeq) - inter : " << Inter.num << " voisin " << Inter.vois << endl;
+              std::cout << "attention maillages incompatibles - non implemente (nbnodeeq) - inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
                 assert(0);
             }
 
@@ -117,18 +117,18 @@ struct  Corresp_ddlinter {
                         candidats.erase_elem_nb(j);
                         break;
                     }
-//                    cout << "Num elem correspondant " << i << " " << candidats[j] << " " << length(g2-g1)<< " "  << dot(g2-g1,n1) << " " << length(vect_prod(g2-g1,n1)) << " " << g1 << " " << g2 << " " << n1 << endl;
+//                    std::cout << "Num elem correspondant " << i << " " << candidats[j] << " " << length(g2-g1)<< " "  << dot(g2-g1,n1) << " " << length(vect_prod(g2-g1,n1)) << " " << g1 << " " << g2 << " " << n1 << std::endl;
                 }
             }
-            //if (test==0) cout << "On n'a jamais atteind le critere qui va bien" << endl;
-            if (Inter.comp=="Contact_jeu_physique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << endl;
-            if (Inter.comp=="periodique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << endl;
+            //if (test==0) std::cout << "On n'a jamais atteind le critere qui va bien" << std::endl;
+            if (Inter.comp=="Contact_jeu_physique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) std::cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << std::endl;
+            if (Inter.comp=="periodique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) std::cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << std::endl;
             if (candidats.size() != 0) {
-              cout << "attention maillages incompatibles - non implemente - jeu inter : " << Inter.num << " voisin " << Inter.vois << endl;
+              std::cout << "attention maillages incompatibles - non implemente - jeu inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
                 assert(0);
             }
 
-            //cout << "Correspondance terminee" << endl;
+            //std::cout << "Correspondance terminee" << std::endl;
         }
     }
 };
@@ -137,7 +137,7 @@ template <class TV1>
 unsigned nb_moment_inertie_inf_eps(TV1 V,double eps){
     unsigned zob=0;
     for(unsigned i=0;i<V.size();i++)
-        if (abs(V[i])< eps)
+        if (std::abs(V[i])< eps)
             zob++;
     return zob;
 }
@@ -171,7 +171,7 @@ struct Apply_nb_macro {
                 Inter.nb_macro_espace=12;
             }
         } else {
-            cout << "Nbre de fct non implemente : a modifier" << endl;
+            std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
             assert(0);
         }
     }
@@ -193,7 +193,7 @@ struct Apply_nb_macro {
                 Inter.nb_macro_espace=6;
             }
         } else {
-            cout << "Nbre de fct non implemente : a modifier" << endl;
+            std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
             assert(0);
         }
     }
@@ -352,7 +352,7 @@ struct CreateProjMacro {
                     Tsupp=T[i];
                     for(unsigned j=0;j<i;j++)
                         Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
-                    T[i] = Tsupp/sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
+                    T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
                 }
 
                 // stockage matrice de base macro
@@ -466,7 +466,7 @@ struct CreateProjMacro {
                     Tsupp=T[i];
                     for(unsigned j=0;j<i;j++)
                         Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
-                    T[i] = Tsupp/sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
+                    T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
                 }
 
                 // stockage matrice de base macro

@@ -20,7 +20,7 @@ void update_jeu(TV2 &Inter,Param &process){
     symbols.push_back("y");
     symbols.push_back("z");
   }
-  //if (process.rank==0) cout << Inter.param_comp->jeu << endl;
+  //if (process.rank==0) std::cout << Inter.param_comp->jeu << std::endl;
   Vec<string> jeu_cut=tokenize(Inter.param_comp->fcts_spatiales,';');
   if (jeu_cut.size() == 1) {//Jeu normal
     Ex expr;
@@ -52,7 +52,7 @@ void update_jeu(TV2 &Inter,Param &process){
 
     }
   }
-  //if (process.rank==0) cout << Inter.param_comp->jeu << endl;
+  //if (process.rank==0) std::cout << Inter.param_comp->jeu << std::endl;
 }
 
 ///Convertit une chaine de caractere en minuscule
@@ -124,15 +124,15 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
             sleep(1);
         }
         if (process.rank == 0)
-            cout << "> ";
-        //cout << process.rank << " : "  << process.size << endl;
+            std::cout << "> ";
+        //std::cout << process.rank << " : "  << process.size << std::endl;
 
         if (process.rank == 0) {
             if (f) {
                 getline(f,str);
-                cout << str << endl;
+                std::cout << str << std::endl;
             } else {
-                getline(cin,str);
+                getline(std::cin,str);
                 process.affichage->command_file="";///permet de permettre le reaffichage en mode interactivite a la fin de la lecture du fichier de commande
             }
         }
@@ -140,7 +140,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
 
         // rechercher la fonction associée à Param
         v=tokenize(str,' ');
-        //cout << process.rank << " : " << v << endl;
+        //std::cout << process.rank << " : " << v << std::endl;
         if( v.size() > 0 and v[0] != "exit") {
             map<string, parametre_fct>::const_iterator i = param_map.find( v[0] );
             if ( i == param_map.end() ) {
@@ -159,7 +159,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                 //if(v[0]=="trac_sst") {affichage_resultats(SubS,process); process.affichage->fichiers_paraview_sst_crees=1;}
                 if(v[0]=="trac_sst_temps") {
                     if (process.latin->save_depl_SST!=1){
-                      if(process.rank == 0) cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
+                      if(process.rank == 0) std::cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << std::endl;
                     } else {
                     if(process.affichage->fichiers_paraview_sst_crees==1) {
                         if (process.rank == 0)
@@ -192,7 +192,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                 if(v[0]=="mesh_inter") affichage_maillage(SubS,SubI,S,process);
                 if (process.rank == 0)
                     if(v[0]=="trac_error") {
-                        cout << process.latin->error[range(process.latin->iter+1)] << endl;
+                        std::cout << process.latin->error[range(process.latin->iter+1)] << std::endl;
                         if (process.affichage->command_file=="") {
                             GnuPlot gp;
                             gp.plot(log10(process.latin->error[range(process.latin->iter+1)]));
@@ -205,33 +205,33 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                   affichage_cl(SubS,Inter,process); if (process.size >1) MPI_Barrier(MPI_COMM_WORLD);
                 if(v[0]=="modif_param_inter"){
                   if (v.size()> 1) {
-                  if (find(range(Inter.size()),_1==(unsigned)atoi(v[1].c_str()))){
+                  if (find(range(Inter.size()),LMT::_1==(unsigned)atoi(v[1].c_str()))){
                     unsigned q=atoi(v[1].c_str());
                     if (Inter[q].comp=="effort" or Inter[q].comp=="depl" or Inter[q].comp=="depl_normal"){
-                      if (process.rank==0) cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction spatiale remplacant " << CL[Inter[q].refCL].fcts_spatiales << endl;
+                      if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction spatiale remplacant " << CL[Inter[q].refCL].fcts_spatiales << std::endl;
                       if (process.rank == 0) {
                         if (f) {
                           getline(f,str);
-                          cout << str << endl;
+                          std::cout << str << std::endl;
                         } else {
-                          getline(cin,str);
+                          getline(std::cin,str);
                           process.affichage->command_file="";
                         }
                       }
                       if (process.size > 1) MPI_Bcast(str,0);
                       Vec<string> fctlu=tokenize(str,';');
                       if (fctlu.size()==CL[Inter[q].refCL].fcts_spatiales.size()) CL[Inter[q].refCL].fcts_spatiales=fctlu;
-                      else if (process.rank==0) cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << endl;
+                      else if (process.rank==0) std::cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << std::endl;
                       
                       if (v.size()==3 and v[2]=="temps"){
                           for( unsigned kk=0;kk<CL[Inter[q].refCL].fcts_temporelles.size() ;kk++ ){
-                              if (process.rank==0) cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction temporelle remplacant " << CL[Inter[q].refCL].fcts_temporelles[kk] << endl;
+                              if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction temporelle remplacant " << CL[Inter[q].refCL].fcts_temporelles[kk] << std::endl;
                               if (process.rank == 0) {
                                   if (f) {
                                       getline(f,str);
-                                      cout << str << endl;
+                                      std::cout << str << std::endl;
                                   } else {
-                                      getline(cin,str);
+                                      getline(std::cin,str);
                                       process.affichage->command_file="";
                                   }
                               }
@@ -239,17 +239,17 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                               CL[Inter[q].refCL].fcts_temporelles[kk]=tokenize(str,';');
                           //Vec<string> fctlu=tokenize(str,';');
                           //if (fctlu.size()==CL[Inter[q].refCL].fcts_spatiales.size()) CL[Inter[q].refCL].fcts_spatiales=fctlu;
-                          //else if (process.rank==0) cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << endl;
+                          //else if (process.rank==0) std::cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << std::endl;
                           }
                       }
                     } else if (Inter[q].comp=="Jeu_impose" or Inter[q].comp=="Contact_jeu"){
-                      if (process.rank==0) cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction spatiale remplacant " << Inter[q].param_comp->fcts_spatiales << endl;
+                      if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction spatiale remplacant " << Inter[q].param_comp->fcts_spatiales << std::endl;
                       if (process.rank == 0) {
                         if (f) {
                           getline(f,str);
-                          cout << str << endl;
+                          std::cout << str << std::endl;
                         } else {
-                          getline(cin,str);
+                          getline(std::cin,str);
                           process.affichage->command_file="";
                         }
                       }
@@ -259,29 +259,29 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                       t2=tokenize(Inter[q].param_comp->fcts_spatiales,';');
                       if (t1.size()== t2.size() or t1.size()==1){
                       Inter[q].param_comp->fcts_spatiales=str;
-                      if (find(process.multi_mpi->listinter,_1==q)) update_jeu(Inter[q],process);
-                      } else if (process.rank==0) cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << endl;
+                      if (find(process.multi_mpi->listinter,LMT::_1==q)) update_jeu(Inter[q],process);
+                      } else if (process.rank==0) std::cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << std::endl;
                     } else if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique"){
-                      if (process.rank==0) cout << "Interface de type " << Inter[q].comp << " donner le nouveau coefficient de frottement " << Inter[q].param_comp->coeffrottement << endl;
+                      if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " donner le nouveau coefficient de frottement " << Inter[q].param_comp->coeffrottement << std::endl;
                       if (process.rank == 0) {
                         if (f) {
                           getline(f,str);
-                          cout << str << endl;
+                          std::cout << str << std::endl;
                         } else {
-                          getline(cin,str);
+                          getline(std::cin,str);
                           process.affichage->command_file="";
                         }
                       }
                       if (process.size > 1) MPI_Bcast(str,0);
                       Inter[q].param_comp->coeffrottement=atof(str.c_str());
                     } else {
-                      if (process.rank==0) cout << "Interface de type " << Inter[q].comp << " non modifiable" << endl;
+                      if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " non modifiable" << std::endl;
                     }
                   } else {
-                    if (process.rank==0) cout << "mauvais numero d interface" << endl;
+                    if (process.rank==0) std::cout << "mauvais numero d interface" << std::endl;
                   }
                   } else {
-                    if (process.rank==0) cout << "donner un numero d interface" << endl;
+                    if (process.rank==0) std::cout << "donner un numero d interface" << std::endl;
                   }
                 }
                 if(v[0]=="calcul") {

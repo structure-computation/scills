@@ -29,43 +29,31 @@ struct Interface
    typedef Vec<TT_,dim_> Pvec; ///< type des points
    typedef PARAM_COMP_INTER PARAM_COMP; ///< type des parametres supplementaires pour les comportements
    
-   void free(){///suppression des interfaces
-     //BPI.free();
-     //Moments_inertie.free();
-     vois.free();
-     //box.free();
-     repddl.free();
-
-#ifdef PRINT_ALLOC
-     if (side[0].mesh != NULL) total_allocated[ typeid(typename Interface::TMESH).name() ] -= sizeof(typename Interface::TMESH);
-#endif
-     for( unsigned i=0;i<side.size() ;i++ )
-         delete side[i].mesh;
-
-     side.free();
-
-     param_comp->free();
-   }
-   
    
 //Geometrie
-   Pvec G;  ///< centre de gravite
-   Vec<Pvec, dim> BPI; ///< Base principale d'inertie de l'interface
-   Vec<T,dim> Moments_inertie; ///< Moments d'inertie pour savoir si l'interface est plane ou non
-   Vec<int> vois; ///< sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
-   Vec<Pvec,2> box; ///< boite contenant l'interface
-   T measure; ///< mesure de l'interface (aire ou longueur)
+    int id;     ///< id de l'interface 
+    int num;     ///< numero de l'interface 
+    
+    Pvec G;  ///< centre de gravite
+    Vec<Pvec, dim> BPI; ///< Base principale d'inertie de l'interface
+    Vec<T,dim> Moments_inertie; ///< Moments d'inertie pour savoir si l'interface est plane ou non
+    Vec<int> vois; ///< sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
+    Vec<Pvec,2> box; ///< boite contenant l'interface
+    T measure; ///< mesure de l'interface (aire ou longueur)
 
 //comportement de l'interface
-   string type; ///< type d'interface (exterieure : Ext ou interieure : Int )
-   string comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact
-   int refCL;   ///< numero de la condition aux limites concernee pour les interfaces exterieures
-
+    string type; ///< type d'interface (exterieure : Ext ou interieure : Int )
+    string comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact
+    int refCL;   ///< numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
+    int edge_id;   ///< identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
+    int id_link;   ///< identite du behaviour_links dans le data_user issu du json
+    int id_bc;     ///< identite du behaviour_bc dans le data_user issu du json
+                                                                                                                                  
 // donnees liees au macro
-   Vec<int> repddl; ///< reperage des ddls dans le probleme macro
-   int nb_macro_total; ///< nombre de fct macro total
-   int nb_macro_espace; ///< nombre de fct de base macro en espace
-   int num;	///< numero de l'interface 
+    Vec<int> repddl; ///< reperage des ddls dans le probleme macro
+    int nb_macro_total; ///< nombre de fct macro total
+    int nb_macro_espace; ///< nombre de fct de base macro en espace
+
 
 /// classe decrivant les grandeurs ou champs d'un cote d'une interface
    struct Side
@@ -127,10 +115,24 @@ struct Interface
       Vec<Time> t; ///< Vecteurs piquet de temps
       Vec<Time> t_post; ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
    };
-
    Vec<Side> side; ///< cotes de l'interface
 
    PARAM_COMP_INTER *param_comp; ///<  supplementaires pour le comportement des interfaces (jeu coefficient de frottement Gcrit...)
+   
+   
+    void free(){///suppression des interfaces
+        vois.free();;
+        repddl.free();
+
+#ifdef PRINT_ALLOC
+        if (side[0].mesh != NULL) total_allocated[ typeid(typename Interface::TMESH).name() ] -= sizeof(typename Interface::TMESH);
+#endif
+        for( unsigned i=0;i<side.size() ;i++ )
+            delete side[i].mesh;
+
+        side.free();
+        param_comp->free();
+    }
    
 };
 

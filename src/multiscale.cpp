@@ -103,22 +103,16 @@ int main(int argc,char **argv) {
     
         std::string id_model = argv[ 1 ];
         std::string id_calcul = argv[ 2 ];
-        std::string model_path = "/share/sc2/Developpement/MODEL/";
-        std::string mesh_path = model_path + "model_" + id_model + "/MESH";
-        std::string calcul_path = model_path + "model_" + id_model + "/calcul_" + id_calcul ;
-        std::string calcul_file = calcul_path + "/calcul.json" ;
-        String name_visu_hdf; 
-        name_visu_hdf << mesh_path.c_str() << "/visu_geometry.h5";
         
         // ******************************************************************************************************************
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
-        DataUser data_user(model_path, calcul_path, id_calcul.c_str());
-        data_user.read_json_calcul(calcul_file);                         // on ne lit pas les info micro
+        DataUser data_user(id_model, id_calcul);
+        data_user.read_json_calcul();
        
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
-        GeometryUser geometry_user;
-        geometry_user.read_hdf5(name_visu_hdf, false);
+        GeometryUser geometry_user(id_model, id_calcul);
+        geometry_user.read_hdf5(false,true);                       // true si on lit les info micro, true si on lit toutes les infos
         geometry_user.split_group_edges_within_geometry(data_user);
     
         structure.extension=".hdf";
@@ -151,7 +145,8 @@ int main(int argc,char **argv) {
         Vec<Interface<DIM,TYPEREEL> > Inter;
         Vec<Boundary<DIM,TYPEREEL> > CL;
         Glob<DIM,TYPEREEL> Global;
-        multiscale(n,S,Inter,process,CL,Global, data_user);
+/*        multiscale(n,S,Inter,process,CL,Global, data_user);*/
+        multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
 
         
 #ifdef INFO_TIME

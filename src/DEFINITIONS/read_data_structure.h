@@ -1,5 +1,12 @@
+#include "DataUser.h"
+
+using namespace Metil;
 using namespace LMT;
 using namespace std;
+
+inline void read_data_structure(Param &process, DataUser &data_user) {
+};
+
 
 inline void read_data_structure(Param &process, const XmlNode &n) {
 

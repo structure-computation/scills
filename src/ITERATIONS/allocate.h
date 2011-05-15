@@ -79,7 +79,7 @@ template<class TV1, class TV2, class GLOB> void allocate_quantities(TV1 &S, TV2 
       nbpastemps=1;
    else if (process.nom_calcul=="latin")
       nbpastemps=process.temps->nbpastemps;
-   else{cout << "Nom de clacul non implemente dans allocate.h" << endl;assert(0);}
+   else{std::cout << "Nom de clacul non implemente dans allocate.h" << std::endl;assert(0);}
    
    if (process.latin->save_depl_SST==1)
    for(unsigned i=0;i<S.size();++i){

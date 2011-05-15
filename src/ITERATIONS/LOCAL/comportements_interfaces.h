@@ -336,7 +336,7 @@ void compt_contact (INTER &Inter,TEMPS &temps) {
             // test glissement adherence
             Vec<TT,INTER::dim> T;
             T=(ProjT(Wp2,n)-ProjT(Wp1,n) -h2t*ProjT(F2,n) + h1t*ProjT(F1,n))/(h2t+h1t);
-            TT g = f*abs(Fchap1n);
+            TT g = f*std::abs(Fchap1n);
 
             TT normT=norm_2(T);
             Vec<TT,INTER::dim> Fchap1t,Fchap2t,Wpchap1t,Wpchap2t;
@@ -555,11 +555,11 @@ void compt_cohesif (INTER &Inter,TEMPS &temps) {
                 //else{cout << "Mauvais type de calcul" << endl; assert(0);}
                 
                 //calcul des forces d'endommagement normales et tangentielles a partir de Fchap1
-                TT Ydn = (dot(Fchap1,n)>=0)*( pow((dot(Fchap1,n)/(1.-d)),2.)/(2.*damage.kn) );
+                TT Ydn = (dot(Fchap1,n)>=0)*( std::pow((dot(Fchap1,n)/(1.-d)),2.)/(2.*damage.kn) );
                 Fchap1t = Fchap1 - dot(Fchap1,n)*n;
-                TT Yt = ( pow(norm_2(Fchap1t)/(1.-d),2.)/(2.*damage.kt) );
-                TT Ynew = pow( pow(Ydn,damage.alpha)+ (damage.gamma*pow(Yt,damage.alpha)) , 1./damage.alpha);
-                Ymax = max(Ynew,Inter.param_comp->Ymax[i]);
+                TT Yt = ( std::pow(norm_2(Fchap1t)/(1.-d),2.)/(2.*damage.kt) );
+                TT Ynew = std::pow( std::pow(Ydn,damage.alpha)+ (damage.gamma*std::pow(Yt,damage.alpha)) , 1./damage.alpha);
+                Ymax = std::max(Ynew,Inter.param_comp->Ymax[i]);
                 //calcul du nouvel endommagement pour cette iteration
                 TT Ypos = ((Ymax-damage.Yo)>=0)*(Ymax-damage.Yo);
                 //        cout<< "ftemp " << Ftemp << " nodeeq "<<Inter.side[0].nodeeq[i]<< endl;
@@ -567,8 +567,8 @@ void compt_cohesif (INTER &Inter,TEMPS &temps) {
                 //      cout << "Appuyez sur entrée pour continuer...";
                 //        cin.ignore( numeric_limits<streamsize>::max(), '\n' );
 
-                d = pow((damage.n/(damage.n+1))*(Ypos/(damage.Yc-damage.Yo)),damage.n);
-                d = min(d,1.);
+                d = std::pow((damage.n/(damage.n+1))*(Ypos/(damage.Yc-damage.Yo)),damage.n);
+                d = std::min(d,1.);
                 if (d>=1.-eps) {
                     //test contact (sans frottement)
                     TT N=0;
@@ -601,7 +601,7 @@ void compt_cohesif (INTER &Inter,TEMPS &temps) {
                     
                     dold=d;
                 } else {
-                    erreur=abs(d-dold)/abs(dold+1e-10);
+                    erreur=std::abs(d-dold)/std::abs(dold+1e-10);
                     dold=d;
                 }
             }

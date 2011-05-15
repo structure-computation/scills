@@ -1,3 +1,6 @@
+#include "DataUser.h"
+
+using namespace Metil;
 using namespace Codegen;
 using namespace std;
 using namespace LMT;
@@ -13,6 +16,11 @@ using namespace LMT;
  
  On multiplie dans prelocalstage.h la valeur de la fonction spatiale en un noeud equivalent par la fonction temporel (en statique comme en quasistatique)
 */
+
+template<class BOUNDARY>
+void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
+};
+
 template<class BOUNDARY>
 void read_CL(const XmlNode &n, Vec<BOUNDARY > &CL, Param &process) {
     unsigned nbCL = n.nb_elements("CL");
@@ -57,7 +65,7 @@ void read_CL(const XmlNode &n, Vec<BOUNDARY > &CL, Param &process) {
             CL[i].box1[0]=box1[range((int)BOUNDARY::dim)];
             CL[i].box1[1]=box1[range((int)BOUNDARY::dim,(int)(2*BOUNDARY::dim))];
         } else if (CL[i].comp=="depl_normal") {
-            cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << endl;
+            std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
             XmlNode nfs= ncl.get_element("fct_spatiale");
             string valfcts;
             nfs.get_attribute("fonction",valfcts);
@@ -85,7 +93,7 @@ void read_CL(const XmlNode &n, Vec<BOUNDARY > &CL, Param &process) {
                 CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
                 CL[i].fcts_temporelles[0].set("1");
             } else {
-                cout << "Mauvais type de calcul" << endl;
+                std::cout << "Mauvais type de calcul" << std::endl;
                 assert(0);
             }
         } else { //sinon lecture des differentes fcts_spatiales
@@ -120,7 +128,7 @@ void read_CL(const XmlNode &n, Vec<BOUNDARY > &CL, Param &process) {
                 CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
                 CL[i].fcts_temporelles[0].set("1");
             } else {
-                cout << "Mauvais type de calcul" << endl;
+                std::cout << "Mauvais type de calcul" << std::endl;
                 assert(0);
             }
         }

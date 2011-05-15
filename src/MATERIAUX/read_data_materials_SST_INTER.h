@@ -63,7 +63,7 @@ void read_material_properties(TV3 &matprop, Param &process, const XmlNode &n) {
             else if (resolution=="deformation_plane")
                 matprop[id].resolution=0;
             else {
-                cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << endl;
+                std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;
                 assert(0);
             }
         }
@@ -98,7 +98,7 @@ void read_material_properties(TV3 &matprop, Param &process, const XmlNode &n) {
             data[d2] = (double)expr[d2].subs_numerical(var);
 
         matprop[id].f_vol=data;
-//         cout << "Pour le materiau  " << id << " : " << data << endl;
+//         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
 
         if (matprop[id].type=="isotrope") {
             double E;
@@ -160,7 +160,7 @@ void read_material_properties(TV3 &matprop, Param &process, const XmlNode &n) {
                 matprop[id].direction[0][q]=res1.subs_numerical(Pi,M_PI);
                 matprop[id].direction[1][q]=res2.subs_numerical(Pi,M_PI);
             }
-            cout << "assignation_materials_sst.h " << matprop[id].direction[0] << " v1 et v2 " << matprop[id].direction[1] << endl;
+            std::cout << "assignation_materials_sst.h " << matprop[id].direction[0] << " v1 et v2 " << matprop[id].direction[1] << std::endl;
             //normalisation des directions d'orthotropie
             matprop[id].direction[0]=matprop[id].direction[0]/norm_2(matprop[id].direction[0]);
             matprop[id].direction[1]=matprop[id].direction[1]/norm_2(matprop[id].direction[1]);
@@ -341,7 +341,7 @@ void read_propinter(TV4 &propinter,const XmlNode &n) {
             nc.get_attribute( "nbpas",propinter[i].nbpastempsimpos,1);
             propinter[i].comp="Jeu_impose";
         } else {
-            cout << "comportement d'interfaces non implemente : choix : contact_sst, contact_box, contact_jeu_sst, contact_jeu_box, contact_jeu_physique, discrete, cohesive, jeu_impose_sst, jeu_impose_box" << endl;
+            std::cout << "comportement d'interfaces non implemente : choix : contact_sst, contact_box, contact_jeu_sst, contact_jeu_box, contact_jeu_physique, discrete, cohesive, jeu_impose_sst, jeu_impose_box" << std::endl;
             assert(0);
         }
 

@@ -10,7 +10,13 @@
 #include "surdiscretisation.h"
 #include "p_create_SST_edge.h"
 
+
+
+#include "GeometryUser.h"
+#include "DataUser.h"
+
 // #include "affichage.h"
+using namespace Metil;
 using namespace LMT;
 using namespace std;
 
@@ -33,18 +39,70 @@ On crée ensuite les données géométriques associées aux interfaces : calculate_me
 Rq : La réorganisation des noeuds des Sous-structures n'est pas nécessaire étant donné qu'on utilise une renumérotation dans le solveur sparse (symamd).
  
 */
-template<class TV1, class TV2, class TV3, class TV4,class TV5> void multiscale_geometry_mesh(const XmlNode &n,TV1 &S, TV2 &Inter, Param &process, TV5 &CL, TV3 &Stot,TV3 &SubS, TV4 &SubI) {
+// template<class TV1, class TV2, class TV3, class TV4,class TV5> void multiscale_geometry_mesh(const XmlNode &n,TV1 &S, TV2 &Inter, Param &process, TV5 &CL, TV3 &Stot,TV3 &SubS, TV4 &SubI) {
+// 
+//    // creation SST et INTERFACE - maillage
+//    create_SST_INTER(*process.structure,S,Inter,CL,process,Stot,SubS,SubI);
+//    
+//    //creation des normales, centre de gravite et mesure des interfaces
+//    if (process.rank == 0) std::cout << "\t Centre de gravite des interfaces + mesure + normales equivalentes" << std::endl;
+//    apply_mt(SubI,process.nb_threads,calculate_measure_G_neq_INTER(),S);
+// 
+//    if (process.sousint==1) {
+//       if (process.rank == 0) std::cout << "Modification des SST " << std::endl;
+//       if (process.rank == 0) std::cout << "\t Sur-discretisation des elements" << std::endl;
+//       if (process.type_sousint=="h") {
+//          // surdiscretisation des ssts
+//          apply_mt(SubS,process.nb_threads,surdiscretise_SST());
+//          // correspondance interface - cote SST - creation des nodeeq
+//          apply_mt(SubI,process.nb_threads,decoup_INTER(),S);
+//       } else if(process.type_sousint=="p") {
+//          //apply_mt(S,process.nb_threads,p_surdiscretise_SST());
+//           for( unsigned i=0;i<SubS.size() ;i++ ){
+// //               S[i].mesh.sousint(Number< TV1::template SubType<0>::T::dim-1 >() );
+//               SubS[i].mesh.sousintegration = "p";
+//           }
+//           apply_mt(SubI,process.nb_threads,p_decoup_INTER(),S);
+//       } else {if (process.rank == 0) std::cout << "Mauvais choix de sous integration : h ou p " << std::endl; assert(0);}
+//       
+//    } else {
+//       // correspondance interface - cote SST - creation des nodeeq
+//       apply_mt(SubI,process.nb_threads,copy_INTER(),S);
+//    }
+// 
+//    if (process.rank == 0) std::cout << "\t Centre de gravite des SST et cotes + mesure SST" << std::endl;
+//    apply_mt(SubS,process.nb_threads,calculate_measure_G_SST());
+//    
+//    //mettre à jour la taille des sst sur tous les pros
+//    if (process.size > 1 and process.sousint==1)
+//        for (unsigned i=0;i<S.size();i++){
+//        for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
+//            if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
+//            MPI_Bcast(&S[i].mesh.node_list_size,1,MPI_INT,k1,MPI_COMM_WORLD);
+//            MPI_Bcast(&S[i].mesh.elem_list_size,1,MPI_INT,k1,MPI_COMM_WORLD);
+//            MPI_Bcast(S[i].G.ptr(),S[i].G.size(),MPI_DOUBLE,k1,MPI_COMM_WORLD);
+//            break;
+//            }
+//        }
+// 
+//    if (process.rank == 0)
+//        calcul_taille_probleme(S, Inter);
+// 
+// }
+
+
+template<class TV1, class TV2, class TV3, class TV4,class TV5> void multiscale_geometry_mesh(DataUser &data_user, GeometryUser &geometry_user,TV1 &S, TV2 &Inter, Param &process, TV5 &CL, TV3 &Stot,TV3 &SubS, TV4 &SubI) {
 
    // creation SST et INTERFACE - maillage
-   create_SST_INTER(*process.structure,S,Inter,CL,process,Stot,SubS,SubI);
+   create_SST_INTER(data_user, geometry_user,S,Inter,CL,process,Stot,SubS,SubI);
    
    //creation des normales, centre de gravite et mesure des interfaces
-   if (process.rank == 0) cout << "\t Centre de gravite des interfaces + mesure + normales equivalentes" << endl;
+   if (process.rank == 0) std::cout << "\t Centre de gravite des interfaces + mesure + normales equivalentes" << std::endl;
    apply_mt(SubI,process.nb_threads,calculate_measure_G_neq_INTER(),S);
 
    if (process.sousint==1) {
-      if (process.rank == 0) cout << "Modification des SST " << endl;
-      if (process.rank == 0) cout << "\t Sur-discretisation des elements" << endl;
+      if (process.rank == 0) std::cout << "Modification des SST " << std::endl;
+      if (process.rank == 0) std::cout << "\t Sur-discretisation des elements" << std::endl;
       if (process.type_sousint=="h") {
          // surdiscretisation des ssts
          apply_mt(SubS,process.nb_threads,surdiscretise_SST());
@@ -57,21 +115,21 @@ template<class TV1, class TV2, class TV3, class TV4,class TV5> void multiscale_g
               SubS[i].mesh.sousintegration = "p";
           }
           apply_mt(SubI,process.nb_threads,p_decoup_INTER(),S);
-      } else {if (process.rank == 0) cout << "Mauvais choix de sous integration : h ou p " << endl; assert(0);}
+      } else {if (process.rank == 0) std::cout << "Mauvais choix de sous integration : h ou p " << std::endl; assert(0);}
       
    } else {
       // correspondance interface - cote SST - creation des nodeeq
       apply_mt(SubI,process.nb_threads,copy_INTER(),S);
    }
 
-   if (process.rank == 0) cout << "\t Centre de gravite des SST et cotes + mesure SST" << endl;
+   if (process.rank == 0) std::cout << "\t Centre de gravite des SST et cotes + mesure SST" << std::endl;
    apply_mt(SubS,process.nb_threads,calculate_measure_G_SST());
    
    //mettre à jour la taille des sst sur tous les pros
    if (process.size > 1 and process.sousint==1)
        for (unsigned i=0;i<S.size();i++){
        for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
-           if (find(process.multi_mpi->repartition_sst[k1],_1==(int)i)) {
+           if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
            MPI_Bcast(&S[i].mesh.node_list_size,1,MPI_INT,k1,MPI_COMM_WORLD);
            MPI_Bcast(&S[i].mesh.elem_list_size,1,MPI_INT,k1,MPI_COMM_WORLD);
            MPI_Bcast(S[i].G.ptr(),S[i].G.size(),MPI_DOUBLE,k1,MPI_COMM_WORLD);
@@ -81,6 +139,4 @@ template<class TV1, class TV2, class TV3, class TV4,class TV5> void multiscale_g
 
    if (process.rank == 0)
        calcul_taille_probleme(S, Inter);
-
 }
-

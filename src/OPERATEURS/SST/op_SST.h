@@ -46,9 +46,9 @@ void Calc_SST_Correspddl(SST &S, Param &process) {
         repnode.resize(S.edge[j].mesh->node_list.size());
 
         if (inter.size() != repnode.size()) {
-            cout<< "Calc_SST_Correspddl - attention noeud non repere - probleme de correspondance - cote " << j << endl;
-            cout << "meshini - size node " <<S.mesh.node_list_size << " numero " << S.num << endl;
-            cout << "intersize "<< inter.size() << " edge size "  << S.edge[j].mesh->node_list.size()<< " internum " << S.edge[j].internum << endl;
+            std::cout<< "Calc_SST_Correspddl - attention noeud non repere - probleme de correspondance - cote " << j << endl;
+            std::cout << "meshini - size node " <<S.mesh.node_list_size << " numero " << S.num << endl;
+            std::cout << "intersize "<< inter.size() << " edge size "  << S.edge[j].mesh->node_list.size()<< " internum " << S.edge[j].internum << endl;
             assert(0);
         }
 
@@ -203,7 +203,7 @@ void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigne
     Vec<T,3> V1,V2;
     V1=m.node_list[1].pos-m.node_list[0].pos;
     V2=m.node_list[ind].pos-m.node_list[0].pos;
-    while( find(abs(vect_prod(V1,V2)),_1>=eps)==0 ) {
+    while( find(abs(vect_prod(V1,V2)),LMT::_1>=eps)==0 ) {
         ind+=1;
         V2=m.node_list[ind].pos-m.node_list[0].pos;
     }

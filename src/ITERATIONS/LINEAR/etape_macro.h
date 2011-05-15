@@ -11,8 +11,8 @@ Deux procédures sont écrites pour le 2d et pour le 3d (en changeant l'argument I
 template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<2,T> &inter, unsigned &data,int &imic) {
    Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
-   if(find(rep,_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,_1==(unsigned)3)){repnimp.push_back(3);}
+   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+   if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
    //Vec<unsigned> repnimp(0,3);
    Vec<unsigned> repF=inter.repddl[repnimp];
    q[repF] += trans( inter.side[data].MeM( range(inter.side[data].MeM.nb_rows() ) ,repnimp ) ) * inter.side[data].t[imic].Fchap;
@@ -22,10 +22,10 @@ template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<2,T> &inter, uns
 template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<3,T> &inter, unsigned &data,int &imic) {
    Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
-   if(find(rep,_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,_1==(unsigned)1)){repnimp.push_back(1);}
+   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+   if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
    for(unsigned i=5;i<inter.side[data].MeM.nb_cols();i++)
-         if(find(rep,_1==i)){repnimp.push_back(i);}
+         if(find(rep,LMT::_1==i)){repnimp.push_back(i);}
 
    //Vec<unsigned> repnimp(0,1,5,6,7,8);
    Vec<unsigned> repF=inter.repddl[repnimp];
@@ -86,10 +86,10 @@ Deux procédures sont écrites pour le 2d et pour le 3d. \f$ \tilde{W}^M \f$ pour 
 template<class T,class TV> void modif_WtildeM_CLsym(Interface<3,T> &Inter,TV &q, unsigned &data,int &imic) {
    Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
-   if(find(rep,_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,_1==(unsigned)1)){repnimp.push_back(1);}
+   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+   if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
    for(unsigned i=5;i<Inter.side[data].MeM.nb_cols();i++)
-         if(find(rep,_1==i)){repnimp.push_back(i);}
+         if(find(rep,LMT::_1==i)){repnimp.push_back(i);}
    //Vec<unsigned> repnimp(0,1,5,6,7,8);
    Vec<unsigned> repW=Inter.repddl[repnimp];
    Inter.side[data].t[imic].WtildeM.set(0.0);
@@ -99,8 +99,8 @@ template<class T,class TV> void modif_WtildeM_CLsym(Interface<3,T> &Inter,TV &q,
 template<class T,class TV> void modif_WtildeM_CLsym(Interface<2,T> &Inter,TV &q, unsigned &data,int &imic) {
    Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
-   if(find(rep,_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,_1==(unsigned)3)){repnimp.push_back(3);}
+   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+   if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
    //Vec<unsigned> repnimp(0,3);
    Vec<unsigned> repW=Inter.repddl[repnimp];
    Inter.side[data].t[imic].WtildeM.set(0.0);

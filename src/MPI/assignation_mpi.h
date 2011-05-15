@@ -39,8 +39,6 @@ void  definition_mpi_param(TP &process,T1 &argc, T2 &argv) {
 
 template <class TS,class TI, class TP, class T1, class T2>
 void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
-
-
     ///Lecture du fichier de repartion et creation des vecteurs de pointeurs de SST
     if (process.size>1) {//il s agit de creer un vecteur de vecteur qui donnera le numero des SST a parcourir par processeur
         string namein=process.structure->repertoire_des_maillages;
@@ -81,14 +79,14 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
             int nbcut,nbsst=S.size(),wgtflag=3,npart=process.size-1,numflag=0;
             mrepart.resize(nbsst);
 
-//             cout << msst << endl;
-//             cout << mwsst << endl;
-//             cout << minter << endl;
-//             cout << mwinter << endl;
+//             std::cout << msst << endl;
+//             std::cout << mwsst << endl;
+//             std::cout << minter << endl;
+//             std::cout << mwinter << endl;
 
             METIS_PartGraphRecursive(&nbsst,msst.ptr(),minter.ptr(),mwsst.ptr(),mwinter.ptr(),&wgtflag,&numflag,&npart,mopts.ptr(),&nbcut,mrepart.ptr());
 
-//             cout << mrepart << endl;
+//             std::cout << mrepart << endl;
             process.multi_mpi->repartition_sst.resize(process.size);
             for( unsigned i=0 ;i<mrepart.size() ; i++) {
                 process.multi_mpi->repartition_sst[mrepart[i]+1].push_back(i);
@@ -106,12 +104,12 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
     }
     sort(temp);
 
-    if (abs(norm_2(1.0*temp)-norm_2(1.0*range(S.size())))> 0.000001 ) {
-        cout << "Toutes les SST ne sont pas presentes ou le sont en double : verifier le nombre de processeur ou le fichier mpi_repartition" << endl;
+    if (std::abs(norm_2(1.0*temp)-norm_2(1.0*range(S.size())))> 0.000001 ) {
+        std::cout << "Toutes les SST ne sont pas presentes ou le sont en double : verifier le nombre de processeur ou le fichier mpi_repartition" << endl;
         assert(0);
     }
     if ((unsigned)process.size-1 > S.size()) {
-        cout << "Il faut avoir au moins autant de proc que de SST a repartir" << endl;
+        std::cout << "Il faut avoir au moins autant de proc que de SST a repartir" << endl;
         assert(0);
     }
 
@@ -140,7 +138,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
 
 
     ///Creation du vecteur de la structure d'interface a envoyer sur les pro et sur le master
-    //cout << process.rank << " " << process.multi_mpi->repartition_sst[process.rank] << endl;
+    //std::cout << process.rank << " " << process.multi_mpi->repartition_sst[process.rank] << endl;
     for(unsigned i=0;i<process.multi_mpi->repartition_sst[process.rank].size();i++) {
         int numsst1 = process.multi_mpi->repartition_sst[process.rank][i];
         for( unsigned j=0;j<S[numsst1].edge.size() ;j++ ) {
@@ -154,7 +152,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
                     numsst2 = Inter[num].vois[0];
                 //sur quel processeur est numsst2 ?
                 for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ ) {
-                    if (find(process.multi_mpi->repartition_sst[k1],_1==numsst2)) {
+                    if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==numsst2)) {
                         if (k1 == (unsigned)process.rank)
                             break;
                         else {
@@ -163,7 +161,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
                             temp.sidetosend = side;
                             temp.to = k1;
                             process.multi_mpi->intertoexchange.push_back(temp);
-                            //cout << process.rank << " doit envoyer l interface "<< num << " cote " << side << " a " << k1 << endl;
+                            //std::cout << process.rank << " doit envoyer l interface "<< num << " cote " << side << " a " << k1 << endl;
                         }
                     }
                 }
@@ -215,19 +213,19 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
     ///Affichage de qui envoie quoi à qui
     //     for( unsigned i=0; i<process.multi_mpi->intertoexchangebypro.size();i++ ) {
     //         for(unsigned j=0 ;j< process.multi_mpi->intertoexchangebypro[i].inter.size();j++ ) {
-    //             cout << process.rank << " envoie sur le pro " << process.multi_mpi->intertoexchangebypro[i].to << " l interface " << process.multi_mpi->intertoexchangebypro[i].inter[j].num << endl;
+    //             std::cout << process.rank << " envoie sur le pro " << process.multi_mpi->intertoexchangebypro[i].to << " l interface " << process.multi_mpi->intertoexchangebypro[i].inter[j].num << endl;
     //         }
     //     }
 
-    //     cout << "Taille intertoexchangebypro " << process.rank << " " << process.multi_mpi->intertoexchangebypro.size() << endl;
-    //     cout << "Taille intertoexchange " << process.rank << " " << process.multi_mpi->intertoexchange.size() << endl;
-    //     cout << "Taille intertoexchangeformaster " << process.rank << " " << process.multi_mpi->intertoexchangeformaster.size() << endl;
+    //     std::cout << "Taille intertoexchangebypro " << process.rank << " " << process.multi_mpi->intertoexchangebypro.size() << endl;
+    //     std::cout << "Taille intertoexchange " << process.rank << " " << process.multi_mpi->intertoexchange.size() << endl;
+    //     std::cout << "Taille intertoexchangeformaster " << process.rank << " " << process.multi_mpi->intertoexchangeformaster.size() << endl;
 
     ///Creation du sous vecteur d interface
     Vec<int> interput;
     for( unsigned i=0;i<SubS.size() ;i++ ) {
         for( unsigned j=0;j<SubS[i].edge.size() ;j++ ) {
-            if (!find(interput,_1==SubS[i].edge[j].internum)) {
+            if (!find(interput,LMT::_1==SubS[i].edge[j].internum)) {
                 SubI.push_back(&Inter[SubS[i].edge[j].internum]);
                 interput.push_back(SubS[i].edge[j].internum);
             }
@@ -246,10 +244,10 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
 
 
 
-    /*    cout << "Vecteur d interface " << process.rank << " " << SubI.data << endl;
+    /*    std::cout << "Vecteur d interface " << process.rank << " " << SubI.data << endl;
         for( unsigned i=0;i<Inter.size() ;i++ )
-            cout<< &Inter[i] ;
-        cout << endl;*/
+            std::cout<< &Inter[i] ;
+        std::cout << endl;*/
     ///Affichage de la repartion des SST et Interface en terme de nombre de noeuds par pro et à echanger
     if (process.size>1 and process.rank==0) {
         for( unsigned k=0;k<(unsigned) Inter.size() ;k++ ) {
@@ -257,18 +255,18 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
                 int numsst1= Inter[k].vois[0];
                 int numsst2= Inter[k].vois[2];
                 for(unsigned i=0;i<(unsigned) process.size;i++) {
-                    if ((find(process.multi_mpi->repartition_sst[i],_1==numsst1)) and (!find(process.multi_mpi->repartition_sst[i],_1==numsst2))) {
+                    if ((find(process.multi_mpi->repartition_sst[i],LMT::_1==numsst1)) and (!find(process.multi_mpi->repartition_sst[i],LMT::_1==numsst2))) {
                         process.multi_mpi->listinter.push_back(k);
                         break;
                     }
-                    if ((!find(process.multi_mpi->repartition_sst[i],_1==numsst1)) and (find(process.multi_mpi->repartition_sst[i],_1==numsst2))) {
+                    if ((!find(process.multi_mpi->repartition_sst[i],LMT::_1==numsst1)) and (find(process.multi_mpi->repartition_sst[i],LMT::_1==numsst2))) {
                         process.multi_mpi->listinter.push_back(k);
                         break;
                     }
                 }
             }
         }
-        cout << "Liste des interfaces qui vont etre envoyees  : " << process.multi_mpi->listinter << endl;
+        std::cout << "Liste des interfaces qui vont etre envoyees  : " << process.multi_mpi->listinter << endl;
     }
     Vec<int> nodeparpro,nodeinterparpro,nodeinterparprotoexchange;
     if (process.rank == 0) {
@@ -287,15 +285,15 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
 //                     unsigned datanum=S[numsst].edge[k].datanum;
 //                     nodeinterparpro[i]+=Inter[internum].side[datanum].nodeeq.size();
                     nodeinterparpro[i]+=Inter[internum].num;
-                    if (find(process.multi_mpi->listinter,_1==internum))
+                    if (find(process.multi_mpi->listinter,LMT::_1==internum))
                         nodeinterparprotoexchange[i]+=Inter[internum].num;
 //                     nodeinterparprotoexchange[i]+=Inter[internum].side[datanum].nodeeq.size();
                 }
             }
         }
-        cout << "Nb noeud par processeur                      : " << nodeparpro << endl;
-        cout << "Nb noeud interface equivalent par processeur : " << nodeinterparpro << endl;
-        cout << "Nb noeud interface a envoye   par processeur : " << nodeinterparprotoexchange << endl;
+        std::cout << "Nb noeud par processeur                      : " << nodeparpro << endl;
+        std::cout << "Nb noeud interface equivalent par processeur : " << nodeinterparpro << endl;
+        std::cout << "Nb noeud interface a envoye   par processeur : " << nodeinterparprotoexchange << endl;
     }
     if (process.size>1 and process.rank==0) {
         process.multi_mpi->listinter.resize(0);
@@ -360,26 +358,26 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
     //         display_fields_temp.push_back(iter->first);
     //
     //     process.affichage->display_fields_inter=display_fields_temp;
-    //     //cout << "DEBUG vecteur display_fields_inter : " << process.affichage->display_fields_inter << endl;
+    //     //std::cout << "DEBUG vecteur display_fields_inter : " << process.affichage->display_fields_inter << endl;
 
 }
 
 
 template<class TV1,class TV2>
 void memory_free(TV1 &S,TV2 &Inter,Param &process) {
-    cout << process.rank << " : " << process.multi_mpi->listsst.size() << endl;
+    std::cout << process.rank << " : " << process.multi_mpi->listsst.size() << endl;
     int nbedge=0,nbvois=0;
     for(unsigned i=0;i<S.size();i++)
-        if(!find(process.multi_mpi->listsst,_1==i)) {
+        if(!find(process.multi_mpi->listsst,LMT::_1==i)) {
             if(process.rank!=0) {
                 nbedge+=S[i].edge.size();
                 nbvois+=S[i].vois.size();
-/*                cout << process.rank << " : Edge size " << S[i].edge.size() << endl;
-                cout << process.rank << " : Vois size " << S[i].vois.size() << endl;*/
+/*                std::cout << process.rank << " : Edge size " << S[i].edge.size() << endl;
+                std::cout << process.rank << " : Vois size " << S[i].vois.size() << endl;*/
                 S[i].free();
             }
         }
-//         cout << process.rank << " : nbedge " << nbedge << " et nbvois " << nbvois << endl;
+//         std::cout << process.rank << " : nbedge " << nbedge << " et nbvois " << nbvois << endl;
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Vidage SST : ").c_str(),1);
 #endif
@@ -391,12 +389,12 @@ void memory_free(TV1 &S,TV2 &Inter,Param &process) {
     disp_alloc((to_string(process.rank)+" : Vidage SST maillage : ").c_str(),1);
 #endif
       
-//     cout << process.rank << " : " << process.multi_mpi->listinter.size() << endl;
+//     std::cout << process.rank << " : " << process.multi_mpi->listinter.size() << endl;
     for(unsigned i=0;i<Inter.size();i++)
-        if(!find(process.multi_mpi->listinter,_1==i))
+        if(!find(process.multi_mpi->listinter,LMT::_1==i))
             if(process.rank!=0) {
                 Inter[i].free();
-                //cout << process.rank << " : On efface l interface " << i << endl;
+                //std::cout << process.rank << " : On efface l interface " << i << endl;
             }
 
 #ifdef PRINT_ALLOC

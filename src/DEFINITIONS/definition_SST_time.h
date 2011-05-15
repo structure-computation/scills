@@ -25,34 +25,6 @@ TT_ type de flottant.
 */
 template<unsigned dim_, class TT_> struct Sst
 {
-
-  Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
-  
-  void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
-    vois.free();
-    //box.free();
-    //pb.free();
-    //cout << mesh.node_list.size() << endl;
-    //cout << mesh.elem_list.size() << endl;
-
-/*    for( unsigned i=0;i<edge.size() ;i++ ){
-        delete edge[i].mesh;
-#ifdef PRINT_ALLOC
-    total_allocated[ typeid(typename Sst::TMESHedge).name() ] -= sizeof(typename Sst::TMESHedge);
-#endif
-    }*/
-    edge.free();
-    //cout << LE.data.size() << endl;
-    LE.free();
-    //delete f;
-    //delete K;//K est libéré apres factorisation de toute facon et non calculer où y a pas besoin
-    fvol.free();
-    //l.free();//non defini
-    t.free();
-    t_post.free();
-    //delete param_damage;
-  }
-
   static const unsigned dim = dim_; ///< variable dim accessible de l'exterieur, constante, obtenu a partir du param dim_ de Sst<2,double>
   // types connus de l'exterieur
   typedef  TT_ T; ///< Type des flottants
@@ -67,11 +39,13 @@ template<unsigned dim_, class TT_> struct Sst
   Pvec G; ///< centre de gravite
   T measure; ///< mesure de la sst
   int num; ///< numero de la sous-structure
+  int id; ///< id de la sous-structure
   int num_proc; ///< numero du processeur qui traite la sous-structure
   Vec<int> vois; ///< sous-structures voisines (-1 pour le bord)
   Vec<Pvec,2 > box; ///< boite incluant le maillage de la sst
   
  // comportement de la SST
+  unsigned id_material; ///< id du materiaux dans le fichier json
   unsigned typmat; ///< type de materiau par sst
   Problem_pb_elast<T,dim> pb; ///< problème étudié (permet de définir toutes les formulations disponibles)
   TF *f; ///< pointeur vers une formulation
@@ -121,6 +95,34 @@ template<unsigned dim_, class TT_> struct Sst
   Vec<T> Fadd;///vecteur effort macro sur le bord d'une SST Fadd
   //ajout mesomodele
   PARAM_DAMAGE_SST<dim,T> *param_damage; ///< paramètres d'endommagement pour le mésomodèle
+  
+  
+  Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
+  
+  void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
+    vois.free();
+    //box.free();
+    //pb.free();
+    //cout << mesh.node_list.size() << endl;
+    //cout << mesh.elem_list.size() << endl;
+
+/*    for( unsigned i=0;i<edge.size() ;i++ ){
+        delete edge[i].mesh;
+#ifdef PRINT_ALLOC
+    total_allocated[ typeid(typename Sst::TMESHedge).name() ] -= sizeof(typename Sst::TMESHedge);
+#endif
+    }*/
+    edge.free();
+    //cout << LE.data.size() << endl;
+    LE.free();
+    //delete f;
+    //delete K;//K est libéré apres factorisation de toute facon et non calculer où y a pas besoin
+    fvol.free();
+    //l.free();//non defini
+    t.free();
+    t_post.free();
+    //delete param_damage;
+  }
   
 };
 

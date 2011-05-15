@@ -4,7 +4,7 @@ using namespace std;
 
 inline void parametre_inconnu(Vec<string> &v,Param &process) {
     if (process.rank==0)
-        cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << endl;
+        std::cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << std::endl;
 }
 
 template <class T1,class T2>
@@ -96,34 +96,34 @@ inline void help(Vec<string> &v, Param &process) {
 
     /*   if (v.size() > 1) {
           if (findalain2(m,v[1]) > 0 )
-             cout << m(findalain2(m,v[1]),2) << endl;
+             std::cout << m(findalain2(m,v[1]),2) << std::endl;
           else {
-             cout << "Liste des commandes disponibles :" << endl;
+             std::cout << "Liste des commandes disponibles :" << std::endl;
              for(unsigned i=0 ;i<m.nb_rows() ;i++ )
-                cout  << setw(15) << m(i,0) << "   "  << m(i,1) << endl;
+                std::cout  << setw(15) << m(i,0) << "   "  << m(i,1) << std::endl;
           }
        } else {
-          cout << "Liste des commandes disponibles :" << endl;
+          std::cout << "Liste des commandes disponibles :" << std::endl;
           for(unsigned i=0 ;i<m.nb_rows() ;i++ )
-             cout  << setw(15) << m(i,0) << "   "  << m(i,1) << endl;
+             std::cout  << setw(15) << m(i,0) << "   "  << m(i,1) << std::endl;
        }*/
     if (v.size() > 1) {
         if (findalain2(m,v[1]) > 0 )
             if (process.rank==0) {
-                cout << m[findalain2(m,v[1])][2] << endl;
+                std::cout << m[findalain2(m,v[1])][2] << std::endl;
             } else {
                 if (process.rank==0)
-                    cout << "Liste des commandes disponibles :" << endl;
+                    std::cout << "Liste des commandes disponibles :" << std::endl;
                 for(unsigned i=0 ;i<m.size() ;i++ )
                     if (process.rank==0)
-                        cout  << setw(18) << m[i][0] << "   "  << m[i][1] << endl;
+                        std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
             }
     } else {
         if (process.rank==0)
-            cout << "Liste des commandes disponibles :" << endl;
+            std::cout << "Liste des commandes disponibles :" << std::endl;
         for(unsigned i=0 ;i<m.size() ;i++ )
             if (process.rank==0)
-                cout  << setw(18) << m[i][0] << "   "  << m[i][1] << endl;
+                std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
     }
 }
 
@@ -134,10 +134,10 @@ inline void evol(Vec<string> &v,Param &process) {
     //modification de la coordonnee du point
     if (v.size()!=process.dim+1) {
         if (process.rank==0)
-            cout << "Mauvais choix de point" << endl;
+            std::cout << "Mauvais choix de point" << std::endl;
         process.affichage->coor_point.resize(process.dim,0.);
         if (process.rank==0)
-            cout << "On choisit par défaut : " << process.affichage->coor_point << endl;
+            std::cout << "On choisit par défaut : " << process.affichage->coor_point << std::endl;
     } else {
         process.affichage->coor_point.resize(process.dim);
         for(unsigned i=1;i<v.size();i++)
@@ -153,9 +153,9 @@ inline void evol_inter(Vec<string> &v,Param &process) {
 //modification de la coordonnee du point
     if (v.size()!=4) {
         if (process.rank==0)
-            cout << "Mauvaise utilisation : help evol_inter" << endl;
+            std::cout << "Mauvaise utilisation : help evol_inter" << std::endl;
         if (process.rank==0)
-            cout << "On choisit par défaut : l'interface 0, élement 0 et l'affichage de toutes les composantes." << process.affichage->coor_point << endl;
+            std::cout << "On choisit par défaut : l'interface 0, élement 0 et l'affichage de toutes les composantes." << process.affichage->coor_point << std::endl;
         process.affichage->param_ener.set(0);
         process.affichage->param_ener[2]=3;
     } else {
@@ -207,9 +207,9 @@ inline void trac_inter(Vec<string> &v,Param &process) {
 
     if(v.size()<4) {
         if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
         if (process.rank==0)
-            cout << "Par défaut on trace le cote 0, le pas de temps 1 et toutes les interfaces" << endl;
+            std::cout << "Par défaut on trace le cote 0, le pas de temps 1 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
         process.affichage->pt=1;
@@ -239,9 +239,9 @@ inline void trac_inter_temps(Vec<string> &v,Param &process) {
     process.affichage->save="save";
     if(v.size()<3) {
         if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
         if (process.rank==0)
-            cout << "Par défaut on trace le cote 0 et toutes les interfaces" << endl;
+            std::cout << "Par défaut on trace le cote 0 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
         process.affichage->pt=1;
@@ -285,9 +285,9 @@ inline void trac_mesh_inter(Vec<string> &v,Param &process) {
 
     if(v.size()<2) {
         if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
         if (process.rank==0)
-            cout << "Par défaut on trace le cote 0" << endl;
+            std::cout << "Par défaut on trace le cote 0" << std::endl;
         process.affichage->side=0;
     } else {
         istringstream i1(v[1]);
@@ -308,7 +308,7 @@ inline void trac_error(Vec<string> &v,Param &process) {
 inline void trac_ener(Vec<string> &v,Param &process) {
     if (v.size()!=3) {
         if (process.rank==0)
-            cout << "Parametres par defaut : dissip - Qchap" << endl;
+            std::cout << "Parametres par defaut : dissip - Qchap" << std::endl;
         process.affichage->param_ener.set(0);
     } else {
         Vec<int,2> num;
@@ -320,7 +320,7 @@ inline void trac_ener(Vec<string> &v,Param &process) {
             process.affichage->param_ener[0]=num[0];
         } else {
             if (process.rank==0)
-                cout << "Deuxieme argument non pris en compte -> par defaut ener_dissip" << endl;
+                std::cout << "Deuxieme argument non pris en compte -> par defaut ener_dissip" << std::endl;
             process.affichage->param_ener[0]=0;
         }
 
@@ -328,7 +328,7 @@ inline void trac_ener(Vec<string> &v,Param &process) {
             process.affichage->param_ener[1]=num[1];
         } else {
             if (process.rank==0)
-                cout << "Troisieme argument non pris en compte -> par defaut Qchap" << endl;
+                std::cout << "Troisieme argument non pris en compte -> par defaut Qchap" << std::endl;
             process.affichage->param_ener[1]=0;
         }
     }
@@ -344,47 +344,47 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
         for( unsigned j=0;j<S[i].edge.size() ;j++ ) {
             unsigned internum=S[i].edge[j].internum;
             if (Inter[internum].comp=="effort") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
                     if (process.dim == 2) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,2,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,2,(int)Inter[internum].side[0].t[pt].F.size())]) << endl;
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,2,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,2,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
                     }
                     if (process.dim == 3) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(2,3,(int)Inter[internum].side[0].t[pt].F.size())]) << endl;
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(2,3,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
                     }
                 }
             }
             if (Inter[internum].comp=="depl" or Inter[internum].comp=="depl_normal") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
                     if (process.dim == 2) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                     if (process.dim == 3) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                 }
             }
             if (Inter[internum].comp=="Jeu_impose") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
                     if (process.dim == 2) {
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                     if (process.dim == 3) {
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                 }
             }
@@ -402,79 +402,79 @@ inline void modif_param(Vec<string> &v,Param &process) {
 
     if (v.size()==1) {
         if (process.rank==0)
-            cout << "On garde les parametres actuels : " << endl;
+            std::cout << "On garde les parametres actuels : " << std::endl;
         if (process.rank==0)
-            cout << "Nombre d'iterations max : " << process.latin->nbitermax << endl;
+            std::cout << "Nombre d'iterations max : " << process.latin->nbitermax << std::endl;
         if (process.rank==0)
-            cout << "Critere d'erreur : " << process.latin->critere_erreur << endl;
+            std::cout << "Critere d'erreur : " << process.latin->critere_erreur << std::endl;
     } else if(v.size()==3) {
         if(v[1]=="nbitermax") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
             if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
             if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
             if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else if(v.size()==5) {
         if(v[1]=="nbitermax") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
             if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
             if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
             if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
         if(v[3]=="nbitermax") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[4].c_str());
             if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[3]=="critere_erreur") {
             if (process.rank==0)
-                cout << "Modification des parametres " << endl;
+                std::cout << "Modification des parametres " << std::endl;
             if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[4].c_str());
             if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
             if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else {
         if (process.rank==0)
-            cout << "Mauvais choix de modification a faire" << endl;
+            std::cout << "Mauvais choix de modification a faire" << std::endl;
     }
 }
 
@@ -493,11 +493,11 @@ inline void modif_param_inter(Vec<string> &v,Param &process) {
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
 inline void calcul(Vec<string> &v,Param &process) {
-    /*   if(v.size()!=2){cout << "Nouveau calcul en latin" << endl;}
+    /*   if(v.size()!=2){std::cout << "Nouveau calcul en latin" << std::endl;}
        else{
           if(v[1]=="latin"){process.nom_calcul="latin";}
-          else if(v[1]=="incr"){cout << "Non implemente pour un calcul incremental : on lance un calcul latin" << endl; process.nom_calcul="latin";}
-          else{cout << "Type de calcul non implemente : on lance un calcul latin" << endl; process.nom_calcul="latin";}
+          else if(v[1]=="incr"){std::cout << "Non implemente pour un calcul incremental : on lance un calcul latin" << std::endl; process.nom_calcul="latin";}
+          else{std::cout << "Type de calcul non implemente : on lance un calcul latin" << std::endl; process.nom_calcul="latin";}
        }*/
 
     //process.latin->alloc_quantites=0;

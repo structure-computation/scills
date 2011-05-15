@@ -28,8 +28,8 @@ void calcul_taille_probleme(TV1 &S, TV2 &Inter) {
         nbelem+=S[i].mesh.elem_list_size;
         nbnode+=S[i].mesh.node_list_size;
     }
-    cout << "\t Taille du probleme : " << S.size() << " ssts, " << nbelem << " elements, " << nbnode << " noeuds"<< endl;
-    cout << "\t Nbre d'interfaces : " << Inter.size()  << endl;
+    std::cout << "\t Taille du probleme : " << S.size() << " ssts, " << nbelem << " elements, " << nbnode << " noeuds"<< std::endl;
+    std::cout << "\t Nbre d'interfaces : " << Inter.size()  << std::endl;
 }
 
 #endif //CALCULATE_MEASURE_G_SST_H

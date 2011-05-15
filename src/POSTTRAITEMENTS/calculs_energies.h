@@ -51,16 +51,16 @@ void calcul_ener_dissi_chap(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &p
                                              dot((Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Fchap)+Inter[i].side[1].Pt(Inter[i].side[1].t[j].Fchap))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wpchap)));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
                 
                 if (norm_2(Inter[i].side[0].ddlcorresp-Inter[i].side[1].ddlcorresp)>1e-6) {
-                    cout << "ATTENTION Interface : " << Inter[i].num << " maillage numerote differement : " << endl; 
-                    cout << Inter[i].side[0].ddlcorresp << endl; 
-                    cout  << Inter[i].side[1].ddlcorresp<< endl;
+                    std::cout << "ATTENTION Interface : " << Inter[i].num << " maillage numerote differement : " << endl; 
+                    std::cout << Inter[i].side[0].ddlcorresp << endl; 
+                    std::cout  << Inter[i].side[1].ddlcorresp<< endl;
                 }
 
             }
@@ -91,11 +91,11 @@ template <class TV1,class TV2>
                                         dot(Inter[i].side[1].t[j].Fchap  ,Inter[i].side[1].M*(Inter[i].side[1].t[j].Wpchap  -Inter[i].side[0].t[j].Wpchap)));
                             }
                         } else {
-                            cout << "Nom de calcul nom pris en compte" << endl;
+                            std::cout << "Nom de calcul nom pris en compte" << endl;
                             assert(0);
                         }
                         dissipation+=dissi_inter;
-                        //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                        //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
                     }
                 }
             }
@@ -139,11 +139,11 @@ void calcul_ener_dissi_chap2(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &
                         dissi_inter[j+1]=dissi_inter[j]+process.temps->dt*(dissi_tmp);
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[internum].num << " entre les pieces " << Inter[internum].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[internum].num << " entre les pieces " << Inter[internum].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -176,11 +176,11 @@ void calcul_ener_dissi_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &pro
                                              dot((Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].F)+Inter[i].side[1].Pt(Inter[i].side[1].t[j].F))/2.0,Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wp)));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
             }
         }
     }
@@ -213,11 +213,11 @@ template <class TV1, class TI>
                                         dot(Inter[i].side[1].t[j].F,Inter[i].side[1].M*Inter[i].side[1].t[j].Wp));
                             }
                         } else {
-                            cout << "Nom de calcul nom pris en compte" << endl;
+                            std::cout << "Nom de calcul nom pris en compte" << endl;
                             assert(0);
                         }
                         dissipation+=dissi_inter;
-                        //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                        //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
                     }
                 }
             }
@@ -248,11 +248,11 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proc
                                              dot((Inter[i].side[0].t[j+1].Fchap+Inter[i].side[0].t[j].Fchap)/2.0,Inter[i].side[0].M*Inter[i].side[0].t[j+1].Wpchap));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
             }
         }
     }
@@ -281,11 +281,11 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proc
 //                                         dot(Inter[i].side[0].t[j].Fchap,Inter[i].side[0].M*Inter[i].side[0].t[j].Wpchap));
 //                             }
 //                         } else {
-//                             cout << "Nom de calcul nom pris en compte" << endl;
+//                             std::cout << "Nom de calcul nom pris en compte" << endl;
 //                             assert(0);
 //                         }
 //                         dissipation+=dissi_inter;
-//                         cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+//                         std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
 //                     }
 //                 }
 //             }
@@ -316,12 +316,12 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proce
                                              dot((Inter[i].side[0].t[j+1].F+Inter[i].side[0].t[j].F)/2.0,Inter[i].side[0].M*Inter[i].side[0].t[j+1].Wp));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
 
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -350,12 +350,12 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proce
                                 dot(Inter[i].side[0].t[j].F,Inter[i].side[0].M*Inter[i].side[0].t[j].Wp));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
 
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -374,7 +374,7 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
     if (process.latin->save_depl_SST!=1){
-       if(process.rank == 0) cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
+       if(process.rank == 0) std::cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
     } else {
      for(unsigned i=0;i<S.size();i++) {
         dissi_inter.set(0.);
@@ -388,7 +388,7 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &
             S[i].mesh.unload();
         }
         dissipation+=dissi_inter;
-        //cout << "Contribution SST " << S[i].num << " : " << dissi_inter <<  endl;
+        //std::cout << "Contribution SST " << S[i].num << " : " << dissi_inter <<  endl;
     }
     }
 }
@@ -423,7 +423,7 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                 dissi_inter.set(0.);
                 Vec<double,TI::template SubType<0>::T::dim> a0;
                 a0.set(0.);
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[1].Wchap);
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[1].Wchap);
@@ -493,11 +493,11 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                         dissi_inter[j+1]=dot(Inter[i].side[0].Pt(Ftj)-Inter[i].side[0].Pt(Ft0),Inter[i].side[0].M*(Inter[i].side[0].Pt(Ftj)-Inter[i].side[0].Pt(Ft0)));
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -532,7 +532,7 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 dissi_inter.set(0.);
                 Vec<double,TI::template SubType<0>::T::dim> a0;
                 a0.set(0.);
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[1].W);
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[1].W);
@@ -603,11 +603,11 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     }
 
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
             }
         }
     }
@@ -641,27 +641,27 @@ void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
                         double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Fchap));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
                         double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Fchap));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -693,27 +693,27 @@ void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
                         double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].F));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
                         double b=dot(vecy,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].F));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
             }
         }
     }
@@ -751,7 +751,7 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap)-
@@ -760,7 +760,7 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap)-
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].Wchap));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -770,14 +770,14 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].Wchap)-
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].Wchap));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
             }
         }
     }
@@ -808,7 +808,7 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         double a=dot(vecx,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W)-
@@ -817,7 +817,7 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W)-
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t_post[j+1].W));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -827,14 +827,14 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W));
                         double c=dot(vecz,Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t[j+1].W)-
                                      Inter[i].side[1].M*Inter[i].side[1].Pn(Inter[i].side[1].t[j+1].W));
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
             }
         }
     }
@@ -880,7 +880,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].Wchap);
@@ -905,7 +905,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double a=dot(vecx,Ut);
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                         surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
                         ::T::dim;
                     }
@@ -933,17 +933,17 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double a=dot(vecx,Ut);
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                         surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
                         ::T::dim;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
-                cout << "\t\t" << surf <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter <<  endl;
+                std::cout << "\t\t" << surf <<  endl;
             }
         }
     }
@@ -984,7 +984,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
                 }
-                cout << Inter[i].measure << endl;
+                std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pn(Inter[i].side[0].t_post[j+1].W);
@@ -1009,7 +1009,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double a=dot(vecx,Ut);
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                         surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
                         ::T::dim;
                     }
@@ -1037,17 +1037,17 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double a=dot(vecx,Ut);
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
-                        dissi_inter[j+1]=sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
+                        dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
                         surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
                         ::T::dim;
                     }
                 } else {
-                    cout << "Nom de calcul nom pris en compte" << endl;
+                    std::cout << "Nom de calcul nom pris en compte" << endl;
                     assert(0);
                 }
                 dissipation+=dissi_inter;
-                //cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
-                cout << "\t\t" << surf <<  endl;
+                //std::cout << "Contribution interface " << Inter[i].num << " entre les pieces " << Inter[i].vois << " : " << dissi_inter << endl;
+                std::cout << "\t\t" << surf <<  endl;
             }
         }
     }

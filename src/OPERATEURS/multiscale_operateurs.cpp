@@ -77,7 +77,7 @@ void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &S
 #endif
 
     if (process.rank == 0)
-        cout << "Calcul des Quantites d'interfaces" << endl;
+        std::cout << "Calcul des Quantites d'interfaces" << endl;
     create_op_INTER(S,Inter,SubI,process);
     crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
     tic.stop();
@@ -89,17 +89,17 @@ void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &S
 #endif
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Operateurs d interface : " ;
+    if (process.rank==0) std::cout << "Operateurs d interface : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
 
     if (process.rank == 0)
-        cout << "Calcul des Quantites par SST" << endl;
+        std::cout << "Calcul des Quantites par SST" << endl;
     create_op_SST(S,Inter,SubS,SubI,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Creation OP SST : " ;
+    if (process.rank==0) std::cout << "Creation OP SST : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
@@ -114,14 +114,14 @@ void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &S
 
     if (process.multiscale->multiechelle==1) { //cas multiechelle
         if (process.rank == 0)
-            cout << "Creation du probleme macro" << endl;
+            std::cout << "Creation du probleme macro" << endl;
         if (process.rank == 0 and process.size>1)
             create_op_MACRO(S,Inter,process,Global);
         else
             create_op_MACRO(SubS,Inter,process,Global);//juste pour faire repddl pour savoir où on balance le macro dans bigF...
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Creation OP MACRO : " ;
+    if (process.rank==0) std::cout << "Creation OP MACRO : " ;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
@@ -134,7 +134,7 @@ void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &S
 
 
     if (process.rank == 0)
-        cout << endl;
+        std::cout << endl;
 };
 
 
