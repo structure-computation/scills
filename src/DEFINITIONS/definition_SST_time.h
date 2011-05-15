@@ -25,6 +25,36 @@ TT_ type de flottant.
 */
 template<unsigned dim_, class TT_> struct Sst
 {
+
+  Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
+  
+  void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
+    vois.free();
+    //box.free();
+    //pb.free();
+    //cout << mesh.node_list.size() << endl;
+    //cout << mesh.elem_list.size() << endl;
+
+/*    for( unsigned i=0;i<edge.size() ;i++ ){
+        delete edge[i].mesh;
+#ifdef PRINT_ALLOC
+    total_allocated[ typeid(typename Sst::TMESHedge).name() ] -= sizeof(typename Sst::TMESHedge);
+#endif
+    }*/
+    edge.free();
+    //cout << LE.data.size() << endl;
+    LE.free();
+    //delete f;
+    //delete K;//K est libéré apres factorisation de toute facon et non calculer où y a pas besoin
+    fvol.free();
+    //l.free();//non defini
+    
+    //t.free();
+    //t_post.free();
+    
+    //delete param_damage;
+  }
+
   static const unsigned dim = dim_; ///< variable dim accessible de l'exterieur, constante, obtenu a partir du param dim_ de Sst<2,double>
   // types connus de l'exterieur
   typedef  TT_ T; ///< Type des flottants

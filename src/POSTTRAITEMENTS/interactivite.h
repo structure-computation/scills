@@ -236,7 +236,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                                   }
                               }
                               if (process.size > 1) MPI_Bcast(str,0);
-                              CL[Inter[q].refCL].fcts_temporelles[kk]=tokenize(str,';');
+                              CL[Inter[q].refCL].fcts_temporelles[kk]=str;
                           //Vec<string> fctlu=tokenize(str,';');
                           //if (fctlu.size()==CL[Inter[q].refCL].fcts_spatiales.size()) CL[Inter[q].refCL].fcts_spatiales=fctlu;
                           //else if (process.rank==0) std::cout << "La fonction donnée n'est pas sous la bonne forme : 0;0;0" << std::endl;
@@ -288,8 +288,8 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                     process.affichage->fichiers_paraview_inter_crees=0;
                     process.affichage->fichiers_paraview_sst_crees=0;
                     process.reprise_calcul=2;
-                  if(process.nom_calcul=="incr") multiscale_iterate_incr(S,SubS, Inter,SubI, process, Global, CL,n);
-                  else if(process.nom_calcul=="latin") multiscale_iterate_latin(S,SubS, Inter,SubI, process, Global, CL);
+//                   if(process.nom_calcul=="incr") multiscale_iterate_incr(S,SubS, Inter,SubI, process, Global, CL,n);
+//                   else if(process.nom_calcul=="latin") multiscale_iterate_latin(S,SubS, Inter,SubI, process, Global, CL);
 
                 }
             }

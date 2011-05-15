@@ -46,6 +46,7 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,P
     
     //initialisation de la taille des sst et de leur id == num
     S.resize(geometry_user.nb_group_elements);
+
     for(unsigned i=0;i<S.size();i++) {
         S[i].num = geometry_user.group_elements[i].id;
         S[i].id = geometry_user.group_elements[i].id;
@@ -422,8 +423,14 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
     
 #endif
     if (process.rank == 0)
+<<<<<<< HEAD
         std::cout << "Creation de la geometrie des SST" <<std::endl;
     create_SST_typmat(data_user, geometry_user,S,process);      // to be TEST
+=======
+        cout << "Creation de la geometrie des SST" <<endl;
+
+    create_SST_typmat(structure,S,process);
+>>>>>>> master
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "create_SST_typmat : " ;
