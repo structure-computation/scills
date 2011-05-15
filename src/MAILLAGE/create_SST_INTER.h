@@ -45,10 +45,16 @@ void create_SST_typmat(STRUCTURE &structure,TV1 &S,Param &process) {
     namein.append(namequalif);
     if (process.rank == 0)
         cout << "\t Fichier de qualification : " << namein << endl;
+
     std::ifstream f(namein.c_str());
+//     if ( ! f.is_open() )
+//         throw std::runtime_error( "opening of "+namein+" has failed.");
+
     Vec< unsigned > num_materiau;
-    //num_materiau.resize(structure.nb_maillages);//a priori >> en dessous fait un push_back !
+//     num_materiau.resize(structure.nb_maillages);//a priori >> en dessous fait un push_back !
+
     f>>num_materiau;
+
     //affectation du numero aux Ssts
     S.resize(structure.nb_maillages);
     for(unsigned i=0;i<S.size();i++) {
@@ -1280,6 +1286,7 @@ void create_SST_INTER(STRUCTURE &structure,TV1 &S,TV2 &Inter, TV5 &CL, Param &pr
 #endif
     if (process.rank == 0)
         cout << "Creation de la geometrie des SST" <<endl;
+
     create_SST_typmat(structure,S,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);

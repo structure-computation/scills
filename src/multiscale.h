@@ -127,79 +127,101 @@ void multiscale(const XmlNode &n,TV1 &S, TV2 &Inter, Param &process,  TV5 &CL,GL
     if (process.rank==0) tic1.start();
 #endif
 
+    process.temps->dt=0;
+    cout << "Nombre de pas de temps total " << process.temps->nbpastemps << endl;
+    process.temps->pt_cur=0;
+    
+    if (process.rank == 0)
+        cout << " Allocations des quantites d'interfaces et SST" << endl;
+    if(process.reprise_calcul!=2) allocate_quantities_post(SubS,SubI,process);
+#ifdef PRINT_ALLOC
+    disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
+#endif
+    
+    
+    for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+        if (process.rank == 0)
+            cout<<"Step : " << i_step << endl;
+        process.temps->step_cur=i_step;
+        if(process.temps->dt!=process.temps->time_step[i_step].dt){
+            process.temps->dt=process.temps->time_step[i_step].dt;
+            
+        
 
-    if (process.rank == 0) cout <<  endl;
-    if (process.rank == 0) cout << "******************************************" << endl;
-    if (process.rank == 0) cout << " Construction des operateurs" << endl;
-    if (process.rank == 0) cout << "******************************************" << endl;
+            if (process.rank == 0) cout <<  endl;
+            if (process.rank == 0) cout << "******************************************" << endl;
+            if (process.rank == 0) cout << " Construction des operateurs" << endl;
+            if (process.rank == 0) cout << "******************************************" << endl;
     
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant construction : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire avant construction : ").c_str(),1);
 #endif
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    /// construction des operateurs
-    multiscale_operateurs(n,Stot,SubS,Inter,SubI,process,Global);
+            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+            /// construction des operateurs
+            multiscale_operateurs(n,Stot,SubS,Inter,SubI,process,Global);
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Construction operateurs : " ;
-    if (process.rank==0) tic1.stop();;
-    if (process.rank==0) tic1.start();
+            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+            if (process.rank==0) cout << "Construction operateurs : " ;
+            if (process.rank==0) tic1.stop();;
+            if (process.rank==0) tic1.start();
 #endif
 
-    /// destruction des quantites surperflues en MPI
+            /// destruction des quantites surperflues en MPI
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant free : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire avant free : ").c_str(),1);
 #endif
-    memory_free(S,Inter,process);
+            //memory_free(S,Inter,process);
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres free : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire apres free : ").c_str(),1);
 #endif
+        }
     
-    
-    if(process.read_data==1) {
-      if (process.rank == 0) cout << "Allocations des quantites d'interfaces et SST" << endl;
-        allocate_quantities(SubS,SubI,process,Global);
-        if (process.rank == 0) cout << "Lecture des resultats dans les fichiers save_sst et save_inter" << endl;
-        read_data_sst(S, process);
-        read_data_inter(Inter, process);
-        if (process.size > 1 ) SendRecvInterAll(process.multi_mpi->intertoexchangebypro,Inter,process);
-        calcul_erreur_latin(SubS, Inter, process, Global);
-        if (process.rank == 0) cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
-    } else {
-
-        if (process.rank == 0) cout <<  endl;
-        if (process.rank == 0) cout << "**************************" << endl;
-        if (process.rank == 0) cout << " DEBUT DU CALCUL ITERATIF "<< endl;
-        if (process.rank == 0) cout << "**************************" << endl;
-
-        /// calcul itératif
-        if (process.nom_calcul=="latin") {
-            if (process.rank == 0) cout << "Calcul latin" << endl;
-            multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL);
-        } else if(process.nom_calcul=="incr") {
-            if (process.rank == 0) cout << "Calcul incremental" << endl;
-            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL,n);
+        if(process.read_data==1) {
+        if (process.rank == 0) cout << "Allocations des quantites d'interfaces et SST" << endl;
+            allocate_quantities(SubS,SubI,process,Global);
+            if (process.rank == 0) cout << "Lecture des resultats dans les fichiers save_sst et save_inter" << endl;
+            read_data_sst(S, process);
+            read_data_inter(Inter, process);
+            if (process.size > 1 ) SendRecvInterAll(process.multi_mpi->intertoexchangebypro,Inter,process);
+            calcul_erreur_latin(SubS, Inter, process, Global);
+            if (process.rank == 0) cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
         } else {
-            if (process.rank == 0) cout << "nom de calcul non defini : choix entre latin ou incremental" << endl;
-            assert(0);
+
+            if (process.rank == 0) cout <<  endl;
+            if (process.rank == 0) cout << "**************************" << endl;
+            if (process.rank == 0) cout << " DEBUT DU CALCUL ITERATIF "<< endl;
+            if (process.rank == 0) cout << "**************************" << endl;
+
+            /// calcul itératif
+            if (process.nom_calcul=="latin") {
+                if (process.rank == 0) cout << "Calcul latin" << endl;
+                multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL);
+            } else if(process.nom_calcul=="incr") {
+                if (process.rank == 0) cout << "Calcul incremental" << endl;
+                multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL,n);
+            } else {
+                if (process.rank == 0) cout << "nom de calcul non defini : choix entre latin ou incremental" << endl;
+                assert(0);
+            }
+
+
+            if(process.save_data==1) {
+            if (process.rank == 0) cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << endl;
+                Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
+                save_data_inter(Inter,SubS, process, fields_to_save);
+                Vec<string> fields_to_save2("q");
+                save_data_sst(SubS, process, fields_to_save2);
+            }
+
         }
-
-
-        if(process.save_data==1) {
-          if (process.rank == 0) cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << endl;
-            Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
-            save_data_inter(Inter,SubS, process, fields_to_save);
-            Vec<string> fields_to_save2("q");
-            save_data_sst(SubS, process, fields_to_save2);
-        }
-
-    }
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) cout << "Duree de la partie iterative : " ;
-    if (process.rank==0) tic1.stop();;
-    if (process.rank==0) tic1.start();
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        if (process.rank==0) cout << "Duree de la partie iterative : " ;
+        if (process.rank==0) tic1.stop();;
+        if (process.rank==0) tic1.start();
 #endif
+    
+    }
 
     //post traitements
       if(process.affichage->interactivite==1) {

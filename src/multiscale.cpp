@@ -107,7 +107,6 @@ int main(int argc,char **argv) {
         process.affichage->name_data= argv[2];
         if (process.rank == 0 ) cout << "\tFichier lu : " << process.affichage->name_data << endl;
 
-
         ///calcul multiechelle
         if(process.dim==2) {
             /// definition des variables Sous-structures , Interfaces, Conditions Limites et Probleme macro global

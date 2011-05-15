@@ -65,22 +65,43 @@ inline void read_data_process(Param &process, const XmlNode &n) {
    na.get_attribute("command_file",process.affichage->command_file);
 
    XmlNode ntp =n.get_element("parametres_temporels");
-   ntp.get_attribute("type_de_calcul",process.temps->type_de_calcul);
-
+   XmlNode ntp_prop =ntp.get_element("proprietes");
+   ntp_prop.get_attribute("type_de_calcul",process.temps->type_de_calcul);
+   
    if (process.rank==0) cout << "************************" << endl;
    if (process.temps->type_de_calcul=="stat") {
       if (process.rank==0) cout << "     STATIQUE     " << endl;
       if (process.rank==0) cout << "************************" << endl;
       if (process.rank==0) cout << " Rq : 1 seul pas de temps automatiquement, dt=1 par defaut " << endl;
-      process.temps->nbpastemps=1;
       process.temps->dt=1;
       process.nom_calcul="incr";
+      ntp_prop.get_attribute("nb_step",process.temps->nb_step);
+      process.temps->time_step.resize(process.temps->nb_step);
+      process.temps->nbpastemps=process.temps->nb_step;
+      for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+          process.temps->time_step[i_step].dt=1;
+          process.temps->time_step[i_step].t_ini=0;
+          process.temps->time_step[i_step].t_fin=0;
+          process.temps->time_step[i_step].nb_time_step=1;
+      }
       if (process.rank==0) cout << " Rq : Attention la valeur de la fonction spatiale sera tout de meme modulee par la fonction temporelle" << endl;
    } else if(process.temps->type_de_calcul=="Qstat") {
       if (process.rank==0) cout << "     QUASISTATIQUE          " << endl;
       if (process.rank==0) cout << "************************" << endl;
-      ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
-      ntp.get_attribute("pasdetemps",process.temps->dt);
+      ntp_prop.get_attribute("nb_step",process.temps->nb_step);
+      process.temps->time_step.resize(process.temps->nb_step);
+      process.temps->nbpastemps= 0;
+      for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+          XmlNode n_step =ntp.get_element("step",i_step);
+          n_step.get_attribute("dt",process.temps->time_step[i_step].dt);
+          n_step.get_attribute("t_ini",process.temps->time_step[i_step].t_ini);
+          n_step.get_attribute("t_fin",process.temps->time_step[i_step].t_fin);
+          n_step.get_attribute("nb_time_step",process.temps->time_step[i_step].nb_time_step);
+          process.temps->nbpastemps+=process.temps->time_step[i_step].nb_time_step;
+      }
+      
+//       ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
+//       ntp.get_attribute("pasdetemps",process.temps->dt);
       nm.get_attribute("save_depl_SST",process.latin->save_depl_SST);      
       nm.get_attribute("nom_calcul",process.nom_calcul);
       //ntp.get_attribute("theta",process.temps->theta);
@@ -89,7 +110,7 @@ inline void read_data_process(Param &process, const XmlNode &n) {
       assert(0);
    }
    
-
+cout << "sortie " << endl;
    system(("mkdir -p "+process.affichage->repertoire_save).c_str());
 
 

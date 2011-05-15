@@ -42,22 +42,31 @@ template<class BOUNDARY>
 void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
     typedef typename BOUNDARY::T T;
     Ex t = symbol("t");
-    unsigned tpas=process.temps->pt_cur;
+    unsigned i_step=process.temps->step_cur;
+    unsigned tpas=process.temps->time_step[i_step].pt_cur;    
     std::vector<Ex> symbols;
     symbols.push_back(t);
-    double ti=tpas*process.temps->dt;
-    Vec<string> fcttemps;
+    double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
+    string fcttemps;
     Ex res;
+/*    cout << i_step << " " << tpas << " " << ti << endl;*/
     for(unsigned j=0;j<CL.size();++j) {
-        for(unsigned i=0;i<CL[j].fcts_temporelles.size();++i) {
-            if(ti>=CL[j].intervalles_temps[i][0] && ti<=CL[j].intervalles_temps[i][1]) {
-                fcttemps = CL[j].fcts_temporelles[i];
-                break;
-            }
-        }
+        fcttemps = CL[j].fcts_temporelles[i_step];
+//         for(unsigned i=0;i<CL[j].fcts_temporelles.size();++i) {
+//             if(ti>=CL[j].intervalles_temps[i][0] && ti<=CL[j].intervalles_temps[i][1]) {
+//                 fcttemps = CL[j].fcts_temporelles[i];
+//                 break;
+//             }
+//         }
         ////modif DAVID 02-09-2007
-        CL[j].ft.resize(CL[j].fcts_temporelles[0].size());
-        for(unsigned d1=0;d1<CL[j].fcts_temporelles[0].size();++d1) { // boucle sur la dimension des vecteurs
+        CL[j].ft.resize(BOUNDARY::dim);
+        Ex expr;
+        expr = read_ex(fcttemps.c_str(),symbols);
+        for( unsigned d1=0;d1<BOUNDARY::dim ;d1++ ){
+                CL[j].ft[d1]=(T)expr.subs_numerical(t,ti);
+        }    
+  /*      CL[j].ft.resize(CL[j].fcts_temporelles[i_step].size());
+        for(unsigned d1=0;d1<CL[j].fcts_temporelles[i_step].size();++d1) { // boucle sur la dimension des vecteurs
             Ex expr;
             expr = read_ex(fcttemps[d1].c_str(),symbols);
             CL[j].ft[d1]= (T)expr.subs_numerical(t,ti);
@@ -67,7 +76,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
             for( unsigned d1=1;d1<BOUNDARY::dim ;d1++ ){
                 CL[j].ft[d1]=CL[j].ft[0];
             }
-        }
+        }*/
         //res = read_ex(fcttemps.c_str(),symbols);
          //CL[j].ft=res.subs_numerical(t,ti);
          // if (CL[j].comp == "effort") cout << CL[j].ft << endl;
@@ -78,7 +87,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
 
 //assignation de valeurs variables en fonction des variables x, y et z et du temps t
 template<class TV, class TVN, class BOUNDARY>
-void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL) {
+void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step) {
 
     typedef typename BOUNDARY::T T;
     std::vector<Ex> symbols;
@@ -97,7 +106,7 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL) {
 
         for(unsigned d1=0;d1<BOUNDARY::dim;++d1) { // boucle sur la dimension des vecteurs
             Ex expr;
-            expr = read_ex(CL.fcts_spatiales[d1].c_str(),symbols);
+            expr = read_ex(CL.fcts_spatiales[i_step][d1].c_str(),symbols);
             Ex::MapExNum var;
             for(unsigned d2=0;d2<BOUNDARY::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                 var[symbols[d2]]= nodeeq[i][d2];
@@ -112,7 +121,7 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL) {
 }
 
 template<class TV, class TVN, class TV2, class BOUNDARY>
-void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY &CL) {
+void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY &CL, int i_step) {
 
     typedef typename BOUNDARY::T T;
     typedef Vec<T,BOUNDARY::dim> Pvec;
@@ -133,7 +142,7 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
         Pvec neq = neqs[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)];
         //une seule expression dans le cas d'un deplacement normal
         Ex expr;
-        expr = read_ex(CL.fcts_spatiales[0].c_str(),symbols);
+        expr = read_ex(CL.fcts_spatiales[i_step][0].c_str(),symbols);
         Ex::MapExNum var;
         for(unsigned d2=0;d2<BOUNDARY::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= nodeeq[i][d2];
@@ -168,18 +177,18 @@ void assign_CL_values_space_time_latin(TV2 &Inter, TV5 &CL, Param &process) {
                 calc_CL_time(process,CL);
 
                 if (Inter[q].comp=="effort") {
-                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
+                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
                     //cout << "Eff " << Inter[q].side[0].Fchap << endl;
                 } else if (Inter[q].comp=="depl") {
-                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
+                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
                     //cout << "depl " <<Inter[q].side[0].Wchap << endl;
                 } else if (Inter[q].comp=="sym") {
                     if(process.reprise_calcul==0)
-                        assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);//si on reprend le calcul les conditions sont toujours ok sinon on initialise à 0
+                        assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);//si on reprend le calcul les conditions sont toujours ok sinon on initialise à 0
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[pt].Fchap.set(0.0);
                 } else if (Inter[q].comp=="depl_normal") {
-                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL]);//il faut updater juste la nouvelle partie normal mais on laisse la partie tangentielle
+                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);//il faut updater juste la nouvelle partie normal mais on laisse la partie tangentielle
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[pt].Fchap.set(0.0);
                 } else {
@@ -212,25 +221,25 @@ void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
         if (Inter[q].type=="Ext" and Inter[q].comp != "periodique") {
             calc_CL_time(process,CL);
             if (Inter[q].comp=="effort") {
-                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
+                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
             } else if (Inter[q].comp=="depl") {
-                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
+                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
             } else if (Inter[q].comp=="sym") {
                 if(process.temps->pt_cur==1) {
                     if(process.reprise_calcul==0)
-                        assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL]);
+                        assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[1].Fchap.set(0.0);
                 }
             } else if (Inter[q].comp=="depl_normal") {
                 if(process.temps->pt_cur==1) {
-                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL]);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
+                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[1].Fchap.set(0.0);
                 } else {
                     Vec<typename TV2::template SubType<0>::T::T> Wpchapnormal;
                     Wpchapnormal.resize(Inter[q].side[0].t[1].Wpchap.size());
-                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL]);
+                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);
                     Inter[q].side[0].t[1].Wpchap = Inter[q].side[0].Pt(Inter[q].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
             } else {

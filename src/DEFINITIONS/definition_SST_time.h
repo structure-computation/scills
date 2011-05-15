@@ -48,8 +48,10 @@ template<unsigned dim_, class TT_> struct Sst
     //delete K;//K est libéré apres factorisation de toute facon et non calculer où y a pas besoin
     fvol.free();
     //l.free();//non defini
-    t.free();
-    t_post.free();
+    
+    //t.free();
+    //t_post.free();
+    
     //delete param_damage;
   }
 

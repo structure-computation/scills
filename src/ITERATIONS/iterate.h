@@ -282,6 +282,11 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
 //         cout << Inter[15].side[0].t[1].F << endl;
 //         cout << Inter[15].side[1].t[1].F << endl;
 
+//         if (process.rank == 0 ){
+//             for(int q=0;q<Inter.size();q++){
+//                 cout << Inter[q].side[0].t[1].F << endl;
+//             }
+//         }
         
 /*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
         crout << process.rank<< " : etape lineaire : " ;*/
