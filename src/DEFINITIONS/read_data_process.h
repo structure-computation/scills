@@ -6,7 +6,89 @@ using namespace std;
 
 
 inline void read_data_process(Param &process, DataUser &data_user) {
-  
+    process.sousint = false;
+    process.type_sousint = "p";
+    process.rbm.bloq = false;
+    process.rbm.mvts_bloques.resize(3);
+    process.rbm.mvts_bloques[0]= "Ty";
+    process.rbm.mvts_bloques[1]= "Tx";
+    process.rbm.mvts_bloques[2]= "Rz";
+    process.nb_threads = 1;
+    process.save_data = false;
+    process.read_data = false;
+    process.reprise_calcul = 0;
+    process.properties->deltaT = 0;
+    
+    process.multiscale->multiechelle = data_user.options.multiechelle;
+    process.multiscale->type_base_macro = 3;
+    process.multiscale->opti_multi = 1;
+    process.multiscale->erreur_macro = 1e-8;
+    
+    process.latin->nbitermax = data_user.options.LATIN_nb_iter_max;
+    process.latin->facteur_relaxation = 0.8;
+    process.latin->critere_erreur = data_user.options.LATIN_crit_error;
+    process.latin->critere_erreur_diss = 1;
+    process.latin->type_error = "ddr";
+    if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
+    
+    process.latin->ktype = "scalaire_auto_CL";
+    process.latin->kfact = 1;
+    process.latin->copydirection = 0; 
+    process.latin->list_error= 1;
+    
+    process.affichage->interactivite= 0;
+    process.affichage->affich_resultat= 1;
+    process.affichage->type_affichage= "Sst";
+    process.affichage->display_error= 1;
+    process.affichage->affich_mesh= 1;
+    process.affichage->save= "save";
+    process.affichage->display_fields.resize(5);
+    process.affichage->display_fields[0]= "dep";
+    process.affichage->display_fields[1]= "qtrans";
+    process.affichage->display_fields[2]= "sigma";
+    process.affichage->display_fields[3]= "epsilon";
+    process.affichage->display_fields[4]= "ener";
+    
+    process.affichage->repertoire_save= data_user.calcul_path + "/";
+    process.affichage->name_data= "result";
+    process.affichage->command_file= "No";
+    
+    process.temps->type_de_calcul= "stat";
+    
+    
+    if (process.rank==0) std::cout << "************************" << std::endl;
+    if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
+    if (process.rank==0) std::cout << "************************" << std::endl;
+    process.temps->nbpastemps=1;
+    process.temps->dt=1;
+    process.nom_calcul="incr";
+    
+    
+//     XmlNode ntp =n.get_element("parametres_temporels");
+//     ntp.get_attribute("type_de_calcul",process.temps->type_de_calcul);
+// 
+//     if (process.rank==0) std::cout << "************************" << std::endl;
+//     if (process.temps->type_de_calcul=="stat") {
+//         if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
+//         if (process.rank==0) std::cout << "************************" << std::endl;
+//         if (process.rank==0) std::cout << " Rq : 1 seul pas de temps automatiquement, dt=1 par defaut " << std::endl;
+//         process.temps->nbpastemps=1;
+//         process.temps->dt=1;
+//         process.nom_calcul="incr";
+//         if (process.rank==0) std::cout << " Rq : Attention la valeur de la fonction spatiale sera tout de meme modulee par la fonction temporelle" << std::endl;
+//     } else if(process.temps->type_de_calcul=="Qstat") {
+//         if (process.rank==0) std::cout << "     QUASISTATIQUE          " << std::endl;
+//         if (process.rank==0) std::cout << "************************" << std::endl;
+//         ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
+//         ntp.get_attribute("pasdetemps",process.temps->dt);
+//         nm.get_attribute("save_depl_SST",process.latin->save_depl_SST);      
+//         nm.get_attribute("nom_calcul",process.nom_calcul);
+//         //ntp.get_attribute("theta",process.temps->theta);
+//     } else {
+//         std::cout << "Type de calcul non defini " << std::endl;
+//         assert(0);
+//    }
+    
 };
 
 // lecture des parametres de calcul
