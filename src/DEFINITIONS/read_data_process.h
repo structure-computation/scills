@@ -55,14 +55,38 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     
     process.temps->type_de_calcul= "stat";
     
+    if (process.temps->type_de_calcul=="stat") {
+        if (process.rank==0) std::cout << "************************" << std::endl;
+        if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
+        if (process.rank==0) std::cout << "************************" << std::endl;
+        process.temps->nbpastemps=1;
+        process.temps->dt=1;
+        process.nom_calcul="incr";
+        process.temps->nb_step = data_user.time_step.size();
+        process.temps->time_step.resize(process.temps->nb_step);
+        process.temps->nbpastemps=process.temps->nb_step;
+        for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+            process.temps->time_step[i_step].dt=1;
+            process.temps->time_step[i_step].t_ini=0;
+            process.temps->time_step[i_step].t_fin=0;
+            process.temps->time_step[i_step].nb_time_step=1;
+        }
     
-    if (process.rank==0) std::cout << "************************" << std::endl;
-    if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
-    if (process.rank==0) std::cout << "************************" << std::endl;
-    process.temps->nbpastemps=1;
-    process.temps->dt=1;
-    process.nom_calcul="incr";
-    
+    }else if(process.temps->type_de_calcul=="Qstat") {
+        if (process.rank==0) std::cout << "************************" << std::endl;
+        if (process.rank==0) std::cout << "     QUASISTATIQUE      " << std::endl;
+        if (process.rank==0) std::cout << "************************" << std::endl;
+        process.nom_calcul="incr";
+        process.temps->nb_step = data_user.time_step.size();
+        process.temps->time_step.resize(process.temps->nb_step);
+        process.temps->nbpastemps= 0;
+        for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+            process.temps->time_step[i_step].dt = data_user.time_step[i_step].dt;
+            process.temps->time_step[i_step].t_ini = data_user.time_step[i_step].ti;
+            process.temps->time_step[i_step].t_fin = data_user.time_step[i_step].tf;
+            process.temps->time_step[i_step].nb_time_step = data_user.time_step[i_step].nb_time_step;
+        }
+    }
     
 //     XmlNode ntp =n.get_element("parametres_temporels");
 //     ntp.get_attribute("type_de_calcul",process.temps->type_de_calcul);
@@ -91,24 +115,23 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     
 };
 
-// lecture des parametres de calcul
-inline void read_data_process(Param &process, const XmlNode &n) {
-   XmlNode nm = n.get_element("parametres");
-   nm.get_attribute("sous_integration",process.sousint);
-   nm.get_attribute("type_sous_integration",process.type_sousint);
-   nm.get_attribute("blocage_modes_rigides",process.rbm.bloq);
-   nm.get_attribute("mvts_bloques",process.rbm.mvts_bloques);   
-   nm.get_attribute("nb_threads",process.nb_threads);
-   nm.get_attribute("save_data",process.save_data);
-   nm.get_attribute("read_data",process.read_data);
-   nm.get_attribute("reprise_calcul",process.reprise_calcul);
-   nm.get_attribute("deltaT",process.properties->deltaT);
-      
-   nm.get_attribute("type_base_macro",process.multiscale->type_base_macro);
-   nm.get_attribute("multiechelle",process.multiscale->multiechelle);
-   nm.get_attribute("opti_multi",process.multiscale->opti_multi);
-   nm.get_attribute("erreur_macro",process.multiscale->erreur_macro);
-
+/*// lecture des parametres de calcul
+inline void read_data_process(Param &process, const XmlNode &n, DataUser &data_user) {
+   process.sousint=0;
+   process.type_sousint="h";
+   process.rbm.bloq=0;
+   process.rbm.mvts_bloques="";
+   process.nb_threads=1;
+   process.save_data=1;
+   process.read_data=0;
+   process.reprise_calcul=0;
+   process.properties->deltaT=0;
+   process.multiscale->type_base_macro=0;
+   process.multiscale->multiechelle=data_user.multiechelle;
+   process.multiscale->opti_multi=0;
+   process.multiscale->erreur_macro=0;
+   
+   
 //    nm.get_attribute("nb_macro_identique",process.multiscale->nbmacro_identique);   
 //    if(process.multiscale->nbmacro_identique==0){
 //       XmlNode nmacro = n.get_element("fcts_macro");
@@ -128,6 +151,31 @@ inline void read_data_process(Param &process, const XmlNode &n) {
 //       }
 //    }
 //    
+   
+   process.latin->nbitermax=data_user.options.LATIN_nb_iter_max;
+   process.latin->facteur_relaxation=0.8;
+   process.latin->critere_erreur=data_user.options.LATIN_crit_error;
+   process.latin->type_error="ddr";
+   if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
+   process.latin->ktype
+   process.latin->kfact
+   process.latin->copydirection
+   
+   process.latin->list_error
+   process.affichage->interactivite
+   process.affichage->affich_resultat
+   process.affichage->type_affichage
+   process.affichage->display_error
+   process.affichage->affich_mesh
+   process.affichage->save
+   process.affichage->display_fields
+   process.affichage->repertoire_save
+   process.affichage->name_data
+   process.affichage->command_file
+   
+   process.temps->type_de_calcul
+   
+   
    nm.get_attribute("nbitermax",process.latin->nbitermax);
    nm.get_attribute("facteur_relaxation",process.latin->facteur_relaxation);
    nm.get_attribute("critere_erreur",process.latin->critere_erreur);
@@ -155,22 +203,44 @@ inline void read_data_process(Param &process, const XmlNode &n) {
    na.get_attribute("command_file",process.affichage->command_file);
 
    XmlNode ntp =n.get_element("parametres_temporels");
-   ntp.get_attribute("type_de_calcul",process.temps->type_de_calcul);
 
-   if (process.rank==0) std::cout << "************************" << std::endl;
+   XmlNode ntp_prop =ntp.get_element("proprietes");
+   ntp_prop.get_attribute("type_de_calcul",process.temps->type_de_calcul);
+   
+   if (process.rank==0) cout << "************************" << endl;
    if (process.temps->type_de_calcul=="stat") {
-      if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
-      if (process.rank==0) std::cout << "************************" << std::endl;
-      if (process.rank==0) std::cout << " Rq : 1 seul pas de temps automatiquement, dt=1 par defaut " << std::endl;
-      process.temps->nbpastemps=1;
+      if (process.rank==0) cout << "     STATIQUE     " << endl;
+      if (process.rank==0) cout << "************************" << endl;
+      if (process.rank==0) cout << " Rq : 1 seul pas de temps automatiquement, dt=1 par defaut " << endl;
       process.temps->dt=1;
       process.nom_calcul="incr";
-      if (process.rank==0) std::cout << " Rq : Attention la valeur de la fonction spatiale sera tout de meme modulee par la fonction temporelle" << std::endl;
+      ntp_prop.get_attribute("nb_step",process.temps->nb_step);
+      process.temps->time_step.resize(process.temps->nb_step);
+      process.temps->nbpastemps=process.temps->nb_step;
+      for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+          process.temps->time_step[i_step].dt=1;
+          process.temps->time_step[i_step].t_ini=0;
+          process.temps->time_step[i_step].t_fin=0;
+          process.temps->time_step[i_step].nb_time_step=1;
+      }
+      if (process.rank==0) cout << " Rq : Attention la valeur de la fonction spatiale sera tout de meme modulee par la fonction temporelle" << endl;
    } else if(process.temps->type_de_calcul=="Qstat") {
-      if (process.rank==0) std::cout << "     QUASISTATIQUE          " << std::endl;
-      if (process.rank==0) std::cout << "************************" << std::endl;
-      ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
-      ntp.get_attribute("pasdetemps",process.temps->dt);
+      if (process.rank==0) cout << "     QUASISTATIQUE          " << endl;
+      if (process.rank==0) cout << "************************" << endl;
+      ntp_prop.get_attribute("nb_step",process.temps->nb_step);
+      process.temps->time_step.resize(process.temps->nb_step);
+      process.temps->nbpastemps= 0;
+      for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+          XmlNode n_step =ntp.get_element("step",i_step);
+          n_step.get_attribute("dt",process.temps->time_step[i_step].dt);
+          n_step.get_attribute("t_ini",process.temps->time_step[i_step].t_ini);
+          n_step.get_attribute("t_fin",process.temps->time_step[i_step].t_fin);
+          n_step.get_attribute("nb_time_step",process.temps->time_step[i_step].nb_time_step);
+          process.temps->nbpastemps+=process.temps->time_step[i_step].nb_time_step;
+      }
+      
+//       ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
+//       ntp.get_attribute("pasdetemps",process.temps->dt);
       nm.get_attribute("save_depl_SST",process.latin->save_depl_SST);      
       nm.get_attribute("nom_calcul",process.nom_calcul);
       //ntp.get_attribute("theta",process.temps->theta);
@@ -179,9 +249,9 @@ inline void read_data_process(Param &process, const XmlNode &n) {
       assert(0);
    }
    
-
+cout << "sortie " << endl;
    system(("mkdir -p "+process.affichage->repertoire_save).c_str());
 
 
-};
+};*/
 

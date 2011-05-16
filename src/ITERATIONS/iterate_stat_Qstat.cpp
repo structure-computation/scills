@@ -102,7 +102,6 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
     if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);
-    string pouet;
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
 #endif
@@ -137,12 +136,16 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process);
 
     if (process.rank == 0)
-        std::cout<<"Processus iteratif incremental" << endl;
-    for(unsigned pt=1;pt<process.temps->nbpastemps+1;pt++) {
-        process.temps->pt_cur=pt;
-        if (process.rank == 0)
-            std::cout << "Pas de temps " << pt << endl;
-        
+        std::cout<<"Processus iteratif incremental" << std::endl;
+
+
+    unsigned i_step=process.temps->step_cur;
+    for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
+            process.temps->time_step[i_step].pt_cur=i_pt;
+            process.temps->pt_cur+=1;
+            if (process.rank == 0)
+                std::cout << "Piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
+
 //         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
 //         std::cout << process.rank<< " : barrier2 : " << endl;
 
@@ -150,6 +153,11 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         if (process.size == 1 or process.rank>0)
             assign_CL_values_space_time_incr(SubI, CL, process);
 
+        for(int ic=0;ic<CL.size();ic++){
+            std::cout << "ft " << CL[ic].ft << std::endl;
+/*            std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
+        }
+        
 /*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
         std::cout << process.rank<< " : barrier3 : " << endl;*/
         
@@ -170,6 +178,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     calcul_erreur_latin(SubS, Inter, process, Global);
     if (process.rank == 0)
         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+
 };
 // #endif
 

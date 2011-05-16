@@ -58,6 +58,7 @@ using namespace std;
 \brief Fonction principale pour un calcul sous-structuré
 */
 template<class TV1,class TV2,class TV5,class GLOB>
+
 void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global) {
 
     /// lecture des donnees de calcul
@@ -145,18 +146,39 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
 
+    process.temps->dt=0;
+    if (process.rank == 0)  std::cout << "Nombre de pas de temps total " << process.temps->nbpastemps << std::endl;
+    process.temps->pt_cur=0;
+    
+    if (process.rank == 0)
+        std::cout << " Allocations des quantites d'interfaces et SST" << std::endl;
+    if(process.reprise_calcul!=2) allocate_quantities_post(SubS,SubI,process);
+#ifdef PRINT_ALLOC
+    disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
+#endif    
+    
+    for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+        if (process.rank == 0)
+            std::cout<<"Step : " << i_step << std::endl;
+        process.temps->step_cur=i_step;
+        if(process.temps->dt!=process.temps->time_step[i_step].dt){
+            process.temps->dt=process.temps->time_step[i_step].dt;
+            
+        
 
-    if (process.rank == 0) std::cout <<  std::endl;
-    if (process.rank == 0) std::cout << "******************************************" << std::endl;
-    if (process.rank == 0) std::cout << " Construction des operateurs" << std::endl;
-    if (process.rank == 0) std::cout << "******************************************" << std::endl;
+            if (process.rank == 0) std::cout <<  std::endl;
+            if (process.rank == 0) std::cout << "******************************************" << std::endl;
+            if (process.rank == 0) std::cout << " Construction des operateurs" << std::endl;
+            if (process.rank == 0) std::cout << "******************************************" << std::endl;
     
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant construction : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire avant construction : ").c_str(),1);
 #endif
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    /// construction des operateurs
-    multiscale_operateurs(Stot,SubS,Inter,SubI,process,Global);
+            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+            /// construction des operateurs
+            multiscale_operateurs(Stot,SubS,Inter,SubI,process,Global);
+        }
+
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Construction operateurs : " ;
@@ -164,16 +186,16 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
 
-    /// destruction des quantites surperflues en MPI
+            /// destruction des quantites surperflues en MPI
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant free : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire avant free : ").c_str(),1);
 #endif
-    memory_free(S,Inter,process);
+            //memory_free(S,Inter,process);
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres free : ").c_str(),1);
+            disp_alloc((to_string(process.rank)+" : Verifie memoire apres free : ").c_str(),1);
 #endif
-    
-    
+        }
+        
     if(process.read_data==1) {
       if (process.rank == 0) std::cout << "Allocations des quantites d'interfaces et SST" << std::endl;
         allocate_quantities(SubS,SubI,process,Global);
@@ -203,7 +225,6 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
             assert(0);
         }
 
-
         if(process.save_data==1) {
           if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
             Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
@@ -211,14 +232,15 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
             Vec<string> fields_to_save2("q");
             save_data_sst(SubS, process, fields_to_save2);
         }
-
-    }
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Duree de la partie iterative : " ;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
+  
+    }
+
     //post traitements
     if(process.rank==0){
     /// post traitements

@@ -25,6 +25,7 @@ TT_ type de flottant.
 */
 template<unsigned dim_, class TT_> struct Sst
 {
+
   static const unsigned dim = dim_; ///< variable dim accessible de l'exterieur, constante, obtenu a partir du param dim_ de Sst<2,double>
   // types connus de l'exterieur
   typedef  TT_ T; ///< Type des flottants

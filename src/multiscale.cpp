@@ -141,7 +141,8 @@ int main(int argc,char **argv) {
         Vec<Interface<DIM,TYPEREEL> > Inter;
         Vec<Boundary<DIM,TYPEREEL> > CL;
         Glob<DIM,TYPEREEL> Global;
-        multiscale(data_user, geometry_user, S, Inter, process, CL, Global);
+/*        multiscale(n,S,Inter,process,CL,Global, data_user);*/
+        multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
 
         
 #ifdef INFO_TIME
