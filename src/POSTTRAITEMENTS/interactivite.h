@@ -288,7 +288,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
                     process.affichage->fichiers_paraview_inter_crees=0;
                     process.affichage->fichiers_paraview_sst_crees=0;
                     process.reprise_calcul=2;
-                  if(process.nom_calcul=="incr") multiscale_iterate_incr(S,SubS, Inter,SubI, process, Global, CL,n);
+                  if(process.nom_calcul=="incr") multiscale_iterate_incr(S,SubS, Inter,SubI, process, Global, CL);
                   else if(process.nom_calcul=="latin") multiscale_iterate_latin(S,SubS, Inter,SubI, process, Global, CL);
 
                 }

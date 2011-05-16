@@ -29,6 +29,7 @@ struct Boundary {
     static const unsigned dim = dim_;///< dimension utilisable pour toutes les instances
     typedef TT_ T; ///< type des flottants de la classe
     typedef Vec<T,dim> Pvec;///< type des points
+    int id;  ///<  id de la condition limite, la même que dans data_user
     string comp; ///< type de condition aux limites
     Vec<Pvec, 2> box, box1; ///< boite incluant la CL dans laquelle sont cherchees les interfaces, box1 la boite de la 2eme interface pour les périodiques
     Vec<string,dim> fcts_spatiales; ///< fonctions chargement spatial : 2 ou 3 fcts analytiques (x, y, z) separees par des ;

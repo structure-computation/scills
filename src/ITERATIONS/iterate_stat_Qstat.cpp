@@ -97,7 +97,7 @@ Cette procédure est constituée des étapes suivantes :
    - assign_quantities_current_to_old() : on met à jour les valeurs 0 à partir des valeurs 1
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL,const XmlNode &n) {
+void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
     //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
@@ -185,6 +185,6 @@ void fake_iterate() {
     Vec<Boundary<DIM,TYPEREEL> > CL3;
     
     multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3);
-    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3,n);
+    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3);
 
 }

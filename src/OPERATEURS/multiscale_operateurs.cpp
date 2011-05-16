@@ -62,7 +62,7 @@ L'ordre d'utilisation des fonctions est le suivant :
 //  Procedure de creation des operateurs utilises dans la strategie multiechelle
 //***************************************************************************************************
 template <class TV1, class TV2, class TV3, class TV4>
-void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global) {
+void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global) {
 
     TicToc2 tic;
     tic.start();
@@ -140,7 +140,6 @@ void multiscale_operateurs(const XmlNode &n,TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &S
 
 
 void fake_multiscale_operateurs() {
-    XmlNode n;
     Param process;
 
     Vec<Interface<DIM,TYPEREEL> > Inter3;
@@ -148,7 +147,7 @@ void fake_multiscale_operateurs() {
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
     Glob<DIM,TYPEREEL> Global3;
 
-    multiscale_operateurs(n,S3, SubS3,Inter3, SubI3, process, Global3);
+    multiscale_operateurs(S3, SubS3,Inter3, SubI3, process, Global3);
 
 
 }

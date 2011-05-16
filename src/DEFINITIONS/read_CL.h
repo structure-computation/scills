@@ -19,6 +19,53 @@ using namespace LMT;
 
 template<class BOUNDARY>
 void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
+    unsigned nbCL = data_user.behaviour_bc.size();
+    CL.resize(nbCL);
+    unsigned nbfct_temporelle;
+    for(unsigned i=0;i<nbCL;++i) {
+        CL[i].id = data_user.behaviour_bc[i].id;
+        CL[i].comp = data_user.behaviour_bc[i].type;
+        if (CL[i].comp=="sym") {
+            CL[i].fcts_spatiales.set("0");
+            CL[i].fcts_temporelles.resize(1);
+            CL[i].fcts_temporelles[0].resize(1);
+            CL[i].intervalles_temps.resize(1);
+            CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
+            CL[i].fcts_temporelles[0].set("1");
+        }else if (CL[i].comp=="depl_normal") {
+            std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
+            CL[i].fcts_spatiales.set("0");
+            CL[i].fcts_spatiales[0]=data_user.behaviour_bc[i].step[0].CL_step_prop[0];
+            //lecture des fcts temporelles definies pour un intervalle de temps donne
+            if(process.temps->type_de_calcul=="stat") {
+                CL[i].fcts_temporelles.resize(1);
+                CL[i].intervalles_temps.resize(1);
+                CL[i].fcts_temporelles[0].resize(1);
+                CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
+                CL[i].fcts_temporelles[0].set("1");
+            } else {
+                std::cout << "Mauvais type de calcul" << std::endl;
+                assert(0);
+            }
+        } else { //sinon lecture des differentes fcts_spatiales
+            //lecture de la fct spatiale sur la zone donnee : separation des valeurs selon x,y,z par des ; ne pas mettre d'espace du tout et stockage dans fcts_spatiales vecteur de string
+            CL[i].fcts_spatiales.set("0");
+            for(int d=0; d<DIM; d++){
+                CL[i].fcts_spatiales[d]=data_user.behaviour_bc[i].step[0].CL_step_prop[d];
+            }
+            //lecture des fcts temporelles definies pour un intervalle de temps donne
+            if(process.temps->type_de_calcul=="stat") {
+                CL[i].fcts_temporelles.resize(1);
+                CL[i].intervalles_temps.resize(1);
+                CL[i].fcts_temporelles[0].resize(1);
+                CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
+                CL[i].fcts_temporelles[0].set("1");
+            } else {
+                std::cout << "Mauvais type de calcul" << std::endl;
+                assert(0);
+            }
+        }
+    }
 };
 
 template<class BOUNDARY>

@@ -27,30 +27,37 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
     //assignation des proprietes materiau des interfaces
     for(unsigned i=0;i<propinter.size();i++) {
         Vec<unsigned> inter_select;
-        if (propinter[i].type=="contact_sst" or propinter[i].type=="contact_jeu_sst" or propinter[i].type=="contact_jeu_physique" or propinter[i].type=="jeu_impose_sst") {
-            //reperage par le numero des ssts voisines :
-            Vec<unsigned,2> numsst = propinter[i].num_sst;
-            Vec<Vec<unsigned>,2> numinter;
-            for(unsigned k=0;k<2;k++)
-                for(unsigned j=0;j<S[numsst[k]].edge.size();j++)
-                    numinter[k].push_back(S[numsst[k]].edge[j].internum);
-
-            for(unsigned k=0;k<numinter[0].size();k++)
-                if(find(numinter[1],LMT::_1==numinter[0][k])==1) {
-                if(find(process.multi_mpi->listinter,LMT::_1==numinter[0][k])){
-                    inter_select.push_back(numinter[0][k]);
-                    break;
-                }
-                }
-        } else {
-            for(unsigned q=0;q<Inter.size();q++)
-                if (Inter[q].type=="Int") {
-                if (find(process.multi_mpi->listinter,LMT::_1==q)) {
-                    if (pt_in_box(Inter[q].G,propinter[i].box)==1)
-                        inter_select.push_back(q);
-                }
-                }
+        //reperage par le champ id_link de l'Interface
+        for(unsigned q=0;q<Inter.size();q++){
+            if (Inter[q].type=="Int" and Inter[q].id_link == propinter[i].id) {
+                inter_select.push_back(q);
+            }
         }
+        
+//         if (propinter[i].type=="contact_sst" or propinter[i].type=="contact_jeu_sst" or propinter[i].type=="contact_jeu_physique" or propinter[i].type=="jeu_impose_sst") {
+//             //reperage par le numero des ssts voisines :
+//             Vec<unsigned,2> numsst = propinter[i].num_sst;
+//             Vec<Vec<unsigned>,2> numinter;
+//             for(unsigned k=0;k<2;k++)
+//                 for(unsigned j=0;j<S[numsst[k]].edge.size();j++)
+//                     numinter[k].push_back(S[numsst[k]].edge[j].internum);
+// 
+//             for(unsigned k=0;k<numinter[0].size();k++)
+//                 if(find(numinter[1],LMT::_1==numinter[0][k])==1) {
+//                 if(find(process.multi_mpi->listinter,LMT::_1==numinter[0][k])){
+//                     inter_select.push_back(numinter[0][k]);
+//                     break;
+//                 }
+//                 }
+//         } else {
+//             for(unsigned q=0;q<Inter.size();q++)
+//                 if (Inter[q].type=="Int") {
+//                 if (find(process.multi_mpi->listinter,LMT::_1==q)) {
+//                     if (pt_in_box(Inter[q].G,propinter[i].box)==1)
+//                         inter_select.push_back(q);
+//                 }
+//                 }
+//         }
 
         //assignation des proprietes aux interfaces selectionnees
         for(unsigned j=0;j<inter_select.size();j++) {

@@ -109,12 +109,14 @@ int main(int argc,char **argv) {
         DataUser data_user(id_model, id_calcul);
         data_user.read_json_calcul();
        
+        std::cout << "lecture de la geometrie" << std::endl;
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
         GeometryUser geometry_user(id_model, id_calcul);
         geometry_user.read_hdf5(false,true);                       // true si on lit les info micro, true si on lit toutes les infos
+        std::cout << "fin lecture de la geometrie" << std::endl;
         geometry_user.split_group_edges_within_geometry(data_user);
-    
+        std::cout << "fin lecture de la geometrie" << std::endl;
     
         if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
         if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;

@@ -286,7 +286,7 @@ void compt_contact (INTER &Inter,TEMPS &temps) {
     const Vec<TT> &WWchap2old=Inter.side[1].t[imic-1].Wchap[list2];
     Vec<TT> WWchap1=Inter.side[0].t[imic].Wchap[list1];
     Vec<TT> WWchap2=Inter.side[1].t[imic].Wchap[list2];
-
+    
     const Vec<TT> &neq=Inter.side[0].neq[list1];
 
 //     if (Inter.num == 15) cout << list1 << endl;

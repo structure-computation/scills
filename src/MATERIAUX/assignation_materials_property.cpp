@@ -22,6 +22,7 @@
 #include "assignation_comportements_speciaux_inter.h"
 
 #include "definition_fcts.h"
+#include "DataUser.h"
 
 using namespace LMT;
 using namespace std;
@@ -46,15 +47,44 @@ Dans la fonction principale, on appelle successivement :
 void fake_assignation_materials_property() {
     XmlNode n;
     Param process;
+    DataUser data_user;
         
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;
     Vec<Interface<DIM,TYPEREEL> > Inter3;
     
-    assignation_materials_property_SST(n,S3,Inter3,process);
+    assignation_materials_property_SST(data_user, S3, Inter3,process);
+    assignation_materials_property_INTER(data_user, Inter3, S3, process);
+    
+    assignation_materials_property_SST(n,S3,Inter3,process); 
     assignation_materials_property_INTER(n, Inter3, S3, process);
 
 }
+
+
+template <class TV1, class TV2>
+void assignation_materials_property_SST(DataUser &data_user, TV1 &S, TV2 &Inter,Param &process){
+   if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
+   // lecture des proprietes materiau des ssts
+   Vec<SstCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > matprop;
+   read_material_properties(matprop,process,data_user); 
+   apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop,process);
+   
+   //pour le mesomodele uniquement
+   #ifdef FORMUENDO
+   initialisation_mesh_meso(S, Inter, matprop);
+   #endif
+}
+
+template <class TV1, class TV2>
+void assignation_materials_property_INTER(DataUser &data_user, TV2 &Inter, TV1 &S, Param &process){
+   if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
+   Vec<InterCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > propinter;
+   read_propinter(propinter,data_user);
+   modif_inter(Inter,propinter,S,process);
+}
+
+
 
 
 template <class TV1, class TV2>

@@ -1,6 +1,7 @@
 
 #include "codegen/codegen.h"
 #include "containers/basicops.h"
+#include "DataUser.h"
 
 using namespace Codegen;
 using namespace LMT;
@@ -42,6 +43,136 @@ On aura donc les possibilités suivantes :
    <coefficients type="isotrope" resolution="contrainte_plane" identificateur="0"  elastic_modulus="200e3" poisson_ratio="0.3" unit="MPa" thickness="1" alpha="2e-6" viscosite="0.1" />
    \endcode
 */
+
+
+
+
+template<class TV3>
+void read_material_properties(TV3 &matprop, Param &process, const DataUser &data_user) {
+
+    unsigned nbmat = data_user.behaviour_materials.size();
+
+    matprop.resize(nbmat);
+    for(unsigned i=0;i<nbmat;++i) {
+        matprop[i].id = data_user.behaviour_materials[i].id;
+        matprop[i].type = data_user.behaviour_materials[i].type;
+        matprop[i].comp = data_user.behaviour_materials[i].comp;
+        if(data_user.dim == 2){
+            if (data_user.behaviour_materials[i].resolution =="contrainte_plane")
+                matprop[i].resolution=1;
+            else if (data_user.behaviour_materials[i].resolution =="deformation_plane")
+                matprop[i].resolution=0;
+            else {
+                std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;
+                assert(0);
+            }
+        }else{
+            matprop[i].resolution=0;
+        }
+
+        std::vector<Ex> symbols;
+        if (TV3::template SubType<0>::T::dim==2) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+        }
+        else if (TV3::template SubType<0>::T::dim==3) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+            symbols.push_back("z");
+        }
+
+        Vec<string> vstr;
+        vstr.resize(data_user.dim);
+        
+        for(int d=0; d<data_user.dim; d++){
+            vstr[d] = data_user.behaviour_bc_volume[2].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[2].step[0].CLv_step_prop[6] ;
+        }
+        
+        Vec<Ex> expr;
+        expr.resize(TV3::template SubType<0>::T::dim);
+        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            expr[d2] = read_ex(vstr[d2],symbols);
+        }
+        Vec<double,TV3::template SubType<0>::T::dim> data;
+        Ex::MapExNum var;
+        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            var[symbols[d2]]= 0.;
+        }
+        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+            data[d2] = (double)expr[d2].subs_numerical(var);
+
+        matprop[i].f_vol=data;
+//         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
+
+        Vec< TYPE > mat_prop_temp;
+        mat_prop_temp.resize(data_user.behaviour_materials[i].mat_prop.size());
+        for(int i_prop=0; i_prop<data_user.behaviour_materials[i].mat_prop.size(); i_prop++){
+            Ex expr_temp;
+            expr_temp = read_ex(data_user.behaviour_materials[i].mat_prop[i_prop],symbols);
+            Ex::MapExNum var;
+            for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                var[symbols[d2]]= 0.;
+            }
+            mat_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
+        }
+        
+        if (matprop[i].type=="isotrope" and matprop[i].comp=="elastique") {
+            matprop[i].coef.push_back(mat_prop_temp[0]);   // E
+            matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
+            matprop[i].coef.push_back(mat_prop_temp[2]);   // alpha
+            matprop[i].coef.push_back(0);                                              // deltaT
+        } else if (matprop[i].type=="isotrope" and matprop[i].comp=="visqueux") {
+            matprop[i].coef.push_back(mat_prop_temp[0]);   // E
+            matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
+            matprop[i].coef.push_back(mat_prop_temp[4]);   // viscosite
+            matprop[i].coef.push_back(mat_prop_temp[2]);   // alpha
+            matprop[i].coef.push_back(0);                                              // deltaT
+        } else if (matprop[i].type=="orthotrope") {
+            matprop[i].coef.push_back(mat_prop_temp[14]);   // E1
+            matprop[i].coef.push_back(mat_prop_temp[15]);   // E2
+            matprop[i].coef.push_back(mat_prop_temp[16]);   // E3
+            
+            matprop[i].coef.push_back(mat_prop_temp[20]);   // nu12
+            matprop[i].coef.push_back(mat_prop_temp[22]);   // nu13
+            matprop[i].coef.push_back(mat_prop_temp[21]);   // nu23
+            
+            matprop[i].coef.push_back(mat_prop_temp[17]);   // G12
+            matprop[i].coef.push_back(mat_prop_temp[19]);   // G13
+            matprop[i].coef.push_back(mat_prop_temp[18]);   // G23
+
+            for(int d=0; d<data_user.dim; d++){
+                matprop[i].direction[0][d]=mat_prop_temp[d+5];
+                matprop[i].direction[0][d]=mat_prop_temp[d+8];
+            }
+            
+            std::cout << "assignation_materials_sst.h " << matprop[i].direction[0] << " v1 et v2 " << matprop[i].direction[1] << std::endl;
+            //normalisation des directions d'orthotropie
+            matprop[i].direction[0]=matprop[i].direction[0]/norm_2(matprop[i].direction[0]);
+            matprop[i].direction[1]=matprop[i].direction[1]/norm_2(matprop[i].direction[1]);
+
+            //coefficients thermiques
+            matprop[i].coefth.resize(4);
+            matprop[i].coefth[0]=mat_prop_temp[23];         //alpha_1
+            matprop[i].coefth[0]=mat_prop_temp[24];         //alpha_2
+            matprop[i].coefth[0]=mat_prop_temp[25];         //alpha_3
+            matprop[i].coefth[3]=0;
+            
+            if (matprop[i].comp=="endommageable") {
+                //parametres d'endommagement
+                matprop[i].param_damage.Yo = mat_prop_temp[26];
+                matprop[i].param_damage.Yop = mat_prop_temp[27];
+                matprop[i].param_damage.Ysp = mat_prop_temp[28];
+                matprop[i].param_damage.Yc = mat_prop_temp[29];
+                matprop[i].param_damage.Ycp = mat_prop_temp[30];
+                matprop[i].param_damage.b = mat_prop_temp[31];
+            }
+        }
+    }
+};
+
+
+
+
 template<class TV3>
 void read_material_properties(TV3 &matprop, Param &process, const XmlNode &n) {
 
@@ -238,6 +369,68 @@ Même remarque sur le jeu que pour l'interface contact_jeu_sst.
 Même remarque sur le jeu que pour l'interface contact_jeu_sst.
  
 */
+
+template<class TV4>
+void read_propinter(TV4 &propinter,const DataUser &data_user) {
+    unsigned nbliaisons = data_user.behaviour_links.size();
+    propinter.resize(nbliaisons);
+    for(unsigned i=0;i<nbliaisons;++i) {
+        propinter[i].id = data_user.behaviour_links[i].id;
+        if(data_user.behaviour_links[i].type == "contact"){
+            if(data_user.behaviour_links[i].comp_complexe == ""){
+                propinter[i].type = "contact_jeu_sst";
+                propinter[i].comp="Contact_jeu";
+                break;
+            }else if(data_user.behaviour_links[i].comp_complexe == "Ca"){
+                propinter[i].type = "cohesive";
+                propinter[i].comp="Cohesive";
+                break;
+            }
+            break;
+        }else if(data_user.behaviour_links[i].type == "parfait"){
+            if(data_user.behaviour_links[i].comp_complexe == ""){
+                propinter[i].type = "parfait";
+                propinter[i].comp="Parfait";
+                break;
+            }else if(data_user.behaviour_links[i].comp_complexe == "Ca"){
+                propinter[i].type = "parfait";
+                propinter[i].comp="Parfait";
+                break;
+            }
+            break;
+        }
+        
+        
+        std::vector<Ex> symbols;
+        if (TV4::template SubType<0>::T::dim==2) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+        }
+        else if (TV4::template SubType<0>::T::dim==3) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+            symbols.push_back("z");
+        }
+        
+        Vec< TYPE > link_prop_temp;
+        link_prop_temp.resize(data_user.behaviour_links[i].link_prop.size());
+        for(int i_prop=0; i_prop<data_user.behaviour_links[i].link_prop.size(); i_prop++){
+            Ex expr_temp;
+            expr_temp = read_ex(data_user.behaviour_links[i].link_prop[i_prop],symbols);
+            Ex::MapExNum var;
+            for(unsigned d2=0;d2<TV4::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                var[symbols[d2]]= 0.;
+            }
+            link_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
+        }
+        
+        propinter[i].coeffrottement = link_prop_temp[0];                                // coeff frottement
+        propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   // jeux ou epaisseur negative
+        propinter[i].Gcrit = link_prop_temp[7];                                         // limite en rupture    
+    }
+}
+
+
 template<class TV4>
 void read_propinter(TV4 &propinter,const XmlNode &n) {
 

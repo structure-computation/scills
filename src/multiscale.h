@@ -116,8 +116,9 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     
 
     /// assignation des proprietes materiaux aux maillages des sst
-    XmlNode n;
-    assignation_materials_property_SST(n, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+
+    //assignation_materials_property_SST(n, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+    assignation_materials_property_SST(data_user, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Assignation materiaux SST : " ;
@@ -126,7 +127,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 #endif
 
     /// modification du comportement des interfaces interieures si besoin : contact...
-    assignation_materials_property_INTER(n,Inter,S,process);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
+    assignation_materials_property_INTER(data_user,Inter,S,process);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Assignation materiaux INTER : " ;
@@ -155,7 +156,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 #endif
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     /// construction des operateurs
-    multiscale_operateurs(n,Stot,SubS,Inter,SubI,process,Global);
+    multiscale_operateurs(Stot,SubS,Inter,SubI,process,Global);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Construction operateurs : " ;
@@ -195,7 +196,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
             multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL);
         } else if(process.nom_calcul=="incr") {
             if (process.rank == 0) std::cout << "Calcul incremental" << std::endl;
-            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL,n);
+
+            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL);
         } else {
             if (process.rank == 0) std::cout << "nom de calcul non defini : choix entre latin ou incremental" << std::endl;
             assert(0);
@@ -217,23 +219,17 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
-
     //post traitements
-      if(process.affichage->interactivite==1) {
-          interactivite(S,SubS,Inter,SubI,process, Global,CL,n);
-      } else {
-        if(process.rank==0){
-        /// post traitements
-        // affichage sous gnuplot de la courbe d'erreur
-         if (process.affichage->display_error==1) {
-            GnuPlot gp;
-            gp.plot(log10(process.latin->error[range(process.latin->iter)]));
-            gp.wait();
-         }
-        }
-        // affichage sous paraview du resultat
-        affichage_resultats(SubS,process);
+    if(process.rank==0){
+    /// post traitements
+    // affichage sous gnuplot de la courbe d'erreur
+      if (process.affichage->display_error==1) {
+        GnuPlot gp;
+        gp.plot(log10(process.latin->error[range(process.latin->iter)]));
+        gp.wait();
+      }
     }
-
+    // affichage sous paraview du resultat
+    affichage_resultats(SubS,process);
 }
 
