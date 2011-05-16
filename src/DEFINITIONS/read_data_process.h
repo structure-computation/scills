@@ -42,7 +42,6 @@ inline void read_data_process(Param &process, const XmlNode &n, DataUser &data_u
    process.multiscale->erreur_macro=0;
    
    
-   
 //    nm.get_attribute("nb_macro_identique",process.multiscale->nbmacro_identique);   
 //    if(process.multiscale->nbmacro_identique==0){
 //       XmlNode nmacro = n.get_element("fcts_macro");
@@ -63,10 +62,10 @@ inline void read_data_process(Param &process, const XmlNode &n, DataUser &data_u
 //    }
 //    
    
-   process.latin->nbitermax
-   process.latin->facteur_relaxation
-   process.latin->critere_erreur
-   process.latin->type_error
+   process.latin->nbitermax=data_user.options.LATIN_nb_iter_max;
+   process.latin->facteur_relaxation=0.8;
+   process.latin->critere_erreur=data_user.options.LATIN_crit_error;
+   process.latin->type_error="ddr";
    if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
    process.latin->ktype
    process.latin->kfact
