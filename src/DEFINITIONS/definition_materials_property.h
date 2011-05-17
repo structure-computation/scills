@@ -3,6 +3,7 @@
 
 // Ajout class PARAM_DAMAGE_SST contenant les grandeurs materiaux associées a l'endommagement
 #include "definition_PARAM_DAMAGE_SST.h"
+#include <boost/concept_check.hpp>
 
 using namespace LMT;
 using namespace std;
@@ -20,6 +21,7 @@ template<unsigned dim_, class T_> struct SstCarac
   typedef  T_ T; ///< type de flottant
   static const unsigned dim=dim_; ///< dimension 2 ou 3
   int id;               ///< identite du materiaux dans data_user
+  int type_num;         ///< numero d'identité du comportement materiaux : 0=isotrope elastique
   string type;     ///< type de formulation : isotrope, orthotrope, orthotrope endommageable
   string comp;     ///< type de comportement : elastique, endomageable, plastaique...
   bool resolution; ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
@@ -68,6 +70,18 @@ template<unsigned dim_, class T_> struct InterCarac
   ///parametres d'endommagement pour les interfaces cohesives
   PARAM_DAMAGE_INTER param_damage;
 
+  
+  void affiche(){
+      std::cout << "----------------------------------------------------------------------"<< std::endl;
+      std::cout << "id = " << id << std::endl;
+      std::cout << "coeffrottement = " << coeffrottement << std::endl;
+      std::cout << "jeu = " << jeu << std::endl;
+      std::cout << "Gcrit = " << Gcrit << std::endl;
+      std::cout << "type = " << type << std::endl;
+      std::cout << "comp = " << comp << std::endl;
+      std::cout << "----------------------------------------------------------------------"<< std::endl;
+  }
+  
 };
 
 #endif //MATERIALS_H

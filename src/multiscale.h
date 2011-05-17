@@ -115,7 +115,11 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
     
-
+//     //verification
+//     for(int i_inter=0; i_inter<Inter.size(); i_inter++){
+//         Inter[i_inter].affiche();
+//     }
+    
     /// assignation des proprietes materiaux aux maillages des sst
 
     //assignation_materials_property_SST(n, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
@@ -136,6 +140,10 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
 
+//     //verification
+//     for(int i_inter=0; i_inter<Inter.size(); i_inter++){
+//         Inter[i_inter].affiche();
+//     }
 
     /// affichage du maillage si necessaire
     affichage_maillage(SubS,SubI,S,process);

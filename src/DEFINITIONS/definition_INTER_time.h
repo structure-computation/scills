@@ -133,6 +133,21 @@ struct Interface
         side.free();
         param_comp->free();
     }
+    
+#include <boost/concept_check.hpp>
+    void affiche(){
+        std::cout << "------------------- interface ------------------------" << std::endl;
+        PRINT(id);
+        std::cout << type << std::endl;
+        std::cout << comp << std::endl;
+        
+        PRINT(refCL);
+        PRINT(edge_id);
+        PRINT(id_bc);
+        PRINT(id_link);
+        
+        std::cout << "------------------- fin interface ------------------------" << std::endl;
+    }
    
 };
 

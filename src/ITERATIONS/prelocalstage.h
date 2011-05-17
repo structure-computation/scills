@@ -222,7 +222,7 @@ void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
             calc_CL_time(process,CL);
             if (Inter[q].comp=="effort") {
                 assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
-            } else if (Inter[q].comp=="depl") {
+            } else if (Inter[q].comp=="depl" or Inter[q].comp=="depl_nul") {
                 assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
             } else if (Inter[q].comp=="sym") {
                 if(process.temps->pt_cur==1) {

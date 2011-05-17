@@ -7,7 +7,7 @@ using namespace std;
 
 inline void read_data_process(Param &process, DataUser &data_user) {
     process.sousint = false;
-    process.type_sousint = "p";
+    process.type_sousint = "h";
     process.rbm.bloq = false;
     process.rbm.mvts_bloques.resize(3);
     process.rbm.mvts_bloques[0]= "Ty";
@@ -27,7 +27,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.latin->nbitermax = data_user.options.LATIN_nb_iter_max;
     process.latin->facteur_relaxation = 0.8;
     process.latin->critere_erreur = data_user.options.LATIN_crit_error;
-    process.latin->critere_erreur_diss = 1;
+    process.latin->critere_erreur_diss = 0;
     process.latin->type_error = "ddr";
     if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
     
@@ -38,7 +38,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     
     process.affichage->interactivite= 0;
     process.affichage->affich_resultat= 1;
-    process.affichage->type_affichage= "Sst";
+    process.affichage->type_affichage= "Sinterieur";
     process.affichage->display_error= 1;
     process.affichage->affich_mesh= 1;
     process.affichage->save= "save";

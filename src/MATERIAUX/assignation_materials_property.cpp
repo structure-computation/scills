@@ -81,7 +81,14 @@ void assignation_materials_property_INTER(DataUser &data_user, TV2 &Inter, TV1 &
    if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
    Vec<InterCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > propinter;
    read_propinter(propinter,data_user);
+//     for(int i_inter=0; i_inter<propinter.size(); i_inter++){
+//         propinter[i_inter].affiche();
+//     }
    modif_inter(Inter,propinter,S,process);
+//    //verification
+//     for(int i_inter=0; i_inter<Inter.size(); i_inter++){
+//         Inter[i_inter].affiche();
+//     }
 }
 
 

@@ -238,9 +238,10 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
 template<class INTER, class T>
 void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
     T facteur = 1000.;
-
+//     std::cout << Inter.type << std::endl;
+//     std::cout << Inter.comp << std::endl;
     if(Inter.type=="Ext") {
-        if(Inter.comp=="depl") {
+        if(Inter.comp=="depl" or Inter.comp=="depl_nul") {
             kn = kn * facteur;
             hn = hn / facteur;
             kt = kt * facteur;

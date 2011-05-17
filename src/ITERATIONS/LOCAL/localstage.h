@@ -29,6 +29,8 @@ Il suffit donc de rajouter un comportement dans cette procédure et programmer la
 struct etape_locale_inter {
     template<class INTER>
     void operator()(INTER &Inter,Param &process) const {
+//         std::cout << Inter.type << std::endl;
+//         std::cout << Inter.comp << std::endl;
         if (Inter.type=="Ext") {
             if(Inter.comp=="depl") {
                 compt_CL_depl(Inter,process.temps->pt);

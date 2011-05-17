@@ -19,6 +19,7 @@
 
 #include "GeometryUser.h"
 #include "DataUser.h"
+#include <boost/concept_check.hpp>
 
 using namespace std;
 using namespace LMT;
@@ -141,6 +142,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
     unsigned nbnode = geometry_user.find_group_elements(id_sst)->map_mesh_nodes.size();
     unsigned nbelem = geometry_user.find_group_elements(id_sst)->nb_elements;
   
+    
     //ajout des noeuds au maillage
     map<int,TNode *> map_num_node;
     Vec<TYPE,DIM> vec;
@@ -152,9 +154,10 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
     }
     
     //ajout des elements
-    switch (geometry_user.find_group_elements(id_sst)->pattern_id){
+    switch (geometry_user.find_group_elements(id_sst)->pattern_base_id){
         //for Triangle
         case 0 :{
+//             PRINT("Triangle");
             int nb_node_elem = 3;
             Vec<TNode *> vn;
             vn.resize(nb_node_elem);
@@ -169,6 +172,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
         }
         //for Triangle_6
         case 1 :{
+//             PRINT("Triangle_6");
             int nb_node_elem = 6;
             Vec<TNode *> vn;
             vn.resize(nb_node_elem);
@@ -183,6 +187,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
         }
         //for Tetra
         case 2 :{
+//             PRINT("Tetra");
             int nb_node_elem = 4;
             Vec<TNode *> vn;
             vn.resize(nb_node_elem);
@@ -197,6 +202,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
         }
         //for Tetra_10
         case 3 :{
+//             PRINT("Tetra_10");
             int nb_node_elem = 10;
             Vec<TNode *> vn;
             vn.resize(nb_node_elem);
@@ -277,6 +283,7 @@ struct Meshmulti {
             m = new TM;
             read_mesh_sst_geometry_user(*m, *geometry_user, id_sst);
             flag=1;
+            //affiche();
             if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
             node_list_size=m->node_list.size();
             elem_list_size=m->elem_list.size();
@@ -319,6 +326,17 @@ struct Meshmulti {
         node_list_size=m->node_list.size();
         elem_list_size=m->elem_list.size();
     }
+    
+    void affiche(){/// affiche les infos du maillage pour vérification
+        PRINT("---------------affich maillage-------------------");
+        PRINT(typmat);
+        PRINT(numsst);
+        PRINT(num_proc);
+        PRINT(m->elem_list.size());
+        PRINT(m->node_list.size());
+    }
+    
+    
 };
 
 

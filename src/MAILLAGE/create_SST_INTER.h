@@ -44,9 +44,9 @@ A cette etape, on spécifie la taille du vecteur de Sous-structures par l'intermé
 template<class TV1>
 void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,Param &process) {
     
-    //initialisation de la taille des sst et de leur id == num
-    S.resize(geometry_user.nb_group_elements);
-
+    //initialisation de la taille des sst et de leur id == num   
+    //S.resize(geometry_user.nb_group_elements);
+    
     for(unsigned i=0;i<S.size();i++) {
         S[i].num = geometry_user.group_elements[i].id;
         S[i].id = geometry_user.group_elements[i].id;
@@ -68,34 +68,34 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,P
 Le maillage de chaque sst est lu à partir des données chargée dans geometry_user. Ces données viennent de SC_create_2
  
 */
-///Fonction generique
-template<class TE, class TM, class TR>
-void add_new_elem(TE &e, TM &m, TR &rep_nodes) {}
-///Fonctions specialisees
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Tetra,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-    m.add_element(Tetra(),DefaultBehavior(),rep_nodes.ptr() );
-}
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Wedge,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-    m.add_element(Wedge(),DefaultBehavior(),rep_nodes.ptr() );
-}
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Hexa,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-    m.add_element(Hexa(),DefaultBehavior(),rep_nodes.ptr() );
-}
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Triangle,TNB,TN,TD,NET> &e, TM &m, TR&rep_nodes) {
-    m.add_element(Triangle(),DefaultBehavior(),rep_nodes.ptr() );
-}
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Quad,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-    m.add_element(Quad(),DefaultBehavior(),rep_nodes.ptr() );
-}
-template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-    m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
-}
+// ///Fonction generique
+// template<class TE, class TM, class TR>
+// void add_new_elem(TE &e, TM &m, TR &rep_nodes) {}
+// ///Fonctions specialisees
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Tetra,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+//     m.add_element(Tetra(),DefaultBehavior(),rep_nodes.ptr() );
+// }
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Wedge,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+//     m.add_element(Wedge(),DefaultBehavior(),rep_nodes.ptr() );
+// }
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Hexa,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+//     m.add_element(Hexa(),DefaultBehavior(),rep_nodes.ptr() );
+// }
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Triangle,TNB,TN,TD,NET> &e, TM &m, TR&rep_nodes) {
+//     m.add_element(Triangle(),DefaultBehavior(),rep_nodes.ptr() );
+// }
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Quad,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+//     m.add_element(Quad(),DefaultBehavior(),rep_nodes.ptr() );
+// }
+// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+// void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+//     m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
+// }
 
 
 template<class TV1>
@@ -147,7 +147,7 @@ void read_mesh_interface_geometry_user(TM &mesh, GeometryUser &geometry_user, in
     }
     
     //ajout des elements
-    switch (geometry_user.find_group_interfaces(num_inter)->interface_id){
+    switch (geometry_user.find_group_interfaces(num_inter)->interface_base_id){
         //for Bar
         case 0 :{
             int nb_node_elem = 2;
@@ -237,6 +237,7 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
 
         BasicVec < int > id_sst;
         BasicVec < int > index_sst;
+        Inter[i_inter].side.resize(2);
         id_sst.resize(2);
         index_sst.resize(2);
         for(int i_group=0; i_group<2; i_group++){
@@ -301,10 +302,12 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
     int nb_inter_total =  nb_inter_actuel + nb_inter;
     Inter.resize(nb_inter_total);
     
-    
+    PRINT(nb_inter_actuel);
+    PRINT(nb_inter);
+    PRINT(Inter.size());
     // assignation des id d'interfaces et des reférence vers un comportement
-    Inter.resize(nb_inter);
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
+
         int num_inter = nb_inter_actuel + i_inter;
         Inter[num_inter].num = rep_id_inter[i_inter];
         Inter[num_inter].id = rep_id_inter[i_inter]; 
@@ -321,9 +324,10 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
         edge.internum=num_inter; 
         BasicVec < int > id_sst;
         BasicVec < int > index_sst;
-        id_sst.resize(2);
-        index_sst.resize(2);
-        for(int i_group=0; i_group<2; i_group++){
+        Inter[num_inter].side.resize(1);
+        id_sst.resize(1);
+        index_sst.resize(1);
+        for(int i_group=0; i_group<1; i_group++){
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[num_inter].num)->group_elements_id[i_group];
             index_sst[i_group] = find_index_sst(S, id_sst[i_group]);
         }
@@ -332,7 +336,6 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
         find_sst(S, id_sst[0])->vois.push_back(-1);
         Inter[num_inter].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
         Inter[num_inter].side[0].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
-        
         Inter[num_inter].num=geometry_user.find_group_interfaces(Inter[num_inter].id)->nb_interfaces; // pourquoi ???
     }
     
