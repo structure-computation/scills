@@ -293,7 +293,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
-        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0){
+        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1){
             nb_inter += 1;
             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
         }

@@ -22,7 +22,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.multiscale->multiechelle = data_user.options.multiechelle;
     process.multiscale->type_base_macro = 3;
     process.multiscale->opti_multi = 0;
-    process.multiscale->erreur_macro = 1e-8;
+    process.multiscale->erreur_macro = 0.000001;
     
     process.latin->nbitermax = data_user.options.LATIN_nb_iter_max;
     process.latin->facteur_relaxation = 0.8;
@@ -39,7 +39,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->interactivite= 0;
     process.affichage->affich_resultat= 1;
     process.affichage->type_affichage= "Sinterieur";
-    process.affichage->display_error= 1;
+    process.affichage->display_error= 0;
     process.affichage->affich_mesh= 1;
     process.affichage->save= "save";
     process.affichage->display_fields.resize(5);

@@ -25,6 +25,11 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
     for(unsigned i=0;i<nbCL;++i) {
         CL[i].id = data_user.behaviour_bc[i].id;
         CL[i].comp = data_user.behaviour_bc[i].type;
+        if (CL[i].comp=="depl_nul") {
+            CL[i].comp = "depl";
+            data_user.behaviour_bc[i].type = "depl";
+        }
+        std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;
         if (CL[i].comp=="sym") {
             CL[i].fcts_spatiales.set("0");
             CL[i].fcts_temporelles.resize(1);
