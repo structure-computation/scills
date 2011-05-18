@@ -21,7 +21,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     
     process.multiscale->multiechelle = data_user.options.multiechelle;
     process.multiscale->type_base_macro = 3;
-    process.multiscale->opti_multi = 1;
+    process.multiscale->opti_multi = 0;
     process.multiscale->erreur_macro = 1e-8;
     
     process.latin->nbitermax = data_user.options.LATIN_nb_iter_max;
@@ -53,7 +53,13 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->name_data= "result";
     process.affichage->command_file= "No";
     
-    process.temps->type_de_calcul= "stat";
+    std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
+    
+    if(data_user.options.Temp_statique == "statique"){
+        process.temps->type_de_calcul= "stat";
+    }else if(data_user.options.Temp_statique == "quasistatique"){
+        process.temps->type_de_calcul= "Qstat";
+    }
     
     if (process.temps->type_de_calcul=="stat") {
         if (process.rank==0) std::cout << "************************" << std::endl;
@@ -62,7 +68,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
         process.temps->nbpastemps=1;
         process.temps->dt=1;
         process.nom_calcul="incr";
-        process.temps->nb_step = data_user.time_step.size();
+        process.temps->nb_step = 1;
         process.temps->time_step.resize(process.temps->nb_step);
         process.temps->nbpastemps=process.temps->nb_step;
         for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
@@ -87,32 +93,6 @@ inline void read_data_process(Param &process, DataUser &data_user) {
             process.temps->time_step[i_step].nb_time_step = data_user.time_step[i_step].nb_time_step;
         }
     }
-    
-//     XmlNode ntp =n.get_element("parametres_temporels");
-//     ntp.get_attribute("type_de_calcul",process.temps->type_de_calcul);
-// 
-//     if (process.rank==0) std::cout << "************************" << std::endl;
-//     if (process.temps->type_de_calcul=="stat") {
-//         if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
-//         if (process.rank==0) std::cout << "************************" << std::endl;
-//         if (process.rank==0) std::cout << " Rq : 1 seul pas de temps automatiquement, dt=1 par defaut " << std::endl;
-//         process.temps->nbpastemps=1;
-//         process.temps->dt=1;
-//         process.nom_calcul="incr";
-//         if (process.rank==0) std::cout << " Rq : Attention la valeur de la fonction spatiale sera tout de meme modulee par la fonction temporelle" << std::endl;
-//     } else if(process.temps->type_de_calcul=="Qstat") {
-//         if (process.rank==0) std::cout << "     QUASISTATIQUE          " << std::endl;
-//         if (process.rank==0) std::cout << "************************" << std::endl;
-//         ntp.get_attribute("nbpastemps",process.temps->nbpastemps);
-//         ntp.get_attribute("pasdetemps",process.temps->dt);
-//         nm.get_attribute("save_depl_SST",process.latin->save_depl_SST);      
-//         nm.get_attribute("nom_calcul",process.nom_calcul);
-//         //ntp.get_attribute("theta",process.temps->theta);
-//     } else {
-//         std::cout << "Type de calcul non defini " << std::endl;
-//         assert(0);
-//    }
-    
 };
 
 /*// lecture des parametres de calcul
