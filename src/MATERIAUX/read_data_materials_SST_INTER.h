@@ -126,20 +126,20 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         
         
         if(matprop[i].type_num == 0) {                 // comportement isotrope elastique
-            PRINT("comportement isotrope elastique");
+//            PRINT("comportement isotrope elastique");
             matprop[i].coef.push_back(mat_prop_temp[0]);   // E
             matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
             matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
         } else if (matprop[i].type_num == 1) {          // comportement isotrope elastique visqueux
-            PRINT("comportement isotrope visqueux");
+//             PRINT("comportement isotrope visqueux");
             matprop[i].coef.push_back(mat_prop_temp[0]);   // E
             matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
             matprop[i].coef.push_back(mat_prop_temp[4]);   // viscosite
             matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
         } else if (matprop[i].type_num == 2) {          // orthotrope
-            PRINT("comportement orthotrope");
+//             PRINT("comportement orthotrope");
             matprop[i].coef.push_back(mat_prop_temp[14]);   // E1
             matprop[i].coef.push_back(mat_prop_temp[15]);   // E2
             matprop[i].coef.push_back(mat_prop_temp[16]);   // E3
@@ -389,7 +389,7 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
     propinter.resize(nbliaisons);
     for(unsigned i=0;i<nbliaisons;++i) {
         propinter[i].id = data_user.behaviour_links[i].id;
-        PRINT(data_user.behaviour_links[i].type_num);
+//         PRINT(data_user.behaviour_links[i].type_num);
         if(data_user.behaviour_links[i].type_num == 0){   //parfaite
             propinter[i].type = "parfait";
             propinter[i].comp="Parfait";
@@ -430,7 +430,7 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
             link_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
         }
         
-        propinter[i].coeffrottement = link_prop_temp[0];                                // coeff frottement
+        propinter[i].coeffrottement = link_prop_temp[0];        // coeff frottement
         propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   // jeux ou epaisseur negative
         propinter[i].Gcrit = link_prop_temp[7];                                         // limite en rupture    
     }

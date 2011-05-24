@@ -53,7 +53,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->name_data= "result";
     process.affichage->command_file= "No";
     
-    std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
+//     std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
     
     if(data_user.options.Temp_statique == "statique"){
         process.temps->type_de_calcul= "stat";

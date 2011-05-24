@@ -68,34 +68,34 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,TV1 &S,P
 Le maillage de chaque sst est lu à partir des données chargée dans geometry_user. Ces données viennent de SC_create_2
  
 */
-// ///Fonction generique
-// template<class TE, class TM, class TR>
-// void add_new_elem(TE &e, TM &m, TR &rep_nodes) {}
-// ///Fonctions specialisees
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Tetra,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-//     m.add_element(Tetra(),DefaultBehavior(),rep_nodes.ptr() );
-// }
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Wedge,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-//     m.add_element(Wedge(),DefaultBehavior(),rep_nodes.ptr() );
-// }
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Hexa,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-//     m.add_element(Hexa(),DefaultBehavior(),rep_nodes.ptr() );
-// }
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Triangle,TNB,TN,TD,NET> &e, TM &m, TR&rep_nodes) {
-//     m.add_element(Triangle(),DefaultBehavior(),rep_nodes.ptr() );
-// }
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Quad,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-//     m.add_element(Quad(),DefaultBehavior(),rep_nodes.ptr() );
-// }
-// template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
-// void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
-//     m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
-// }
+///Fonction generique
+template<class TE, class TM, class TR>
+void add_new_elem(TE &e, TM &m, TR &rep_nodes) {}
+///Fonctions specialisees
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Tetra,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+    m.add_element(Tetra(),DefaultBehavior(),rep_nodes.ptr() );
+}
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Wedge,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+    m.add_element(Wedge(),DefaultBehavior(),rep_nodes.ptr() );
+}
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Hexa,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+    m.add_element(Hexa(),DefaultBehavior(),rep_nodes.ptr() );
+}
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Triangle,TNB,TN,TD,NET> &e, TM &m, TR&rep_nodes) {
+    m.add_element(Triangle(),DefaultBehavior(),rep_nodes.ptr() );
+}
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Quad,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+    m.add_element(Quad(),DefaultBehavior(),rep_nodes.ptr() );
+}
+template<class TNB,class TN,class TD,unsigned NET, class TM, class TR>
+void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
+    m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
+}
 
 
 template<class TV1>
@@ -104,15 +104,16 @@ void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, TV1 &
         std::string namein = data_user.find_group_elements(S[i].num)->name;
         S[i].mesh.name=namein;
         S[i].mesh.load(geometry_user, S[i].id);
-        if (process.rank == 0) S[i].mesh.load();
+        S[i].mesh.load();
+        S[i].mesh.unload();
 
         //creation de la boite englobant le maillage de la Sst (utile pour la suite)
-        if (process.rank == 0) S[i].box=create_box_mesh(*S[i].mesh.m);
-        if (process.size > 1)
-        for(unsigned j=0 ;j<S[i].box.size() ;j++ ){
-            MPI_Bcast(S[i].box[j].ptr(),S[i].box[j].size(),MPI_DOUBLE, 0,MPI_COMM_WORLD);
-        }
-        if (process.rank == 0) S[i].mesh.unload();
+//         if (process.rank == 0) S[i].box=create_box_mesh(*S[i].mesh.m);
+//         if (process.size > 1)
+//             for(unsigned j=0 ;j<S[i].box.size() ;j++ ){
+//                 MPI_Bcast(S[i].box[j].ptr(),S[i].box[j].size(),MPI_DOUBLE, 0,MPI_COMM_WORLD);
+//             }
+//         if (process.rank == 0) S[i].mesh.unload();
     }
 }
 
@@ -293,7 +294,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
-        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1){
+        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1 and geometry_user.group_interfaces[i_group].edge_id != -2){
             nb_inter += 1;
             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
         }
@@ -431,7 +432,7 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
 
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "create_SST_typmat : " ;
+    if (process.rank==0) std::cout << "create_SST_typmat : " <<std::endl;
     if (process.rank==0) tic1.stop();;
     if (process.rank==0) tic1.start();
 #endif
