@@ -57,8 +57,10 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
             Vec<long long int> msst,minter,mwsst, mwinter;
             msst.resize(S.size()+1);
             mwsst.resize(S.size());
-            minter.resize(0);minter.reserve(Inter.size());
-            mwinter.resize(0);mwinter.reserve(Inter.size());
+            minter.resize(0);
+            minter.reserve(Inter.size());
+            mwinter.resize(0);
+            mwinter.reserve(Inter.size());
             for( unsigned i=0 ;i<S.size() ; i++) {
                 mwsst[i]=S[i].mesh.node_list_size;
                 msst[i]=minter.size();
@@ -79,24 +81,23 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
             int nbcut,nbsst=S.size(),wgtflag=3,npart=process.size-1,numflag=0;
             mrepart.resize(nbsst);
 
-//             std::cout << msst << endl;
-//             std::cout << mwsst << endl;
-//             std::cout << minter << endl;
-//             std::cout << mwinter << endl;
+            std::cout << "Proc " << process.rank << " : " << "msst = " << msst << endl;
+            std::cout << "Proc " << process.rank << " : " << "mwsst = "  << mwsst << endl;
+            std::cout << "Proc " << process.rank << " : " << "minter = "  << minter << endl;
+            std::cout << "Proc " << process.rank << " : " << "mwinter = "  << mwinter << endl;
 
             METIS_PartGraphRecursive(&nbsst,msst.ptr(),minter.ptr(),mwsst.ptr(),mwinter.ptr(),&wgtflag,&numflag,&npart,mopts.ptr(),&nbcut,mrepart.ptr());
-
-//             std::cout << mrepart << endl;
+            std::cout << "Proc " << process.rank << " : " << "mrepart = " << mrepart << endl;
             process.multi_mpi->repartition_sst.resize(process.size);
             for( unsigned i=0 ;i<mrepart.size() ; i++) {
                 process.multi_mpi->repartition_sst[mrepart[i]+1].push_back(i);
+//                 process.multi_mpi->repartition_sst[mrepart[i]].push_back(i);
             }
         }
     } else {// si on est pas en MPI on devra parcourir toutes les SST
         process.multi_mpi->repartition_sst.resize(1);
         process.multi_mpi->repartition_sst[0] = range(S.size());
     }
-
     ///On compare si on a bien toutes les SST une seule fois en faisant une norme 2
     Vec<int> temp;
     for( unsigned i=0;i<process.multi_mpi->repartition_sst.size() ;i++ ) {
@@ -134,7 +135,6 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
     }
     if (process.size ==1)
         SubS=Stot;
-
 
 
     ///Creation du vecteur de la structure d'interface a envoyer sur les pro et sur le master

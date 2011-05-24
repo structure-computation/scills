@@ -29,7 +29,7 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
             CL[i].comp = "depl";
             data_user.behaviour_bc[i].type = "depl";
         }
-        std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;
+/*        std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;*/
         if (CL[i].comp=="sym") {
             CL[i].fcts_spatiales.set("0");
             CL[i].fcts_temporelles.resize(1);
@@ -37,7 +37,7 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
             CL[i].intervalles_temps.resize(1);
             CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
         }else{
-            std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
+//             std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
             //lecture des fcts temporelles definies pour un intervalle de temps donne
             if(process.temps->type_de_calcul=="stat") {
                 CL[i].fcts_spatiales.resize(process.temps->nb_step);

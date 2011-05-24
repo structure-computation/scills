@@ -285,8 +285,6 @@ struct Meshmulti {
             flag=1;
             //affiche();
             if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
-            node_list_size=m->node_list.size();
-            elem_list_size=m->elem_list.size();
             if (sousintegration == "p") sousint();
         }
     }
@@ -298,6 +296,9 @@ struct Meshmulti {
             //ajout pour SC_create_2
             id_sst = id_sst_;
             geometry_user = &geometry_user_;
+            
+            node_list_size = geometry_user->find_group_elements(id_sst)->map_mesh_nodes.size();
+            elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
     //    

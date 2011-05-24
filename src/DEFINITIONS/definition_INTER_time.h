@@ -120,6 +120,10 @@ struct Interface
    PARAM_COMP_INTER *param_comp; ///<  supplementaires pour le comportement des interfaces (jeu coefficient de frottement Gcrit...)
    
    
+   //*******************************************************************************************
+   // methodes de la class
+   //*******************************************************************************************
+   
     void free(){///suppression des interfaces
         vois.free();;
         repddl.free();

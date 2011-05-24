@@ -72,7 +72,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     // donnees associees a la geometrie, maillage...
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Lecture data_process : " ;
+    if (process.rank==0) std::cout << "Lecture data_process : " << std::endl;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
@@ -80,7 +80,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     read_data_structure(process, data_user);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Lecture data_structure : " ;
+    if (process.rank==0) std::cout << "Lecture data_structure : " << std::endl;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
@@ -91,7 +91,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     read_CL(data_user,CL,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Lecture des CL : " ;
+    if (process.rank==0) std::cout << "Lecture des CL : " << std::endl;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
