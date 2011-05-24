@@ -107,10 +107,10 @@ template <class TV3,class TV4, class TV1>
 void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
     if (process.affichage->affich_mesh==1) {
       if (process.size==1 or process.rank>0){
-        if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" or process.affichage->type_affichage=="all")
+        if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" or process.affichage->type_affichage=="all"){
             affich_SST(S,process);
             affich_INTER(Inter,Stot, process);
-        else if (process.affichage->type_affichage=="Inter" or process.affichage->type_affichage=="all") {
+        }else if (process.affichage->type_affichage=="Inter" or process.affichage->type_affichage=="all") {
             affich_INTER(Inter,Stot, process);
         } else
             std::cout << "erreur d'affichage" << endl;

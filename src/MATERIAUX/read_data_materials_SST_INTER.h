@@ -87,8 +87,11 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         vstr.resize(data_user.dim);
         
         for(int d=0; d<data_user.dim; d++){
-            vstr[d] = data_user.behaviour_bc_volume[2].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[2].step[0].CLv_step_prop[6] ;
+            vstr[d] = data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[6] ;
         }
+        std::cout << "force volumique 0 = " << vstr[0] << std::endl;
+        std::cout << "force volumique 1 = " << vstr[1] << std::endl;
+        std::cout << "force volumique 2 = " << vstr[2] << std::endl;
         
         Vec<Ex> expr;
         expr.resize(TV3::template SubType<0>::T::dim);
@@ -105,6 +108,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
             data[d2] = (double)expr[d2].subs_numerical(var);
 
+        matprop[i].f_vol_e=vstr;
         matprop[i].f_vol=data;
 //         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
         
@@ -124,6 +128,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
             mat_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
         }
         
+        matprop[i].density = mat_prop_temp[3];
         
         if(matprop[i].type_num == 0) {                 // comportement isotrope elastique
 //            PRINT("comportement isotrope elastique");

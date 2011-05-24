@@ -19,10 +19,12 @@
 
 #include "GeometryUser.h"
 #include "DataUser.h"
+#include "codegen/codegen.h"
 #include <boost/concept_check.hpp>
 
 using namespace std;
 using namespace LMT;
+using namespace Codegen;
 using namespace __gnu_cxx;
 
 ///application de flag indiquant le type de materiau et le numero de la sst pour chaque element (utile pour l'affichage)
@@ -222,6 +224,44 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
     }
 }
 
+/** \ingroup  maillages 
+\brief assignation de la force volumique par elements
+*/
+struct assigne_f_vol_e {
+    template<class TE,class TM>
+    void operator() (TE &e, TM &m, Vec<std::string> force_volumique) const {
+        typedef typename TM::Pvec Pvec;
+        //ajout du noeud au maillage
+        Pvec G = center(e);
+        
+        std::vector<Ex> symbols;
+        if (DIM==2) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+        }
+        else if (DIM==3) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+            symbols.push_back("z");
+        }
+        
+        Vec<Ex> expr;
+        expr.resize(DIM);
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            expr[d2] = read_ex(force_volumique[d2],symbols);
+        }
+        
+        Vec<double,DIM> data;
+        Ex::MapExNum var;
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            var[symbols[d2]]= G[d2];
+        }
+        
+        for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
+            e.f_vol_e[d2] = measure(e) * m.density * (double)expr[d2].subs_numerical(var);
+        }
+    }
+};
 
 
 /** \ingroup  Sous_structures 
@@ -249,7 +289,8 @@ struct Meshmulti {
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
     Vec<double,Carac::dim> f_vol;//champs de force volumique
-    double elastic_modulus,poisson_ratio,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,v1,v2,alpha_1,alpha_2,alpha_3,viscosite;
+    Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
+    double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,v1,v2,alpha_1,alpha_2,alpha_3,viscosite;
     string type_formulation;
     
     //ajout pour les données venant de SC_create_2
@@ -300,6 +341,9 @@ struct Meshmulti {
             node_list_size = geometry_user->find_group_elements(id_sst)->map_mesh_nodes.size();
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
+    }
+    void load_f_vol_e() {///sousintegration de type p
+        apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e);
     }
     //    
     void sousint() {///sousintegration de type p

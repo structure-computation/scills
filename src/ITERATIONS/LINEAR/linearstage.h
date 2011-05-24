@@ -214,6 +214,8 @@ struct calcul_secmemb_micro_sst {
     void operator()(SST &S, Param &process) const {
         //second membre prenant en compte le comportement thermique et la condition au pas de temps precedent ou les quantites chapeau:
         S.mesh.load();
+        S.mesh->density=S.mesh.density;
+        S.mesh.load_f_vol_e();
         S.mesh->f_vol=S.mesh.f_vol;
         S.f->set_mesh(S.mesh.m);
         S.f->assemble(false,true);

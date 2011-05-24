@@ -25,11 +25,13 @@ template<unsigned dim_, class T_> struct SstCarac
   string type;     ///< type de formulation : isotrope, orthotrope, orthotrope endommageable
   string comp;     ///< type de comportement : elastique, endomageable, plastaique...
   bool resolution; ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
+  double density;   ///< densite du materiaux
   Vec<double> coef; ///< coefficients materiau : isotrope E, v, orthotrope : E1, E2, E3, v12, v13, v23, G12, G13, G23
   Vec<Vec<double,3>,2 > direction; ///< direction pour les materiaux orthotropes
   Vec<double> coefth; ///< coefficients thermiques : isotrope : alpha, orthotrope : alpha_1, alpha_2, alpha_3
   double caract;   ///< caracteristiques (epaisseur par exemple), non pris en compte
   double dt; ///< pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
+  Vec<std::string,dim> f_vol_e;///force volumique par element
   Vec<double,dim> f_vol;///force volumique constante par sst
   //Vec<double,3> epshorsplan; // deformation horsplan pour les def planes generalisees
   ///parametres pour l'endommagement
