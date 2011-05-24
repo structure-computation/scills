@@ -38,9 +38,13 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     
     process.affichage->interactivite= 0;
     process.affichage->affich_resultat= 1;
-    process.affichage->type_affichage= "Sinterieur";
+    if(data_user.options.mode == "test"){
+	process.affichage->type_affichage= "Inter";
+    }else{
+	process.affichage->type_affichage= "Sinterieur";
+    }
     process.affichage->display_error= 0;
-    process.affichage->affich_mesh= 0;
+    process.affichage->affich_mesh= 1;
     process.affichage->save= "save";
     process.affichage->display_fields.resize(5);
     process.affichage->display_fields[0]= "dep";
