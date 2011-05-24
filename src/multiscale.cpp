@@ -113,7 +113,7 @@ int main(int argc,char **argv) {
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
         GeometryUser geometry_user(id_model, id_calcul);
-        geometry_user.read_hdf5(true,true);                       // true si on lit les info micro, true si on lit toutes les infos
+        geometry_user.read_hdf5(false,true);                       // true si on lit les info micro, true si on lit toutes les infos
         std::cout << "fin lecture de la geometrie" << std::endl;
         geometry_user.split_group_edges_within_geometry(data_user);
         std::cout << "fin lecture de la geometrie" << std::endl;
