@@ -110,6 +110,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
 
         matprop[i].f_vol_e=vstr;
         matprop[i].f_vol=data;
+	
 //         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
         
         Vec< TYPE > mat_prop_temp;
