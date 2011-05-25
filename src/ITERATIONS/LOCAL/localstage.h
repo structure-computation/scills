@@ -22,6 +22,7 @@ Selon le type d'interface on appelle la procédure correspondante :
 - interface de type parfait (Interface::comp == "Parfait") : compt_parfait()
 - interface de type contact avec ou sans frottement (Interface::comp == "Contact") : compt_contact()
 - interface de type jeu contact avec ou sans frottement (Interface::comp == "Contact_jeu" ou "Contact_physique") : compt_contact()
+- interface de type epaisse contact avec ou sans frottement (Interface::comp == "Contact_ep" ) : compt_contact()
 - interface de type cohésive (Interface::comp == "Cohesive") : compt_cohesif()
  
 Il suffit donc de rajouter un comportement dans cette procédure et programmer la fonction correspondante pour ajouter un comportement d'interface.
@@ -48,6 +49,8 @@ struct etape_locale_inter {
                 compt_parfait(Inter,process.temps->pt);
             } else if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
                 compt_contact(Inter,*process.temps);
+            } else if (Inter.comp=="Contact_ep" ) {
+                compt_contact_ep(Inter,*process.temps);
             } else if (Inter.comp=="Cohesive") {
                 compt_cohesif(Inter,*process.temps);
             } else if (Inter.comp=="Jeu_impose") {

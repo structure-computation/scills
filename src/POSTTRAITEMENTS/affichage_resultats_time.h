@@ -204,7 +204,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
    else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
-   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") ){type=5;}
+   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
    else if (Inter.type=="Ext" and Inter.comp=="periodique"){type=7;}
    else {type=8;}
@@ -213,7 +213,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    numelem1=0;
    if ( Inter.comp=="Contact_jeu_physique" or Inter.comp=="periodique") apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
 
-   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
+   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") {
    Vec<double> Un,Ut,tmp1,tmp0;
    Un.resize(Inter.side[0].nodeeq.size());Un.set(0.);
    Ut.resize(Inter.side[0].nodeeq.size());Ut.set(0.);
@@ -270,7 +270,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
    else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
-   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") ){type=5;}
+   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
    else if (Inter.type=="Ext" and Inter.comp=="periodique"){type=7;}
    else {type=8;}
@@ -279,7 +279,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    numelem1=0;
    if ( Inter.comp=="Contact_jeu_physique" or Inter.comp=="periodique") apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
 
-   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
+   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") {
    Vec<double> Un,Ut,tmp1,tmp0;
    Un.resize(Inter.side[0].nodeeq.size());Un.set(0.);
    Ut.resize(Inter.side[0].nodeeq.size());Ut.set(0.);

@@ -402,8 +402,10 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
             propinter[i].type = "elastique";
             propinter[i].comp="Parfait";
         }else if(data_user.behaviour_links[i].type_num == 2){
-            propinter[i].type = "contact_jeu_sst";
-            propinter[i].comp="Contact_jeu"; 
+//             propinter[i].type = "contact_jeu_sst";
+//             propinter[i].comp="Contact_jeu"; 
+            propinter[i].type = "contact_ep";
+            propinter[i].comp="Contact_ep";
         }else if(data_user.behaviour_links[i].type_num == 3){
             propinter[i].type = "cohesive";
             propinter[i].comp="Cohesive";
@@ -435,9 +437,11 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
             link_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
         }
         
+        propinter[i].f_coeffrottement = data_user.behaviour_links[i].link_prop[0];         // coeff frottement analytique
         propinter[i].coeffrottement = link_prop_temp[0];        // coeff frottement
         propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   // jeux ou epaisseur negative
         propinter[i].Gcrit = link_prop_temp[7];                                         // limite en rupture    
+        propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];         // coeff frottement analytique
     }
 }
 

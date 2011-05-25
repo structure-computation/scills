@@ -90,7 +90,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &proce
          else if (Inter[q].type=="Ext" and ( Inter[q].comp=="sym" )){type=2;}
          else if (Inter[q].type=="Ext" and ( Inter[q].comp=="depl_normal")){type=3;}
          else if (Inter[q].type=="Int" and Inter[q].comp=="Parfait"){type=4;}
-         else if (Inter[q].type=="Int" and (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique") ){type=5;}
+         else if (Inter[q].type=="Int" and (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep") ){type=5;}
          else if (Inter[q].type=="Int" and Inter[q].comp=="Jeu_impose"){type=6;}
          else if (Inter[q].type=="Ext" and Inter[q].comp=="periodique"){type=7;}
          else {type=8;}

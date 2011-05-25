@@ -263,7 +263,7 @@ void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
             assert(0);
         }
     } else if(Inter.type=="Int") {
-        if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive") {
+        if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive" and Inter.comp!="Contact_ep") {
             T facteur_frottement;
             T eps=1e-6;
             if(Inter.param_comp->coeffrottement<=eps){facteur_frottement=1e-3;}
