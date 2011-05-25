@@ -92,6 +92,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
             process.temps->time_step[i_step].t_ini = data_user.time_step[i_step].ti;
             process.temps->time_step[i_step].t_fin = data_user.time_step[i_step].tf;
             process.temps->time_step[i_step].nb_time_step = data_user.time_step[i_step].nb_time_step;
+            process.temps->nbpastemps += process.temps->time_step[i_step].nb_time_step;
         }
     }
 };
