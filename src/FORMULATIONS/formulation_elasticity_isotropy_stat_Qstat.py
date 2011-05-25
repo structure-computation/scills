@@ -3,6 +3,7 @@
 ###########################################
 #forces volumiques : non utilisees pour l'instant
 f_vol = Variable( interpolation='global', nb_dim=[dim], default_value='0.0,'*(dim-1)+'0.0', unit='N/m^3' )
+f_vol_e = Variable( interpolation='elementary', nb_dim=[dim], default_value='0.0,'*(dim-1)+'0.0', unit='N/m^3' )
 density = Variable( interpolation='global', default_value='1', unit='kg/mm^3' )
 #module d'young, coefficient de poisson
 elastic_modulus = Variable( interpolation='global', default_value='15e3', unit='N/mm^2' )
@@ -59,7 +60,7 @@ def formulation():
   res=0
   for i in range(dim): res += sigma[i] * epstest[i] 
   for i in range(dim,epstest.size()): res += 2 * sigma[i] * epstest[i]
-  res-=dot( f_vol.expr , dep.test )
+  res-=dot( f_vol_e.expr , dep.test )
   return res * dV 
 
 #calcul des deformations et contraintes apres avoir calcule le deplacement pour chaque noeud du maillage

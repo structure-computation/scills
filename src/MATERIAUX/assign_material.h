@@ -14,7 +14,11 @@ if (matprop[S.typmat].type=="isotrope") {
 	 S.mesh.deltaT=matprop[S.typmat].coefth[1];  
 	 S.mesh.resolution=matprop[S.typmat].resolution; 
 	 S.mesh.alpha=matprop[S.typmat].coefth[0];  
-	 S.mesh.f_vol=matprop[S.typmat].f_vol;  
+	 S.mesh.f_vol=matprop[S.typmat].f_vol;
+         S.mesh.f_vol_e=matprop[S.typmat].f_vol_e;
+         S.mesh.density=matprop[S.typmat].density;
+//          S.mesh.load_f_vol_e();
+         
 	 S.mesh.type_formulation="isotrope"; 
 }
 }
@@ -28,6 +32,8 @@ if (S.mesh.type_formulation=="isotrope") {
 	 S.mesh->resolution     = S.mesh.resolution      ; 
 	 S.mesh->alpha          = S.mesh.alpha           ; 
 	 S.mesh->f_vol          = S.mesh.f_vol           ; 
+         S.mesh->density        = S.mesh.density           ;
+         S.mesh.load_f_vol_e();
 }
 
 }

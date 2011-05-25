@@ -99,6 +99,11 @@ template<class TP,unsigned dim> struct Mesh_carac_pb_elast {};
     struct typmat_DM { static std::string name() { return "typmat"; } };
 #endif // IFNDEF_typmat_DM
 
+#ifndef IFNDEF_f_vol_e_DM
+#define IFNDEF_f_vol_e_DM
+    struct f_vol_e_DM { static std::string name() { return "f_vol_e"; } };
+#endif // IFNDEF_f_vol_e_DM
+
 #ifndef IFNDEF_dep_DM
 #define IFNDEF_dep_DM
     struct dep_DM { static std::string name() { return "dep"; } };
@@ -394,21 +399,24 @@ struct Mesh_carac_pb_elast<TP,2> {
         struct TData {
             typedef Vec<Vec<Tpos,3>,1> T1;
             typedef Tpos T0;
-            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),sigma(0),sigma_von_mises(0) {}
+            typedef Vec<Tpos,2> T2;
+            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),f_vol_e(0.0,0.0),sigma(0),sigma_von_mises(0) {}
             CARACDMEXTNAME( 0, T0, ener, "N*mm" );
             CARACDMEXTNAME( 1, T0, numsst, "" );
             CARACDMEXTNAME( 2, T1, epsilon, "" );
             CARACDMEXTNAME( 3, T0, num_proc, "" );
             CARACDMEXTNAME( 4, T0, typmat, "" );
-            CARACDMEXTNAME( 5, T1, sigma, "N/mm^2" );
-            CARACDMEXTNAME( 6, T0, sigma_von_mises, "N/mm^2" );
-            static const unsigned nb_params = 7;
+            CARACDMEXTNAME( 5, T2, f_vol_e, "N/m^3" );
+            CARACDMEXTNAME( 6, T1, sigma, "N/mm^2" );
+            CARACDMEXTNAME( 7, T0, sigma_von_mises, "N/mm^2" );
+            static const unsigned nb_params = 8;
             void dm_data_set_field( const std::string field_name, Tpos value ) {
                 if ( field_name == "ener" ) { ener = value; return; }
                 if ( field_name == "numsst" ) { numsst = value; return; }
                 if ( field_name == "epsilon" ) { epsilon[0] = value; } // hum
                 if ( field_name == "num_proc" ) { num_proc = value; return; }
                 if ( field_name == "typmat" ) { typmat = value; return; }
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 if ( field_name == "sigma" ) { sigma[0] = value; } // hum
                 if ( field_name == "sigma_von_mises" ) { sigma_von_mises = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
@@ -417,6 +425,7 @@ struct Mesh_carac_pb_elast<TP,2> {
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) {
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) {
@@ -465,6 +474,7 @@ struct Mesh_carac_pb_elast<TP,2> {
                 return Vec<Tpos,1>();
             }
             Vec<Tpos,2> dm_data_get_field( const std::string field_name, StructForType<Vec<Tpos,2> > ) const {
+                if ( field_name == "f_vol_e" ) { return f_vol_e; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
                 return Vec<Tpos,2>();
             }
@@ -528,21 +538,24 @@ struct Mesh_carac_pb_elast<TP,2> {
         struct TData {
             typedef Vec<Vec<Tpos,3>,1> T1;
             typedef Tpos T0;
-            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),sigma(0),sigma_von_mises(0) {}
+            typedef Vec<Tpos,2> T2;
+            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),f_vol_e(0.0,0.0),sigma(0),sigma_von_mises(0) {}
             CARACDMEXTNAME( 0, T0, ener, "N*mm" );
             CARACDMEXTNAME( 1, T0, numsst, "" );
             CARACDMEXTNAME( 2, T1, epsilon, "" );
             CARACDMEXTNAME( 3, T0, num_proc, "" );
             CARACDMEXTNAME( 4, T0, typmat, "" );
-            CARACDMEXTNAME( 5, T1, sigma, "N/mm^2" );
-            CARACDMEXTNAME( 6, T0, sigma_von_mises, "N/mm^2" );
-            static const unsigned nb_params = 7;
+            CARACDMEXTNAME( 5, T2, f_vol_e, "N/m^3" );
+            CARACDMEXTNAME( 6, T1, sigma, "N/mm^2" );
+            CARACDMEXTNAME( 7, T0, sigma_von_mises, "N/mm^2" );
+            static const unsigned nb_params = 8;
             void dm_data_set_field( const std::string field_name, Tpos value ) {
                 if ( field_name == "ener" ) { ener = value; return; }
                 if ( field_name == "numsst" ) { numsst = value; return; }
                 if ( field_name == "epsilon" ) { epsilon[0] = value; } // hum
                 if ( field_name == "num_proc" ) { num_proc = value; return; }
                 if ( field_name == "typmat" ) { typmat = value; return; }
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 if ( field_name == "sigma" ) { sigma[0] = value; } // hum
                 if ( field_name == "sigma_von_mises" ) { sigma_von_mises = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
@@ -551,6 +564,7 @@ struct Mesh_carac_pb_elast<TP,2> {
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) {
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) {
@@ -599,6 +613,7 @@ struct Mesh_carac_pb_elast<TP,2> {
                 return Vec<Tpos,1>();
             }
             Vec<Tpos,2> dm_data_get_field( const std::string field_name, StructForType<Vec<Tpos,2> > ) const {
+                if ( field_name == "f_vol_e" ) { return f_vol_e; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
                 return Vec<Tpos,2>();
             }
@@ -881,6 +896,11 @@ struct Mesh_carac_pb_elast<TP,2> {
 #define IFNDEF_typmat_DM
     struct typmat_DM { static std::string name() { return "typmat"; } };
 #endif // IFNDEF_typmat_DM
+
+#ifndef IFNDEF_f_vol_e_DM
+#define IFNDEF_f_vol_e_DM
+    struct f_vol_e_DM { static std::string name() { return "f_vol_e"; } };
+#endif // IFNDEF_f_vol_e_DM
 
 #ifndef IFNDEF_dep_DM
 #define IFNDEF_dep_DM
@@ -1175,23 +1195,26 @@ struct Mesh_carac_pb_elast<TP,3> {
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0> struct ElementChoice { typedef void NE; typedef DefaultBehavior BE; typedef VoidDMSet TData; };
     template<unsigned skin,unsigned inner> struct ElementChoice<0,skin,0,inner> { typedef Tetra NE; typedef DefaultBehavior BE; 
         struct TData {
+            typedef Vec<Tpos,3> T2;
             typedef Vec<Vec<Tpos,6>,1> T1;
             typedef Tpos T0;
-            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),sigma(0),sigma_von_mises(0) {}
+            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),f_vol_e(0.0,0.0,0.0),sigma(0),sigma_von_mises(0) {}
             CARACDMEXTNAME( 0, T0, ener, "N*mm" );
             CARACDMEXTNAME( 1, T0, numsst, "" );
             CARACDMEXTNAME( 2, T1, epsilon, "" );
             CARACDMEXTNAME( 3, T0, num_proc, "" );
             CARACDMEXTNAME( 4, T0, typmat, "" );
-            CARACDMEXTNAME( 5, T1, sigma, "N/mm^2" );
-            CARACDMEXTNAME( 6, T0, sigma_von_mises, "N/mm^2" );
-            static const unsigned nb_params = 7;
+            CARACDMEXTNAME( 5, T2, f_vol_e, "N/m^3" );
+            CARACDMEXTNAME( 6, T1, sigma, "N/mm^2" );
+            CARACDMEXTNAME( 7, T0, sigma_von_mises, "N/mm^2" );
+            static const unsigned nb_params = 8;
             void dm_data_set_field( const std::string field_name, Tpos value ) {
                 if ( field_name == "ener" ) { ener = value; return; }
                 if ( field_name == "numsst" ) { numsst = value; return; }
                 if ( field_name == "epsilon" ) { epsilon[0] = value; } // hum
                 if ( field_name == "num_proc" ) { num_proc = value; return; }
                 if ( field_name == "typmat" ) { typmat = value; return; }
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 if ( field_name == "sigma" ) { sigma[0] = value; } // hum
                 if ( field_name == "sigma_von_mises" ) { sigma_von_mises = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
@@ -1203,6 +1226,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) {
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) {
@@ -1252,6 +1276,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 return Vec<Tpos,2>();
             }
             Vec<Tpos,3> dm_data_get_field( const std::string field_name, StructForType<Vec<Tpos,3> > ) const {
+                if ( field_name == "f_vol_e" ) { return f_vol_e; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
                 return Vec<Tpos,3>();
             }
@@ -1309,23 +1334,26 @@ struct Mesh_carac_pb_elast<TP,3> {
     };
     template<unsigned skin,unsigned inner> struct ElementChoice<0,skin,1,inner> { typedef Wedge NE; typedef DefaultBehavior BE; 
         struct TData {
+            typedef Vec<Tpos,3> T2;
             typedef Vec<Vec<Tpos,6>,1> T1;
             typedef Tpos T0;
-            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),sigma(0),sigma_von_mises(0) {}
+            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),f_vol_e(0.0,0.0,0.0),sigma(0),sigma_von_mises(0) {}
             CARACDMEXTNAME( 0, T0, ener, "N*mm" );
             CARACDMEXTNAME( 1, T0, numsst, "" );
             CARACDMEXTNAME( 2, T1, epsilon, "" );
             CARACDMEXTNAME( 3, T0, num_proc, "" );
             CARACDMEXTNAME( 4, T0, typmat, "" );
-            CARACDMEXTNAME( 5, T1, sigma, "N/mm^2" );
-            CARACDMEXTNAME( 6, T0, sigma_von_mises, "N/mm^2" );
-            static const unsigned nb_params = 7;
+            CARACDMEXTNAME( 5, T2, f_vol_e, "N/m^3" );
+            CARACDMEXTNAME( 6, T1, sigma, "N/mm^2" );
+            CARACDMEXTNAME( 7, T0, sigma_von_mises, "N/mm^2" );
+            static const unsigned nb_params = 8;
             void dm_data_set_field( const std::string field_name, Tpos value ) {
                 if ( field_name == "ener" ) { ener = value; return; }
                 if ( field_name == "numsst" ) { numsst = value; return; }
                 if ( field_name == "epsilon" ) { epsilon[0] = value; } // hum
                 if ( field_name == "num_proc" ) { num_proc = value; return; }
                 if ( field_name == "typmat" ) { typmat = value; return; }
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 if ( field_name == "sigma" ) { sigma[0] = value; } // hum
                 if ( field_name == "sigma_von_mises" ) { sigma_von_mises = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
@@ -1337,6 +1365,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) {
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) {
@@ -1386,6 +1415,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 return Vec<Tpos,2>();
             }
             Vec<Tpos,3> dm_data_get_field( const std::string field_name, StructForType<Vec<Tpos,3> > ) const {
+                if ( field_name == "f_vol_e" ) { return f_vol_e; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
                 return Vec<Tpos,3>();
             }
@@ -1443,23 +1473,26 @@ struct Mesh_carac_pb_elast<TP,3> {
     };
     template<unsigned skin,unsigned inner> struct ElementChoice<0,skin,2,inner> { typedef Hexa NE; typedef DefaultBehavior BE; 
         struct TData {
+            typedef Vec<Tpos,3> T2;
             typedef Vec<Vec<Tpos,6>,1> T1;
             typedef Tpos T0;
-            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),sigma(0),sigma_von_mises(0) {}
+            TData():ener(0),numsst(0),epsilon(0),num_proc(0),typmat(0),f_vol_e(0.0,0.0,0.0),sigma(0),sigma_von_mises(0) {}
             CARACDMEXTNAME( 0, T0, ener, "N*mm" );
             CARACDMEXTNAME( 1, T0, numsst, "" );
             CARACDMEXTNAME( 2, T1, epsilon, "" );
             CARACDMEXTNAME( 3, T0, num_proc, "" );
             CARACDMEXTNAME( 4, T0, typmat, "" );
-            CARACDMEXTNAME( 5, T1, sigma, "N/mm^2" );
-            CARACDMEXTNAME( 6, T0, sigma_von_mises, "N/mm^2" );
-            static const unsigned nb_params = 7;
+            CARACDMEXTNAME( 5, T2, f_vol_e, "N/m^3" );
+            CARACDMEXTNAME( 6, T1, sigma, "N/mm^2" );
+            CARACDMEXTNAME( 7, T0, sigma_von_mises, "N/mm^2" );
+            static const unsigned nb_params = 8;
             void dm_data_set_field( const std::string field_name, Tpos value ) {
                 if ( field_name == "ener" ) { ener = value; return; }
                 if ( field_name == "numsst" ) { numsst = value; return; }
                 if ( field_name == "epsilon" ) { epsilon[0] = value; } // hum
                 if ( field_name == "num_proc" ) { num_proc = value; return; }
                 if ( field_name == "typmat" ) { typmat = value; return; }
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 if ( field_name == "sigma" ) { sigma[0] = value; } // hum
                 if ( field_name == "sigma_von_mises" ) { sigma_von_mises = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
@@ -1471,6 +1504,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) {
+                if ( field_name == "f_vol_e" ) { f_vol_e = value; return; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
             }
             void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) {
@@ -1520,6 +1554,7 @@ struct Mesh_carac_pb_elast<TP,3> {
                 return Vec<Tpos,2>();
             }
             Vec<Tpos,3> dm_data_get_field( const std::string field_name, StructForType<Vec<Tpos,3> > ) const {
+                if ( field_name == "f_vol_e" ) { return f_vol_e; }
                 std::cerr << "There is no variable named " << field_name << " in data struct" << std::endl;
                 return Vec<Tpos,3>();
             }
