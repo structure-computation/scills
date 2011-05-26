@@ -19,7 +19,8 @@
 
 extern "C" {
     // #include "metis.h"
-    void METIS_PartGraphRecursive(int *, long long int *, long long int *, long long int *, long long int *, int *, int *, int *, int *, int *, long long int *);
+//     void METIS_PartGraphRecursive(int *, long long int *, long long int *, long long int *, long long int *, int *, int *, int *, int *, int *, long long int *);
+    void METIS_PartGraphRecursive(int *, int *, int *, int *, int *, int *, int *, int *, int *, int *, int *);
 }
 
 using namespace std;
@@ -54,7 +55,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
                 s >> process.multi_mpi->repartition_sst[i];
             }
         } else {//repartition automatique avec les routines METIS
-            Vec<long long int> msst,minter,mwsst, mwinter;
+            Vec<int> msst,minter,mwsst, mwinter;
             msst.resize(S.size()+1);
             mwsst.resize(S.size());
             minter.resize(0);
@@ -74,7 +75,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
             }
             msst[S.size()]=minter.size();
 
-            Vec<long long int> mrepart;
+            Vec<int> mrepart;
             Vec<int> mopts;
             mopts.resize(5);
             mopts.set(0);
