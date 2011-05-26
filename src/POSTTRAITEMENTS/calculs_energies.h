@@ -36,7 +36,7 @@ void calcul_ener_dissi_chap(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &p
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data==0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data==0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -76,7 +76,7 @@ template <class TV1,class TV2>
                 for(unsigned e=0;e<S[j].edge.size();++e) {
                     unsigned i=S[j].edge[e].internum;
                     unsigned data=S[j].edge[e].datanum;
-                    if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data==0) {
+                    if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data==0) {
                         dissi_inter.set(0.);
                         if(process.nom_calcul=="incr") {
                             for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -111,7 +111,7 @@ void calcul_ener_dissi_chap2(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned internum=S[j].edge[e].internum;
             unsigned datanum=S[j].edge[e].datanum;
-            if ((Inter[internum].comp=="Contact" or Inter[internum].comp=="Contact_jeu" or Inter[internum].comp=="Contact_jeu_physique") and datanum==0) {
+            if ((Inter[internum].comp=="Contact" or Inter[internum].comp=="Contact_jeu" or Inter[internum].comp=="Contact_jeu_physique" or Inter[internum].comp=="Contact_ep") and datanum==0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -161,7 +161,7 @@ void calcul_ener_dissi_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &pro
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data==0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data==0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -194,7 +194,7 @@ template <class TV1, class TI>
                 for(unsigned e=0;e<S[j].edge.size();++e) {
                     unsigned i=S[j].edge[e].internum;
                     unsigned data=S[j].edge[e].datanum;
-                    if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data==0) {
+                    if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data==0) {
                         dissi_inter.set(0.);
                         if(process.nom_calcul=="incr") {
                             for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -419,7 +419,7 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
             Ft0.set(0.);
             Ftj.resize(Inter[i].side[0].nodeeq.size());
             Ftj.set(0.);
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double,TI::template SubType<0>::T::dim> a0;
                 a0.set(0.);
@@ -528,7 +528,7 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
             Ft0.set(0.);
             Ftj.resize(Inter[i].side[0].nodeeq.size());
             Ftj.set(0.);
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double,TI::template SubType<0>::T::dim> a0;
                 a0.set(0.);
@@ -627,7 +627,7 @@ void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double> vecx,vecy,vecz;
                 vecx.resize(Inter[i].side[0].nodeeq.size());
@@ -679,7 +679,7 @@ void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double> vecx,vecy,vecz;
                 vecx.resize(Inter[i].side[0].nodeeq.size());
@@ -737,7 +737,7 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double> vecx,vecy,vecz;
                 vecx.resize(Inter[i].side[0].nodeeq.size());
@@ -794,7 +794,7 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 Vec<double> vecx,vecy,vecz;
                 vecx.resize(Inter[i].side[0].nodeeq.size());
@@ -857,7 +857,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 surf.set(0.);
                 Vec<double> vecx,vecy,vecz,Un,Ut,tmp1,tmp0;
@@ -961,7 +961,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique") and data == 0) {
+            if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
                 surf.set(0.);
                 Vec<double> vecx,vecy,vecz,Un,Ut,tmp1,tmp0;

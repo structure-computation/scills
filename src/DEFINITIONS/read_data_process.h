@@ -46,12 +46,13 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->display_error= 0;
     process.affichage->affich_mesh= 1;
     process.affichage->save= "save";
-    process.affichage->display_fields.resize(5);
+    process.affichage->display_fields.resize(6);
     process.affichage->display_fields[0]= "dep";
     process.affichage->display_fields[1]= "qtrans";
     process.affichage->display_fields[2]= "sigma";
     process.affichage->display_fields[3]= "epsilon";
     process.affichage->display_fields[4]= "ener";
+    process.affichage->display_fields[5]= "sigma_mises";
     
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";
@@ -95,6 +96,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
             process.temps->time_step[i_step].t_ini = data_user.time_step[i_step].ti;
             process.temps->time_step[i_step].t_fin = data_user.time_step[i_step].tf;
             process.temps->time_step[i_step].nb_time_step = data_user.time_step[i_step].nb_time_step;
+            process.temps->nbpastemps += process.temps->time_step[i_step].nb_time_step;
         }
     }
 };

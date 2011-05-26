@@ -209,7 +209,6 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 #ifdef PRINT_ALLOC
             disp_alloc((to_string(process.rank)+" : Verifie memoire apres free : ").c_str(),1);
 #endif
-        }
         
     if(process.read_data==1) {
       if (process.rank == 0) std::cout << "Allocations des quantites d'interfaces et SST" << std::endl;
@@ -253,7 +252,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
 #endif
-  
+    }
+    PRINT("---------------fin du pas de temps----------------------");
     }
 
     //post traitements

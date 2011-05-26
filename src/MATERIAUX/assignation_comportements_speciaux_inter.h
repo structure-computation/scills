@@ -68,7 +68,7 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
                 Inter[q].param_comp->jeu.set(0.);
             }
-            if (propinter[i].type=="contact_jeu_sst" or propinter[i].type=="contact_jeu_box" or propinter[i].type=="jeu_impose_sst" or propinter[i].type=="jeu_impose_box" ) {
+            if (propinter[i].type=="contact_jeu_sst" or propinter[i].type=="contact_jeu_box" or propinter[i].type=="jeu_impose_sst" or propinter[i].type=="jeu_impose_box" or propinter[i].type=="contact_ep") {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
                 Inter[q].param_comp->jeu.set(0.);
                 if (propinter[i].type=="jeu_impose_sst" or propinter[i].type=="jeu_impose_box" ) Inter[q].param_comp->nbpastempsimpos=propinter[i].nbpastempsimpos;
@@ -129,6 +129,79 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
                 Inter[q].param_comp->jeu.set(0.);
                 Inter[q].param_comp->param_damage=propinter[i].param_damage;
+            }
+            if (propinter[i].type=="contact_ep" or propinter[i].type=="parfait") {
+                std::cout << "propinter[i].type = " << propinter[i].type << std::endl;
+                
+                std::cout << "  propinter[i].f_coeffrottement = " << propinter[i].f_coeffrottement << std::endl;
+                std::cout << "  propinter[i].jeu = " << propinter[i].jeu << std::endl;
+                
+                Inter[q].param_comp->coeffrottement=0.;
+                Inter[q].param_comp->f_coeffrottement.set(0.);
+                Inter[q].param_comp->jeu.set(0.);
+                typedef typename TV2::template SubType<0>::T::T T;
+                std::vector<Ex> symbols;
+                if (TV2::template SubType<0>::T::dim==2) {
+                    symbols.push_back("x");
+                    symbols.push_back("y");
+                } else if (TV2::template SubType<0>::T::dim==3) {
+                    symbols.push_back("x");
+                    symbols.push_back("y");
+                    symbols.push_back("z");
+                }
+                Vec<string> jeu_cut=tokenize(propinter[i].jeu,';');
+                Vec<string> f_coeffrottement_cut=tokenize(propinter[i].f_coeffrottement,';');
+
+                // coefficient de frottement
+                Inter[q].param_comp->fcts_spatiales=propinter[i].f_coeffrottement;
+                T sum_data=0;
+                if (f_coeffrottement_cut.size() == 1) {//Jeu normal
+                    Ex expr;
+                    expr = read_ex(propinter[i].f_coeffrottement.c_str(),symbols);
+                    for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
+                        T data;
+                        Ex::MapExNum var;
+                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                            var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
+                        data = (T)expr.subs_numerical(var);
+                        Inter[q].param_comp->f_coeffrottement[k]=data;
+                        sum_data += data;
+                    }
+                    Inter[q].param_comp->coeffrottement=sum_data/Inter[q].side[0].nodeeq.size();
+                }
+
+                // defaut de forme
+                Inter[q].param_comp->fcts_spatiales=propinter[i].jeu;
+                if (jeu_cut.size() == 1) {//Jeu normal
+                    Ex expr;
+                    expr = read_ex(propinter[i].jeu.c_str(),symbols);
+                    for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
+                        T data;
+                        Ex::MapExNum var;
+                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                            var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
+                        data = (T)expr.subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data*Inter[q].side[0].neq[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))];
+                    }
+                } else {//Jeu complet
+                    Vec<Ex> expr;
+                    expr.resize(TV2::template SubType<0>::T::dim);
+
+                    for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                        expr[d2] = read_ex(jeu_cut[d2],symbols);
+                    }
+                    for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
+                        Vec<T,TV2::template SubType<0>::T::dim> data;
+                        Ex::MapExNum var;
+                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                            var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
+                        }
+                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                            data[d2] = (T)expr[d2].subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data;
+
+                    }
+                }
             }
 
         }

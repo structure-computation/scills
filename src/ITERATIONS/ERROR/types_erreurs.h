@@ -103,6 +103,7 @@ struct calcerror_ddr {
             Vec<TT> &tempW=Inter[q].side[data].t[imic].Wp;
             Vec<TT> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
             Vec<TT> &tempFchap=Inter[q].side[data].t[imic].Fchap;
+            const Vec<TT> &JJ=Inter[q].param_comp->jeu;
             //          if(process.latin->iter>0 and process.latin->error[process.latin->iter-1]<=process.latin->critere_erreur){
             //          cout <<q << " side " << data <<endl;
             //          cout << " F-Fchap : " <<  dot(tempF-tempFchap,Inter[q].side[data].M*Inter[q].side[data].hglo*(tempF-tempFchap)) << endl;
@@ -114,7 +115,7 @@ struct calcerror_ddr {
             double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             temp=tempF+tempFchap;
             errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
-            temp=tempW+tempWchap;
+            temp=tempW+JJ+tempWchap;  // TEST
             errW[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             frac[2+q]+=temp0+temp1;
             errF[0]+=temp0;
@@ -202,7 +203,7 @@ struct calcerror_dissi {
             data=S.edge[i].datanum;
             double temp1=0;
             double temp2=0;
-            if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique"){
+            if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<process.temps->nbpastemps ;j++ ) {
                     temp1+=process.temps->dt*(
                                  dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wpchap)));
@@ -228,7 +229,7 @@ struct calcerror_dissi_post {
           data=S.edge[i].datanum;
           double temp1=0;
           double temp2=0;
-          if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique"){
+          if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
             for(unsigned j=0 ;j<(unsigned)process.temps->pt_cur ;j++ ) {
             temp1+=process.temps->dt*(
                 dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wpchap)));

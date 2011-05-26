@@ -43,7 +43,7 @@ struct Interface
 
 //comportement de l'interface
     string type; ///< type d'interface (exterieure : Ext ou interieure : Int )
-    string comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact
+    string comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, vontact epais : Contact_ep
     int refCL;   ///< numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
     int edge_id;   ///< identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
     int id_link;   ///< identite du behaviour_links dans le data_user issu du json

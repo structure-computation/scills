@@ -61,12 +61,15 @@ template<unsigned dim_, class T_> struct InterCarac
   Vec<unsigned,2> num_sst; ///< numero des sous-structures adjacentes
   T coeffrottement; ///< coefficient de frottement 
   string jeu ; ///< fonction donnant le jeu en fonction des variables d'espace par une fonction analytique
+  string f_coeffrottement; ///< fonction analytique donnant le coeficient de frottement
+  string f_R; ///< fonction analytique donnant la raideur d'une interface elastique
+  
   unsigned nbpastempsimpos;
 
   unsigned id;  ///< numero d'identification de cette caracteristique
   string name;  ///< nom de la caracteristique d'interface (informatif)
   T Gcrit;  ///< valeur de taux de restitution critique pour les interfaces discretes
-  string type; ///< type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete
+  string type; ///< type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
   string comp; ///< comportement des interfaces incluses
   
   ///parametres d'endommagement pour les interfaces cohesives

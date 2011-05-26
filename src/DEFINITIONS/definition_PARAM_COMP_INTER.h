@@ -12,8 +12,9 @@ struct PARAM_DAMAGE_INTER{
 struct PARAM_COMP_INTER{
   
   
-    PARAM_COMP_INTER(unsigned nbnodeeq){jeu.resize(nbnodeeq,0.); Ymax.resize(nbnodeeq,0.);Y.resize(nbnodeeq,0.);d.resize(nbnodeeq,0.);dmax.resize(nbnodeeq,0.);}
+    
     double coeffrottement;
+    Vec<double> f_coeffrottement;
     Vec<double> jeu;
     string fcts_spatiales;
     double Gcrit;
@@ -22,6 +23,15 @@ struct PARAM_COMP_INTER{
     Vec<double> Y,Ymax;
     unsigned nbpastempsimpos;
 
+    PARAM_COMP_INTER(unsigned nbnodeeq){
+      jeu.resize(nbnodeeq,0.); 
+      Ymax.resize(nbnodeeq,0.);
+      Y.resize(nbnodeeq,0.);
+      d.resize(nbnodeeq,0.);
+      dmax.resize(nbnodeeq,0.);
+      f_coeffrottement.resize(nbnodeeq,0.);
+    }
+    
     void free(){
       jeu.free();
       dmax.free();
