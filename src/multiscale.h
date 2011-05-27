@@ -246,7 +246,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
     }
-    PRINT("---------------fin du pas de temps----------------------");
+    
     }
 
     //post traitements
