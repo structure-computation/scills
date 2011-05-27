@@ -84,14 +84,18 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         
         
         Vec<std::string> vstr;
-        vstr.resize(data_user.dim);
+        vstr.resize(data_user.dim, "0");
         
+// 	std::cout << "data_user.behaviour_bc_volume[1].select = " << data_user.behaviour_bc_volume[1].select << std::endl;
+// 	std::cout << "data_user.behaviour_bc_volume[0].select = " << data_user.behaviour_bc_volume[0].select << std::endl;
         for(int d=0; d<data_user.dim; d++){
-            vstr[d] = data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[6] ;
+	    if(data_user.behaviour_bc_volume[1].select){
+		vstr[d] = data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[1].step[0].CLv_step_prop[6] ;
+	    }
         }
-        std::cout << "force volumique 0 = " << vstr[0] << std::endl;
-        std::cout << "force volumique 1 = " << vstr[1] << std::endl;
-        std::cout << "force volumique 2 = " << vstr[2] << std::endl;
+//         std::cout << "force volumique 0 = " << vstr[0] << std::endl;
+//         std::cout << "force volumique 1 = " << vstr[1] << std::endl;
+//         std::cout << "force volumique 2 = " << vstr[2] << std::endl;
         
         Vec<Ex> expr;
         expr.resize(TV3::template SubType<0>::T::dim);

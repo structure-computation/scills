@@ -171,7 +171,6 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 
         iterate_incr(process,SubS,Inter,SubI,Global);
         //assignation ptcur au ptold
-        std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
         assign_quantities_current_to_old(SubS,SubI,process);
         //modification de certaines interfaces ou sst (exemple endommagement)
         //modification_sst_inter_behaviour(S,Inter,param_incr);

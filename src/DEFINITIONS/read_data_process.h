@@ -46,13 +46,15 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->display_error= 0;
     process.affichage->affich_mesh= 1;
     process.affichage->save= "save";
-    process.affichage->display_fields.resize(6);
+    process.affichage->display_fields.resize(8);
     process.affichage->display_fields[0]= "dep";
     process.affichage->display_fields[1]= "qtrans";
     process.affichage->display_fields[2]= "sigma";
     process.affichage->display_fields[3]= "epsilon";
     process.affichage->display_fields[4]= "ener";
-    process.affichage->display_fields[5]= "sigma_mises";
+    process.affichage->display_fields[5]= "sigma_von_mises";
+    process.affichage->display_fields[6]= "numsst";
+    process.affichage->display_fields[7]= "f_vol_e";
     
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";

@@ -5,11 +5,11 @@ template<class TV1,class TV2>
 void assign_quantities_current_to_old(TV1 &S, TV2 &Inter, Param &process){
 
 //     if (process.latin->save_depl_SST==1)
-    PRINT(process.temps->pt_cur);
+    //PRINT(process.temps->pt_cur);
     
     for(unsigned i=0;i<S.size();i++){
-        PRINT(S[i].t_post.size());
-        PRINT(S[i].t.size());
+        //PRINT(S[i].t_post.size());
+        //PRINT(S[i].t.size());
         //    S[i].t[0].q=S[i].t[1].q;
         //S[i].t[0].oldq=S[i].t[1].oldq;
         S[i].t_post[process.temps->pt_cur]=S[i].t[1];
