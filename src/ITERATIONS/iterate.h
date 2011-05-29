@@ -346,7 +346,6 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
             break;
         }
         // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
-        //PRINT(process.latin->critere_erreur);
         if (process.latin->error[i]<=process.latin->critere_erreur) {
             if (process.latin->critere_erreur_diss != 0) {
                 assign_t_post(SubI, process);

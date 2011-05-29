@@ -42,7 +42,8 @@
 #include "assignation_mpi.h"
 
 
-#include "containers/evaluate_nb_cycles.h"
+// #include "containers/evaluate_nb_cycles.h"
+#include "SCtime.h"
 
 //biblioteque venant de SC_create_2
 #include <Metil/BasicVec.h>
@@ -92,8 +93,8 @@ int main(int argc,char **argv) {
         crout.open(process.rank);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    TicToc tic1;
-    if (process.rank==0) tic1.start();
+    TicTac tic1;
+    if (process.rank==0) {tic1.init();tic1.start();}
 #endif
         
         if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
@@ -150,8 +151,12 @@ int main(int argc,char **argv) {
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Duree complete du programme : " ;
     if (process.rank==0) tic1.stop();
+    if (process.rank==0) std::cout << std::endl;
 #endif
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         desallocation_memoire_PARAM(process);
+
+	if (process.size > 1 ) MPI_Finalize();
 
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;
