@@ -56,7 +56,7 @@ using namespace std;
 
 
 /** \ingroup
-\brief Fonction principale pour un calcul sous-structuré
+\brief Fonction principale pour un calcul sous-structurï¿½
 */
 template<class TV1,class TV2,class TV5,class GLOB>
 
@@ -227,7 +227,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         if (process.rank == 0) std::cout << " DEBUT DU CALCUL ITERATIF "<< std::endl;
         if (process.rank == 0) std::cout << "**************************" << std::endl;
 
-        /// calcul itératif
+        /// calcul itï¿½ratif
         if (process.nom_calcul=="latin") {
             if (process.rank == 0) std::cout << "Calcul latin" << std::endl;
             multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL);
@@ -241,7 +241,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         }
 
         if(process.save_data==1) {
-          if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
+          if (process.rank == 0) std::cout << "Sauvegarde des rï¿½sultats dans les fichiers save_sst et save_inter" << std::endl;
             Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
             save_data_inter(Inter,SubS, process, fields_to_save);
             Vec<string> fields_to_save2("q");
@@ -255,7 +255,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
     }
-    if (process.rank==0) PRINT("---------------fin du pas de temps----------------------\n");
+    
     }
 
     //post traitements

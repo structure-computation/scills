@@ -12,8 +12,10 @@ LOC_MC = metil_comp
 CFLAGS= -LUTIL/metis -lmetis -LUTIL/openmpi/lib -lmpi -lmpi_cxx
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
+
 DIR_SOURCES_MPI = -IUTIL/openmpi -IUTIL/openmpi/include
-OPT = -ne -O0 -ffast-math -fexpensive-optimizations
+OPT = -ne -g3 -O0 -ffast-math -fexpensive-optimizations
+
 
 # all: compact_GEOMETRY 
 # all: metil_comp_create_2_cpu 
@@ -32,15 +34,15 @@ metil_test :
 metil_comp_multi :
 	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
 
-codegen_py:
-	cd LMT/include/codegen; scons
+# codegen_py:
+# 	cd LMT/include/codegen; scons
 
-local:  codegen_py
-	scons -j4 dep_py=1 
+# local:  codegen_py
+# 	scons -j4 dep_py=1 
 
-clean:
-	scons -c
-	cd LMT/include/codegen; scons -c
+# clean:
+# 	scons -c
+# 	cd LMT/include/codegen; scons -c
 
 
 
