@@ -258,7 +258,9 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    Vec<typename INTER::T, INTER::dim> normale = Inter.G-S[Inter.vois[data*2]].G;
    double sign=1.;
    if (dot(Inter.side[data].neq[range(0,(int)INTER::dim)],normale)<=0.00001)   sign=-1.;
-   //assignation des deplacements et contraintes      
+   //assignation des deplacements et contraintes  
+   //PRINT("affichage des champs par interfaces");
+   
    unsigned numelem=0;
    apply(Inter.side[data].mesh->elem_list,assign_effort<INTER::dim>(),numelem,sign*Inter.side[data].t_post[pt].Fchap);
    numelem=0;
@@ -384,7 +386,8 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
       ostringstream sp;
       sp<<"./tmp/paraview_"<<process.rank<<"_";
       string strp(sp.str());
-      dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
+      //dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
+      dp.add_mesh(meshglob,strp.c_str(),Vec<string>("num","type","qtrans","F","W"));
       if(process.affichage->save=="display") dp.exec();
 
 }
