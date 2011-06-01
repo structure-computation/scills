@@ -28,29 +28,29 @@
 
 #include "modification_sst_inter_behaviour.h"
 
-//fonctions pour les envoies des données par mpi
+//fonctions pour les envoies des donnï¿½es par mpi
 #include "crout.h"
 
 
 using namespace LMT;
 using namespace std;
 
-/**\defgroup Strategie_iterative Stratégie Itérative
-\brief Stratégie itérative
+/**\defgroup Strategie_iterative Stratï¿½gie Itï¿½rative
+\brief Stratï¿½gie itï¿½rative
  
-Dans cette partie, on cherche à résoudre le problème de statique ou quasistatique. Deux méthodes sont envisagées : 
-- on effectue une résolution latin à savoir une boucle itérative dans laquelle on cherche la solution de manière incrémentale sur tous les pas de temps : multiscale_iterate_latin(). 
-- on effectue la boucle en temps et pour chaque piquet de temps on cherche une solution de manière itérative : multiscale_iterate_incr()
+Dans cette partie, on cherche ï¿½ rï¿½soudre le problï¿½me de statique ou quasistatique. Deux mï¿½thodes sont envisagï¿½es : 
+- on effectue une rï¿½solution latin ï¿½ savoir une boucle itï¿½rative dans laquelle on cherche la solution de maniï¿½re incrï¿½mentale sur tous les pas de temps : multiscale_iterate_latin(). 
+- on effectue la boucle en temps et pour chaque piquet de temps on cherche une solution de maniï¿½re itï¿½rative : multiscale_iterate_incr()
  
 */
 
 /** \ingroup   LATIN
-\brief Procédure principale itérative pour la résolution LATIN
+\brief Procï¿½dure principale itï¿½rative pour la rï¿½solution LATIN
  
-Cette procédure est constituée des fonctions suivantes :
-   - allocate_quantities() : On alloue dans un premier temps la mémoire pour chaque quantités de Sst, Interface et Global pour chaque piquet de temps:
-   - assign_CL_values_space_time() : on assigne les valeurs des quantités chapeau sur le bord à partir des conditions aux limites pour chaque piquet de temps.
-   - iterate_latin() : on applique la stratégie itérative latin : \ref LATIN*
+Cette procï¿½dure est constituï¿½e des fonctions suivantes :
+   - allocate_quantities() : On alloue dans un premier temps la mï¿½moire pour chaque quantitï¿½s de Sst, Interface et Global pour chaque piquet de temps:
+   - assign_CL_values_space_time() : on assigne les valeurs des quantitï¿½s chapeau sur le bord ï¿½ partir des conditions aux limites pour chaque piquet de temps.
+   - iterate_latin() : on applique la stratï¿½gie itï¿½rative latin : \ref LATIN*
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
 void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
@@ -87,14 +87,14 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
 
 
 /** \ingroup   Incrementale
-\brief Procédure principale itérative pour la résolution du problème de manière incrémentale
+\brief Procï¿½dure principale itï¿½rative pour la rï¿½solution du problï¿½me de maniï¿½re incrï¿½mentale
  
-Cette procédure est constituée des étapes suivantes :
-- allocate_quantities() : On alloue dans un premier temps la mémoire pour chaque quantités de Sst, Interface et Global (pas de temps 0 et 1):
+Cette procï¿½dure est constituï¿½e des ï¿½tapes suivantes :
+- allocate_quantities() : On alloue dans un premier temps la mï¿½moire pour chaque quantitï¿½s de Sst, Interface et Global (pas de temps 0 et 1):
 - pour chaque piquet de temps :
-   - assign_CL_values_space_time() : on assigne les valeurs des quantités chapeau sur le bord à partir des conditions aux limites pour le piquet de temps concerné
-   - iterate_incr() : on effectue une boucle itérative \ref Incrementale
-   - assign_quantities_current_to_old() : on met à jour les valeurs 0 à partir des valeurs 1
+   - assign_CL_values_space_time() : on assigne les valeurs des quantitï¿½s chapeau sur le bord ï¿½ partir des conditions aux limites pour le piquet de temps concernï¿½
+   - iterate_incr() : on effectue une boucle itï¿½rative \ref Incrementale
+   - assign_quantities_current_to_old() : on met ï¿½ jour les valeurs 0 ï¿½ partir des valeurs 1
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
 void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
@@ -154,7 +154,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
             assign_CL_values_space_time_incr(SubI, CL, process);
 
         for(int ic=0;ic<CL.size();ic++){
-            std::cout << "ft " << CL[ic].ft << std::endl;
+            if (process.rank == 0) std::cout << "ft " << CL[ic].ft << std::endl;
 /*            std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
         }
         
@@ -174,7 +174,8 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         assign_quantities_current_to_old(SubS,SubI,process);
         //modification de certaines interfaces ou sst (exemple endommagement)
         //modification_sst_inter_behaviour(S,Inter,param_incr);
-        std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
+        if (process.rank == 0)
+            std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
     }
     calcul_erreur_latin(SubS, Inter, process, Global);
     if (process.rank == 0)

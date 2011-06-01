@@ -45,7 +45,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
       //mise a zeros des quantites sigma_old et epsilon_old (visco uniquement)
       //apply(S[i].mesh.elem_list,mise_a_zero_old_quantities());
    }*/
-   
+
    if (typemail=="Sinterieur") {
       for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
          DisplayParaview dp;

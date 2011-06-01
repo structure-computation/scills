@@ -51,7 +51,7 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
             if(process.temps->type_de_calcul=="stat") {
                 CL[i].fcts_spatiales.resize(process.temps->nb_step);
                 CL[i].fcts_temporelles.resize(process.temps->nb_step);
-                CL[i].intervalles_temps.resize(process.temps->nb_step);                
+                CL[i].intervalles_temps.resize(process.temps->nb_step+1);                
                 for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
                     CL[i].intervalles_temps[0]=0;
                     CL[i].intervalles_temps[1]=100000;

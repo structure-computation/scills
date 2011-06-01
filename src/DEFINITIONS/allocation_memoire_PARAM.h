@@ -29,13 +29,13 @@ inline void allocation_memoire_PARAM(Param &process){
 }
 
 inline void desallocation_memoire_PARAM(Param &process){
-   delete process.affichage;
-   delete process.structure;
-   delete process.latin;
-   delete process.multiscale;
-   delete process.temps;
-   delete process.properties;
-   delete process.multi_mpi;
+   if (process.affichage != NULL) delete process.affichage;
+   if (process.structure != NULL) delete process.structure;
+   if (process.latin != NULL) delete process.latin;
+   if (process.multiscale != NULL) delete process.multiscale;
+   if (process.temps != NULL) delete process.temps;
+   if (process.properties != NULL) delete process.properties;
+   if (process.multi_mpi != NULL) delete process.multi_mpi;
 }
 
 

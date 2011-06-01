@@ -56,6 +56,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->display_fields[5]= "sigma_von_mises";
     process.affichage->display_fields[6]= "numsst";
     process.affichage->display_fields[7]= "f_vol_e";
+
     
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";
