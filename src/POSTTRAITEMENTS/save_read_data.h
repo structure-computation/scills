@@ -17,7 +17,7 @@ struct Projection_sigma_epsilon_on_skin_sst{
       typedef typename TM::TElemList::template SubType<0>::T TypeParent;
       const TypeParent &parent = static_cast<const TypeParent &>( *ea );
       e.sigma_skin = parent.sigma[0];
-      e.sigma_mises_skin = parent.sigma_mises[0];
+/*      e.sigma_mises_skin = parent.sigma_mises[0];*/
       e.epsilon_skin = parent.epsilon[0];
       e.numsst_skin = parent.numsst;
       e.num_proc_skin = parent.num_proc;
@@ -71,7 +71,7 @@ struct Extract_data_on_element{
         for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
             S.sigma[i_comp][e.number]=e.sigma_skin[i_comp];
             S.epsilon[i_comp][e.number]=e.epsilon_skin[i_comp];
-            S.sigma_mises[e.number]=e.sigma_mises_skin;
+/*            S.sigma_mises[e.number]=e.sigma_mises_skin;*/
         }
    }
 };

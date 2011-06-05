@@ -159,8 +159,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if(process.rank==0){
         std::cout << "Sortie xdmf" << std::endl;
         process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry.xdmf";
-        process.affichage->name_geometry << "/Level_0/Geometry";
-        process.affichage->name_fields << "/Level_0/Fields";
+        process.affichage->name_geometry = "/Level_0/Geometry";
+        process.affichage->name_fields = "/Level_0/Fields";
         write_xdmf_geometry_fields(process.affichage->name_xdmf_geometry, process.affichage->name_hdf, process.affichage->name_geometry,process.affichage->name_fields,process,0);  
     }
         
@@ -303,8 +303,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //     }
 
     // affichage sous paraview du resultat
-    affichage_resultats(SubS,process);
-            assert(0);
+    //affichage_resultats(SubS,process);
 
 }
 

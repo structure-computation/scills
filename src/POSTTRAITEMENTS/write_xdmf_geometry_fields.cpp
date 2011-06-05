@@ -8,7 +8,7 @@ using namespace Metil;
 
 void write_xdmf_geometry_fields(String output_xdmf, String name_hdf5, String name_geometry, String name_fields, Param &process, bool with_time ){
     BasicVec<String> attributs;
-    if(with_time==1) attributs=BasicVec<String>("displacements","sigma","epsilon","sigma_von_mises","num_proc");
+    if(with_time==1) attributs=BasicVec<String>("displacements","sigma","epsilon","num_proc");
     else attributs=BasicVec<String>("num_proc", "material", "num_group");  
     
     
