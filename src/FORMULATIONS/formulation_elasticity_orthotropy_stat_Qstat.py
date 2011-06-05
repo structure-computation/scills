@@ -40,6 +40,7 @@ sigma_skin = Variable( interpolation='skin_elementary', default_value='0', nb_di
 epsilon_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
 sigma_local_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 sigma_von_mises = Variable( interpolation='elementary', default_value='0',unit='N/mm^2' )
+sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=1, unit='N/mm^2' )
 
 integration_totale=False
 
