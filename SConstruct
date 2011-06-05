@@ -26,7 +26,7 @@ list_repertoires = ['LMT/include', 'build']+mes_repertoires + ['LMT/formulations
 list_repertoires_cppflags = map( lambda x: os.getcwd()+'/'+x, list_repertoires)
 
 #choix des formulations a compiler
-formuortho = 0
+formuortho = 1
 formuiso = 1
 formuendom = 0
 formuvisco = 0

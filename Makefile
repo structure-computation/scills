@@ -19,8 +19,8 @@ OPT = -ne -O3 -ffast-math -fexpensive-optimizations
 # all: metil_comp_create_2_cpu 
 
 # all: metil_comp_compute_cpu rsync
-all: metil_comp_multi
-# all: local
+# all: metil_comp_multi
+all: local
 
 # all: compact_FIELD_STRUCTURE 
 
@@ -36,7 +36,7 @@ codegen_py:
 	cd LMT/include/codegen; scons
 
 local:  codegen_py
-	scons -j4 dep_py=1 
+	scons -j1 dep_py=1 
 
 clean:
 	scons -c
