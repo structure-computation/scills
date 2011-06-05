@@ -173,6 +173,10 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         //assignation ptcur au ptold
         std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
         assign_quantities_current_to_old(SubS,SubI,process);
+        
+        if(process.save_data==1) 
+            if (process.size == 1 or process.rank>0) write_hdf_fields(SubS, process );
+        
         //modification de certaines interfaces ou sst (exemple endommagement)
         //modification_sst_inter_behaviour(S,Inter,param_incr);
         std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
@@ -187,7 +191,9 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 void fake_iterate() {
     XmlNode n;
     Param process;
-
+    Hdf hdf_file;
+    BasicVec<int> nb_previous_nodes;
+    
     Vec<Interface<DIM,TYPEREEL> > Inter3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;

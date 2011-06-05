@@ -108,7 +108,7 @@ int main(int argc,char **argv) {
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
         DataUser data_user(id_model, id_calcul);
         data_user.read_json_calcul();
-       
+
         std::cout << "lecture de la geometrie" << std::endl;
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
@@ -142,6 +142,8 @@ int main(int argc,char **argv) {
         Vec<Boundary<DIM,TYPEREEL> > CL;
         Glob<DIM,TYPEREEL> Global;
 
+
+        
         S.resize(geometry_user.nb_group_elements);
         multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
 
