@@ -59,6 +59,10 @@ inline void read_data_process(Param &process, DataUser &data_user) {
         process.affichage->display_fields[3]= "epsilon_skin";
         process.affichage->display_fields[5]= "sigma_mises_skin";
     }
+
+//     process.affichage->display_fields.resize(1);
+//     process.affichage->display_fields[0]= "all";
+    
     
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";

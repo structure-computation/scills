@@ -22,6 +22,7 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
 #endif
         Inter[q].param_comp = new PARAM_COMP_INTER(Inter[q].side[0].nodeeq.size());
         Inter[q].param_comp->jeu.resize(Inter[q].side[0].nodeeq.size()*TV2::template SubType<0>::T::dim);
+// 	std::cout << "DEBUG : " << Inter[q].side[0].nodeeq.size()*TV2::template SubType<0>::T::dim << std::endl;
     }
 
     //assignation des proprietes materiau des interfaces
