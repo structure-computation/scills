@@ -54,7 +54,7 @@ template<class SST, class TV2, class GLOB> void secmembmacroassem(SST &S, TV2 &I
          // participation des efforts de l'etape micro 1
          Global.bigF[repF] -= S.Fadd[repFadd];
          // participation des efforts imposes
-         if ( Inter[q].comp=="effort" or Inter[q].comp=="effort_normale") {
+         if ( Inter[q].comp=="effort" or Inter[q].comp=="effort_normal") {
             Global.bigF[repF] += trans(Inter[q].side[data].MeM)*Inter[q].side[data].t[imic].Fchap;
          } else if ( Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" ) {
             add_bigF_CLsym(Global.bigF,Inter[q],data,imic);

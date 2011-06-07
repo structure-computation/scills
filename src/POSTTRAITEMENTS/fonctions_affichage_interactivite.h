@@ -343,7 +343,7 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
     for(unsigned i=0;i<S.size();i++)
         for( unsigned j=0;j<S[i].edge.size() ;j++ ) {
             unsigned internum=S[i].edge[j].internum;
-            if (Inter[internum].comp=="effort" or Inter[internum].comp=="effort_normale") {
+            if (Inter[internum].comp=="effort" or Inter[internum].comp=="effort_normal") {
                 std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
                     std::cout << "Pas de temps " << setw(3) << pt << " : " ;

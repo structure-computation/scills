@@ -160,7 +160,6 @@ struct Interface
     Interface() {param_comp = NULL;}
    ~Interface() {
      Interface::free();    
-     PRINT("DESTROY INTERFACE");
    }
 
 };
