@@ -53,6 +53,7 @@ using namespace Metil;
 using namespace LMT;
 using namespace std;
 
+#include "write_xdmf_geometry_fields.h"
 
 
 /** \ingroup
@@ -152,8 +153,26 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //         Inter[i_inter].affiche();
 //     }
 
+    /// sauvegarde du maillage pour la visualisation des resultats
+    if (process.rank == 0) std::cout << "Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats" << std::endl;
+    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry_fields";
+
+    
+    if (process.size == 1 or process.rank>0) write_hdf_geometry(SubS,process);
+        
+    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+    
+    //ecriture du fichier de sortie xdmf
+    if(process.rank==0){
+        std::cout << "Sortie xdmf" << std::endl;
+        process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry.xdmf";
+        process.affichage->name_geometry = "/Level_0/Geometry";
+        process.affichage->name_fields = "/Level_0/Fields";
+        write_xdmf_geometry_fields(process.affichage->name_xdmf_geometry, process.affichage->name_hdf, process.affichage->name_geometry,process.affichage->name_fields,process,0);  
+    }
+        
     /// affichage du maillage si necessaire
-    affichage_maillage(SubS,SubI,S,process);
+    //affichage_maillage(SubS,SubI,S,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Affichage maillage : " ;
@@ -171,6 +190,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
 #endif    
+    
     
     for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
         if (process.rank == 0)
@@ -233,15 +253,15 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
             multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL);
         } else if(process.nom_calcul=="incr") {
             if (process.rank == 0) std::cout << "Calcul incremental" << std::endl;
-
             multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL);
         } else {
             if (process.rank == 0) std::cout << "nom de calcul non defini : choix entre latin ou incremental" << std::endl;
             assert(0);
         }
 
+
         if(process.save_data==1) {
-          if (process.rank == 0) std::cout << "Sauvegarde des rï¿½sultats dans les fichiers save_sst et save_inter" << std::endl;
+          if (process.rank == 0) std::cout << "Sauvegarde des resultats dans les fichiers save_sst et save_inter" << std::endl;
             Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
             save_data_inter(Inter,SubS, process, fields_to_save);
             Vec<string> fields_to_save2("q");
@@ -255,8 +275,10 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) tic1.start();
 #endif
     }
-    
+
     }
+    
+    memory_free(S,Inter,process);
 
     //post traitements
     if(process.rank==0){
@@ -268,7 +290,37 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         gp.wait();
       }
     }
+    
+    //sortie xdmf à partir du fichier hdf5 créé au fur et à mesure du calcul
+    if(process.rank==0){
+        process.affichage->name_xdmf_fields << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry_fields.xdmf";
+        write_xdmf_geometry_fields(process.affichage->name_xdmf_fields, process.affichage->name_hdf, process.affichage->name_geometry,process.affichage->name_fields, process,1);    
+    }  
+//     if(process.save_data==1) {
+//         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
+//             process.temps->pt_cur=0;
+//             //EN PARALLELE : calcul des champs et extraction d'un vecteur contenant le nombre de noeuds sur la peau pour chaque sst
+//             if (process.size == 1 or process.rank>0){
+//                 for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
+//                     process.temps->time_step[i_step].pt_cur=i_pt;
+//                     for(unsigned i=0;i<SubS.size();i++) calcul_fields_on_sst(SubS[i],process,0);
+//             }
+//             if (process.size == 1 or process.rank>0){
+//                 for(unsigned i=0;i<SubS.size();i++)
+//                     create_hdf_fields_data(SubS[i],process);
+//             }
+//             
+// 
+//                 //apply_mt(SubS,process.nb_threads,save_geometry_sst(), process, hdf);
+//           
+//             //Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
+//             //save_data_inter(Inter,SubS, process, fields_to_save);
+//             //Vec<string> fields_to_save2("q");
+//             //save_data_sst(SubS, process, fields_to_save2);
+//     }
+
     // affichage sous paraview du resultat
+
     affichage_resultats(SubS,process);  
     
 }

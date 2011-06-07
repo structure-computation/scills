@@ -14,7 +14,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.rbm.mvts_bloques[1]= "Tx";
     process.rbm.mvts_bloques[2]= "Rz";
     process.nb_threads = 1;
-    process.save_data = false;
+    process.save_data = true;
     process.read_data = false;
     process.reprise_calcul = 0;
     process.properties->deltaT = 0;
@@ -42,15 +42,26 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->display_error= 0;
     process.affichage->affich_mesh= 1;
     process.affichage->save= "save";
-//     process.affichage->display_fields.resize(6);
-//     process.affichage->display_fields[0]= "dep";
-//     process.affichage->display_fields[1]= "qtrans";
-//     process.affichage->display_fields[2]= "sigma";
-//     process.affichage->display_fields[3]= "epsilon";
-//     process.affichage->display_fields[4]= "ener";
-//     process.affichage->display_fields[5]= "sigma_mises";
-    process.affichage->display_fields.resize(1);
-    process.affichage->display_fields[0]= "all";
+    if(process.affichage->type_affichage== "Sinterieur"){
+        process.affichage->display_fields.resize(6);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma";
+        process.affichage->display_fields[3]= "epsilon";
+        process.affichage->display_fields[4]= "ener";
+        process.affichage->display_fields[5]= "sigma_mises";
+    }
+    else if(process.affichage->type_affichage== "Sbord"){
+        process.affichage->display_fields.resize(6);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma_skin";
+        process.affichage->display_fields[3]= "epsilon_skin";
+        process.affichage->display_fields[5]= "sigma_mises_skin";
+    }
+
+//     process.affichage->display_fields.resize(1);
+//     process.affichage->display_fields[0]= "all";
     
     
     process.affichage->repertoire_save= data_user.calcul_path + "/";
