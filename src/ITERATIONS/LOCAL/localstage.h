@@ -35,8 +35,10 @@ struct etape_locale_inter {
         if (Inter.type=="Ext") {
             if(Inter.comp=="depl") {
                 compt_CL_depl(Inter,process.temps->pt);
-            } else if (Inter.comp=="effort") {
+            } else if (Inter.comp=="effort" or Inter.comp=="effort_normal") {
                 compt_CL_eff(Inter,process.temps->pt);
+/*            } else if (Inter.comp=="effort_normal") {
+                compt_CL_eff_normal(Inter,process.temps->pt);*/
             } else if (Inter.comp=="sym") {
                 compt_CL_sym(Inter,process.temps->pt);
             } else if (Inter.comp=="depl_normal") {

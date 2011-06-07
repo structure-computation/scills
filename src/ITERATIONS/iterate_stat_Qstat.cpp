@@ -185,10 +185,11 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 // #endif
 
 void fake_iterate() {
-    XmlNode n;
+//     XmlNode n;
     Param process;
 
     Vec<Interface<DIM,TYPEREEL> > Inter3;
+//     Vec<Splitted<Sst<DIM,TYPEREEL>,16 > > S3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;

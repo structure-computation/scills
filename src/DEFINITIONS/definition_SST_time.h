@@ -100,6 +100,8 @@ template<unsigned dim_, class TT_> struct Sst
   
   Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
   
+  ~Sst() { }
+  
   void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
     vois.free();
     //box.free();

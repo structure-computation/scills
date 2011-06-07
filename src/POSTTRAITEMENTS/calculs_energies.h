@@ -235,7 +235,7 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proc
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort" /*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
+            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normale"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -303,7 +303,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proce
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort" /*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
+            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normale"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
