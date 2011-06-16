@@ -53,11 +53,12 @@ L'ordre des opérations est le suivant :
 
 
 void fake_multiscale_geometry_mesh() {
-    XmlNode n;
+//     XmlNode n;
     Param process;
     DataUser data_user;
     GeometryUser geometry_user;
 
+//     Vec<Splitted<Sst<DIM,TYPEREEL> ,16> > S3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3, Stot3;
     Vec<Interface<DIM,TYPEREEL> > Inter3;

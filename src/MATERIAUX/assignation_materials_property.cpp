@@ -45,10 +45,11 @@ Dans la fonction principale, on appelle successivement :
 #endif
 
 void fake_assignation_materials_property() {
-    XmlNode n;
+/*    XmlNode n;*/
     Param process;
     DataUser data_user;
         
+//     Vec<Splitted<Sst<DIM,TYPEREEL>, 16> > S3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;
     Vec<Interface<DIM,TYPEREEL> > Inter3;
@@ -56,8 +57,8 @@ void fake_assignation_materials_property() {
     assignation_materials_property_SST(data_user, S3, Inter3,process);
     assignation_materials_property_INTER(data_user, Inter3, S3, process);
     
-    assignation_materials_property_SST(n,S3,Inter3,process); 
-    assignation_materials_property_INTER(n, Inter3, S3, process);
+//     assignation_materials_property_SST(n,S3,Inter3,process); 
+//     assignation_materials_property_INTER(n, Inter3, S3, process);
 
 }
 

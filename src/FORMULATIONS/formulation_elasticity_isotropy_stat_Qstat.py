@@ -24,6 +24,7 @@ epsilon = Variable( interpolation='der_nodal', default_value='0', nb_dim=[dim*(d
 ener = Variable( interpolation='elementary', default_value='0', unit='N*mm' )
 sigma_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 epsilon_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
+sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=1, unit='N/mm^2' )
 sigma_local_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
 sigma_von_mises = Variable( interpolation='elementary', default_value='0',unit='N/mm^2' )
 

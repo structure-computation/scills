@@ -2,6 +2,12 @@
 #define PARAM_AFFICHAGE_H
 using namespace LMT;
 using namespace std;
+#include <Metil/BasicVec.h>
+#include <Metil/StructCompactor.h>
+#include <Metil/CudaMetil.h>
+#include <Metil/Hdf.h>
+using namespace Metil;
+
 
 /**\ingroup Parametres
 \brief Parametres d'affichage accessibles dans la structure Param.
@@ -21,7 +27,7 @@ struct AFFICHAGE{
     num_inter_select=Vec<int>(-1);
     fichiers_paraview_sst_crees=0;
     fichiers_paraview_inter_crees=0;
-    param_ener.set(0);
+    param_ener.set(0);    
     }
   // parametres pour l'affichage
   bool affich_resultat; ///< affichage du resultat de calcul
@@ -44,6 +50,12 @@ struct AFFICHAGE{
   bool fichiers_paraview_sst_crees;///< booleen indiquant si les fichiers paraview des sst ont ete crees
   bool fichiers_paraview_inter_crees;///< booleen indiquant si les fichiers paraview des interfaces ont ete crees
   Vec<int,3> param_ener; ///< parametres pour l'affichage des energies dissipees ou imposees
+  
+  String name_hdf; ///< nom du fichier hdf5 permettant la sauvegarde des donnees
+  String name_geometry; ///< nom du dataset contenant les elements de geometry dans le fichier de sauvegarde
+  String name_fields; ///< nom du dataset contenant les elements de geometry dans le fichier de sauvegarde
+  String name_xdmf_geometry;   ///< nom du fichier xdmf de sortie pour visualisation des resultats sous paraview, geometrie uniquement
+  String name_xdmf_fields;   ///< nom du fichier xdmf de sortie pour visualisation des resultats sous paraview, geometrie + champs solutions
 };
 
 #endif // PARAM_AFFICHAGE_H
