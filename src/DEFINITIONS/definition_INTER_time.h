@@ -153,6 +153,17 @@ struct Interface
         std::cout << "------------------- fin interface ------------------------" << std::endl;
     }
    
+#if DIM==2
+  static const   int nb_nodes_by_element=2;
+#else
+  static const   int nb_nodes_by_element=3; 
+#endif  
+   BasicVec<BasicVec<T>,dim_> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
+   BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+   BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
+   BasicVec<int> number; ///< numéro de l'interface
+   BasicVec< BasicVec<T>, dim_ > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
+   
 };
 
 

@@ -113,7 +113,6 @@ struct Calc_SST_rigidite_K0_k {
         S.f->get_mat(Kl);
         Mat<typename SST::T, Sym<>,SparseLine<> > &K = *Kl;
 #else
-
         S.f->get_mat( S.K );
         typename SST::TMATS &K = *S.K;
 #endif

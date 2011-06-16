@@ -6,19 +6,14 @@ using namespace Metil;
 
 #include "write_xdmf.h"
 
-void write_xdmf_geometry_fields(String output_xdmf, String name_hdf5, String name_geometry, String name_fields, Param &process, bool with_time ){
-    BasicVec<String> attributs;
-    if(with_time==1) attributs=BasicVec<String>("displacements","sigma","epsilon","num_proc");
-    else attributs=BasicVec<String>("num_proc", "material", "num_group");  
+void write_xdmf_geometry_fields(std::ofstream &f, Param &process, String name_element, String name_node, String generic_grid_name, String grid_collection_name, bool with_time, BasicVec<String> &attributs){
+    String name_hdf5=process.affichage->name_hdf;
+    String name_geometry=process.affichage->name_geometry;
+    String name_fields=process.affichage->name_fields;
     
     
-    std::ofstream f(output_xdmf.c_str());
-    
-    f << "<Xdmf Version=\"2.0\">" << std::endl;
-    f << "  <Domain>" << std::endl;
-    
-    String name_nodes = name_geometry + "/local_nodes";
-    String name_elements = name_geometry + "/elements_1";
+    String name_nodes = name_geometry + "/" + name_node;
+    String name_elements = name_geometry + "/" + name_element;
     
     
     int i_proc_ini=1;
@@ -57,10 +52,9 @@ void write_xdmf_geometry_fields(String output_xdmf, String name_hdf5, String nam
     }
     
     //ecriture des grids
-    String generic_grid_name="piece";
     //grilles temporelles avec champs associes ou grilles simples
     if(with_time==1){
-        f<< "               <Grid Name=\"Geometry_0_skin\" GridType=\"Collection\" CollectionType=\"Temporal\" >" << std::endl;
+        f<< "               <Grid Name=\""<< grid_collection_name.c_str() <<"\" GridType=\"Collection\" CollectionType=\"Temporal\" >" << std::endl;
         process.temps->pt_cur=0;
         for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
             for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
@@ -77,14 +71,10 @@ void write_xdmf_geometry_fields(String output_xdmf, String name_hdf5, String nam
         f<<"                </Grid>"<< std::endl;        
     }
     else{
-        f<< "               <Grid Name=\"Geometry_0_skin\" GridType=\"Tree\" >" << std::endl;
+        f<< "               <Grid Name=\""<< grid_collection_name.c_str() <<"\" GridType=\"Tree\" >" << std::endl;
         for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
             write_grids_2(f,name_hdf5, name_elements,name_nodes,name_fields, generic_grid_name,attributs, 0, i_proc);
         }    
         f<<"                </Grid>"<< std::endl;
     }           
-    f<<"        </Domain>"<< std::endl;
-    f<<"</Xdmf>"<<std::endl;
-
-    f.close();
 }
