@@ -11,9 +11,10 @@ using namespace std;
 
 void fake_fonction(){
 //pour le 3d
-    XmlNode n;
+//     XmlNode n;
     Param process;
     
+   
 Vec<Sst<DIM,TYPEREEL> > S;
 Vec<Interface<DIM,TYPEREEL> > Inter;
 Vec<Boundary<DIM,TYPEREEL> > CL;
@@ -21,7 +22,7 @@ Vec<Boundary<DIM,TYPEREEL> > CL;
 // Vec<VecPointedValues<Interface<3,TYPEREEL> > > SubI;
 // Glob<3,TYPEREEL> Global;
 
-multiscale_geometry_mesh(n,S, Inter, process, CL) ;
+// multiscale_geometry_mesh(n,S, Inter, process, CL) ;
 /*assignation_materials_property_SST(n, S, Inter,process);
 assignation_materials_property_INTER(n, Inter, S, process);
 multiscale_operateurs(n,Stot, SubS,Inter,SubI, process,Global);

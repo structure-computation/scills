@@ -138,6 +138,7 @@ int main(int argc,char **argv) {
         process.affichage->name_data= argv[2];
         if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
+//         Vec<Splitted<Sst<DIM,TYPEREEL> , 16> > S;
         Vec<Sst<DIM,TYPEREEL> > S;
         Vec<Interface<DIM,TYPEREEL> > Inter;
         Vec<Boundary<DIM,TYPEREEL> > CL;

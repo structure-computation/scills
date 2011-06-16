@@ -29,7 +29,6 @@ struct Interface
    typedef Vec<TT_,dim_> Pvec; ///< type des points
    typedef PARAM_COMP_INTER PARAM_COMP; ///< type des parametres supplementaires pour les comportements
    
-   
 //Geometrie
     int id;     ///< id de l'interface 
     int num;     ///< numero de l'interface 
@@ -131,11 +130,17 @@ struct Interface
 #ifdef PRINT_ALLOC
         if (side[0].mesh != NULL) total_allocated[ typeid(typename Interface::TMESH).name() ] -= sizeof(typename Interface::TMESH);
 #endif
-        for( unsigned i=0;i<side.size() ;i++ )
-            delete side[i].mesh;
+	
+	//les maillages sont les memes des 2 cotés...
+        delete side[0].mesh;
+	side[0].mesh=NULL;
+	
+	
 
         side.free();
-        param_comp->free();
+        if (param_comp != NULL ) param_comp->free();
+	if (param_comp != NULL ) delete param_comp;
+
     }
     
 #include <boost/concept_check.hpp>
@@ -152,7 +157,7 @@ struct Interface
         
         std::cout << "------------------- fin interface ------------------------" << std::endl;
     }
-   
+
 #if DIM==2
   static const   int nb_nodes_by_element=2;
 #else
@@ -163,7 +168,12 @@ struct Interface
    BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
    BasicVec<int> number; ///< numéro de l'interface
    BasicVec< BasicVec<T>, dim_ > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
-   
+
+    Interface() {param_comp = NULL;}
+   ~Interface() {
+     Interface::free();    
+   }
+
 };
 
 

@@ -344,5 +344,6 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     // affichage sous paraview du resultat
 
     affichage_resultats(SubS,process);  
+    
 }
 

@@ -246,7 +246,7 @@ void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
             hn = hn / facteur;
             kt = kt * facteur;
             ht = ht / facteur;
-        } else if(Inter.comp=="effort") {
+        } else if(Inter.comp=="effort" or Inter.comp=="effort_normal") {
             kn = kn / facteur ;
             hn = hn * facteur ;
             kt = kt / facteur ;
