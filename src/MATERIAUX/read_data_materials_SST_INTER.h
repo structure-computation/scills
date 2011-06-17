@@ -88,13 +88,13 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         
 // 	std::cout << "data_user.behaviour_bc_volume[1].select = " << data_user.behaviour_bc_volume[1].select << std::endl;
 // 	std::cout << "data_user.behaviour_bc_volume[0].select = " << data_user.behaviour_bc_volume[0].select << std::endl;
-	for(int i_fvol=0; i_fvol<data_user.behaviour_bc_volume.size(); i_fvol++){
-	    if(data_user.behaviour_bc_volume[i_fvol].select){
-		for(int d=0; d<data_user.dim; d++){
-		    vstr[d] += " + " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6] ;
-		}
-	    }
-	}
+        for(int i_fvol=0; i_fvol<data_user.behaviour_bc_volume.size(); i_fvol++){
+            if(data_user.behaviour_bc_volume[i_fvol].select){
+                for(int d=0; d<data_user.dim; d++){
+                    vstr[d] += " + " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6] ;
+                }
+            }
+        }
         std::cout << "force volumique 0 = " << vstr[0] << std::endl;
         std::cout << "force volumique 1 = " << vstr[1] << std::endl;
         std::cout << "force volumique 2 = " << vstr[2] << std::endl;
@@ -117,7 +117,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         matprop[i].f_vol_e=vstr;
         matprop[i].f_vol=data;
 	
-//         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
+        
         
         Vec< TYPE > mat_prop_temp;
         mat_prop_temp.resize(data_user.behaviour_materials[i].mat_prop.size());
@@ -133,8 +133,9 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
                 var_temp[symbols[d2]]= 0.;
             }
             mat_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
+            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;
         }
-        
+        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;
         matprop[i].density = mat_prop_temp[3];
         
         if(matprop[i].type_num == 0) {                 // comportement isotrope elastique
