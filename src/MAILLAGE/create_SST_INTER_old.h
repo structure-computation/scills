@@ -267,7 +267,7 @@ void create_maillage_SST(STRUCTURE &structure,TV1 &S,Param &process) {
           write_avs(*S[i].mesh.m,namein,Vec<string>(),Ascii());
         }
 
-        cout << "Maillage sauvergarde PUTAIN" << endl;
+        cout << "Maillage sauvegarde" << endl;
 
         for(unsigned i=0;i<S.size();++i){
             S[i].box=create_box_mesh(*S[i].mesh.m);

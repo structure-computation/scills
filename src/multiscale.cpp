@@ -109,7 +109,7 @@ int main(int argc,char **argv) {
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
         DataUser data_user(id_model, id_calcul);
         data_user.read_json_calcul();
-       
+
         std::cout << "lecture de la geometrie" << std::endl;
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
@@ -138,11 +138,14 @@ int main(int argc,char **argv) {
         process.affichage->name_data= argv[2];
         if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
+//         Vec<Splitted<Sst<DIM,TYPEREEL> , 16> > S;
         Vec<Sst<DIM,TYPEREEL> > S;
         Vec<Interface<DIM,TYPEREEL> > Inter;
         Vec<Boundary<DIM,TYPEREEL> > CL;
         Glob<DIM,TYPEREEL> Global;
 
+
+        
         S.resize(geometry_user.nb_group_elements);
         multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
 

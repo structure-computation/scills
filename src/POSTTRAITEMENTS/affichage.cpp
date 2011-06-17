@@ -36,9 +36,10 @@ using namespace std;
 
 #include "affichage.h"
 void fake_affichage() {
-    XmlNode n;
+//     XmlNode n;
     Param process;
 
+//     Vec<Splitted<Sst<DIM,TYPEREEL> ,16> > S3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SP3;
     Vec<Interface<DIM,TYPEREEL> > Inter3;

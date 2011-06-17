@@ -96,9 +96,27 @@ template<unsigned dim_, class TT_> struct Sst
   Vec<T> Fadd;///vecteur effort macro sur le bord d'une SST Fadd
   //ajout mesomodele
   PARAM_DAMAGE_SST<dim,T> *param_damage; ///< paramètres d'endommagement pour le mésomodèle
+
+#warning "on suppose qu'en 2D, la connectivite vaut 2, en 3D elle vaut 3  pour les elements de peau"
+#if DIM==2
+  static const   int nb_nodes_by_element=2;
+#else
+  static const   int nb_nodes_by_element=3; 
+#endif  
+  BasicVec<BasicVec<T>,dim_> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
+  BasicVec<BasicVec<T>,dim_ > dep_nodes; ///< deplacements aux noeuds
+  BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma; ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon; ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< T > sigma_mises; ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< int > num_processor; ///< vecteur numéro du processeur d'une sst pour la sortie hdf 
+  BasicVec< int > num_group; ///< vecteur numéro des sst pour la sortie hdf 
+  BasicVec< int > material; ///< vecteur numéro des materiaux des sst pour la sortie hdf 
   
   
   Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
+  
+  ~Sst() { }
   
   void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
     vois.free();
