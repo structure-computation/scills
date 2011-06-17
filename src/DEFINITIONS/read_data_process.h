@@ -39,16 +39,16 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->interactivite= 0;
     process.affichage->affich_resultat= 1;
     if(data_user.options.mode == "test"){
-	process.affichage->type_affichage= "Inter";
-	process.affichage->affich_mesh= 1;
+        process.affichage->type_affichage= "Inter";
+        process.affichage->affich_mesh= 1;
     }else{
-	process.affichage->type_affichage= "Sinterieur";
-	process.affichage->affich_mesh= 0;
+        process.affichage->type_affichage= "Sinterieur";
+        process.affichage->affich_mesh= 0;
     }
     process.affichage->display_error= 0; 
     process.affichage->save= "save";
     if(process.affichage->type_affichage== "Sinterieur"){
-        process.affichage->display_fields.resize(6);
+        process.affichage->display_fields.resize(8);
         process.affichage->display_fields[0]= "dep";
         process.affichage->display_fields[1]= "qtrans";
         process.affichage->display_fields[2]= "sigma";
