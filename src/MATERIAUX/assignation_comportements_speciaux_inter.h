@@ -132,10 +132,10 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process) {
                 Inter[q].param_comp->param_damage=propinter[i].param_damage;
             }
             if (propinter[i].type=="contact_ep" or propinter[i].type=="parfait") {
-                std::cout << "propinter[i].type = " << propinter[i].type << std::endl;
-                
-                std::cout << "  propinter[i].f_coeffrottement = " << propinter[i].f_coeffrottement << std::endl;
-                std::cout << "  propinter[i].jeu = " << propinter[i].jeu << std::endl;
+//                 std::cout << "propinter[i].type = " << propinter[i].type << std::endl;
+//                 
+//                 std::cout << "  propinter[i].f_coeffrottement = " << propinter[i].f_coeffrottement << std::endl;
+//                 std::cout << "  propinter[i].jeu = " << propinter[i].jeu << std::endl;
                 
                 Inter[q].param_comp->coeffrottement=0.;
                 Inter[q].param_comp->f_coeffrottement.set(0.);

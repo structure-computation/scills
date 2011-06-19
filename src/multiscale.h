@@ -193,7 +193,14 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank==0) std::cout << std::endl;
     if (process.rank==0) tic1.start();
 #endif
-
+    
+    std::cout << std::endl;
+    std::cout << "data_user.options.mode = " << data_user.options.mode << std::endl;
+    if(data_user.options.mode == "test"){
+       PRINT("fin de la mise en donnée, mode test, on ne va pas plus loin !");
+       assert(0);
+    }
+    
     process.temps->dt=0;
     if (process.rank == 0)  std::cout << "Nombre de pas de temps total " << process.temps->nbpastemps << std::endl;
     process.temps->pt_cur=0;
@@ -342,8 +349,9 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //     }
 
     // affichage sous paraview du resultat
+    affichage_resultats(SubS,process);
+    affichage_resultats_inter(SubI, S ,process); 
+    //affichage_resultats_inter(Inter, SubS , process);
 
-    affichage_resultats(SubS,process);  
-    
 }
 

@@ -115,7 +115,8 @@ struct calcerror_ddr {
             double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             temp=tempF+tempFchap;
             errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
-            temp=tempW+JJ+tempWchap;  // TEST
+            //temp=tempW-JJ+tempWchap;  // TEST
+            temp=tempW+tempWchap;  // TEST
             errW[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             frac[2+q]+=temp0+temp1;
             errF[0]+=temp0;

@@ -232,7 +232,9 @@ struct assigne_f_vol_e {
     void operator() (TE &e, TM &m, Vec<std::string> force_volumique) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
+	
         Pvec G = center(e);
+	
         
         std::vector<Ex> symbols;
         if (DIM==2) {
@@ -258,8 +260,21 @@ struct assigne_f_vol_e {
         }
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
-            e.f_vol_e[d2] = measure(e) * m.density * (double)expr[d2].subs_numerical(var);
+            //e.f_vol_e[d2] = measure(e) * m.density * (double)expr[d2].subs_numerical(var);
+	    e.f_vol_e[d2] = m.density * (double)expr[d2].subs_numerical(var);
         }
+        
+//         if(e.number<10){
+// 	    PRINT("-----------element------------" );
+// 	    PRINT(e.number);
+// 	    for(unsigned d2=0;d2<DIM;++d2) {
+// 		std::cout << "        " << G[d2] << std::endl;
+// 	    }
+// 	    for(unsigned d2=0;d2<DIM;++d2) {
+// 		std::cout << " 		force_volumique = " << force_volumique[d2] << std::endl;
+// 		std::cout << " 		e.f_vol_e[d2] = " << e.f_vol_e[d2] << std::endl;
+// 	    }
+// 	}
     }
 };
 
