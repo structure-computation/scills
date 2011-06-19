@@ -290,7 +290,8 @@ struct Meshmulti {
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
     Vec<double,Carac::dim> f_vol;//champs de force volumique
     Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
-    double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,v1,v2,alpha_1,alpha_2,alpha_3,viscosite;
+    double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
+    Vec<double,Carac::dim> v1,v2;
     string type_formulation;
     
     //ajout pour les données venant de SC_create_2
@@ -342,7 +343,8 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e() {///sousintegration de type p
+    void load_f_vol_e() {///application du chargement à chaque noeud
+        std::cout << "fvole " << f_vol_e << endl;
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e);
     }
     //    

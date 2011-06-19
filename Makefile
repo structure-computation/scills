@@ -44,15 +44,16 @@ metil_comp_create_cpu :
 # codegen_py:
 # 	cd LMT/include/codegen; scons
 
-# local:  codegen_py
-# 	scons -j4 dep_py=1 
+local:  
+	scons -j1 dep_py=1 
 
 # clean:
 # 	scons -c
 # 	cd LMT/include/codegen; scons -c
 
 rsync : 
-	rsync -r --exclude '.git' . /home/scproduction/Developpement/SC_code
+# 	rsync -r --exclude '.git' --exclude 'EXEMPLES'  --exclude 'LMT'  --exclude 'UTIL*'  --exclude 'src/COMPUTE'  --exclude 'src/GEOMETRY'  --exclude 'src/SC_create_2.cpp'  --exclude 'src/UTILS'. /home/scproduction/Developpement/SC_code
+	rsync SC_multi_*.exe /home/scproduction/Developpement/SC_multi
 
 
 

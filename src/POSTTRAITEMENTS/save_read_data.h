@@ -18,7 +18,7 @@ struct Projection_fields_on_skin_sst{
       typedef typename TM::TElemList::template SubType<0>::T TypeParent;
       const TypeParent &parent = static_cast<const TypeParent &>( *ea );
       e.sigma_skin = parent.sigma[0];
-/*      e.sigma_mises_skin = parent.sigma_mises[0];*/
+      e.sigma_mises_skin = parent.sigma_von_mises;
       e.epsilon_skin = parent.epsilon[0];
       e.numsst_skin = parent.numsst;
       e.num_proc_skin = parent.num_proc;
@@ -43,7 +43,7 @@ void calcul_fields_on_sst(TSST &S, Param &process) {
     }
     else{std::cout << "Type de calcul non reconnu dans save_geometry_sst " << std::endl;assert(0);}
     S.mesh->update_skin();
-    //apply(S.mesh->skin.elem_list,Projection_elements_0_skin(),S.mesh->skin, *S.mesh.m);
+/*    apply(S.mesh->skin.elem_list,Projection_elements_0_skin(),S.mesh->skin, *S.mesh.m);*/
     apply(S.mesh->skin.elem_list,Projection_fields_on_skin_sst(),S.mesh->skin,*S.mesh.m);
 }
 
@@ -75,7 +75,7 @@ struct Extract_fields_on_element{
         for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
             S.sigma[i_comp][e.number]=e.sigma_skin[i_comp];
             S.epsilon[i_comp][e.number]=e.epsilon_skin[i_comp];
-/*            S.sigma_mises[e.number]=e.sigma_mises_skin;*/
+            S.sigma_mises[e.number]=e.sigma_mises_skin;
         }
    }
 };
@@ -283,7 +283,7 @@ void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , String name_group_f
         S.epsilon[i_comp].write_to(hdf,name_epsilon_field.c_str());
     }
     String name_sigma_mises;
-    name_sigma_mises <<name_fields<<"/sigma_mises/list_" << S.num ;
+    name_sigma_mises <<name_fields<<"/sigma_von_mises/list_" << S.num ;
     S.sigma_mises.write_to(hdf,name_sigma_mises.c_str());
 }
 

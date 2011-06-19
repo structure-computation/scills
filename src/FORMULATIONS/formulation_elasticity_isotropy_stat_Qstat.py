@@ -18,6 +18,7 @@ resolution=Variable( interpolation='global', default_value='0', unit='' )
 #champ de deplacement inconnu par noeud
 dep = Variable( unknown=True, nb_dim=[dim], default_value='0.0', unit='mm' )
 
+
 #champ de contraintes, deformations, (densite d' energie)/2 par element
 sigma = Variable( interpolation='der_nodal', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 epsilon = Variable( interpolation='der_nodal', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
@@ -27,6 +28,7 @@ epsilon_skin = Variable( interpolation='skin_elementary', default_value='0', nb_
 sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0', unit='N/mm^2' )
 sigma_local_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
 sigma_von_mises = Variable( interpolation='elementary', default_value='0',unit='N/mm^2' )
+
 
 integration_totale=False
 
@@ -62,6 +64,7 @@ def formulation():
   for i in range(dim): res += sigma[i] * epstest[i] 
   for i in range(dim,epstest.size()): res += 2 * sigma[i] * epstest[i]
   res-=dot( f_vol_e.expr , dep.test )
+  #res -= dot( f_vol.expr , dep.test )
   return res * dV 
 
 #calcul des deformations et contraintes apres avoir calcule le deplacement pour chaque noeud du maillage
@@ -87,7 +90,7 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   for i in range(dim,epsilon.size()): ener += 2 * sigma[i] * (epsilon[i] - epsth[i]*deltaT.expr)
   ener = e.integration( ener, 2 )/2
   
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  epsilon_3d, sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
   sigma_von_mises=von_mises( sigma_3d )
     
   #TODO dans le cas ou l'on a plusieurs points de gauss.......

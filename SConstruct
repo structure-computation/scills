@@ -26,7 +26,7 @@ list_repertoires = ['LMT/include', 'build']+mes_repertoires + ['LMT/formulations
 list_repertoires_cppflags = map( lambda x: os.getcwd()+'/'+x, list_repertoires)
 
 #choix des formulations a compiler
-formuortho = 0
+formuortho = 1
 formuiso = 1
 formuendom = 0
 formuvisco = 0
@@ -181,7 +181,7 @@ autres=[
  #'makerefinement.cpp'
  #  'FICHIERS_TEST/conversion_maillage_data_gmsh.cpp'
 # 'validation/validation_elements.cpp',
-  'test_structure.cpp',
+#  'test_structure.cpp',
 #  'treillis.cpp',
 ]
 autres+=libs
@@ -190,5 +190,6 @@ autres+=libs
 
 env2=env
 env2["CPPFLAGS"]+=' -DTYPEREEL=double'
-prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
-Default(prg)
+#prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
+#prg = env2.Program('compil_init',(pb_libs))
+#Default(prg)
