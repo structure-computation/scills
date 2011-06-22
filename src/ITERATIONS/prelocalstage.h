@@ -49,9 +49,10 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
     double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
     string fcttemps;
     Ex res;
-/*    cout << i_step << " " << tpas << " " << ti << endl;*/
+/*    std::cout << i_step << " " << tpas << " " << ti << endl;*/
     for(unsigned j=0;j<CL.size();++j) {
         fcttemps = CL[j].fcts_temporelles[i_step];
+/*        std::cout << fcttemps << endl;*/
 //         for(unsigned i=0;i<CL[j].fcts_temporelles.size();++i) {
 //             if(ti>=CL[j].intervalles_temps[i][0] && ti<=CL[j].intervalles_temps[i][1]) {
 //                 fcttemps = CL[j].fcts_temporelles[i];

@@ -151,15 +151,15 @@ int main(int argc,char **argv) {
         S.resize(geometry_user.nb_group_elements);
         multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
 
-        
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Duree complete du programme : " ;
     if (process.rank==0) tic1.stop();
     if (process.rank==0) std::cout << std::endl;
 #endif
+
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-        desallocation_memoire_PARAM(process);
+        desallocation_memoire_PARAM(process);       
 
 	if (process.size > 1 ) MPI_Finalize();
 

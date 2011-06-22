@@ -359,7 +359,6 @@ struct Meshmulti {
         }
     }
     void load_f_vol_e() {///application du chargement à chaque noeud
-        std::cout << "fvole " << f_vol_e << endl;
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e);
     }
     //    
