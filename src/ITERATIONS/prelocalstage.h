@@ -151,9 +151,11 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
         temp=V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)];
          ////modif DAVID 02-09-2007
          V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)]=ProjT(temp,neq)+CL.ft[0]*data*neq;
+
          //V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)]=ProjT(temp,neq)+CL.ft*data*neq;
          //// fin modif
     }
+
 }
 
 

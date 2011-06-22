@@ -30,7 +30,7 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
             CL[i].comp = "depl";
             data_user.behaviour_bc[i].type = "depl";
         }
-        if (CL[i].comp=="sym") {
+        else if (CL[i].comp=="sym") {
 	    CL[i].fcts_spatiales.resize(process.temps->nb_step);
 	    CL[i].fcts_temporelles.resize(process.temps->nb_step);
 	    CL[i].intervalles_temps.resize(process.temps->nb_step);
@@ -45,7 +45,8 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
 //             CL[i].fcts_temporelles[0]="1";
 //             CL[i].intervalles_temps.resize(1);
 //             CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
-        }else{
+        }
+        else{
 //             std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
             //lecture des fcts temporelles definies pour un intervalle de temps donne
             if(process.temps->type_de_calcul=="stat") {
