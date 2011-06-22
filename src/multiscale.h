@@ -155,20 +155,34 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 
     /// sauvegarde du maillage pour la visualisation des resultats
     if (process.rank == 0) std::cout << "Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats" << std::endl;
-    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry_fields";
-
+    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/results/geometry_fields";
+    process.affichage->name_geometry = "/Level_0/Geometry";
+    process.affichage->name_fields = "/Level_0/Fields";
     
-    if (process.size == 1 or process.rank>0) write_hdf_geometry(SubS,process);
+    if (process.size == 1 or process.rank>0) {
+        write_hdf_geometry_SST(SubS,process);
+        write_hdf_geometry_INTER(SubI,process);
+    }
         
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     
     //ecriture du fichier de sortie xdmf
     if(process.rank==0){
         std::cout << "Sortie xdmf" << std::endl;
-        process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry.xdmf";
-        process.affichage->name_geometry = "/Level_0/Geometry";
-        process.affichage->name_fields = "/Level_0/Fields";
-        write_xdmf_geometry_fields(process.affichage->name_xdmf_geometry, process.affichage->name_hdf, process.affichage->name_geometry,process.affichage->name_fields,process,0);  
+        process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry.xdmf";
+//         process.affichage->name_geometry = "/Level_0/Geometry";
+//         process.affichage->name_fields = "/Level_0/Fields";
+        std::ofstream f(process.affichage->name_xdmf_geometry.c_str());
+        f << "<Xdmf Version=\"2.0\">" << std::endl;
+        f << "  <Domain>" << std::endl;
+        //ecriture du maillage de peau des sst
+        BasicVec<String> attributs("num_proc", "material", "num_group");
+        write_xdmf_geometry_fields(f, process,"elements_0_skin", "local_nodes_0", "piece" ,"Geometry_0_skin",0, attributs);
+        attributs=BasicVec<String>("number", "nature");
+        write_xdmf_geometry_fields(f, process,"elements_1", "local_nodes_1", "interface" ,"Geometry_1",0, attributs);
+        f<<"    </Domain>"<< std::endl;
+        f<<"</Xdmf>"<<std::endl;
+        f.close(); 
     }
         
     /// affichage du maillage si necessaire
@@ -268,11 +282,11 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 
 
         if(process.save_data==1) {
-          if (process.rank == 0) std::cout << "Sauvegarde des resultats dans les fichiers save_sst et save_inter" << std::endl;
-            Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
-            save_data_inter(Inter,SubS, process, fields_to_save);
-            Vec<string> fields_to_save2("q");
-            save_data_sst(SubS, process, fields_to_save2);
+//           if (process.rank == 0) std::cout << "Sauvegarde des resultats dans les fichiers save_sst et save_inter" << std::endl;
+//             Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
+//             save_data_inter(Inter,SubS, process, fields_to_save);
+//             Vec<string> fields_to_save2("q");
+//             save_data_sst(SubS, process, fields_to_save2);
         }
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
@@ -300,8 +314,16 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     
     //sortie xdmf à partir du fichier hdf5 créé au fur et à mesure du calcul
     if(process.rank==0){
-        process.affichage->name_xdmf_fields << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/geometry_fields.xdmf";
-        write_xdmf_geometry_fields(process.affichage->name_xdmf_fields, process.affichage->name_hdf, process.affichage->name_geometry,process.affichage->name_fields, process,1);    
+        process.affichage->name_xdmf_fields << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry_fields.xdmf";
+        BasicVec<String> attributs("displacements","sigma","epsilon","num_proc", "sigma_von_mises");
+        std::ofstream f(process.affichage->name_xdmf_fields.c_str());
+        f << "<Xdmf Version=\"2.0\">" << std::endl;
+        f << "  <Domain>" << std::endl;
+        //ecriture du maillage de peau des sst
+        write_xdmf_geometry_fields(f,process, "elements_0_skin", "local_nodes_0", "piece" ,"Geometry_0_skin",1, attributs);
+        f<<"    </Domain>"<< std::endl;
+        f<<"</Xdmf>"<<std::endl;
+        f.close();
     }  
 //     if(process.save_data==1) {
 //         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;

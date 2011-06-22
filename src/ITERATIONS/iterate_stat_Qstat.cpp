@@ -174,7 +174,9 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         assign_quantities_current_to_old(SubS,SubI,process);
         
         if(process.save_data==1) 
-            if (process.size == 1 or process.rank>0) write_hdf_fields(SubS, process );
+            if (process.size == 1 or process.rank>0) {
+                write_hdf_fields_SST(SubS, process );
+            }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
         //modification_sst_inter_behaviour(S,Inter,param_incr);

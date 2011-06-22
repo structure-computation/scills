@@ -3,6 +3,7 @@
 ###########################################
 #forces volumiques : non utilisees pour l'instant
 f_vol = Variable( interpolation='global', nb_dim=[dim], default_value='0.0,'*(dim-1)+'0.0', unit='N/m^3' )
+f_vol_e = Variable( interpolation='elementary', nb_dim=[dim], default_value='0.0,'*(dim-1)+'0.0', unit='N/m^3' )
 density = Variable( interpolation='global', default_value='1', unit='kg/m^3' )
 #modules d'young, coefficients de poisson et modules de cisaillement
 elastic_modulus_1 = Variable( interpolation='global', default_value='157e3', unit='N/mm^2')
@@ -38,7 +39,7 @@ epsilon = Variable( interpolation='der_nodal', default_value='0', nb_dim=[dim*(d
 ener = Variable( interpolation='elementary', default_value='0', unit='N*mm' )
 sigma_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 epsilon_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
-sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=1, unit='N/mm^2' )
+sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0',  unit='N/mm^2' )
 sigma_local_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 sigma_von_mises = Variable( interpolation='elementary', default_value='0',unit='N/mm^2' )
 
@@ -77,6 +78,9 @@ def formulation():
   res=0
   for i in range(dim): res += sigma[i] * epstest[i]
   for i in range(dim,epsilon.size()): res += 2 * sigma[i] * epstest[i]
+  res-=dot( f_vol_e.expr , dep.test )
+  
+  #res -= dot( f_vol.expr , dep.test )
 
   return res * dV
 
@@ -111,7 +115,7 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   ener = e.integration( ener, 2 )/2.
   
   sigmalocal = mul(P,sigma) 
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  epsilon_3d, sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
   sigma_von_mises=von_mises( sigma_3d )
   
   #TODO dans le cas ou l'on a plusieurs points de gauss.......

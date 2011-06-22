@@ -49,9 +49,10 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
     double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
     string fcttemps;
     Ex res;
-/*    cout << i_step << " " << tpas << " " << ti << endl;*/
+/*    std::cout << i_step << " " << tpas << " " << ti << endl;*/
     for(unsigned j=0;j<CL.size();++j) {
         fcttemps = CL[j].fcts_temporelles[i_step];
+/*        std::cout << fcttemps << endl;*/
 //         for(unsigned i=0;i<CL[j].fcts_temporelles.size();++i) {
 //             if(ti>=CL[j].intervalles_temps[i][0] && ti<=CL[j].intervalles_temps[i][1]) {
 //                 fcttemps = CL[j].fcts_temporelles[i];
@@ -150,9 +151,11 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
         temp=V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)];
          ////modif DAVID 02-09-2007
          V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)]=ProjT(temp,neq)+CL.ft[0]*data*neq;
+
          //V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)]=ProjT(temp,neq)+CL.ft*data*neq;
          //// fin modif
     }
+
 }
 
 
