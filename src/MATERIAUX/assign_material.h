@@ -32,7 +32,7 @@ if (S.mesh.type_formulation=="isotrope") {
 	 S.mesh->resolution     = S.mesh.resolution      ; 
 	 S.mesh->alpha          = S.mesh.alpha           ; 
 	 S.mesh->f_vol          = S.mesh.f_vol           ; 
-         S.mesh->density        = S.mesh.density           ;
+         S.mesh->density        = S.mesh.density         ;
          S.mesh.load_f_vol_e();
 }
 
