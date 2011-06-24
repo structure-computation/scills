@@ -18,10 +18,10 @@ OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
 
 
 # all: compact_GEOMETRY 
-# all: metil_comp_create_cpu rsync
+all: metil_comp_create_cpu rsync
 
 # all: metil_comp_compute_cpu rsync
-all: metil_comp_multi rsync
+# all: metil_comp_multi rsync
 # all: local
 
 # all: compact_FIELD_STRUCTURE 
@@ -52,7 +52,7 @@ local:
 
 rsync : 
 # 	rsync -r --exclude '.git' --exclude 'EXEMPLES'  --exclude 'LMT'  --exclude 'UTIL*'  --exclude 'src/COMPUTE'  --exclude 'src/GEOMETRY'  --exclude 'src/SC_create_2.cpp'  --exclude 'src/UTILS'. /home/scproduction/Developpement/SC_code
-	rsync SC_multi_*.exe /home/scproduction/Developpement/SC_multi
+	rsync SC_multi_*.exe SC_create_* /home/scproduction/Developpement/SC_multi
 
 
 
