@@ -113,6 +113,12 @@ struct Interface
       };
       Vec<Time> t; ///< Vecteurs piquet de temps
       Vec<Time> t_post; ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
+      
+        BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+        BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
+        BasicVec<int> number; ///< numéro de l'interface
+        BasicVec< BasicVec<T>, dim_ > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
+      
    };
    Vec<Side> side; ///< cotes de l'interface
 

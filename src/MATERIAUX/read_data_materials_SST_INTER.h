@@ -59,9 +59,9 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         matprop[i].type = data_user.behaviour_materials[i].type;
         matprop[i].comp = data_user.behaviour_materials[i].comp;
         if(data_user.dim == 2){
-            if (data_user.behaviour_materials[i].resolution =="contrainte_plane")
+            if (data_user.behaviour_materials[i].resolution =="CP")
                 matprop[i].resolution=1;
-            else if (data_user.behaviour_materials[i].resolution =="deformation_plane")
+            else if (data_user.behaviour_materials[i].resolution =="DP")
                 matprop[i].resolution=0;
             else {
                 std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;

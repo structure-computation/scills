@@ -104,15 +104,22 @@ template<unsigned dim_, class TT_> struct Sst
   static const   int nb_nodes_by_element=3; 
 #endif  
   BasicVec<BasicVec<T>,dim_> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
-  BasicVec<BasicVec<T>,dim_ > dep_nodes; ///< deplacements aux noeuds
-  BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec<T>,dim_ > dep_nodes_skin; ///< deplacements aux noeuds de peau d'une sst
+  BasicVec<BasicVec<T>,dim_ > dep_nodes; ///< deplacements aux noeuds de peau d'une sst
+  BasicVec<BasicVec<int> > mesh_connectivities_skin; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma_skin; ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon_skin; ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< T > sigma_mises_skin; ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
   BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma; ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
   BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon; ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
   BasicVec< T > sigma_mises; ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
   BasicVec< int > num_processor; ///< vecteur numéro du processeur d'une sst pour la sortie hdf 
   BasicVec< int > num_group; ///< vecteur numéro des sst pour la sortie hdf 
   BasicVec< int > material; ///< vecteur numéro des materiaux des sst pour la sortie hdf 
-  
+  Vec<int,4> nb_elements_with_type; ///< utilisé pour connaitre le nombre d'elements d'un type donné pour une SST : Triangle, Quadrilateral, Tetrahedron, Hexahedron
+  int nb_nodes_by_element_sst, nb_nodes_by_element_sst_skin, pattern_id;
+  String type_elements_sst, type_elements_sst_skin;
   
   Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
   
