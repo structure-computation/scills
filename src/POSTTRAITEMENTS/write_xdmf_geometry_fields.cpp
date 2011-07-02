@@ -139,6 +139,9 @@ void write_xdmf_file_compute(Param &process, DataUser &data_user){
         //ecriture des donnees de calcul au maillage de peau des sst
         attributs=BasicVec<String>("sigma_skin","epsilon_skin","sigma_von_mises_skin");
         write_xdmf_geometry_fields(f,process, "elements_0_skin", "local_nodes", "piece_peau" ,"Geometry_0_skin",1, attributs);
+        //ecriture des donnees de calcul au maillage des interfaces
+        attributs=BasicVec<String>("number", "nature","F","W", "Fchap", "Wchap");
+        write_xdmf_geometry_fields(f, process,"elements_1", "local_nodes", "interface" ,"Geometry_1",1, attributs);
 
         f<<"    </Domain>"<< std::endl;
         f<<"</Xdmf>"<<std::endl;

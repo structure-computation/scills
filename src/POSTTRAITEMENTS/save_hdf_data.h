@@ -238,11 +238,9 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Param &process, int
     for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
             unsigned data=S.edge[j].datanum;
-            std::cout << q << " " << data <<  std::endl;
             if(data==0){
                 //sauvegarde des connectivites en ajoutant un offset du nombre de noeuds des SST precedentes
-            //TODO ALAIN : verifier pourquoi on ne peut pas resizer ce champ sur un SubI
-               Inter[q].mesh_connectivities.resize(S.nb_nodes_by_element_sst_skin);
+                Inter[q].mesh_connectivities.resize(S.nb_nodes_by_element_sst_skin);
                 for(int ne=0;ne<S.nb_nodes_by_element_sst_skin;ne++)
                     Inter[q].mesh_connectivities[ne].resize(Inter[q].side[data].mesh->elem_list.size());
                 //sauvegarde du type d'interface et du numero
@@ -439,8 +437,8 @@ struct Extract_fields_on_element_sst{
 };
 
 
-template<class TSST>
-void create_hdf_fields_data_SST(TSST &S, Param &process ) {
+template<class TSST, class TINTER>
+void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Param &process ) {
     //sauvegarde des deplacements des noeuds dans la SST
     int nb_nodes=S.mesh->node_list.size();
     for(int d=0;d<DIM;d++){
@@ -475,6 +473,38 @@ void create_hdf_fields_data_SST(TSST &S, Param &process ) {
     apply(S.mesh->elem_list,Extract_fields_on_element_sst(), S);
     //extraction sur la peau
     apply(S.mesh->skin.elem_list,Extract_fields_on_element_sst_skin(), S);
+    
+    for(unsigned j=0;j<S.edge.size();++j) {
+        unsigned q=S.edge[j].internum;
+        unsigned data=S.edge[j].datanum;
+        if(data==0){
+ /*       Vec<unsigned> &list1=(Inter[q].side[data].ddlcorresp);
+    Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
+    Vec<T> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
+    Vec<T> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
+    Vec<T> Fchap1=Inter.side[0].t[imic].Fchap[list1];
+    Vec<T> Fchap2=Inter.side[1].t[imic].Fchap[list2];
+    const Vec<T> &Q1=Inter.side[0].t[imic].F[list1];
+    const Vec<T> &Q2=Inter.side[1].t[imic].F[list2];
+    const Vec<T> &WW1=Inter.side[0].t[imic].Wp[list1];
+    const Vec<T> &WW2=Inter.side[1].t[imic].Wp[list2];*/
+            int nbnodeseq=Inter[q].side[data].t[1].F.size()/DIM;
+            for(int d=0;d<DIM;d++){
+                Inter[q].F[d].resize(nbnodeseq);
+                Inter[q].W[d].resize(nbnodeseq);
+                Inter[q].Fchap[d].resize(nbnodeseq);
+                Inter[q].Wchap[d].resize(nbnodeseq);
+                for(int ne=0;ne<nbnodeseq;ne++){
+                    Inter[q].F[d][ne]=Inter[q].side[data].t[1].F[ne*DIM+d];
+                    Inter[q].W[d][ne]=Inter[q].side[data].t[1].W[ne*DIM+d];
+                    Inter[q].Fchap[d][ne]=Inter[q].side[data].t[1].Fchap[ne*DIM+d];
+                    Inter[q].Wchap[d][ne]=Inter[q].side[data].t[1].Wchap[ne*DIM+d];
+                }
+            }       
+        }
+    }
+    
+    
 }
 
 
@@ -503,8 +533,8 @@ void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , String name_group_f
 }
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
-template<class TSST>
-void save_fields_hdf_SST_INTER(TSST &S, Param &process, Hdf &hdf , String name_group_fields) {
+template<class TSST, class TINTER>
+void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Param &process, Hdf &hdf , String name_group_fields) {
     String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
 #if DIM==2
     BasicVec<String> tensor_comp= BasicVec<String>("/xx","/yy","/xy");
@@ -540,6 +570,30 @@ void save_fields_hdf_SST_INTER(TSST &S, Param &process, Hdf &hdf , String name_g
     String name_sigma_mises_skin;
     name_sigma_mises_skin <<name_fields<<"/sigma_von_mises_skin/list_" << S.num ;
     S.sigma_mises_skin.write_to(hdf,name_sigma_mises_skin.c_str());
+    
+    //sauvegarde des champs sur les interfaces
+    BasicVec<String> name_direction("x","y","z");
+    BasicVec<String> list_name_field("F","W","Fchap","Wchap");
+    for(unsigned j=0;j<S.edge.size();++j) {
+            unsigned q=S.edge[j].internum;
+            unsigned data=S.edge[j].datanum;
+            String name_F; name_F<< name_fields << "/F/list_" << q ;
+            String name_W; name_W<< name_fields << "/W/list_" << q ;
+            String name_Fchap; name_Fchap<< name_fields << "/Fchap/list_" << q ;
+            String name_Wchap; name_Wchap<< name_fields << "/Wchap/list_" << q ;
+            if(data==0){
+                for (unsigned d=0;d<DIM;d++) {
+                    String name_Fdim=name_F+"/"+name_direction[d]; 
+                    I[q].F[d].write_to(hdf,name_Fdim);
+                    String name_Wdim=name_W+"/"+name_direction[d]; 
+                    I[q].W[d].write_to(hdf,name_Wdim);
+                    String name_Fchapdim=name_Fchap+"/"+name_direction[d]; 
+                    I[q].Fchap[d].write_to(hdf,name_Fchapdim);
+                    String name_Wchapdim=name_Wchap+"/"+name_direction[d]; 
+                    I[q].Wchap[d].write_to(hdf,name_Wchapdim);
+                }
+            }
+    }
    
 }
 
@@ -705,7 +759,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
     //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
         calcul_fields_on_sst(SubS[i],process);
-        create_hdf_fields_data_SST(SubS[i],process);
+        create_hdf_fields_data_SST(SubS[i],SubI, process);
     }
     
     //concatenation des noeuds et ecriture dans le hdf
@@ -723,7 +777,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
 
     //ecriture des champs par elements dans le hdf
     for(unsigned i=0;i<SubS.size();i++) {
-        save_fields_hdf_SST_INTER(SubS[i],process, hdf_file , process.affichage->name_fields);
+        save_fields_hdf_SST_INTER(SubS[i] , SubI, process, hdf_file , process.affichage->name_fields);
     }
     String name_fields ;
     name_fields<< process.affichage->name_fields <<"/pt_"<< process.temps->pt_cur ;
