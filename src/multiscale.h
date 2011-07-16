@@ -186,7 +186,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     }
         
     /// affichage du maillage si necessaire
-    //affichage_maillage(SubS,SubI,S,process);
+    affichage_maillage(SubS,SubI,S,process);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Affichage maillage : " ;

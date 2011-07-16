@@ -21,7 +21,7 @@ OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
 # all: metil_comp_create_cpu rsync
 
 # all: metil_comp_compute_cpu rsync
-all: metil_comp_multi rsync
+all: metil_comp_multi
 # all: local
 
 # all: compact_FIELD_STRUCTURE 

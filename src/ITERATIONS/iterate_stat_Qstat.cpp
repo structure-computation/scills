@@ -152,7 +152,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
         if (process.size == 1 or process.rank>0)
             assign_CL_values_space_time_incr(SubI, CL, process);
-
+        
         for(int ic=0;ic<CL.size();ic++){
             if (process.rank == 0) std::cout << "ft " << CL[ic].ft << std::endl;
 /*            std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
@@ -168,9 +168,11 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
             std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
         // A mettre ici dans le cas d'un comportement dependant du temps pour les sst
         //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
-
+            
+        std::cout << "          iterate_incr : " << endl;
         iterate_incr(process,SubS,Inter,SubI,Global);
         //assignation ptcur au ptold
+        std::cout << "          assign_quantities_current_to_old : " << endl;
         assign_quantities_current_to_old(SubS,SubI,process);
         
         if(process.save_data==1) 

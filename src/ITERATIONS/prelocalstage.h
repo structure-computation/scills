@@ -221,8 +221,11 @@ Sinon une erreur est envoyée.
 template<class TV2,class TV5>
 void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
     for(unsigned q=0;q<Inter.size();++q) {
+        std::cout << "Inter[q].id = " << Inter[q].id << std::endl;
+        std::cout << "Inter[q].comp = " << Inter[q].comp << std::endl;
         if (Inter[q].type=="Ext" and Inter[q].comp != "periodique") {
             calc_CL_time(process,CL);
+            std::cout << "calc_CL_time ok " << std::endl;
             if (Inter[q].comp=="effort") {
                 assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
             } else if (Inter[q].comp=="effort_normal") {
