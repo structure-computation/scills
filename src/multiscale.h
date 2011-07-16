@@ -301,10 +301,15 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
       }
     }
     
+    // affichage sous paraview du resultat format vtus
+    affichage_resultats(SubS,process);
+    affichage_resultats_inter(SubI, S ,process); 
+    
     //sortie xdmf à partir du fichier hdf5 créé au fur et à mesure du calcul
     if(process.rank==0){
         write_xdmf_file_compute(process, data_user);     
     }  
+    
 //     if(process.save_data==1) {
 //         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
 //             process.temps->pt_cur=0;
@@ -326,12 +331,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //             //save_data_inter(Inter,SubS, process, fields_to_save);
 //             //Vec<string> fields_to_save2("q");
 //             //save_data_sst(SubS, process, fields_to_save2);
-//     }
-
-    // affichage sous paraview du resultat
-    affichage_resultats(SubS,process);
-    affichage_resultats_inter(SubI, S ,process); 
-    //affichage_resultats_inter(Inter, SubS , process);
+//     } 
 
 }
 
