@@ -186,9 +186,9 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         if (process.rank == 0)
             std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
     }
-    calcul_erreur_latin(SubS, Inter, process, Global);
-    if (process.rank == 0)
-        std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+//     calcul_erreur_latin(SubS, Inter, process, Global);
+//     if (process.rank == 0)
+//         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
 
 };
 // #endif
