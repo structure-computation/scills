@@ -303,8 +303,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     
     //sortie xdmf à partir du fichier hdf5 créé au fur et à mesure du calcul
     if(process.rank==0){
-        write_xdmf_file_compute(process, data_user);   
-        
+        write_xdmf_file_compute(process, data_user);     
     }  
 //     if(process.save_data==1) {
 //         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
@@ -330,8 +329,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //     }
 
     // affichage sous paraview du resultat
-    //affichage_resultats(SubS,process);
-    //affichage_resultats_inter(SubI, S ,process); 
+    affichage_resultats(SubS,process);
+    affichage_resultats_inter(SubI, S ,process); 
     //affichage_resultats_inter(Inter, SubS , process);
 
 }
