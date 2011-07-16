@@ -59,9 +59,9 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         matprop[i].type = data_user.behaviour_materials[i].type;
         matprop[i].comp = data_user.behaviour_materials[i].comp;
         if(data_user.dim == 2){
-            if (data_user.behaviour_materials[i].resolution =="contrainte_plane")
+            if (data_user.behaviour_materials[i].resolution =="CP")
                 matprop[i].resolution=1;
-            else if (data_user.behaviour_materials[i].resolution =="deformation_plane")
+            else if (data_user.behaviour_materials[i].resolution =="DP")
                 matprop[i].resolution=0;
             else {
                 std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;
@@ -133,26 +133,27 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
                 var_temp[symbols[d2]]= 0.;
             }
             mat_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var);
-            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;
+/*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }
-        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;
+/*        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;*/
         matprop[i].density = mat_prop_temp[3];
         
-        if(matprop[i].type_num == 0) {                 // comportement isotrope elastique
+        std::cout << (matprop[i].type) <<endl;
+        if(matprop[i].type.find("isotrope")<matprop[i].type.size()) {                 // comportement isotrope elastique
 //            PRINT("comportement isotrope elastique");
             matprop[i].coef.push_back(mat_prop_temp[0]);   // E
             matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
             matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
-        } else if (matprop[i].type_num == 1) {          // comportement isotrope elastique visqueux
+        } else if (matprop[i].comp.find("visqueux")<matprop[i].comp.size() and matprop[i].type.find("isotrope")<matprop[i].type.size()) {          // comportement isotrope elastique visqueux
 //             PRINT("comportement isotrope visqueux");
             matprop[i].coef.push_back(mat_prop_temp[0]);   // E
             matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
             matprop[i].coef.push_back(mat_prop_temp[4]);   // viscosite
             matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
-        } else if (matprop[i].type_num == 2) {          // orthotrope
-//             PRINT("comportement orthotrope");
+        } else if (matprop[i].type.find("orthotrope")<matprop[i].type.size()) {          // orthotrope
+            PRINT("comportement orthotrope");
             matprop[i].coef.push_back(mat_prop_temp[14]);   // E1
             matprop[i].coef.push_back(mat_prop_temp[15]);   // E2
             matprop[i].coef.push_back(mat_prop_temp[16]);   // E3
@@ -167,7 +168,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
 
             for(int d=0; d<data_user.dim; d++){
                 matprop[i].direction[0][d]=mat_prop_temp[d+5];
-                matprop[i].direction[0][d]=mat_prop_temp[d+8];
+                matprop[i].direction[1][d]=mat_prop_temp[d+8];
             }
             
             std::cout << "assignation_materials_sst.h " << matprop[i].direction[0] << " v1 et v2 " << matprop[i].direction[1] << std::endl;
@@ -182,7 +183,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
             matprop[i].coefth[0]=mat_prop_temp[25];         //alpha_3
             matprop[i].coefth[3]=0;
             
-            if (!matprop[i].comp.compare("endommageable")) {
+            if (matprop[i].comp.find("endommageable")<matprop[i].comp.size()) {
                 PRINT("comportement orthotrope endommageable");
                 //parametres d'endommagement
                 matprop[i].param_damage.Yo = mat_prop_temp[26];

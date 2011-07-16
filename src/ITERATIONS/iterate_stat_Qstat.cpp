@@ -20,7 +20,6 @@
 
 // fonction utilisees pour la phase d'initialisation ou affectation des valeurs des CL puis phase iterative
 #include "allocate.h"
-#include "save_read_data.h"
 #include "iterate.h"
 #include "prelocalstage.h"
 #include "assign_quantities_current_to_old.h"
@@ -30,6 +29,8 @@
 
 //fonctions pour les envoies des donn�es par mpi
 #include "crout.h"
+#include "save_read_data.h"
+#include "save_hdf_data.h"
 
 
 using namespace LMT;
@@ -177,7 +178,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST(SubS, process );
+                write_hdf_fields_SST_INTER(SubS, SubI, process );
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)

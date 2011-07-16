@@ -30,7 +30,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Param &process, String name_el
         hdf.read_size(data_node_x,nb_nodes);
     
         //ecriture des dataitems noeuds
-        write_nodes_datasets(f,input_hdf5, name_nodes,nb_nodes,i_proc);
+        //write_nodes_datasets(f,input_hdf5, name_nodes,nb_nodes,i_proc);
     
         //ecriture des dataitems list d'elements connectivites
         write_groups_datasets_2(f,input_hdf5, name_elements);
@@ -77,4 +77,73 @@ void write_xdmf_geometry_fields(std::ofstream &f, Param &process, String name_el
         }    
         f<<"                </Grid>"<< std::endl;
     }           
+}
+
+void write_nodes(std::ofstream &f, Param &process, String name_node){
+    String name_hdf5=process.affichage->name_hdf;
+    String name_nodes = process.affichage->name_geometry + "/" + name_node;
+    
+    int i_proc_ini=1;
+    if(process.size==1) i_proc_ini=0;        
+    std::cout << process.size << endl;
+    
+    //lecture du fichier hdf5 créé par chaque processeur
+    for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
+        String input_hdf5; input_hdf5 << name_hdf5 <<"_"<<i_proc<<".h5";
+        Hdf hdf(input_hdf5.c_str());    
+
+        int nb_nodes;
+        String data_node_x = name_nodes + "/x";
+        hdf.read_size(data_node_x,nb_nodes);
+    
+        //ecriture des dataitems noeuds
+        write_nodes_datasets(f,input_hdf5, name_nodes,nb_nodes,i_proc);
+    }
+}
+
+void write_xdmf_file_geometry(Param &process, DataUser &data_user){
+        process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry.xdmf";
+//         process.affichage->name_geometry = "/Level_0/Geometry";
+//         process.affichage->name_fields = "/Level_0/Fields";
+        std::ofstream f(process.affichage->name_xdmf_geometry.c_str());
+        f << "<Xdmf Version=\"2.0\">" << std::endl;
+        f << "  <Domain>" << std::endl;
+        
+        //ecriture des noeuds (les mêmes pour tous les maillages)
+        write_nodes(f, process, "local_nodes");
+        
+        //ecriture du maillage des sst
+        BasicVec<String> attributs("none");
+        write_xdmf_geometry_fields(f, process,"elements_0", "local_nodes", "piece_volume" ,"Geometry_0",0, attributs);
+        //ecriture du maillage de peau des sst
+        attributs=BasicVec<String>("num_proc", "material", "num_group");
+        write_xdmf_geometry_fields(f, process,"elements_0_skin", "local_nodes", "piece_peau" ,"Geometry_0_skin",0, attributs);
+        //ecriture du maillage des interfaces
+        attributs=BasicVec<String>("number", "nature");
+        write_xdmf_geometry_fields(f, process,"elements_1", "local_nodes", "interface" ,"Geometry_1",0, attributs);
+        f<<"    </Domain>"<< std::endl;
+        f<<"</Xdmf>"<<std::endl;
+        f.close();     
+}
+
+void write_xdmf_file_compute(Param &process, DataUser &data_user){
+        process.affichage->name_xdmf_fields << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry_fields.xdmf";
+        std::ofstream f(process.affichage->name_xdmf_fields.c_str());
+        f << "<Xdmf Version=\"2.0\">" << std::endl;
+        f << "  <Domain>" << std::endl;
+        //ecriture des noeuds (les mêmes pour tous les maillages)
+        write_nodes(f, process, "local_nodes");
+        //ecriture des donnees de calcul au maillage des sst
+        BasicVec<String> attributs("displacements","sigma","epsilon","sigma_von_mises");
+        write_xdmf_geometry_fields(f,process, "elements_0", "local_nodes", "piece_volume" ,"Geometry_0",1, attributs);
+        //ecriture des donnees de calcul au maillage de peau des sst
+        attributs=BasicVec<String>("sigma_skin","epsilon_skin","sigma_von_mises_skin");
+        write_xdmf_geometry_fields(f,process, "elements_0_skin", "local_nodes", "piece_peau" ,"Geometry_0_skin",1, attributs);
+        //ecriture des donnees de calcul au maillage des interfaces
+        attributs=BasicVec<String>("number", "nature","F","W", "Fchap", "Wchap");
+        write_xdmf_geometry_fields(f, process,"elements_1", "local_nodes", "interface" ,"Geometry_1",1, attributs);
+
+        f<<"    </Domain>"<< std::endl;
+        f<<"</Xdmf>"<<std::endl;
+        f.close();     
 }

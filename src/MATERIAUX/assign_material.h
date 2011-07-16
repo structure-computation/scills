@@ -42,6 +42,9 @@ if (matprop[S.typmat].type=="orthotrope") {
 	 S.mesh.density=matprop[S.typmat].density; 
 	 S.mesh.f_vol_e=matprop[S.typmat].f_vol_e;  
 	 S.mesh.type_formulation="orthotrope"; 
+         
+/*         std::cout << S.mesh.elastic_modulus_1 << " " << S.mesh.elastic_modulus_2 << " "<< S.mesh.elastic_modulus_3 << " "<< S.mesh.poisson_ratio_12 << " "<< S.mesh.poisson_ratio_13 << " "<< S.mesh.poisson_ratio_23 << " "
+        << S.mesh.shear_modulus_12 << " " << S.mesh.shear_modulus_13 << " " << S.mesh.shear_modulus_23 << " " <<  S.mesh.v1 << " " << S.mesh.v2 << endl;                                                                                                                                                                                                              */
 }
 }
 

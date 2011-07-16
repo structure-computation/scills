@@ -6,7 +6,7 @@ DIR_SOURCES_GEOMETRY = -Isrc -Isrc/GEOMETRY -Isrc/COMPUTE -Isrc/UTILS -Isrc/UTIL
 #DIR_SOURCES_COMPUTE = -Isrc -Isrc/GEOMETRY -Isrc/COMPUTE -Isrc/UTILS -Isrc/UTILS/hdf -Isrc/UTILS/xdmf  -Isrc/UTILS/json_spirit 
 
 PRG_multi = SC_multi_$(DIM).exe
-PRG_create = SC_create_cpu_$(DIM).exe
+PRG_create = SC_create_2_cpu_$(DIM).exe
 DIR_build_cpu = --comp-dir build/SC_$(DIM)
 
 LOC_MC = metil_comp 
@@ -52,7 +52,7 @@ local:
 
 rsync : 
 # 	rsync -r --exclude '.git' --exclude 'EXEMPLES'  --exclude 'LMT'  --exclude 'UTIL*'  --exclude 'src/COMPUTE'  --exclude 'src/GEOMETRY'  --exclude 'src/SC_create_2.cpp'  --exclude 'src/UTILS'. /home/scproduction/Developpement/SC_code
-	rsync SC_multi_*.exe /home/scproduction/Developpement/SC_multi
+	rsync SC_multi_*.exe SC_create_* /home/scproduction/Developpement/SC_multi
 
 
 
