@@ -169,9 +169,11 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
             std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
         // A mettre ici dans le cas d'un comportement dependant du temps pour les sst
         //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
-
+            
+        std::cout << "          iterate_incr : " << endl;
         iterate_incr(process,SubS,Inter,SubI,Global);
         //assignation ptcur au ptold
+        std::cout << "          assign_quantities_current_to_old : " << endl;
         assign_quantities_current_to_old(SubS,SubI,process);
         
         if(process.save_data==1) 
@@ -184,9 +186,9 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         if (process.rank == 0)
             std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
     }
-    calcul_erreur_latin(SubS, Inter, process, Global);
-    if (process.rank == 0)
-        std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+//     calcul_erreur_latin(SubS, Inter, process, Global);
+//     if (process.rank == 0)
+//         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
 
 };
 // #endif

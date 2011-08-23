@@ -19,7 +19,7 @@ debug = 1-opt
 timdavis=0 #pour utiliser un solveur different : pas encore bien teste
 
 #Repertoires contenant les .cpp et .h
-mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI  '
+mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI GEOMETRY  COMPUTE '
 mes_repertoires = map( lambda x: 'src/'+x, split(mes_repertoires))
 
 list_repertoires = ['LMT/include', 'build']+mes_repertoires + ['LMT/formulations']

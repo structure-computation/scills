@@ -274,6 +274,8 @@ Sinon une erreur est envoyée.
 template<class TV2,class TV5>
 void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process, DataUser &data_user ) {
     for(unsigned q=0;q<Inter.size();++q) {
+        std::cout << "Inter[q].id = " << Inter[q].id << std::endl;
+        std::cout << "Inter[q].comp = " << Inter[q].comp << std::endl;
         if (Inter[q].type=="Ext" and Inter[q].comp != "periodique") {
             calc_CL_time(process,CL,data_user);
             if (Inter[q].comp=="effort") {

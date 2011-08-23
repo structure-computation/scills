@@ -294,7 +294,9 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 
     /// sauvegarde du maillage pour la visualisation des resultats
     if (process.rank == 0) std::cout << "Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats" << std::endl;
-    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/results/geometry_fields";
+    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/results/";   
+    system(("mkdir -p "+process.affichage->name_hdf).c_str());//Il faut créer le répertoire results
+    process.affichage->name_hdf << "geometry_fields";   
     process.affichage->name_geometry = "/Level_0/Geometry";
     process.affichage->name_fields = "/Level_0/Fields";
     
@@ -366,6 +368,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     memory_free(S,Inter,process);
    
     
+
 //     if(process.save_data==1) {
 //         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
 //             process.temps->pt_cur=0;
