@@ -38,9 +38,9 @@ S.f->call_after_solve();
 };
 
 
-template<class SST> void assign_dep_cont_slave(SST &S,Vec<typename SST::T> &q){
+template<class SST> void assign_dep_cont_slave(SST &S,Vec<typename SST::T> &q, DataUser &data_user){
    S.mesh.load();
-   assign_material_on_element(S);
+   assign_material_on_element(S,data_user);
    S.f->set_mesh(S.mesh.m);
    S.f->get_result()=q;
    S.f->update_variables();

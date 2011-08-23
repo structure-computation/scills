@@ -38,7 +38,7 @@ using namespace std;
 void fake_affichage() {
 //     XmlNode n;
     Param process;
-
+    DataUser data_user;
 //     Vec<Splitted<Sst<DIM,TYPEREEL> ,16> > S3;
     Vec<Sst<DIM,TYPEREEL> > S3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SP3;
@@ -46,12 +46,12 @@ void fake_affichage() {
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > InterP3;
     
     affichage_maillage(SP3, InterP3,S3, process);
-    affichage_resultats(SP3, process);
+    affichage_resultats(SP3, process, data_user);
     affichage_depl_pt(SP3, process);
     affichage_var_inter(SP3,Inter3, process);
     affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process);
-    affichage_energie(SP3,Inter3, process);
+    affichage_energie(SP3,Inter3, process, data_user);
 
 }
 
@@ -128,10 +128,10 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 template <class TV3> 
-void affichage_resultats(TV3 &S,  Param &process) {
+void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
     if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) 
-        affich_SST_resultat_latin(S,process);
+        affich_SST_resultat_latin(S,process, data_user);
 };
 
 
@@ -180,7 +180,7 @@ Selon les parametres du champ AFFICHAGE::param_ener, on sélectionne le type d'én
 Faux en MPI pour certaine fonction qui necessite d avoir les W des deux cotes et ils sont pas transferes pour le posttraitement : est-ce utile de le faire ? non pour le moment
 */
 template <class TV3,class TV2> 
-void affichage_energie(TV3 &S,TV2 &Inter, Param &process){
+void affichage_energie(TV3 &S,TV2 &Inter, Param &process, DataUser &data_user){
     Vec<double> energie,temp;
     energie.resize(process.temps->nbpastemps + 1);temp.resize(process.temps->nbpastemps + 1);energie.set(0.);temp.set(0.);
     if(process.affichage->param_ener[0]==0 and process.affichage->param_ener[1]==0) {
@@ -232,7 +232,7 @@ void affichage_energie(TV3 &S,TV2 &Inter, Param &process){
       if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
       if (process.rank==0) std::cout << "Deplacement tanget (n) faux en mpi  : " << energie << endl;
     }  else if(process.affichage->param_ener[0]==6) {
-        if (process.rank>0 or process.size==1) calcul_energie_elastique(S,Inter,energie,process);
+        if (process.rank>0 or process.size==1) calcul_energie_elastique(S,Inter,energie,process, data_user);
         if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
         if (process.rank==0) std::cout << "Energie elastique : " << energie << endl;
     } else {

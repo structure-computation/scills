@@ -61,13 +61,12 @@ struct efface_mesh_edge{
 
 struct Calc_SST_rigidite_K0_k {
     template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter,Param &process) const {
-        
+    void operator()(SST &S, TV2 &Inter,Param &process, DataUser &data_user) const {
+        S.f->free_matrices();
         //reperage des ddl de bords (chargement du maillage + non effacement)
         Calc_SST_Correspddl(S,process);
-        
 //         S.mesh.load();
-        assign_material_on_element(S);
+        assign_material_on_element(S, data_user);
         S.f->set_mesh(S.mesh.m); 
         S.f->want_amd=false;
         S.f->allocate_matrices();
@@ -85,7 +84,7 @@ struct Calc_SST_rigidite_K0_k {
     disp_alloc((to_string(process.rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
 #endif
 
-//    ofstream f(("K_"+to_string(S.num)).c_str());
+//    ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
 //    f << K.nb_cols() << endl;
 //    for(unsigned i=0;i<K.data.size();++i) {
 //        for(unsigned j=0;j<K.data[i].indices.size();j++){
@@ -96,10 +95,9 @@ struct Calc_SST_rigidite_K0_k {
         // ajout des directions de recherche sur chaque cote
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
-            unsigned data=S.edge[j].datanum;
+            unsigned data=S.edge[j].datanum;            
             K[S.edge[j].repddledge] += Inter[q].side[data].Nt*(Inter[q].side[data].M*(Inter[q].side[data].kglo*Inter[q].side[data].N))/process.temps->dt; // a optimiser
         }
-        
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
 #endif
@@ -112,7 +110,13 @@ struct Calc_SST_rigidite_K0_k {
 //    }
 //    }
 
-
+//    ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
+//    f << K.nb_cols() << endl;
+//    for(unsigned i=0;i<K.data.size();++i) {
+//        for(unsigned j=0;j<K.data[i].indices.size();j++){
+//            f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//        }
+//    }
 #if LDL
         S.l.get_factorization( K, true, true );
 #else
@@ -124,6 +128,7 @@ struct Calc_SST_rigidite_K0_k {
     disp_alloc((to_string(process.rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
 #endif
      S.mesh.unload();
+     
     }
 };
 

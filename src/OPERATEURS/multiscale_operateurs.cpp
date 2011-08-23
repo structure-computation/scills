@@ -1,6 +1,7 @@
 //librairies Hugo
 #include "containers/mat.h"
 #include "containers/vecpointedvalues.h"
+#include "containers/allocator.h"
 
 #ifndef INFO_TIME
 #define INFO_TIME
@@ -23,6 +24,7 @@
 // #include "affichage.h"
 
 #include "mpi.h"
+
 
 
 using namespace LMT;
@@ -62,7 +64,7 @@ L'ordre d'utilisation des fonctions est le suivant :
 //  Procedure de creation des operateurs utilises dans la strategie multiechelle
 //***************************************************************************************************
 template <class TV1, class TV2, class TV3, class TV4>
-void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global) {
+void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global, DataUser &data_user) {
 
     TicToc2 tic;
     tic.start();
@@ -76,27 +78,29 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
     disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_INTER : ").c_str(),1);
 #endif
 
-    if (process.rank == 0)
-        std::cout << "Calcul des Quantites d'interfaces" << endl;
-    create_op_INTER(S,Inter,SubI,process);
-    crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
-    tic.stop();
-    if (process.size>1)
-        MPI_Barrier(MPI_COMM_WORLD);
-    tic.start();
-#ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
-#endif
-#ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Operateurs d interface : " ;
-    if (process.rank==0) tic1.stop();;
-    if (process.rank==0) tic1.start();
-#endif
+    if(data_user.options.Multiresolution_on==0 or (data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_current_resolution==0)){  
+        if (process.rank == 0)
+            std::cout << "Calcul des Quantites d'interfaces" << endl;
+            create_op_INTER(S,Inter,SubI,process);
+            crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
+        tic.stop();
+        if (process.size>1)
+            MPI_Barrier(MPI_COMM_WORLD);
+        tic.start();
+    #ifdef PRINT_ALLOC
+        disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
+    #endif
+    #ifdef INFO_TIME
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        if (process.rank==0) std::cout << "Operateurs d interface : " ;
+        if (process.rank==0) tic1.stop();;
+        if (process.rank==0) tic1.start();
+    #endif
+    }
 
     if (process.rank == 0)
         std::cout << "Calcul des Quantites par SST" << endl;
-    create_op_SST(S,Inter,SubS,SubI,process);
+    create_op_SST(S,Inter,SubS,SubI,process, data_user);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation OP SST : " ;
@@ -141,13 +145,14 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
 
 void fake_multiscale_operateurs() {
     Param process;
-
+    DataUser data_user;
+    
     Vec<Interface<DIM,TYPEREEL> > Inter3;
     Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3,S3;
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
     Glob<DIM,TYPEREEL> Global3;
 
-    multiscale_operateurs(S3, SubS3,Inter3, SubI3, process, Global3);
+    multiscale_operateurs(S3, SubS3,Inter3, SubI3, process, Global3, data_user);
 
 
 }

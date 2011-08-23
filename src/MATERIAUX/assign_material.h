@@ -5,7 +5,7 @@ using namespace LMT;
 using namespace std;
 
 //Attention fichier generer dans : generation_auto.py
-template<class SST, class SSTCARAC> void assign_material(SST &S, Vec<SSTCARAC> &matprop, Param &process){
+template<class SST, class SSTCARAC> void assign_material(SST &S, Vec<SSTCARAC> &matprop, Param &process, DataUser &data_user){
 //formulation isotrope 
 if (matprop[S.typmat].type=="isotrope") {
 	 S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat; 
@@ -42,13 +42,10 @@ if (matprop[S.typmat].type=="orthotrope") {
 	 S.mesh.density=matprop[S.typmat].density; 
 	 S.mesh.f_vol_e=matprop[S.typmat].f_vol_e;  
 	 S.mesh.type_formulation="orthotrope"; 
-         
-/*         std::cout << S.mesh.elastic_modulus_1 << " " << S.mesh.elastic_modulus_2 << " "<< S.mesh.elastic_modulus_3 << " "<< S.mesh.poisson_ratio_12 << " "<< S.mesh.poisson_ratio_13 << " "<< S.mesh.poisson_ratio_23 << " "
-        << S.mesh.shear_modulus_12 << " " << S.mesh.shear_modulus_13 << " " << S.mesh.shear_modulus_23 << " " <<  S.mesh.v1 << " " << S.mesh.v2 << endl;                                                                                                                                                                                                              */
 }
 }
 
-template<class T1> void assign_material_on_element(T1 &S){
+template<class T1> void assign_material_on_element(T1 &S, DataUser &data_user){
 //formulation isotrope 
 if (S.mesh.type_formulation=="isotrope") {
 	 S.mesh->elastic_modulus= S.mesh.elastic_modulus ; 
@@ -58,7 +55,7 @@ if (S.mesh.type_formulation=="isotrope") {
 	 S.mesh->alpha          = S.mesh.alpha           ; 
 	 S.mesh->f_vol          = S.mesh.f_vol           ; 
 	 S.mesh->density        = S.mesh.density           ; 
-	 S.mesh.load_f_vol_e();
+	 S.mesh.load_f_vol_e(data_user);
 }
 //formulation orthotrope 
 if (S.mesh.type_formulation=="orthotrope") {
@@ -80,7 +77,7 @@ if (S.mesh.type_formulation=="orthotrope") {
 	 S.mesh->alpha_3          =S.mesh.alpha_3          ;   
 	 S.mesh->f_vol            =S.mesh.f_vol            ;   
 	 S.mesh->density        = S.mesh.density           ; 
-	 S.mesh.load_f_vol_e();
+	 S.mesh.load_f_vol_e(data_user);
 }
 
 }

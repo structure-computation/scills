@@ -33,10 +33,10 @@ struct Projection_fields_on_skin_sst{
 
 
 template<class TSST>
-void calcul_fields_on_sst(TSST &S, Param &process) {
+void calcul_fields_on_sst(TSST &S, Param &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
     if(process.nom_calcul=="incr")
-        assign_dep_cont_slave(S,S.t[1].q); 
+        assign_dep_cont_slave(S,S.t[1].q, data_user); 
     else if(process.nom_calcul=="latin"){
         std::cout << "calcul_fields_on_sst non defini pour strategie latin pure " << std::endl; assert(0);
         //assign_dep_cont_slave(S,S.t[1].q);
@@ -745,7 +745,7 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
 }
 
 template<class TSST, class TINTER>
-void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
+void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process , DataUser &data_user) {
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
     nb_previous_nodes.push_back(0);
@@ -758,7 +758,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
     Hdf hdf_file( name_hdf.c_str() );
     //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
-        calcul_fields_on_sst(SubS[i],process);
+        calcul_fields_on_sst(SubS[i],process, data_user);
         create_hdf_fields_data_SST(SubS[i],SubI, process);
     }
     

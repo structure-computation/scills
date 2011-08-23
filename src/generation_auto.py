@@ -12,7 +12,7 @@ def assign_material(formulations,target):
    output.write('using namespace LMT;\nusing namespace std;\n\n')
    
    output.write('//Attention fichier generer dans : generation_auto.py\n')
-   output.write('template<class SST, class SSTCARAC> void assign_material(SST &S, Vec<SSTCARAC> &matprop, Param &process){\n')
+   output.write('template<class SST, class SSTCARAC> void assign_material(SST &S, Vec<SSTCARAC> &matprop, Param &process, DataUser &data_user){\n')
 
    for name in formulations:      
       if (name=="elasticity_isotropy_stat_Qstat"):
@@ -106,7 +106,7 @@ def assign_material(formulations,target):
    output.write('}\n')
    output.write('\n')
    
-   output.write('template<class T1> void assign_material_on_element(T1 &S){\n')
+   output.write('template<class T1> void assign_material_on_element(T1 &S, DataUser &data_user){\n')
 
    for name in formulations:      
       if (name=="elasticity_isotropy_stat_Qstat"):
@@ -120,7 +120,7 @@ def assign_material(formulations,target):
          output.write('\t S.mesh->alpha          = S.mesh.alpha           ; \n')    
          output.write('\t S.mesh->f_vol          = S.mesh.f_vol           ; \n')
          output.write('\t S.mesh->density        = S.mesh.density           ; \n')
-         output.write('\t S.mesh.load_f_vol_e();\n')
+         output.write('\t S.mesh.load_f_vol_e(data_user);\n')
 #          output.write('\t cout <<   S.mesh.elastic_modulus << " " <<   S.mesh.poisson_ratio   << " " <<   S.mesh.deltaT  << " " << S.mesh.resolution  << " " << S.mesh.alpha  << " " << S.mesh.f_vol ; \n')    
          output.write('}\n')                      
       elif (name=="elasticity_orthotropy_stat_Qstat"):
@@ -145,7 +145,7 @@ def assign_material(formulations,target):
          output.write('\t S.mesh->alpha_3          =S.mesh.alpha_3          ;   \n')
          output.write('\t S.mesh->f_vol            =S.mesh.f_vol            ;   \n')    
          output.write('\t S.mesh->density        = S.mesh.density           ; \n')
-         output.write('\t S.mesh.load_f_vol_e();\n')
+         output.write('\t S.mesh.load_f_vol_e(data_user);\n')
          output.write('}\n')
       elif (name=="elasticity_orthotropy_damage_stat_Qstat"):
          #ecriture formulation orthotropy damage 
@@ -169,7 +169,7 @@ def assign_material(formulations,target):
          output.write('\t S.mesh->alpha_3          =S.mesh.alpha_3          ;  \n')
          output.write('\t S.mesh->f_vol            =S.mesh.f_vol            ;  \n')    
          output.write('\t S.mesh->density        = S.mesh.density           ; \n')
-         output.write('\t S.mesh.load_f_vol_e();\n')
+         output.write('\t S.mesh.load_f_vol_e(data_user);\n')
          output.write('}\n')
       elif (name=="elasticity_viscosity_Qstat"):
          #ecriture formulation visco      
@@ -183,7 +183,7 @@ def assign_material(formulations,target):
          output.write('\t S.mesh->alpha          =S.mesh.alpha          ; \n')
          output.write('\t S.mesh->f_vol          =S.mesh.f_vol          ; \n')    
          output.write('\t S.mesh->density        = S.mesh.density           ; \n')
-         output.write('\t S.mesh.load_f_vol_e();\n')
+         output.write('\t S.mesh.load_f_vol_e(data_user);\n')
          output.write('}\n')
       else : print "formulation non definie"
                       

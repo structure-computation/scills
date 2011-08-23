@@ -44,7 +44,7 @@ using namespace std;
 \brief Procédure principale permettant la création des opérateurs par sous-structure.
  */
 template<class TV1, class TV2,class TV3, class TV4>
-void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
+void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process, DataUser &data_user) {
 
 /*#ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);
@@ -71,8 +71,8 @@ void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process) {
     if (process.rank == 0)
         std::cout << "\t Rigidite totale par SST" << endl;
     if (process.size == 1 or process.rank>0)
-        apply_mt(SubS,process.nb_threads,Calc_SST_rigidite_K0_k(), Inter,process);
-    
+        apply_mt(SubS,process.nb_threads,Calc_SST_rigidite_K0_k(), Inter,process, data_user);
+
     if (process.sousint == 1) apply_mt(S,process.nb_threads,efface_mesh_edge(),Inter);
     if (process.size > 1 )
         MPI_Barrier(MPI_COMM_WORLD);//a virer

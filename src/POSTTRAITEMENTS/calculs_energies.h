@@ -369,7 +369,7 @@ struct add_ener_elem{
 };
 
 template <class TV1, class TI>
-void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process, DataUser &data_user) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -380,9 +380,9 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &
         dissi_inter.set(0.);
         for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
             if(process.nom_calcul=="incr")
-                assign_dep_cont_slave(S[i],S[i].t_post[j+1].q);
+                assign_dep_cont_slave(S[i],S[i].t_post[j+1].q, data_user);
             else if(process.nom_calcul=="latin")
-                assign_dep_cont_slave(S[i],S[i].t[j+1].q);
+                assign_dep_cont_slave(S[i],S[i].t[j+1].q, data_user);
 
             apply(S[i].mesh->elem_list,add_ener_elem(),dissi_inter[j+1]);
             S[i].mesh.unload();

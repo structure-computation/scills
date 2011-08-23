@@ -28,11 +28,15 @@ struct Projection_sigma_epsilon_on_skin{
  
  Pour un calcul quasistatique en latin, on a stocké dans le vecteur t la solution a convergence pour chaque pas de temps, c'est donc celle ci qui est affichée et pour laquelle on calcule contrainte déformation et autre quantité.
  */
-template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
+template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUser &data_user) {
 
+   String name_multiresolution="";
+   if(data_user.options.Multiresolution_on==1)
+       name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+   
    string typemail=process.affichage->type_affichage;
    string save=process.affichage->save;
-   string nom_generique = process.affichage->repertoire_save +"sst_"+ process.affichage->name_data;
+   string nom_generique = process.affichage->repertoire_save +name_multiresolution.c_str()+"sst_"+ process.affichage->name_data;
      
    system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
@@ -52,9 +56,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
          typename TV1::template SubType<0>::T::TMESH::TM meshglob;
          for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q);
+               assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user);
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q);
+               assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -83,9 +87,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
          for(unsigned i=0;i<S.size();++i)
          {
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q); 
+               assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user); 
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q);
+               assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);

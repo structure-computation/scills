@@ -29,7 +29,7 @@ Pendant la boucle latin, on assigne une valeur différente au coefficient LATIN::
 Le paramètre LATIN::list_error permet de lister l'erreur latin au cours des itérations.
 */
 template<class TV1, class TV2,class TV3, class GLOBAL>
-void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) {
+void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global, DataUser &data_user) {
     //phase iterative
     bool flag_convergence=0;
     bool save_depl_SST=process.latin->save_depl_SST;
@@ -37,7 +37,7 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global)
     // A mettre ici pour la thermique seulement
     /*    if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);*/
-    apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
+    apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process, data_user);
     bool multiechelle=process.multiscale->multiechelle;
     TicToc2 tic1;
     for(unsigned i=0;i<(unsigned)process.latin->nbitermax+1;++i) {

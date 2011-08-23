@@ -229,7 +229,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
 */
 struct assigne_f_vol_e {
     template<class TE,class TM>
-    void operator() (TE &e, TM &m, Vec<std::string> force_volumique) const {
+    void operator() (TE &e, TM &m, Vec<std::string> force_volumique, DataUser &data_user) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
 	
@@ -246,6 +246,13 @@ struct assigne_f_vol_e {
             symbols.push_back("y");
             symbols.push_back("z");
         }
+        if(data_user.options.Multiresolution_on==1){
+            //ajout des variables de multiresolution aux symboles
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+                String var="V"; var<<i_par; //nom de la variable de multiresolution
+                symbols.push_back(var.c_str());
+            }
+        }
         
         Vec<Ex> expr;
         expr.resize(DIM);
@@ -257,6 +264,11 @@ struct assigne_f_vol_e {
         Ex::MapExNum var;
         for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= G[d2];
+        }
+        if(data_user.options.Multiresolution_on==1){
+            //evaluation des variables de multiresolution aux symboles
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
         }
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
@@ -358,8 +370,8 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e() {///application du chargement à chaque noeud
-        apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e);
+    void load_f_vol_e(DataUser &data_user) {///application du chargement à chaque noeud
+        apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
     }
     //    
     void sousint() {///sousintegration de type p

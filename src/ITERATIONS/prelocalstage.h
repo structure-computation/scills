@@ -7,7 +7,7 @@ using namespace Codegen;
 
 //assignation de valeurs variables en fonction des variables x, y et z
 template<class TV, class TVN, class BOUNDARY>
-void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL) {
+void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL, DataUser &data_user) {
 
     typedef typename BOUNDARY::T T;
     std::vector<Ex> symbols;
@@ -19,6 +19,13 @@ void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL) {
         symbols.push_back("y");
         symbols.push_back("z");
     }
+    if(data_user.options.Multiresolution_on==1){
+        //ajout des variables de multiresolution aux symboles
+        for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            symbols.push_back(var.c_str());
+        }
+    }
 
     for(unsigned i=0;i<nodeeq.size();++i) {
         Vec<T, BOUNDARY::dim> data;
@@ -28,6 +35,11 @@ void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL) {
             Ex::MapExNum var;
             for(unsigned d2=0;d2<BOUNDARY::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                 var[symbols[d2]]= nodeeq[i][d2];
+            if(data_user.options.Multiresolution_on==1){
+                //evaluation des variables de multiresolution
+                for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                    var[symbols[BOUNDARY::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+            }
             data[d1] = (T)expr.subs_numerical(var);
         }
         V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)]=data;
@@ -39,13 +51,21 @@ void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL) {
 //************************************************************************************************************
 
 template<class BOUNDARY>
-void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
+void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
     typedef typename BOUNDARY::T T;
     Ex t = symbol("t");
     unsigned i_step=process.temps->step_cur;
     unsigned tpas=process.temps->time_step[i_step].pt_cur;    
     std::vector<Ex> symbols;
     symbols.push_back(t);
+    if(data_user.options.Multiresolution_on==1){
+        //ajout des variables de multiresolution aux symboles
+        for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            symbols.push_back(var.c_str());
+        }
+    }
+
     double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
     string fcttemps;
     Ex res;
@@ -63,8 +83,17 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
         CL[j].ft.resize(BOUNDARY::dim);
         Ex expr;
         expr = read_ex(fcttemps.c_str(),symbols);
+        Ex::MapExNum var_temp;
+        var_temp[symbols[0]]=ti;
+        if(data_user.options.Multiresolution_on==1){
+            //evaluation des variables de multiresolution
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                var_temp[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+        }
+
         for( unsigned d1=0;d1<BOUNDARY::dim ;d1++ ){
-                CL[j].ft[d1]=(T)expr.subs_numerical(t,ti);
+                //CL[j].ft[d1]=(T)expr.subs_numerical(t,ti);
+                CL[j].ft[d1]=(T)expr.subs_numerical(var_temp);
         }    
   /*      CL[j].ft.resize(CL[j].fcts_temporelles[i_step].size());
         for(unsigned d1=0;d1<CL[j].fcts_temporelles[i_step].size();++d1) { // boucle sur la dimension des vecteurs
@@ -88,7 +117,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL) {
 
 //assignation de valeurs variables en fonction des variables x, y et z et du temps t
 template<class TV, class TVN, class BOUNDARY>
-void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step) {
+void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step, DataUser &data_user) {
 
     typedef typename BOUNDARY::T T;
     std::vector<Ex> symbols;
@@ -101,6 +130,13 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step) {
         symbols.push_back("y");
         symbols.push_back("z");
     }
+    if(data_user.options.Multiresolution_on==1){
+        //ajout des variables de multiresolution aux symboles
+        for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            symbols.push_back(var.c_str());
+        }
+    }
 
     for(unsigned i=0;i<nodeeq.size();++i) {
         Vec<T, BOUNDARY::dim> data;
@@ -111,6 +147,11 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step) {
             Ex::MapExNum var;
             for(unsigned d2=0;d2<BOUNDARY::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                 var[symbols[d2]]= nodeeq[i][d2];
+            if(data_user.options.Multiresolution_on==1){
+                //evaluation des variables de multiresolution
+                for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                    var[symbols[BOUNDARY::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+            }
             data[d1] = (T)expr.subs_numerical(var);
             ////modif DAVID 02-09-2007
             data[d1] *= CL.ft[d1];
@@ -122,7 +163,7 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step) {
 }
 
 template<class TV, class TVN, class TV2, class BOUNDARY>
-void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY &CL, int i_step) {
+void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY &CL, int i_step, DataUser &data_user) {
 
     typedef typename BOUNDARY::T T;
     typedef Vec<T,BOUNDARY::dim> Pvec;
@@ -137,6 +178,13 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
         symbols.push_back("y");
         symbols.push_back("z");
     }
+    if(data_user.options.Multiresolution_on==1){
+        //ajout des variables de multiresolution aux symboles
+        for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            symbols.push_back(var.c_str());
+        }
+    }
 
     for(unsigned i=0;i<nodeeq.size();++i) {
         T data;
@@ -147,6 +195,11 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
         Ex::MapExNum var;
         for(unsigned d2=0;d2<BOUNDARY::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= nodeeq[i][d2];
+        if(data_user.options.Multiresolution_on==1){
+            //evaluation des variables de multiresolution
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                var[symbols[BOUNDARY::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+        }
         data = (T)expr.subs_numerical(var);
         temp=V[range(i*BOUNDARY::dim,(i+1)*BOUNDARY::dim)];
          ////modif DAVID 02-09-2007
@@ -171,27 +224,27 @@ Sinon une erreur est envoyée.
  
 */
 template<class TV2,class TV5>
-void assign_CL_values_space_time_latin(TV2 &Inter, TV5 &CL, Param &process) {
+void assign_CL_values_space_time_latin(TV2 &Inter, TV5 &CL, Param &process, DataUser &data_user) {
     for(unsigned q=0;q<Inter.size();++q) {
         if (Inter[q].type=="Ext" and Inter[q].comp != "periodique") {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
                 //creation de la valeur de la fonction temporelle au pas de temps donne : modification de CL.ft
                 process.temps->pt_cur=pt;
-                calc_CL_time(process,CL);
+                calc_CL_time(process,CL,data_user);
 
                 if (Inter[q].comp=="effort") {
-                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
+                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
                     //cout << "Eff " << Inter[q].side[0].Fchap << endl;
                 } else if (Inter[q].comp=="depl") {
-                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
+                    assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
                     //cout << "depl " <<Inter[q].side[0].Wchap << endl;
                 } else if (Inter[q].comp=="sym") {
                     if(process.reprise_calcul==0)
-                        assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);//si on reprend le calcul les conditions sont toujours ok sinon on initialise à 0
+                        assign_CL_spatial_temporel(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);//si on reprend le calcul les conditions sont toujours ok sinon on initialise à 0
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[pt].Fchap.set(0.0);
                 } else if (Inter[q].comp=="depl_normal") {
-                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);//il faut updater juste la nouvelle partie normal mais on laisse la partie tangentielle
+                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[pt].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur,data_user);//il faut updater juste la nouvelle partie normal mais on laisse la partie tangentielle
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[pt].Fchap.set(0.0);
                 } else {
@@ -219,32 +272,32 @@ Sinon une erreur est envoyée.
  
 */
 template<class TV2,class TV5>
-void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process) {
+void assign_CL_values_space_time_incr(TV2 &Inter, TV5 &CL, Param &process, DataUser &data_user ) {
     for(unsigned q=0;q<Inter.size();++q) {
         if (Inter[q].type=="Ext" and Inter[q].comp != "periodique") {
-            calc_CL_time(process,CL);
+            calc_CL_time(process,CL,data_user);
             if (Inter[q].comp=="effort") {
-                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
+                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
             } else if (Inter[q].comp=="effort_normal") {
-                assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);
+                assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Fchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
             } else if (Inter[q].comp=="depl" or Inter[q].comp=="depl_nul") {
-                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
+                assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
             } else if (Inter[q].comp=="sym") {
                 if(process.temps->pt_cur==1) {
                     if(process.reprise_calcul==0)
-                        assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur);
+                        assign_CL_spatial_temporel(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[1].Fchap.set(0.0);
                 }
             } else if (Inter[q].comp=="depl_normal") {
                 if(process.temps->pt_cur==1) {
-                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
+                    assign_CL_spatial_temporel_normale(Inter[q].side[0].t[1].Wpchap,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur,data_user);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
                     if(process.reprise_calcul==0)
                         Inter[q].side[0].t[1].Fchap.set(0.0);
                 } else {
                     Vec<typename TV2::template SubType<0>::T::T> Wpchapnormal;
                     Wpchapnormal.resize(Inter[q].side[0].t[1].Wpchap.size());
-                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur);
+                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[q].side[0].nodeeq,Inter[q].side[0].neq,CL[Inter[q].refCL],process.temps->step_cur,data_user);
                     Inter[q].side[0].t[1].Wpchap = Inter[q].side[0].Pt(Inter[q].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
             } else {

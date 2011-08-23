@@ -87,7 +87,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
         if (process.rank==0) std::cout << "     STATIQUE     " << std::endl;
         if (process.rank==0) std::cout << "************************" << std::endl;
         process.temps->nbpastemps=1;
-        process.temps->dt=1;
+        process.temps->dt=0;
         process.nom_calcul="incr";
         process.temps->nb_step = 1;
         process.temps->time_step.resize(process.temps->nb_step);
