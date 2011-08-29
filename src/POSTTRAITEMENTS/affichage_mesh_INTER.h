@@ -69,7 +69,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &proce
     unsigned data=process.affichage->side;
     string nom_generique = process.affichage->repertoire_save +typemail;
 
-    system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+    int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
 
     ostringstream ss;
     ss<<nom_generique << "_"<<process.rank<< "_";

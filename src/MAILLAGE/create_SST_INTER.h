@@ -106,6 +106,9 @@ void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, TV1 &
         S[i].mesh.name=namein;
         S[i].mesh.load(geometry_user, S[i].id);
         S[i].mesh.load();
+        S[i].mesh->update_skin();
+        geometry_user.find_group_elements(S[i].id)->nb_elements_skin=S[i].mesh->skin.elem_list.size();
+        geometry_user.find_group_elements(S[i].id)->nb_nodes_skin=S[i].mesh->skin.node_list.size();
         S[i].mesh.unload();
 
         //creation de la boite englobant le maillage de la Sst (utile pour la suite)

@@ -21,6 +21,7 @@ OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
 
 # all: metil_comp_compute_cpu rsync
 all: metil_comp_multi
+# all: metil_comp_test
 # all: local
 
 # all: compact_FIELD_STRUCTURE 
@@ -34,7 +35,7 @@ metil_comp_multi :
 	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double  -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
 
 metil_comp_test :
-	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/test_hdf.cpp
+	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/test.cpp
 
 metil_comp_create_cpu :
 	$(LOC_MC)  -o  $(PRG_create) -DDIM=$(DIM) -DCPU  -DTYPE=double -DLDL -DWITH_CHOLMOD -DWITH_UMFPACK $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(CFLAGS) $(LIBS) $(OPT)  src/SC_create_2.cpp

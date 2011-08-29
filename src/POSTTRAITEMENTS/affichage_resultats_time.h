@@ -38,7 +38,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
    string save=process.affichage->save;
    string nom_generique = process.affichage->repertoire_save +name_multiresolution.c_str()+"sst_"+ process.affichage->name_data;
      
-   system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+   int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
    //eclatement de chaque sous-structure
    double ecl=1;
@@ -75,7 +75,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
          if(process.size > 1) process.affichage->save="save";
          dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         system(("mv "+strp+"0.vtu "+namefile).c_str());
+         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }   
    }
@@ -113,7 +113,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
          if(process.size > 1) process.affichage->save="save";
          dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         system(("mv "+strp+"0.vtu "+namefile).c_str());
+         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }
    }
@@ -402,7 +402,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
 template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param &process) {
    
 
-   system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+   int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
    if(process.size > 1) process.affichage->save="save";
 
@@ -418,7 +418,7 @@ template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param
       if (process.size == 1) ss<<nom_generique << "_"<<i<<".vtu";
       else ss<<nom_generique << "_"<<process.rank<<"_"<<i<<".vtu";
       string namefile(ss.str());
-      system(("mv "+strp+"0.vtu "+namefile).c_str());
+      int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
    }
 
 };

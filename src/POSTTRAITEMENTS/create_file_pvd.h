@@ -67,7 +67,7 @@ inline void create_file_pvtu(Param &process, const string prefix="sst_", unsigne
     os<<"<Piece Source=\""<<((typepvtu==0)? prefix+process.affichage->name_data:process.affichage->type_affichage)<<"_"<<i<<"_"<<((pt1!=0)? to_string(pt1)+"_":"")<<((typepvtu==0)?to_string(pt):"0")<<".vtu\"/>"<<endl;
   }
   os << "</PUnstructuredGrid>\n</VTKFile>"<<endl;
-  if ( nbdatapoint == 0 and nbdatacell == 0) system(("rm "+nom ).c_str());
+  if ( nbdatapoint == 0 and nbdatacell == 0) int tmp=system(("rm "+nom ).c_str());
 }
 
 

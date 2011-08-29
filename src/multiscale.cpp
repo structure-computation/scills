@@ -140,7 +140,7 @@ int main(int argc,char **argv) {
 
 
             //Creation du dossier tmp
-            system("mkdir -p tmp");
+            int temp=system("mkdir -p tmp");
 
             if (process.rank == 0 ) std::cout << "****************************" << std::endl;
             if (process.rank == 0 ) std::cout << " Lecture des donnees " << std::endl;
