@@ -14,7 +14,7 @@ CFLAGS= -LUTIL/metis -lmetis -LUTIL/openmpi/lib -lmpi -lmpi_cxx
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
 DIR_SOURCES_MPI = -IUTIL/openmpi -IUTIL/openmpi/include
-OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
+OPT = -ne -j4 -g -g3 -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
 # all: metil_comp_create_cpu rsync

@@ -178,7 +178,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST_INTER(SubS, SubI, process , data_user);
+                write_hdf_fields_SST_INTER(SubS, SubI,Inter, process , data_user);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
