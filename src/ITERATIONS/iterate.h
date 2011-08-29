@@ -361,7 +361,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
                 process.latin->save_depl_SST=save_depl_SST;
             }
         // sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
-        } else if ( d_err = 5 ) {
+        } else if ( d_err == 5 ) {
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
 	}
