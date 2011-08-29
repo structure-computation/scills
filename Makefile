@@ -16,7 +16,6 @@ DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_
 DIR_SOURCES_MPI = -IUTIL/openmpi -IUTIL/openmpi/include
 OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
 
-
 # all: compact_GEOMETRY 
 # all: metil_comp_create_cpu rsync
 

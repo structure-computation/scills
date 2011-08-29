@@ -61,6 +61,7 @@ using namespace Metil;
 #define INFO_TIME
 #endif 
 
+
 using namespace LMT;
 using namespace std;
 Crout crout;
@@ -116,52 +117,65 @@ int main(int argc,char **argv) {
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
         GeometryUser geometry_user(id_model, id_calcul);
-        geometry_user.read_hdf5(false,true);                       // true si on lit les info micro, true si on lit toutes les infos
-        std::cout << "fin lecture de la geometrie" << std::endl;
-        geometry_user.split_group_edges_within_geometry(data_user);
-        std::cout << "fin lecture de la geometrie" << std::endl;
+        std::cout << data_user.options.mode << std::endl;
+        if(data_user.options.mode=="visu_CL"){
+            std::cout << "Mode de visualisation des bords" << std::endl;
+            //on ne lit que les groupes d'interfaces
+            geometry_user.read_hdf5(false,true,data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
+            geometry_user.visualize_group_edges_within_geometry(data_user);
+            std::cout << "fin lecture de la geometrie - CL uniquement" << std::endl;   
+            //on ecrit le champ "select" sur les groupes d'interface
+        }
+        else{
+            geometry_user.read_hdf5(false,true, data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
+            std::cout << "fin lecture de la geometrie" << std::endl;
+            geometry_user.split_group_edges_within_geometry(data_user);
+            std::cout << "fin lecture de la geometrie" << std::endl;
+        
     
-        if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
-        if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
-        if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
-        if (process.rank == 0 ) std::cout << std::endl;
+            if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
+            if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
+            if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
+            if (process.rank == 0 ) std::cout << std::endl;
 
 
-        //Creation du dossier tmp
-        system("mkdir -p tmp");
+            //Creation du dossier tmp
+            system("mkdir -p tmp");
 
-        if (process.rank == 0 ) std::cout << "****************************" << std::endl;
-        if (process.rank == 0 ) std::cout << " Lecture des donnees " << std::endl;
-        if (process.rank == 0 ) std::cout << "****************************" << std::endl;
+            if (process.rank == 0 ) std::cout << "****************************" << std::endl;
+            if (process.rank == 0 ) std::cout << " Lecture des donnees " << std::endl;
+            if (process.rank == 0 ) std::cout << "****************************" << std::endl;
 
-        /// lecture des donnees de calcul
-        // donnees associees au calcul
-        process.dim=DIM;
-        process.affichage->name_data= argv[2];
-        if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
+            /// lecture des donnees de calcul
+            // donnees associees au calcul
+            process.dim=DIM;
+            process.affichage->name_data= argv[2];
+            if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
-//         Vec<Splitted<Sst<DIM,TYPEREEL> , 16> > S;
-        Vec<Sst<DIM,TYPEREEL> > S;
-        Vec<Interface<DIM,TYPEREEL> > Inter;
-        Vec<Boundary<DIM,TYPEREEL> > CL;
-        Glob<DIM,TYPEREEL> Global;
+    //         Vec<Splitted<Sst<DIM,TYPEREEL> , 16> > S;
+            Vec<Sst<DIM,TYPEREEL> > S;
+            Vec<Interface<DIM,TYPEREEL> > Inter;
+            Vec<Boundary<DIM,TYPEREEL> > CL;
+            Glob<DIM,TYPEREEL> Global;
 
+
+            
+            S.resize(geometry_user.nb_group_elements);
+            multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
+
+            }
+    #ifdef INFO_TIME
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        if (process.rank==0) std::cout << "Duree complete du programme : " ;
+        if (process.rank==0) tic1.stop();
+        if (process.rank==0) std::cout << std::endl;
+    #endif
 
         
-        S.resize(geometry_user.nb_group_elements);
-        multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
+            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+            desallocation_memoire_PARAM(process);       
 
-#ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Duree complete du programme : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) std::cout << std::endl;
-#endif
-
-        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-        desallocation_memoire_PARAM(process);       
-
-	if (process.size > 1 ) MPI_Finalize();
+            if (process.size > 1 ) MPI_Finalize();
 
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;

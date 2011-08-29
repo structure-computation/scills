@@ -65,16 +65,15 @@ void fake_assignation_materials_property() {
 
 template <class TV1, class TV2>
 void assignation_materials_property_SST(DataUser &data_user, TV1 &S, TV2 &Inter,Param &process){
-   if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
-   // lecture des proprietes materiau des ssts
-   Vec<SstCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > matprop;
-   read_material_properties(matprop,process,data_user); 
-   apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop,process);
-   
-   //pour le mesomodele uniquement
-   #ifdef FORMUENDO
-   initialisation_mesh_meso(S, Inter, matprop);
-   #endif
+       if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
+        // lecture des proprietes materiau des ssts
+        Vec<SstCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > matprop;
+        read_material_properties(matprop,process,data_user); 
+        apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop,process, data_user);
+        //pour le mesomodele uniquement
+        #ifdef FORMUENDO
+        initialisation_mesh_meso(S, Inter, matprop);
+        #endif        
 }
 
 template <class TV1, class TV2>
@@ -85,7 +84,7 @@ void assignation_materials_property_INTER(DataUser &data_user, TV2 &Inter, TV1 &
 //     for(int i_inter=0; i_inter<propinter.size(); i_inter++){
 //         propinter[i_inter].affiche();
 //     }
-   modif_inter(Inter,propinter,S,process);
+   modif_inter(Inter,propinter,S,process,data_user);
 //    //verification
 //     for(int i_inter=0; i_inter<Inter.size(); i_inter++){
 //         Inter[i_inter].affiche();

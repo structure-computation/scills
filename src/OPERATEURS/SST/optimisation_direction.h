@@ -311,7 +311,6 @@ struct optimise_direction {
             //determination du module d'young correspondant
             //fonction generee a partir du __init__.py
             calcul_En_Et(S[ii],En,Et);
-
             //calcul des directions de recherche normale et tangentielle
             T kn=0, kt=0, hn=0, ht=0;
 

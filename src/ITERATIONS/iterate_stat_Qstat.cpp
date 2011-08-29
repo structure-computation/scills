@@ -54,7 +54,7 @@ Cette proc�dure est constitu�e des fonctions suivantes :
    - iterate_latin() : on applique la strat�gie it�rative latin : \ref LATIN*
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
+void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user) {
   if(process.latin->alloc_quantites==1) {
         //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
@@ -72,7 +72,7 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
         std::cout << "Erreur initiale apres relecture : " << process.latin->error[process.latin->iter] << endl;
     }
     if (process.size == 1 or process.rank>0)
-      assign_CL_values_space_time_latin(SubI, CL, process);
+      assign_CL_values_space_time_latin(SubI, CL, process, data_user);
     if(process.reprise_calcul>0)
       calcul_erreur_latin(SubS, Inter, process, Global);
     if(process.reprise_calcul>0)
@@ -83,7 +83,7 @@ void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pr
   }
   if (process.rank == 0)
     std::cout << " Processus iteratif " << endl;
-  iterate_latin(process,SubS,Inter,SubI,Global);
+  iterate_latin(process,SubS,Inter,SubI,Global, data_user);
 };
 
 
@@ -98,7 +98,7 @@ Cette proc�dure est constitu�e des �tapes suivantes :
    - assign_quantities_current_to_old() : on met � jour les valeurs 0 � partir des valeurs 1
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
+void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user) {
     //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
@@ -134,7 +134,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
 
     // A mettre ici pour la thermique seulement
-    apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process);
+    apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process, data_user);
 
     if (process.rank == 0)
         std::cout<<"Processus iteratif incremental" << std::endl;
@@ -152,8 +152,8 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 
         //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
         if (process.size == 1 or process.rank>0)
-            assign_CL_values_space_time_incr(SubI, CL, process);
-        
+            assign_CL_values_space_time_incr(SubI, CL, process, data_user);
+
         for(int ic=0;ic<CL.size();ic++){
             if (process.rank == 0) std::cout << "ft " << CL[ic].ft << std::endl;
 /*            std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
@@ -178,7 +178,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST_INTER(SubS, SubI, process );
+                write_hdf_fields_SST_INTER(SubS, SubI, process , data_user);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
@@ -206,8 +206,9 @@ void fake_iterate() {
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
     Glob<DIM,TYPEREEL> Global3;
     Vec<Boundary<DIM,TYPEREEL> > CL3;
+    DataUser data_user;
     
-    multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3);
-    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3);
+    multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user);
+    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user);
 
 }
