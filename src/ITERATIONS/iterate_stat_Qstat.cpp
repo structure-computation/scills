@@ -192,11 +192,19 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 //     if (process.rank == 0)
 //         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
 
-//Affichage energie imposee
-//     process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
-//     affichage_energie(SubS,Inter,process,data_user);
-//     process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
-//     affichage_energie(SubS,Inter,process,data_user);
+//Affichage des energies
+       if (process.affichage->trac_ener_imp == 1) {
+	  process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
+	  affichage_energie(SubS,Inter,process,data_user);
+	  process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
+	  affichage_energie(SubS,Inter,process,data_user);
+       }
+       if (process.affichage->trac_ener_diss == 1) {
+	  process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=0;
+	  affichage_energie(SubS,Inter,process,data_user);
+	  process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=1;
+	  affichage_energie(SubS,Inter,process,data_user);
+       }
 
 };
 // #endif

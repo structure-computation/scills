@@ -27,7 +27,9 @@ struct AFFICHAGE{
     num_inter_select=Vec<int>(-1);
     fichiers_paraview_sst_crees=0;
     fichiers_paraview_inter_crees=0;
-    param_ener.set(0);    
+    param_ener.set(0);   
+    trac_ener_imp = 0;
+    trac_ener_diss = 0;
     }
   // parametres pour l'affichage
   bool affich_resultat; ///< affichage du resultat de calcul
@@ -50,6 +52,8 @@ struct AFFICHAGE{
   bool fichiers_paraview_sst_crees;///< booleen indiquant si les fichiers paraview des sst ont ete crees
   bool fichiers_paraview_inter_crees;///< booleen indiquant si les fichiers paraview des interfaces ont ete crees
   Vec<int,3> param_ener; ///< parametres pour l'affichage des energies dissipees ou imposees
+  bool trac_ener_imp;
+  bool trac_ener_diss;
   
   String name_hdf; ///< nom du fichier hdf5 permettant la sauvegarde des donnees
   String name_geometry; ///< nom du dataset contenant les elements de geometry dans le fichier de sauvegarde

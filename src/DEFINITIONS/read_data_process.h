@@ -74,6 +74,8 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";
     process.affichage->command_file= "No";
+    process.affichage->trac_ener_imp  = data_user.options.trac_ener_imp;
+    process.affichage->trac_ener_diss = data_user.options.trac_ener_diss;
     
 //     std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
     
