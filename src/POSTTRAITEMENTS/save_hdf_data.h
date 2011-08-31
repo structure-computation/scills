@@ -87,6 +87,7 @@ struct Extract_connectivities_on_element_inter{
 
 
 
+
 template<class TSST>
 void create_hdf_geometry_data_SST(TSST &S, Param &process, int nb_previous_nodes ) {
     //sauvegarde des coordonnées des noeuds
@@ -116,6 +117,7 @@ void create_hdf_geometry_data_SST(TSST &S, Param &process, int nb_previous_nodes
     //extraction
     apply(S.mesh->skin.elem_list,Extract_connectivities_on_element_sst(), S, nb_previous_nodes, correspondance_number_in_original_mesh_local_mesh);
     
+
 }
 
 struct Extract_connectivities_on_element_sst_inter{
@@ -251,6 +253,9 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Param &process, int
             }
     }
     
+    //conversion du maillage de peau aux group_elements
+    //apply(S.mesh->skin.elem_list,ConvertMeshConnectivitiesSkin(),geometry_user);
+
 }
 
 template<class TINTER>
@@ -326,7 +331,7 @@ void save_elements_hdf_sst(TSST &S, Param &process, Hdf &hdf_file, String name_g
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element;i_connect++) {
         String name_connect;
-        name_connect << name_list << "/c"<<i_connect;
+        name_connect << name_list << "/mesh_c"<<i_connect;
         S.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }
     save_data_on_elements_SST(S, hdf_file, name_list);
@@ -355,7 +360,7 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst;i_connect++) {
         String name_connect;
-        name_connect << name_list << "/c"<<i_connect;
+        name_connect << name_list << "/mesh_c"<<i_connect;
         S.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }    
     hdf_file.add_tag(name_list,"base",S.type_elements_sst.c_str());
@@ -365,7 +370,7 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
     name_list=name_geometry; name_list << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst_skin;i_connect++) {
         String name_connect;
-        name_connect << name_list << "/c"<<i_connect;
+        name_connect << name_list << "/mesh_c"<<i_connect;
         S.mesh_connectivities_skin[i_connect].write_to( hdf_file, name_connect );
     }    
     save_data_on_elements_SST(S, hdf_file, name_list);
@@ -380,7 +385,7 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
             if(data==0){
                 for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst_skin;i_connect++) {
                     String name_connect;
-                    name_connect << name_list << "/c"<<i_connect;
+                    name_connect << name_list << "/mesh_c"<<i_connect;
                     I[q].mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
                 }
                 save_data_on_elements_INTER(I[q], hdf_file, name_list);
@@ -397,7 +402,7 @@ void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, String name_g
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << I.num ;
     for (unsigned i_connect=0;i_connect<I.nb_nodes_by_element;i_connect++) {
         String name_connect;
-        name_connect << name_list << "/c"<<i_connect;
+        name_connect << name_list << "/mesh_c"<<i_connect;
         I.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }
     save_data_on_elements_INTER(I, hdf_file, name_list);
@@ -665,7 +670,7 @@ void write_hdf_geometry_INTER(TINTER &SubI, Param &process ) {
 
 
 template<class TINTER, class TSST>
-void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
+void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Param &process ) {
     
     
     //chaque processeur calcul stocke les noeuds de ces sst
@@ -676,7 +681,7 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
     }
     //creation des donnees hdf et sauvegarde d'un fichier pour chaque processeur
     for(unsigned i=0;i<SubS.size();i++) {
-        create_hdf_geometry_data_SST_INTER(SubS[i],SubI, process,nb_previous_nodes[i]);
+        create_hdf_geometry_data_SST_INTER(SubS[i],I, process,nb_previous_nodes[i]);
     }
     String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
     if(FileExists(name_hdf.c_str())){ String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
@@ -694,7 +699,7 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &SubI, Param &process ) {
     }
     //ecriture des elements et des champs aux elements créés lors de la géométrie
     for(unsigned i=0;i<SubS.size();i++) {
-        save_elements_hdf_sst_inter(SubS[i], SubI, process, hdf_file, process.affichage->name_geometry);
+        save_elements_hdf_sst_inter(SubS[i], I, process, hdf_file, process.affichage->name_geometry);
     }
     
 
@@ -744,8 +749,8 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
 
 }
 
-template<class TSST, class TSINTER, class TINTER>
-void write_hdf_fields_SST_INTER(TSST &SubS, TSINTER &SubI, TINTER &Inter,Param &process , DataUser &data_user) {
+template<class TSST, class TINTER>
+void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataUser &data_user) {
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
     nb_previous_nodes.push_back(0);

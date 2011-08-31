@@ -75,7 +75,7 @@ void affichage_resultats_temps(Param &process) {
       std::cout << "nom pvd : " << namepvd << endl;
       //string cmd = process.affichage->repertoire_save+"paraview --data="+namepvd;
       string cmd = "paraview";
-      if (process.affichage->command_file=="") system(cmd.c_str());
+      if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 };
 
 /** \ingroup Post_Traitement
@@ -89,7 +89,7 @@ void affichage_inter_temps(Param &process) {
     std::cout << "nom pvd : " << namepvd << endl;
     //string cmd = "paraview --data="+namepvd;
     string cmd = "paraview";
-    if (process.affichage->command_file=="") system(cmd.c_str());
+    if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 }
 
 
@@ -117,7 +117,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
             std::cout << "erreur d'affichage" << endl;
       }
       if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-      if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") system(cmd.c_str());}
+      if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
 
     }
 }

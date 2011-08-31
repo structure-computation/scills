@@ -2,6 +2,7 @@
 #include "codegen/codegen.h"
 #include "containers/basicops.h"
 #include "DataUser.h"
+#include "../../../SC_code/src/COMPUTE/FieldStructureUser.h"
 
 using namespace Codegen;
 using namespace LMT;
@@ -48,11 +49,12 @@ On aura donc les possibilités suivantes :
 
 
 template<class TV3>
-void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user) {
+void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user , BasicVec<BasicVec<TYPE> > &mat_prop_temp) {
 
     unsigned nbmat = data_user.behaviour_materials.size();
 //     PRINT(nbmat);
     matprop.resize(nbmat);
+    mat_prop_temp.resize(nbmat);
     for(unsigned i=0;i<nbmat;++i) {
         matprop[i].id = data_user.behaviour_materials[i].id;
         matprop[i].type_num = data_user.behaviour_materials[i].type_num;
@@ -131,9 +133,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
         matprop[i].f_vol=data;
 	
         
-        
-        Vec< TYPE > mat_prop_temp;
-        mat_prop_temp.resize(data_user.behaviour_materials[i].mat_prop.size());
+        mat_prop_temp[i].resize(data_user.behaviour_materials[i].mat_prop.size());
 //         PRINT(mat_prop_temp.size());
         for(int i_prop=0; i_prop<data_user.behaviour_materials[i].mat_prop.size(); i_prop++){
             if(data_user.behaviour_materials[i].mat_prop[i_prop] == ""){
@@ -151,43 +151,43 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
                     var_temp[symbols[TV3::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
             
-            mat_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);
+            mat_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);
 /*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }
 /*        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;*/
-        matprop[i].density = mat_prop_temp[3];
+        matprop[i].density = mat_prop_temp[i][3];
         
         std::cout << (matprop[i].type) <<endl;
         if(matprop[i].type.find("isotrope")<matprop[i].type.size()) {                 // comportement isotrope elastique
 //            PRINT("comportement isotrope elastique");
-            matprop[i].coef.push_back(mat_prop_temp[0]);   // E
-            matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
-            matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
+            matprop[i].coef.push_back(mat_prop_temp[i][0]);   // E
+            matprop[i].coef.push_back(mat_prop_temp[i][1]);   // nu
+            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
         } else if (matprop[i].comp.find("visqueux")<matprop[i].comp.size() and matprop[i].type.find("isotrope")<matprop[i].type.size()) {          // comportement isotrope elastique visqueux
 //             PRINT("comportement isotrope visqueux");
-            matprop[i].coef.push_back(mat_prop_temp[0]);   // E
-            matprop[i].coef.push_back(mat_prop_temp[1]);   // nu
-            matprop[i].coef.push_back(mat_prop_temp[4]);   // viscosite
-            matprop[i].coefth.push_back(mat_prop_temp[2]);   // alpha
+            matprop[i].coef.push_back(mat_prop_temp[i][0]);   // E
+            matprop[i].coef.push_back(mat_prop_temp[i][1]);   // nu
+            matprop[i].coef.push_back(mat_prop_temp[i][4]);   // viscosite
+            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   // alpha
             matprop[i].coefth.push_back(0);                                              // deltaT
         } else if (matprop[i].type.find("orthotrope")<matprop[i].type.size()) {          // orthotrope
             PRINT("comportement orthotrope");
-            matprop[i].coef.push_back(mat_prop_temp[14]);   // E1
-            matprop[i].coef.push_back(mat_prop_temp[15]);   // E2
-            matprop[i].coef.push_back(mat_prop_temp[16]);   // E3
+            matprop[i].coef.push_back(mat_prop_temp[i][14]);   // E1
+            matprop[i].coef.push_back(mat_prop_temp[i][15]);   // E2
+            matprop[i].coef.push_back(mat_prop_temp[i][16]);   // E3
             
-            matprop[i].coef.push_back(mat_prop_temp[20]);   // nu12
-            matprop[i].coef.push_back(mat_prop_temp[22]);   // nu13
-            matprop[i].coef.push_back(mat_prop_temp[21]);   // nu23
+            matprop[i].coef.push_back(mat_prop_temp[i][20]);   // nu12
+            matprop[i].coef.push_back(mat_prop_temp[i][22]);   // nu13
+            matprop[i].coef.push_back(mat_prop_temp[i][21]);   // nu23
             
-            matprop[i].coef.push_back(mat_prop_temp[17]);   // G12
-            matprop[i].coef.push_back(mat_prop_temp[19]);   // G13
-            matprop[i].coef.push_back(mat_prop_temp[18]);   // G23
+            matprop[i].coef.push_back(mat_prop_temp[i][17]);   // G12
+            matprop[i].coef.push_back(mat_prop_temp[i][19]);   // G13
+            matprop[i].coef.push_back(mat_prop_temp[i][18]);   // G23
 
             for(int d=0; d<data_user.dim; d++){
-                matprop[i].direction[0][d]=mat_prop_temp[d+5];
-                matprop[i].direction[1][d]=mat_prop_temp[d+8];
+                matprop[i].direction[0][d]=mat_prop_temp[i][d+5];
+                matprop[i].direction[1][d]=mat_prop_temp[i][d+8];
             }
             
             std::cout << "assignation_materials_sst.h " << matprop[i].direction[0] << " v1 et v2 " << matprop[i].direction[1] << std::endl;
@@ -197,20 +197,20 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user)
 
             //coefficients thermiques
             matprop[i].coefth.resize(4);
-            matprop[i].coefth[0]=mat_prop_temp[23];         //alpha_1
-            matprop[i].coefth[0]=mat_prop_temp[24];         //alpha_2
-            matprop[i].coefth[0]=mat_prop_temp[25];         //alpha_3
+            matprop[i].coefth[0]=mat_prop_temp[i][23];         //alpha_1
+            matprop[i].coefth[0]=mat_prop_temp[i][24];         //alpha_2
+            matprop[i].coefth[0]=mat_prop_temp[i][25];         //alpha_3
             matprop[i].coefth[3]=0;
             
             if (matprop[i].comp.find("endommageable")<matprop[i].comp.size()) {
                 PRINT("comportement orthotrope endommageable");
                 //parametres d'endommagement
-                matprop[i].param_damage.Yo = mat_prop_temp[26];
-                matprop[i].param_damage.Yop = mat_prop_temp[27];
-                matprop[i].param_damage.Ysp = mat_prop_temp[28];
-                matprop[i].param_damage.Yc = mat_prop_temp[29];
-                matprop[i].param_damage.Ycp = mat_prop_temp[30];
-                matprop[i].param_damage.b = mat_prop_temp[31];
+                matprop[i].param_damage.Yo = mat_prop_temp[i][26];
+                matprop[i].param_damage.Yop = mat_prop_temp[i][27];
+                matprop[i].param_damage.Ysp = mat_prop_temp[i][28];
+                matprop[i].param_damage.Yc = mat_prop_temp[i][29];
+                matprop[i].param_damage.Ycp = mat_prop_temp[i][30];
+                matprop[i].param_damage.b = mat_prop_temp[i][31];
             }
         }
     }
@@ -417,9 +417,10 @@ Même remarque sur le jeu que pour l'interface contact_jeu_sst.
 */
 
 template<class TV4>
-void read_propinter(TV4 &propinter,const DataUser &data_user) {
+void read_propinter(TV4 &propinter,const DataUser &data_user, BasicVec<BasicVec<TYPE> > &link_prop_temp) {
     unsigned nbliaisons = data_user.behaviour_links.size();
     propinter.resize(nbliaisons);
+    link_prop_temp.resize(nbliaisons);
     for(unsigned i=0;i<nbliaisons;++i) {
         propinter[i].id = data_user.behaviour_links[i].id;
 //         PRINT(data_user.behaviour_links[i].type_num);
@@ -461,8 +462,7 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
             }
         }
         
-        Vec< TYPE > link_prop_temp;
-        link_prop_temp.resize(data_user.behaviour_links[i].link_prop.size());
+        link_prop_temp[i].resize(data_user.behaviour_links[i].link_prop.size());
         for(int i_prop=0; i_prop<data_user.behaviour_links[i].link_prop.size(); i_prop++){
             Ex expr_temp;
             expr_temp = read_ex(data_user.behaviour_links[i].link_prop[i_prop],symbols);
@@ -475,13 +475,14 @@ void read_propinter(TV4 &propinter,const DataUser &data_user) {
                 for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
                     var_temp[symbols[TV4::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
-            link_prop_temp[i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);           
+            link_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);           
         }
         propinter[i].f_coeffrottement = data_user.behaviour_links[i].link_prop[0];         // coeff frottement analytique
-        propinter[i].coeffrottement = link_prop_temp[0];        // coeff frottement
+        propinter[i].coeffrottement = link_prop_temp[i][0];        // coeff frottement
         propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   // jeux ou epaisseur negative        
-        propinter[i].Gcrit = link_prop_temp[7];                                         // limite en rupture    
+        propinter[i].Gcrit = link_prop_temp[i][7];                                         // limite en rupture    
         propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];         // coeff frottement analytique
+        PRINT(link_prop_temp[i]);
     }        
 
 }

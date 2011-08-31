@@ -48,6 +48,7 @@
 
 #include "GeometryUser.h"
 #include "DataUser.h"
+#include "FieldStructureUser.h"
 
 using namespace Metil;
 using namespace LMT;
@@ -60,7 +61,7 @@ using namespace std;
 \brief Fonction principale pour un calcul sous-structuré. Cette routine est appelée plusieurs fois dans le cas d'une multirésolution
 */
 template<class TV1,class TV2,class TV5,class GLOB>
-void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global, Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &SubS,  Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &Stot,  Vec<VecPointedValues<typename TV2::template SubType<0>::T> > &SubI) {
+void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, FieldStructureUser &field_structure_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global, Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &SubS,  Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &Stot,  Vec<VecPointedValues<typename TV2::template SubType<0>::T> > &SubI) {
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     TicTac tic1;
@@ -71,15 +72,15 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, TV
     bool calculate_operator=0;
     if(data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_material_link_CL_CLvolume[0]==1){
         if (process.rank==0) std::cout << "Reevaluation (multiresolution) des materiaux SST : " ;
-        assignation_materials_property_SST(data_user, S, Inter,process);
-        assignation_materials_property_INTER(data_user,Inter,S,process);
+        assignation_materials_property_SST(data_user, S, Inter,process, field_structure_user);
+        assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);
         calculate_operator=1;
     }
     
     //process.temps->dt=0;
     if (process.rank == 0)  std::cout << "Nombre de pas de temps total " << process.temps->nbpastemps << std::endl;
     process.temps->pt_cur=0;
-    
+    std::cout << " PAS DE TEMPS : " << process.temps->dt << " " << process.temps->time_step[0].dt<< std::endl;
     for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
         if (process.rank == 0)
             std::cout<<"Step : " << i_step << std::endl;
@@ -242,6 +243,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     Vec<VecPointedValues<typename TV2::template SubType<0>::T> > SubI;
     
     multiscale_geometry_mesh( data_user, geometry_user, S, Inter, process, CL, Stot, SubS, SubI );
+    
     //multiscale_geometry_mesh(n,S,Inter,process,CL,Stot,SubS,SubI);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
@@ -257,35 +259,35 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 //     }
     
     
-    process.save_data=0;
+    process.save_data=1;
     
     
-    ///recherche des donnees utilisant les parametres de multiresolution
+    //recherche des donnees utilisant les parametres de multiresolution
     data_user.find_Multiresolution_parameters();
     
-    /// assignation des proprietes materiaux aux maillages des sst
+    //assignation des proprietes materiaux aux maillages des sst
 
-    //assignation_materials_property_SST(n, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+    FieldStructureUser field_structure_user(geometry_user);
 
+    
+    assignation_materials_property_SST(data_user, S, Inter,process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+    #ifdef INFO_TIME
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        if (process.rank==0) std::cout << "Assignation materiaux SST : " ;
+        if (process.rank==0) tic1.stop();
+        if (process.rank==0) std::cout << std::endl;
+        if (process.rank==0) tic1.start();
+    #endif
 
-            assignation_materials_property_SST(data_user, S, Inter,process);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
-        #ifdef INFO_TIME
-            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-            if (process.rank==0) std::cout << "Assignation materiaux SST : " ;
-            if (process.rank==0) tic1.stop();
-            if (process.rank==0) std::cout << std::endl;
-            if (process.rank==0) tic1.start();
-        #endif
-
-            /// modification du comportement des interfaces interieures si besoin : contact...
-            assignation_materials_property_INTER(data_user,Inter,S,process);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
-        #ifdef INFO_TIME
-            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-            if (process.rank==0) std::cout << "Assignation materiaux INTER : " ;
-            if (process.rank==0) tic1.stop();
-            if (process.rank==0) std::cout << std::endl;
-            if (process.rank==0) tic1.start();
-        #endif
+    /// modification du comportement des interfaces interieures si besoin : contact...
+    assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
+    #ifdef INFO_TIME
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        if (process.rank==0) std::cout << "Assignation materiaux INTER : " ;
+        if (process.rank==0) tic1.stop();
+        if (process.rank==0) std::cout << std::endl;
+        if (process.rank==0) tic1.start();
+    #endif
             
 //     //verification
 //     for(int i_inter=0; i_inter<Inter.size(); i_inter++){
@@ -295,7 +297,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     /// sauvegarde du maillage pour la visualisation des resultats
     if (process.rank == 0) std::cout << "Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats" << std::endl;
     process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/results/";   
-    system(("mkdir -p "+process.affichage->name_hdf).c_str());//Il faut créer le répertoire results
+    int temp=system(("mkdir -p "+process.affichage->name_hdf).c_str());//Il faut créer le répertoire results
     process.affichage->name_hdf << "geometry_fields";   
     process.affichage->name_geometry = "/Level_0/Geometry";
     process.affichage->name_fields = "/Level_0/Fields";
@@ -351,7 +353,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
                     data_user.Multiresolution_parameters[i_par].current_value=data_user.options.Multiresolution_nb_cycle*i_res+data_user.Multiresolution_parameters[i_par].min_value;
                     PRINT(data_user.Multiresolution_parameters[i_par].current_value);
                 }
-                multiscale_calculation(data_user, geometry_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);   
+                multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);   
                 affichage_resultats(SubS,process, data_user);
             }
         }
@@ -361,7 +363,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         }
     }
     else{
-        multiscale_calculation(data_user, geometry_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
+        process.temps->dt=0;
+        multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
         affichage_resultats(SubS,process, data_user);
     }
      
@@ -371,20 +374,6 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
 
 //     if(process.save_data==1) {
 //         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
-//             process.temps->pt_cur=0;
-//             //EN PARALLELE : calcul des champs et extraction d'un vecteur contenant le nombre de noeuds sur la peau pour chaque sst
-//             if (process.size == 1 or process.rank>0){
-//                 for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
-//                     process.temps->time_step[i_step].pt_cur=i_pt;
-//                     for(unsigned i=0;i<SubS.size();i++) calcul_fields_on_sst(SubS[i],process,0);
-//             }
-//             if (process.size == 1 or process.rank>0){
-//                 for(unsigned i=0;i<SubS.size();i++)
-//                     create_hdf_fields_data(SubS[i],process);
-//             }
-//             
-// 
-//                 //apply_mt(SubS,process.nb_threads,save_geometry_sst(), process, hdf);
 //           
 //             //Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
 //             //save_data_inter(Inter,SubS, process, fields_to_save);

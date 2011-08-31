@@ -69,7 +69,7 @@ void affich_SST(TV1 &S,Param &process) {
     string save=process.affichage->save;
     string nom_generique = process.affichage->repertoire_save +typemail;
 
-    system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+    int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
 
     ostringstream ss;
     ss<<nom_generique << "_"<<process.rank<< "_";

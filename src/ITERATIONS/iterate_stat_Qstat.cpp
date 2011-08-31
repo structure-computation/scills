@@ -27,6 +27,8 @@
 
 #include "modification_sst_inter_behaviour.h"
 
+#include "affichage.h"
+
 //fonctions pour les envoies des donn�es par mpi
 #include "crout.h"
 #include "save_read_data.h"
@@ -178,7 +180,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST_INTER(SubS, SubI,Inter, process , data_user);
+                write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
@@ -189,6 +191,12 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 //     calcul_erreur_latin(SubS, Inter, process, Global);
 //     if (process.rank == 0)
 //         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+
+//Affichage energie imposee
+//     process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
+//     affichage_energie(SubS,Inter,process,data_user);
+//     process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
+//     affichage_energie(SubS,Inter,process,data_user);
 
 };
 // #endif

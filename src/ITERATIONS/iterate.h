@@ -13,6 +13,9 @@ using namespace std;
 #include "containers/evaluate_nb_cycles.h"
 
 #include "create_file_pvd.h"
+
+#include "containers/gnuplot.h"
+
 extern Crout crout;
 
 /** \defgroup LATIN Stratégie LATIN
@@ -298,6 +301,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         tic.start();
 
         //std::cout << "\t Etape locale " << endl;
+#include "../../../LMTpp/include/util/unit_test.h"
         if (process.size==1 or process.rank>0)
             etape_locale(SubI,S,process);
         //etape locale sur les sous-structures
@@ -324,7 +328,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         }
         
         //attention le paramètre est à déterminer (1e-4) pour etre optimal
-        if ( i > 0 && (process.latin->error[i-1]-process.latin->error[i] < 1e-4) )
+        if ( i > 0 && (process.latin->error[i-1]-process.latin->error[i] < process.latin->critere_erreur_auto_stop) )
 	  d_err++;
 	else
 	  d_err=0;
@@ -362,6 +366,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
             }
         // sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
         } else if ( d_err == 5 ) {
+	      if (process.rank == 0) std::cout << "Arret par manque de convergence" << std::endl; 
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
 	}
@@ -381,5 +386,13 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
             std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
+    
+//     if (process.rank == 0){
+//         std::cout << process.latin->error[range(process.latin->iter+1)] << std::endl;
+// 	GnuPlot gp;
+// 	gp.plot(log10(process.latin->error[range(process.latin->iter+1)]));
+// 	gp.wait();
+//     }
+
 }
 

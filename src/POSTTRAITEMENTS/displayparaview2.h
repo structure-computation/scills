@@ -171,7 +171,7 @@ public:
         //    pvs << "$kw(vtkMainWin) Render" << std::endl;
         pvs.close();
         
-        system( ("paraview "+tmp_file).c_str() );
+        int tmp=system( ("paraview "+tmp_file).c_str() );
     }
 private:
     template<class PV> void app_xminmax(const PV &xmi,const PV &xma) {

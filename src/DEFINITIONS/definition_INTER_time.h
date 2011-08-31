@@ -138,14 +138,16 @@ struct Interface
 #endif
 	
 	//les maillages sont les memes des 2 cotés...
-        delete side[0].mesh;
-	side[0].mesh=NULL;
+	if (side.size() != 0){
+           if (side[0].mesh != NULL) delete side[0].mesh;
+	   side[0].mesh=NULL;
+           side.free();
+           if (param_comp != NULL ) param_comp->free();
+	   if (param_comp != NULL ) delete param_comp;
+	}
 	
 	
 
-        side.free();
-        if (param_comp != NULL ) param_comp->free();
-	if (param_comp != NULL ) delete param_comp;
 
     }
     

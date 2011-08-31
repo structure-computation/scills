@@ -15,7 +15,7 @@ using namespace LMT;
 
 //ecriture du fichier xdmf a partir de donnees hdf5 pour un maillage contenant des noeuds, elements, des attributs. Utilisable pour les sst ou les interfaces
 void write_xdmf_geometry_fields(std::ofstream &f, Param &process, String name_element, String name_node, String generic_grid_name, String grid_collection_name, bool with_time, BasicVec<String> &attributs);
-//ecriture du fichier xdmf en choisissant les composantes a mettre pour la geometrie
+//ecriture de 3 fichiers xdmf (elements_0, elements_1, elements_0_skin)  en choisissant les composantes a mettre pour la geometrie
 void write_xdmf_file_geometry(Param &process, DataUser &data_user);
-//ecriture du fichier xdmf en choisissant les composantes a mettre pour les calculs
+//ecriture de 3 fichiers xdmf (elements_0, elements_1, elements_0_skin) en choisissant les composantes a mettre pour les calculs 
 void write_xdmf_file_compute(Param &process, DataUser &data_user);

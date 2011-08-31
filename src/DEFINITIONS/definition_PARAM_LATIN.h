@@ -26,7 +26,8 @@ struct LATIN{
   int nbitermax;      ///< nombre d'itérations max
   double mu;         ///< facteur de relaxation courant  (1 à la première itération puis égal au facteur de relaxation)
   double critere_erreur; ///< valeur du critère d'erreur à atteindre
-  double critere_erreur_diss; ///< valeur du critère d'erreur en dissipation à atteindre (si = 0 on ne la calcul pas)
+  double critere_erreur_diss; ///< valeur du critère d'erreur en dissipation à atteindre (si = 0 on ne la calcule pas)
+  double critere_erreur_auto_stop; ///< valeur pour laquelle l'algorithme s'arrete si la variation d'erreur est inférieure 5 fois de suite à celle ci (si = 0 on ne fait pas d'arret automatique))
   Vec<double> error; ///< erreurs au cours des iterations
   string type_error; ///< type d'erreur : choix possible entre "ddr" : erreur basée sur les directions de recherche, "energie" : erreur basée sur un calcul d'énergie par interface 
   bool list_error; ///< listage de l'erreur a l'écran au cours des itérations
