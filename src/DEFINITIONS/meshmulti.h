@@ -141,7 +141,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
     typedef typename TM::EA EA;
   
     // obtaining nbnode, nbelem
-    unsigned nbnode = geometry_user.find_group_elements(id_sst)->map_mesh_nodes.size();
+    unsigned nbnode = geometry_user.find_group_elements(id_sst)->map_global_nodes.size();
     unsigned nbelem = geometry_user.find_group_elements(id_sst)->nb_elements;
   
     
@@ -366,7 +366,7 @@ struct Meshmulti {
             id_sst = id_sst_;
             geometry_user = &geometry_user_;
             
-            node_list_size = geometry_user->find_group_elements(id_sst)->map_mesh_nodes.size();
+            node_list_size = geometry_user->find_group_elements(id_sst)->map_global_nodes.size();
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }

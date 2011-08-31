@@ -15,5 +15,5 @@ template<class TV1, class TV2> void assignation_materials_property_INTER(DataUse
 // template<class TV1, class TV2> void assignation_materials_property_INTER(const XmlNode &n, TV2 &Inter, TV1 &S, Param &process) __attribute__((noinline));
 template <class TV1, class TV2, class TV3, class TV4>  void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global, DataUser &data_user) ;
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6> void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user);
-template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6> void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user);
+template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6> void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user, FieldStructureUser &field_structure_user);
 

@@ -32,6 +32,7 @@
 #include "save_read_data.h"
 #include "save_hdf_data.h"
 
+#include "FieldStructureUser.h"
 
 using namespace LMT;
 using namespace std;
@@ -98,7 +99,7 @@ Cette proc�dure est constitu�e des �tapes suivantes :
    - assign_quantities_current_to_old() : on met � jour les valeurs 0 � partir des valeurs 1
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user) {
+void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user, FieldStructureUser &field_structure_user) {
     //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
@@ -179,6 +180,8 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
                 write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
+                String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_v2_"<< process.rank<<".h5";
+                field_structure_user.write_hdf5(file_output_hdf5);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
@@ -207,8 +210,9 @@ void fake_iterate() {
     Glob<DIM,TYPEREEL> Global3;
     Vec<Boundary<DIM,TYPEREEL> > CL3;
     DataUser data_user;
+    FieldStructureUser field_structure_user;
     
     multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user);
-    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user);
+    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user, field_structure_user);
 
 }

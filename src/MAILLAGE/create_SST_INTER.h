@@ -98,6 +98,29 @@ void add_new_elem(Element<Bar,TNB,TN,TD,NET> &e, TM &m, TR &rep_nodes) {
     m.add_element(Bar(),DefaultBehavior(),rep_nodes.ptr() );
 }
 
+//Structure utilisee pour realiser une operation sur les elements du maillage de peau d'une sous-structure : 
+//      copie des connectivites des elements de peau du maillage local d'une sous-structure (LMT::mesh) vers l'objet geometry_user (GPU)
+struct ConvertMeshConnectivitiesSkin{
+   template<class TE> void operator()(TE &e, GeometryUser &geometry_user, int id_sst) const{
+      for(unsigned i=0;i<e.nb_nodes;i++){
+          geometry_user.find_group_elements(id_sst)->local_connectivities_skin[i][e.number]=e.node(i)->number_in_original_mesh();
+      }
+   }
+};
+
+//conversion du maillage de peau d'une sous-structure (LMT::mesh) aux group_elements
+template<class TS>
+void convert_mesh_skin_to_geometry_user(TS &S, GeometryUser &geometry_user){
+    int id_sst=S.id;
+    int nb_nodes_by_element_skin=(geometry_user.patterns.find_type(geometry_user.find_group_elements(id_sst)->pattern_base_id)).nb_nodes_by_sides;
+    geometry_user.find_group_elements(id_sst)->local_connectivities_skin.resize(nb_nodes_by_element_skin);
+    for(int ne=0;ne<nb_nodes_by_element_skin;ne++){
+        geometry_user.find_group_elements(id_sst)->local_connectivities_skin[ne].resize(S.mesh->skin.elem_list.size());
+    }
+    apply(S.mesh->skin.elem_list,ConvertMeshConnectivitiesSkin(),geometry_user, id_sst);
+   
+}
+
 
 template<class TV1>
 void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, Param &process) {
@@ -109,6 +132,7 @@ void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, TV1 &
         S[i].mesh->update_skin();
         geometry_user.find_group_elements(S[i].id)->nb_elements_skin=S[i].mesh->skin.elem_list.size();
         geometry_user.find_group_elements(S[i].id)->nb_nodes_skin=S[i].mesh->skin.node_list.size();
+        convert_mesh_skin_to_geometry_user(S[i], geometry_user);
         S[i].mesh.unload();
 
         //creation de la boite englobant le maillage de la Sst (utile pour la suite)
@@ -138,7 +162,7 @@ void read_mesh_interface_geometry_user(TM &mesh, GeometryUser &geometry_user, in
     typedef typename TM::EA EA;
   
     // obtaining nbnode, nbelem
-    unsigned nbnode = geometry_user.find_group_interfaces(num_inter)->map_mesh_nodes.size();
+    unsigned nbnode = geometry_user.find_group_interfaces(num_inter)->map_global_nodes.size();
     unsigned nbelem = geometry_user.find_group_interfaces(num_inter)->nb_interfaces;
   
     //ajout des noeuds au maillage
