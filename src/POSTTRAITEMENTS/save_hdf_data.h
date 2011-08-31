@@ -751,7 +751,7 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
 }
 
 template<class TSST, class TINTER>
-void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process , DataUser &data_user) {
+void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataUser &data_user) {
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
     nb_previous_nodes.push_back(0);
@@ -765,7 +765,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process , DataU
     //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
         calcul_fields_on_sst(SubS[i],process, data_user);
-        create_hdf_fields_data_SST(SubS[i],SubI, process);
+        create_hdf_fields_data_SST(SubS[i],Inter, process);
     }
     
     //concatenation des noeuds et ecriture dans le hdf
@@ -783,7 +783,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &SubI, Param &process , DataU
 
     //ecriture des champs par elements dans le hdf
     for(unsigned i=0;i<SubS.size();i++) {
-        save_fields_hdf_SST_INTER(SubS[i] , SubI, process, hdf_file , process.affichage->name_fields);
+        save_fields_hdf_SST_INTER(SubS[i] , Inter, process, hdf_file , process.affichage->name_fields);
     }
     String name_fields ;
     name_fields<< process.affichage->name_fields <<"/pt_"<< process.temps->pt_cur ;

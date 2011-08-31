@@ -14,13 +14,15 @@ CFLAGS= -LUTIL/metis -lmetis -LUTIL/openmpi/lib -lmpi -lmpi_cxx
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
 DIR_SOURCES_MPI = -IUTIL/openmpi -IUTIL/openmpi/include
-OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
+OPT = -ne -j4 -O3 -ffast-math -fexpensive-optimizations
+OPT_DBG = -ne -j4 -g3 -g -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
 # all: metil_comp_create_cpu rsync
 
 # all: metil_comp_compute_cpu rsync
 all: metil_comp_multi
+all: metil_comp_multi_dbg
 # all: metil_comp_test
 # all: local
 
@@ -33,6 +35,9 @@ metil_test :
 
 metil_comp_multi :
 	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double  -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/multiscale.cpp
+
+metil_comp_multi_dbg :
+	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double  -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT_DBG)  src/multiscale.cpp
 
 metil_comp_test :
 	$(LOC_MC)  -o  $(PRG_multi) -DCPU  -DDIM=$(DIM) -DCPU  -DTYPE=double -DTYPEREEL=double -DLDL -Dcrout_alain $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_cpu) $(CFLAGS) $(LIBS) $(OPT)  src/test.cpp

@@ -28,6 +28,7 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.latin->facteur_relaxation = 0.8;
     process.latin->critere_erreur = data_user.options.LATIN_crit_error;
     process.latin->critere_erreur_diss = 0;
+    process.latin->critere_erreur_auto_stop = data_user.options.LATIN_crit_error_auto_stop;
     process.latin->type_error = "ddr";
     if (process.latin->type_error=="dissipation") process.latin->critere_erreur_diss = 0;
     
@@ -73,6 +74,8 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     process.affichage->repertoire_save= data_user.calcul_path + "/";
     process.affichage->name_data= "result";
     process.affichage->command_file= "No";
+    process.affichage->trac_ener_imp  = data_user.options.trac_ener_imp;
+    process.affichage->trac_ener_diss = data_user.options.trac_ener_diss;
     
 //     std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
     

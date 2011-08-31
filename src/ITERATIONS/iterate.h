@@ -13,6 +13,9 @@ using namespace std;
 #include "containers/evaluate_nb_cycles.h"
 
 #include "create_file_pvd.h"
+
+#include "containers/gnuplot.h"
+
 extern Crout crout;
 
 /** \defgroup LATIN Stratégie LATIN
@@ -256,6 +259,7 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
     bool multiechelle=process.multiscale->multiechelle;
     bool save_depl_SST=process.latin->save_depl_SST;
     process.latin->save_depl_SST=0;
+    unsigned d_err = 0;
     TicToc2 tic1;
     for(unsigned i=0;i<(unsigned)process.latin->nbitermax+1;++i) {
       if (process.rank ==0)
@@ -272,21 +276,6 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         //std::cout << "\t Etape lineaire " << endl;
         etape_lineaire(S,Inter,process,Global);
         
-//         std::cout << "Avant relaxation" << endl;
-//         std::cout << Inter[15].side[0].t[1].Wpchap << endl;
-//         std::cout << Inter[15].side[1].t[1].Wpchap << endl;
-//         std::cout << Inter[15].side[0].t[1].Fchap << endl;
-//         std::cout << Inter[15].side[1].t[1].Fchap << endl;
-//         std::cout << Inter[15].side[0].t[1].Wp << endl;
-//         std::cout << Inter[15].side[1].t[1].Wp << endl;
-//         std::cout << Inter[15].side[0].t[1].F << endl;
-//         std::cout << Inter[15].side[1].t[1].F << endl;
-
-//         if (process.rank == 0 ){
-//             for(int q=0;q<Inter.size();q++){
-//                 cout << Inter[q].side[0].t[1].F << endl;
-//             }
-//         }
         
 /*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
         crout << process.rank<< " : etape lineaire : " ;*/
@@ -311,16 +300,8 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         tic.stop();
         tic.start();
 
-/*        std::cout << "Avant locale" << endl;
-        std::cout << Inter[15].side[0].t[1].Wpchap << endl;
-        std::cout << Inter[15].side[1].t[1].Wpchap << endl;
-        std::cout << Inter[15].side[0].t[1].Fchap << endl;
-        std::cout << Inter[15].side[1].t[1].Fchap << endl;
-        std::cout << Inter[15].side[0].t[1].Wp << endl;
-        std::cout << Inter[15].side[1].t[1].Wp << endl;
-        std::cout << Inter[15].side[0].t[1].F << endl;
-        std::cout << Inter[15].side[1].t[1].F << endl;*/
         //std::cout << "\t Etape locale " << endl;
+#include "../../../LMTpp/include/util/unit_test.h"
         if (process.size==1 or process.rank>0)
             etape_locale(SubI,S,process);
         //etape locale sur les sous-structures
@@ -345,6 +326,13 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
                 std::cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
             break;
         }
+        
+        //attention le paramètre est à déterminer (1e-4) pour etre optimal
+        if ( i > 0 && (process.latin->error[i-1]-process.latin->error[i] < process.latin->critere_erreur_auto_stop) )
+	  d_err++;
+	else
+	  d_err=0;
+        
         // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
         if (process.latin->error[i]<=process.latin->critere_erreur) {
             if (process.latin->critere_erreur_diss != 0) {
@@ -376,7 +364,12 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
             }
-        }
+        // sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
+        } else if ( d_err == 5 ) {
+	      if (process.rank == 0) std::cout << "Arret par manque de convergence" << std::endl; 
+                flag_convergence=1;
+                process.latin->save_depl_SST=save_depl_SST;
+	}
         // arret du processus nb d iteration max-1 atteint (1 iteration supplementaire pour sauvegarder les deplacements)
         if (process.latin->iter==process.latin->nbitermax-1) {
             flag_convergence=1;
@@ -393,5 +386,13 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
             std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
+    
+//     if (process.rank == 0){
+//         std::cout << process.latin->error[range(process.latin->iter+1)] << std::endl;
+// 	GnuPlot gp;
+// 	gp.plot(log10(process.latin->error[range(process.latin->iter+1)]));
+// 	gp.wait();
+//     }
+
 }
 

@@ -27,6 +27,8 @@
 
 #include "modification_sst_inter_behaviour.h"
 
+#include "affichage.h"
+
 //fonctions pour les envoies des donn�es par mpi
 #include "crout.h"
 #include "save_read_data.h"
@@ -192,6 +194,20 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 //     calcul_erreur_latin(SubS, Inter, process, Global);
 //     if (process.rank == 0)
 //         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
+
+//Affichage des energies
+       if (process.affichage->trac_ener_imp == 1) {
+	  process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
+	  affichage_energie(SubS,Inter,process,data_user);
+	  process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
+	  affichage_energie(SubS,Inter,process,data_user);
+       }
+       if (process.affichage->trac_ener_diss == 1) {
+	  process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=0;
+	  affichage_energie(SubS,Inter,process,data_user);
+	  process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=1;
+	  affichage_energie(SubS,Inter,process,data_user);
+       }
 
 };
 // #endif

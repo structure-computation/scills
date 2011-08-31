@@ -56,7 +56,6 @@ using namespace std;
 
 #include "write_xdmf_geometry_fields.h"
 #include "save_hdf_data.h"
-#include "../../SC_code/src/COMPUTE/DataUser.h"
 
 /** \ingroup
 \brief Fonction principale pour un calcul sous-structuré. Cette routine est appelée plusieurs fois dans le cas d'une multirésolution

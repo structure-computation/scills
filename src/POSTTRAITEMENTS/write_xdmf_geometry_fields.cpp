@@ -24,7 +24,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Param &process, String name_el
         String input_hdf5; input_hdf5 << name_hdf5 <<"_"<<i_proc<<".h5";
         Hdf hdf(input_hdf5.c_str());    
 
-        PRINT(input_hdf5);
+//         PRINT(input_hdf5);
         int nb_nodes;
         String data_node_x = name_nodes + "/x";
         hdf.read_size(data_node_x,nb_nodes);
