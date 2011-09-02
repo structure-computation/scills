@@ -101,7 +101,18 @@ Cette proc�dure est constitu�e des �tapes suivantes :
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
 void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user) {
-    //1ere phase : allocations et initialisation des quantites
+
+  //Présence d'interface Breakable ?
+  int nb_breakable=0;
+  if (process.rank == 0)
+    for(unsigned q=0; q <Inter.size();q++)
+      if (Inter[q].comp =="Breakable")
+	nb_breakable++;
+  if (process.size>0)
+    MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+  process.nb_breakable = nb_breakable ;
+  
+  //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
     if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);
@@ -173,7 +184,28 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
             
         std::cout << "          iterate_incr : " << endl;
-        iterate_incr(process,SubS,Inter,SubI,Global);
+	if (nb_breakable>0) {
+	  int nb_change = 0;
+	  int sous_iter = 1;
+	  while(nb_change != 0 or sous_iter == 1) {
+	    if (process.size == 0 or process.rank > 0){
+	      for(unsigned q=0; q < SubI.size();q++){
+		if (SubI[q].comp == "Breakable")
+		  SubI[q].param_comp->convergence = -1; 
+	      }
+	    }
+	    if (process.rank == 0) std::cout << "\t\tSous iteration interface cassable : " << sous_iter << std::endl;
+            iterate_incr(process,SubS,Inter,SubI,Global);
+	    if (process.size == 0 or process.rank > 0){
+	      for(unsigned q=0; q < SubI.size();q++){
+		if (SubI[q].comp == "Breakable")
+		  nb_change += SubI[q].param_comp->convergence ; 
+	      }
+	    }
+	  }
+	} else {
+	  iterate_incr(process,SubS,Inter,SubI,Global);
+	}
         //assignation ptcur au ptold
         std::cout << "          assign_quantities_current_to_old : " << endl;
         assign_quantities_current_to_old(SubS,SubI,process);

@@ -77,7 +77,7 @@ struct Param
   bool read_data; ///< booléen permettant de lire dans des fichiers textes les données aux interfaces et aux sst
   int reprise_calcul; ///< booleen permettant de dire si on initialise le calcul avec les donnees sauvegarder dans save_sst et save_inter
   
-
+  int nb_breakable; ///nombre d'interfaces cassables
   
 };
 

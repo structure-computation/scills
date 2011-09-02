@@ -57,6 +57,8 @@ struct etape_locale_inter {
                 compt_cohesif(Inter,*process.temps);
             } else if (Inter.comp=="Jeu_impose") {
                 compt_jeu_impose(Inter,*process.temps);
+            } else if (Inter.comp=="Breakable") {
+                compt_breakable(Inter,*process.temps);
             } else {
                 std::cout<< "Erreur : comportement interface non reconnu" << endl;
                 assert(0);

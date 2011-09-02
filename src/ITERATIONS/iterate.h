@@ -300,6 +300,15 @@ void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) 
         tic.stop();
         tic.start();
 
+	//Si on a converge, on le dit aux interfaces cassables pour qu'elles mettent à jour leur comportement
+	if (flag_convergence == 1 && process.nb_breakable > 0) {
+	  if (process.size == 0 or process.rank > 0){
+	      for(unsigned q=0; q < SubI.size();q++){
+		if (SubI[q].comp == "Breakable")
+		  SubI[q].param_comp->convergence = 0; 
+	      }
+	  }
+	}
         //std::cout << "\t Etape locale " << endl;
 #include "../../../LMTpp/include/util/unit_test.h"
         if (process.size==1 or process.rank>0)
