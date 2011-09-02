@@ -140,7 +140,7 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Fi
             multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL, data_user);
         } else if(process.nom_calcul=="incr") {
             if (process.rank == 0) std::cout << "Calcul incremental" << std::endl;
-            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL, data_user);
+            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL, data_user, field_structure_user);
         } else {
             if (process.rank == 0) std::cout << "nom de calcul non defini : choix entre latin ou incremental" << std::endl;
             assert(0);
@@ -303,8 +303,12 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     process.affichage->name_fields = "/Level_0/Fields";
     
     if (process.size == 1 or process.rank>0) {
-        if(process.save_data==1)
-            write_hdf_geometry_SST_INTER(SubS,Inter,process);
+        if(process.save_data==1){
+            write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+            
+            String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_v2_"<< process.rank<<".h5";
+            geometry_user.write_hdf5(file_output_hdf,1);
+        }
     }
         
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
