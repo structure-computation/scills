@@ -140,7 +140,7 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Fi
             multiscale_iterate_latin(S,SubS,Inter, SubI,process, Global,CL, data_user);
         } else if(process.nom_calcul=="incr") {
             if (process.rank == 0) std::cout << "Calcul incremental" << std::endl;
-            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL, data_user, field_structure_user);
+            multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL, data_user, geometry_user, field_structure_user);
         } else {
             if (process.rank == 0) std::cout << "nom de calcul non defini : choix entre latin ou incremental" << std::endl;
             assert(0);
@@ -179,7 +179,7 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Fi
     
     //sortie xdmf à partir du fichier hdf5 créé au fur et à mesure du calcul
     if(process.rank==0 and process.save_data==1){
-        write_xdmf_file_compute(process, data_user);   
+        //write_xdmf_file_compute(process, data_user);   
         
     }  
     
@@ -301,22 +301,19 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     process.affichage->name_hdf << "geometry_fields";   
     process.affichage->name_geometry = "/Level_0/Geometry";
     process.affichage->name_fields = "/Level_0/Fields";
-    
     if (process.size == 1 or process.rank>0) {
         if(process.save_data==1){
-            write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
-            
-            String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_v2_"<< process.rank<<".h5";
-            geometry_user.write_hdf5(file_output_hdf,1);
+            //write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+            String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+            geometry_user.write_hdf5_in_parallel(file_output_hdf,process.rank);
         }
     }
-        
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     
     //ecriture du fichier de sortie xdmf
     if(process.rank==0 and process.save_data==1){
         std::cout << "Sortie xdmf" << std::endl;
-        write_xdmf_file_geometry(process, data_user);   
+        //write_xdmf_file_geometry(process, data_user);   
     }
         
     /// affichage du maillage si necessaire

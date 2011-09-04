@@ -1,5 +1,6 @@
 #include "mise_a_jour_quantites.h"
 #include <boost/concept_check.hpp>
+#include "FieldStructureUser.h"
 
 struct Projection_data_elements_0_on_skin_sst{
   template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
@@ -46,6 +47,96 @@ void calcul_fields_on_sst(TSST &S, Param &process, DataUser &data_user) {
 /*    apply(S.mesh->skin.elem_list,Projection_elements_0_skin(),S.mesh->skin, *S.mesh.m);*/
     apply(S.mesh->skin.elem_list,Projection_fields_on_skin_sst(),S.mesh->skin,*S.mesh.m);
 }
+
+struct Extract_fields_on_element_sst_skin{
+   template<class TE, class TS> void operator()(TE &e, TS &S ) const{
+        int nb_comp=DIM*(DIM+1)/2;
+        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
+            S.sigma_skin[i_comp][e.number]=e.sigma_skin[i_comp];
+            S.epsilon_skin[i_comp][e.number]=e.epsilon_skin[i_comp];
+            S.sigma_mises_skin[e.number]=e.sigma_mises_skin;
+        }
+   }
+   template<class TE> void operator()(TE &e, FieldStructureGroupElementsUser *field_structure_group_elements ) const{
+        int nb_comp=DIM*(DIM+1)/2;
+        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
+            field_structure_group_elements->sigma_skin[i_comp][e.number]=e.sigma_skin[i_comp];
+            field_structure_group_elements->epsilon_skin[i_comp][e.number]=e.epsilon_skin[i_comp];
+            field_structure_group_elements->sigma_mises_skin[e.number]=e.sigma_mises_skin;
+        }
+   }
+};
+
+struct Extract_fields_on_element_sst{
+   template<class TE, class TS> void operator()(TE &e, TS &S ) const{
+        int nb_comp=DIM*(DIM+1)/2;
+        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
+            S.sigma[i_comp][e.number]=e.sigma[0][i_comp];
+            S.epsilon[i_comp][e.number]=e.epsilon[0][i_comp];
+            S.sigma_mises[e.number]=e.sigma_von_mises;
+        }
+   }
+   template<class TE> void operator()(TE &e, FieldStructureGroupElementsUser *field_structure_group_elements ) const{
+        int nb_comp=DIM*(DIM+1)/2;
+        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
+            field_structure_group_elements->sigma[i_comp][e.number]=e.sigma[0][i_comp];
+            field_structure_group_elements->epsilon[i_comp][e.number]=e.epsilon[0][i_comp];
+            field_structure_group_elements->sigma_mises[e.number]=e.sigma_von_mises;
+        }
+   }
+};
+
+template<class TINTER, class TSST>
+void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &process , DataUser &data_user, FieldStructureUser &field_structure_user) {
+    //sauvegarde des coordonnées des noeuds en entier de la sst
+    for(unsigned i_sst=0;i_sst<SubS.size();i_sst++){
+        //extraction des champs à partir du resultat de calcul (LMTpp)
+        calcul_fields_on_sst(SubS[i_sst],process, data_user);
+        
+        int id_sst=SubS[i_sst].id;
+        //conversion des deplacements des noeuds de la SST
+        for(int d=0;d<DIM;d++){
+            for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes;i++){
+                field_structure_user.find_group_elements(id_sst)->displacement_local_nodes[d][i]=SubS[i_sst].mesh->node_list[i].dep[d];
+            }
+        }
+
+        //conversion des deplacements des noeuds sur la peau
+        for(int d=0;d<DIM;d++){
+            for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes_skin;i++){
+                field_structure_user.find_group_elements(id_sst)->displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->skin.node_list[i].dep[d];
+            }
+        }
+        
+        //conversion des donnees sur les elements
+        //extraction sur la SST
+        apply(SubS[i_sst].mesh->elem_list,Extract_fields_on_element_sst(), field_structure_user.find_group_elements(id_sst));
+        //extraction sur la peau
+        apply(SubS[i_sst].mesh->skin.elem_list,Extract_fields_on_element_sst_skin(), field_structure_user.find_group_elements(id_sst));
+        
+/*        for(unsigned j=0;j<S.edge.size();++j) {
+            unsigned q=S.edge[j].internum;
+            unsigned data=S.edge[j].datanum;
+            if(data==0){
+                 int nbnodeseq=Inter[q].side[data].t[1].F.size()/DIM;
+                for(int d=0;d<DIM;d++){
+                    Inter[q].F[d].resize(nbnodeseq);
+                    Inter[q].W[d].resize(nbnodeseq);
+                    Inter[q].Fchap[d].resize(nbnodeseq);
+                    Inter[q].Wchap[d].resize(nbnodeseq);
+                    for(int ne=0;ne<nbnodeseq;ne++){
+                        Inter[q].F[d][ne]=Inter[q].side[data].t[1].F[ne*DIM+d];
+                        Inter[q].W[d][ne]=Inter[q].side[data].t[1].W[ne*DIM+d];
+                        Inter[q].Fchap[d][ne]=Inter[q].side[data].t[1].Fchap[ne*DIM+d];
+                        Inter[q].Wchap[d][ne]=Inter[q].side[data].t[1].Wchap[ne*DIM+d];
+                    }
+                }       
+            }
+        }*/
+    }
+    
+}
+
 
 struct Extract_connectivities_on_element_sst{
    template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot) const{
@@ -417,27 +508,6 @@ void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, String name_g
     hdf_file.add_tag(name_list,"base",type_elements.c_str());
 }
 
-struct Extract_fields_on_element_sst_skin{
-   template<class TE, class TS> void operator()(TE &e, TS &S ) const{
-        int nb_comp=DIM*(DIM+1)/2;
-        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
-            S.sigma_skin[i_comp][e.number]=e.sigma_skin[i_comp];
-            S.epsilon_skin[i_comp][e.number]=e.epsilon_skin[i_comp];
-            S.sigma_mises_skin[e.number]=e.sigma_mises_skin;
-        }
-   }
-};
-
-struct Extract_fields_on_element_sst{
-   template<class TE, class TS> void operator()(TE &e, TS &S ) const{
-        int nb_comp=DIM*(DIM+1)/2;
-        for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
-            S.sigma[i_comp][e.number]=e.sigma[0][i_comp];
-            S.epsilon[i_comp][e.number]=e.epsilon[0][i_comp];
-            S.sigma_mises[e.number]=e.sigma_von_mises;
-        }
-   }
-};
 
 
 template<class TSST, class TINTER>

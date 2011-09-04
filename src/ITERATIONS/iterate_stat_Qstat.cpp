@@ -101,7 +101,7 @@ Cette proc�dure est constitu�e des �tapes suivantes :
    - assign_quantities_current_to_old() : on met � jour les valeurs 0 � partir des valeurs 1
 */
 template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user, FieldStructureUser &field_structure_user) {
+void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL, DataUser &data_user, GeometryUser &geometry_user, FieldStructureUser &field_structure_user) {
     //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
@@ -147,8 +147,10 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
     for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
         process.temps->time_step[i_step].pt_cur=i_pt;
         process.temps->pt_cur+=1;
+        process.temps->current_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
+        
         if (process.rank == 0)
-            std::cout << "----Piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
+            std::cout << "----Piquet de temps courant " << process.temps->current_time << std::endl;
 
 //         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
 //         std::cout << process.rank<< " : barrier2 : " << endl;
@@ -181,15 +183,16 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
-                String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_v2_"<< process.rank<<".h5";
-                field_structure_user.write_hdf5(file_output_hdf5);
+                //write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
+                convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user);
+                String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+                field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields.c_str(), process.temps->pt_cur, process.temps->current_time, process.rank);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)
         //modification_sst_inter_behaviour(S,Inter,param_incr);
         if (process.rank == 0)
-            std::cout << "---- fin piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << std::endl;
+            std::cout << "---- fin piquet de temps " << process.temps->current_time << std::endl;
     }
 //     calcul_erreur_latin(SubS, Inter, process, Global);
 //     if (process.rank == 0)
@@ -227,8 +230,9 @@ void fake_iterate() {
     Vec<Boundary<DIM,TYPEREEL> > CL3;
     DataUser data_user;
     FieldStructureUser field_structure_user;
+    GeometryUser geometry_user;
     
     multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user);
-    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user, field_structure_user);
+    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3, data_user, geometry_user, field_structure_user);
 
 }

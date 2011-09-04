@@ -29,10 +29,12 @@ struct TEMPS{
      nbpastemps=1;
      type_de_calcul="stat";
      nb_step=1;
+     current_time=0;
   }
   int pt;            ///< piquet de temps de calcul (0 ou 1)
   int pt_cur;   ///< piquet de temps (ou intervalle de temps) courant global
   int step_cur;         ///< step courant
+  double current_time; ///< valeur courante du piquet de temps de calcul
   double dt;         ///< pas de temps
   double theta;   ///< paramètre de la theta_methode
   unsigned nbpastemps; ///< nb de pas de temps total

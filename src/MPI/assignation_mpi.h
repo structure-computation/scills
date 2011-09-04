@@ -16,6 +16,8 @@
 #include "mpi_lmt_functions.h"
 #include <fstream>
 #include "crout.h"
+#include "GeometryUser.h"
+#include "../../../SC_code/src/GEOMETRY/GeometryUser.h"
 
 extern "C" {
     // #include "metis.h"
@@ -39,7 +41,7 @@ void  definition_mpi_param(TP &process,T1 &argc, T2 &argv) {
 }
 
 template <class TS,class TI, class TP, class T1, class T2>
-void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
+void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, GeometryUser &geometry_user) {
     ///Lecture du fichier de repartion et creation des vecteurs de pointeurs de SST
     if (process.size>1) {//il s agit de creer un vecteur de vecteur qui donnera le numero des SST a parcourir par processeur
         string namein=process.structure->repertoire_des_maillages;
@@ -300,6 +302,18 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI) {
         process.multi_mpi->listinter.resize(0);
     }
 
+
+    //repartition des groups d'elements en fonction de la repartition des sst pour mpi
+    geometry_user.repartition_mpi_group_elements.resize(process.multi_mpi->repartition_sst.size());
+    for(unsigned i_proc=0;i_proc<geometry_user.repartition_mpi_group_elements.size();i_proc++){
+        geometry_user.repartition_mpi_group_elements[i_proc].resize(process.multi_mpi->repartition_sst[i_proc].size());
+        for(unsigned i_sst=0;i_sst<geometry_user.repartition_mpi_group_elements[i_proc].size();i_sst++){
+            int id_sst=process.multi_mpi->repartition_sst[i_proc][i_sst];
+            geometry_user.repartition_mpi_group_elements[i_proc][i_sst]=id_sst;
+            geometry_user.find_group_elements(id_sst)->processor_rank=i_proc;
+        }
+    }
+    
 
     //    ////Tri du vecteur display_fields de facon a le mettre dans le meme ordre que les donnees par noeud et par element pour que la creation des PVTU se fasse dans le bon ordre
     //     if (process.affichage->type_affichage=="Sinterieur") {
