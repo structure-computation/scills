@@ -151,6 +151,11 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
                 Inter[q].param_comp->jeu.set(0.);
                 Inter[q].param_comp->param_damage=propinter[i].param_damage;
             }
+            if (propinter[i].type=="breakable") {
+                Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
+                Inter[q].param_comp->jeu.set(0.);
+                Inter[q].param_comp->Gcrit=propinter[i].Gcrit;
+            }
             if (propinter[i].type=="contact_ep" or propinter[i].type=="parfait") {
 //                 std::cout << "propinter[i].type = " << propinter[i].type << std::endl;
 //                 

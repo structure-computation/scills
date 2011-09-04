@@ -541,6 +541,169 @@ void compt_contact_ep (INTER &Inter,TEMPS &temps) {
 
 
 
+//interface interieure de type parfait cassable => contact avec frottement
+/** \ingroup  etape_locale
+\relates etape_locale_inter
+\brief Procédure pour les interfaces intérieures de type parfait cassable
+*/
+template<class INTER>
+void compt_breakable (INTER &Inter,TEMPS &temps) {
+    typedef typename INTER::T TT;
+
+    int imic = temps.pt;
+    double dt=temps.dt;
+
+    Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
+    Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
+    Vec<TT> WWpchap1=Inter.side[0].t[imic].Wpchap[list1];
+    Vec<TT> WWpchap2=Inter.side[1].t[imic].Wpchap[list2];
+    Vec<TT> Qchap1=Inter.side[0].t[imic].Fchap[list1];
+    Vec<TT> Qchap2=Inter.side[1].t[imic].Fchap[list2];
+    const Vec<TT> &Q1=Inter.side[0].t[imic].F[list1];
+    const Vec<TT> &Q2=Inter.side[1].t[imic].F[list2];
+    const Vec<TT> &WWp1=Inter.side[0].t[imic].Wp[list1];
+    const Vec<TT> &WWp2=Inter.side[1].t[imic].Wp[list2];
+    const Vec<TT> &WWchap1old=Inter.side[0].t[imic-1].Wchap[list1];
+    const Vec<TT> &WWchap2old=Inter.side[1].t[imic-1].Wchap[list2];
+    Vec<TT> WWchap1=Inter.side[0].t[imic].Wchap[list1];
+    Vec<TT> WWchap2=Inter.side[1].t[imic].Wchap[list2];
+    
+    const Vec<TT> &neq=Inter.side[0].neq[list1];
+
+    TT f=Inter.param_comp->coeffrottement;
+
+    TT h1n=Inter.side[0].hn;
+    TT h2n=Inter.side[1].hn;
+    TT h1t=Inter.side[0].ht;
+    TT h2t=Inter.side[1].ht;
+    unsigned dim=INTER::dim;
+
+    
+    // travail pt par pt
+    unsigned nbpts=Inter.side[0].nodeeq.size();
+
+
+    for(unsigned i=0;i<nbpts;++i) {
+        Vec<unsigned> rep=range(i*dim,(i+1)*dim);
+        Vec<TT,INTER::dim> n=neq[rep]; // normale de 1 vers 2
+        Vec<TT,INTER::dim> F1=Q1[rep], F2=Q2[rep],Fchap1=Qchap1[rep], Fchap2=Qchap2[rep], Wp1=WWp1[rep],Wp2=WWp2[rep],Wpchap1=WWpchap1[rep],Wpchap2=WWpchap2[rep] , Wchap1old=WWchap1old[rep],Wchap2old=WWchap2old[rep] , Wchap1=WWchap1[rep],Wchap2=WWchap2[rep];
+
+        // test contact normal
+        TT N=0;
+        N=( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
+	
+	if (Inter.param_comp->convergence >= 0 && Inter.param_comp->comportement[i] == 0){//la convergence du calcul itératif est OK, on met à jour le comportement des éléments qui ne sont pas déja cassé
+           if (N>0.0 && std::abs(dot(n,F1)) > Inter.param_comp->Gcrit){ //David dit de mettre 10% de plus
+	     Inter.param_comp->comportement[i] = 1;
+	     Inter.param_comp->convergence++;
+	  }
+	}
+	
+	if (Inter.param_comp->comportement[i] == 1){//interface cassée donc contact :
+
+        if (N>0.0) { // separation de l'interface
+            Fchap1=0.0;
+            Fchap2=0.0;
+            Wpchap1=Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
+            Wpchap2=Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
+
+        } else { // contact
+            TT Fchap1n=N;
+            TT Fchap2n=-1.0*Fchap1n;
+            TT Wpchap1n=dot(Wp1,n) + h1n*( Fchap1n - dot(n,F1) );
+            TT Wpchap2n=dot(Wp2,n) + h2n*( Fchap2n - dot(n,F2) );
+
+            // test glissement adherence
+            Vec<TT,INTER::dim> T;
+            T=(ProjT(Wp2,n)-ProjT(Wp1,n) -h2t*ProjT(F2,n) + h1t*ProjT(F1,n))/(h2t+h1t);
+            TT g = f*std::abs(Fchap1n);
+
+            TT normT=norm_2(T);
+            Vec<TT,INTER::dim> Fchap1t,Fchap2t,Wpchap1t,Wpchap2t;
+
+            //Attention au signe : modifie pour eviter la division par 0
+            if (normT <= g) { // adherence
+                Fchap1t=T;
+                Fchap2t=-1.0*Fchap1t;
+                Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
+                Wpchap2t= Wpchap1t;
+
+            } else if (normT > g) { // glissement
+                Fchap1t=T*g/normT;
+                Fchap2t=-1.0*Fchap1t;
+                Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
+                Wpchap2t= ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
+
+            }
+
+            Wpchap1=Wpchap1n*n+Wpchap1t;
+            Fchap1=Fchap1n*n+Fchap1t;
+            Wpchap2=Wpchap2n*n+Wpchap2t;
+            Fchap2=Fchap2n*n+Fchap2t;
+        }
+
+        //integration
+        Wchap1 = Wpchap1*dt + Wchap1old;
+        Wchap2 = Wpchap2*dt + Wchap2old;
+        WWchap1[rep]=Wchap1;
+        WWchap2[rep]=Wchap2;
+
+        Qchap1[rep]=Fchap1;
+        Qchap2[rep]=Fchap2;
+        WWpchap1[rep]=Wpchap1;
+        WWpchap2[rep]=Wpchap2;
+
+    } else {//interface parfaite
+	//creation des operateurs locaux de direction de recherche
+	Kloc<TT,INTER::dim> kloc1;
+	kloc1.kn=Inter.side[0].kn;
+	kloc1.kt=Inter.side[0].kt;
+	
+	Kloc<TT,INTER::dim> kloc2;
+	kloc2.kn=Inter.side[1].kn;
+	kloc2.kt=Inter.side[1].kt;
+	
+	Kloc<TT,INTER::dim> hloc;
+	hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
+	hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
+
+        //assignation de la normale aux operateurs elementaires
+        kloc1.n=n;
+        kloc2.n=n;
+        hloc.n=n;
+        // travail point par point
+        WWpchap1[rep]=hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
+        WWpchap2[rep]=hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
+        Qchap1[rep]=F1+kloc1*(Wpchap1[rep]-Wp1);
+        Qchap2[rep]=-1.0*Qchap1[rep];
+
+	//integration
+        Wchap1 = WWpchap1[rep]*dt + Wchap1old;
+        Wchap2 = WWpchap1[rep]*dt + Wchap2old;
+        WWchap1[rep]=Wchap1;
+        WWchap2[rep]=Wchap2;
+    }
+    
+    Inter.side[0].t[imic].Wpchap[list1]=WWpchap1;
+    Inter.side[1].t[imic].Wpchap[list2]=WWpchap2;
+    Inter.side[0].t[imic].Wchap[list1]=WWchap1;
+    Inter.side[1].t[imic].Wchap[list2]=WWchap2;
+
+    Inter.side[0].t[imic].Fchap[list1]=Qchap1;
+    Inter.side[1].t[imic].Fchap[list2]=Qchap2;
+
+    }
+    
+
+}
+
+
+
+
+
+
+
+
 
 
 struct assign_d_mesh {

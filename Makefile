@@ -18,10 +18,10 @@ OPT = -ne -j4 -O3 -ffast-math -fexpensive-optimizations
 OPT_DBG = -ne -j4 -g3 -g -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
-all: metil_comp_create_cpu rsync
+# all: metil_comp_create_cpu rsync
 
 # all: metil_comp_compute_cpu rsync
-# all: metil_comp_multi
+all: metil_comp_multi
 # all: metil_comp_multi_dbg
 # all: metil_comp_test
 # all: local

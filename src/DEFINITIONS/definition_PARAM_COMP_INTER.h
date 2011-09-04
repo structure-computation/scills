@@ -22,6 +22,9 @@ struct PARAM_COMP_INTER{
     Vec<double> dmax,d;
     Vec<double> Y,Ymax;
     unsigned nbpastempsimpos;
+    Vec<bool> comportement;
+    int convergence; ///< =-1 si le calcul du pas de temps n'est pas convergence, >=0 sinon
+                     ///< =0 après l'étape locale si aucun comportement d'élément est mis à jour, >0 sinon
 
     PARAM_COMP_INTER(unsigned nbnodeeq){
       jeu.resize(nbnodeeq,0.); 
@@ -30,6 +33,8 @@ struct PARAM_COMP_INTER{
       d.resize(nbnodeeq,0.);
       dmax.resize(nbnodeeq,0.);
       f_coeffrottement.resize(nbnodeeq,0.);
+      comportement.resize(nbnodeeq,0);
+      convergence = -1;
     }
     
     void free(){
@@ -39,6 +44,7 @@ struct PARAM_COMP_INTER{
       Y.free();
       Ymax.free();
       t.free();
+      comportement.free();
     }
 
     struct Time{

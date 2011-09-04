@@ -47,11 +47,13 @@ struct Interface
     int edge_id;   ///< identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
     int id_link;   ///< identite du behaviour_links dans le data_user issu du json
     int id_bc;     ///< identite du behaviour_bc dans le data_user issu du json
-                                                                                                                                  
+    
+    
 // donnees liees au macro
     Vec<int> repddl; ///< reperage des ddls dans le probleme macro
     int nb_macro_total; ///< nombre de fct macro total
     int nb_macro_espace; ///< nombre de fct de base macro en espace
+
 
 
 /// classe decrivant les grandeurs ou champs d'un cote d'une interface

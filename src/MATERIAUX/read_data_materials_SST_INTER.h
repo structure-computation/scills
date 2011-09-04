@@ -438,6 +438,9 @@ void read_propinter(TV4 &propinter,const DataUser &data_user, BasicVec<BasicVec<
         }else if(data_user.behaviour_links[i].type_num == 3){
             propinter[i].type = "cohesive";
             propinter[i].comp="Cohesive";
+        }else if(data_user.behaviour_links[i].type_num == 4){
+            propinter[i].type = "breakable";
+            propinter[i].comp="Breakable";
         }else{
             std::cout  << "comportement d'interface non reconnu" << std::endl;  assert(0);
         }
