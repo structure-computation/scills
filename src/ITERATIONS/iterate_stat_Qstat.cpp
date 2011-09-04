@@ -106,13 +106,13 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 
   //Présence d'interface Breakable ?
   int nb_breakable=0;
-  if (process.rank == 0)
-    for(unsigned q=0; q <Inter.size();q++)
-      if (Inter[q].comp =="Breakable")
-	nb_breakable++;
-  if (process.size>0)
-    MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
-  process.nb_breakable = nb_breakable ;
+//   if (process.rank == 0)
+//     for(unsigned q=0; q <Inter.size();q++)
+//       if (Inter[q].comp =="Breakable")
+// 	nb_breakable++;
+//   if (process.size>0)
+//     MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+//   process.nb_breakable = nb_breakable ;
   
   //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
