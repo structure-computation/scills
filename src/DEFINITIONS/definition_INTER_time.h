@@ -30,7 +30,7 @@ struct Interface
    typedef PARAM_COMP_INTER PARAM_COMP; ///< type des parametres supplementaires pour les comportements
    
 //Geometrie
-    int id;     ///< id de l'interface 
+    int id;     ///< id du group d'interface de geometry_user
     int num;     ///< numero de l'interface 
     
     Pvec G;  ///< centre de gravite

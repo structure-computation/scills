@@ -288,7 +288,7 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
         Inter[i_inter].type="Int";
         Inter[i_inter].comp="Parfait";
         
-        Inter[i_inter].num=geometry_user.find_group_interfaces(Inter[i_inter].id)->nb_interfaces; // pourquoi ???
+        //Inter[i_inter].num=geometry_user.find_group_interfaces(Inter[i_inter].id)->nb_interfaces; // pourquoi ???
     }
     
     
@@ -330,10 +330,6 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
     int nb_inter_actuel =  Inter.size();
     int nb_inter_total =  nb_inter_actuel + nb_inter;
     Inter.resize(nb_inter_total);
-    
-    PRINT(nb_inter_actuel);
-    PRINT(nb_inter);
-    PRINT(Inter.size());
     // assignation des id d'interfaces et des reférence vers un comportement
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
 
@@ -365,7 +361,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, TV1 
         find_sst(S, id_sst[0])->vois.push_back(-1);
         Inter[num_inter].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
         Inter[num_inter].side[0].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
-        Inter[num_inter].num=geometry_user.find_group_interfaces(Inter[num_inter].id)->nb_interfaces; // pourquoi ???
+        //Inter[num_inter].num=geometry_user.find_group_interfaces(Inter[num_inter].id)->nb_interfaces; // pourquoi ???
     }
     
     // construction du maillage des interfaces
@@ -502,7 +498,8 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
     
     //make subs et subi
     //assignation_mpi...
-    mpi_repartition(S, Inter,process,Stot,SubS,SubI);                            // to be TEST
+    mpi_repartition(S, Inter,process,Stot,SubS,SubI, geometry_user);                            // to be TEST
+        
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "MPI Repartition : " ;
@@ -522,6 +519,19 @@ void create_SST_INTER(DataUser &data_user, GeometryUser &geometry_user, TV1 &S,T
     //assignation du numero de l'interface
     for(unsigned i=0;i<Inter.size();i++){
         Inter[i].num=i;
+    }
+    
+    //copie des "id" et "side" des interfaces adjacentes aux groupes d'elements
+    for(unsigned i_sst=0;i_sst<S.size();i_sst++){
+        int id_sst=S[i_sst].id;
+        geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces.resize(S[i_sst].edge.size());
+        geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces.resize(S[i_sst].edge.size());
+        for(unsigned i_side=0;i_side<S[i_sst].edge.size();i_side++) {
+            int id_interface=S[i_sst].edge[i_side].internum;
+            int side_interface=S[i_sst].edge[i_side].datanum;
+            geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[i_side]=Inter[id_interface].id;
+            geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[i_side]=side_interface;
+        }
     }
 
 };
