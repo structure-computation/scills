@@ -106,13 +106,13 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
 
   //Présence d'interface Breakable ?
   int nb_breakable=0;
-//   if (process.rank == 0)
-//     for(unsigned q=0; q <Inter.size();q++)
-//       if (Inter[q].comp =="Breakable")
-// 	nb_breakable++;
-//   if (process.size>0)
-//     MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
-//   process.nb_breakable = nb_breakable ;
+  if (process.rank == 0)
+    for(unsigned q=0; q <Inter.size();q++)
+      if (Inter[q].comp =="Breakable")
+	nb_breakable++;
+  if (process.size>1)
+    MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+  process.nb_breakable = nb_breakable ;
   
   //1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
@@ -217,7 +217,7 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
                 //write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
-                convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user);
+                convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
                 String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
                 field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields.c_str(), process.temps->pt_cur, process.temps->current_time, process.rank);
             }

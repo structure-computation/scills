@@ -87,7 +87,7 @@ struct Extract_fields_on_element_sst{
 };
 
 template<class TINTER, class TSST>
-void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &process , DataUser &data_user, FieldStructureUser &field_structure_user) {
+void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &process , DataUser &data_user, FieldStructureUser &field_structure_user, GeometryUser &geometry_user) {
     //sauvegarde des coordonnées des noeuds en entier de la sst
     for(unsigned i_sst=0;i_sst<SubS.size();i_sst++){
         //extraction des champs à partir du resultat de calcul (LMTpp)
@@ -114,25 +114,21 @@ void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &proces
         //extraction sur la peau
         apply(SubS[i_sst].mesh->skin.elem_list,Extract_fields_on_element_sst_skin(), field_structure_user.find_group_elements(id_sst));
         
-/*        for(unsigned j=0;j<S.edge.size();++j) {
-            unsigned q=S.edge[j].internum;
-            unsigned data=S.edge[j].datanum;
-            if(data==0){
-                 int nbnodeseq=Inter[q].side[data].t[1].F.size()/DIM;
+        for(unsigned j=0;j<SubS[i_sst].edge.size();++j) {
+            unsigned q=SubS[i_sst].edge[j].internum;
+            unsigned data=SubS[i_sst].edge[j].datanum;
+            int i_inter=geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[j];
+            int i_side=geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[j];
+            //if(data==0){
+                int nbnodeseq=field_structure_user.group_interfaces[i_inter].nb_interfaces;
                 for(int d=0;d<DIM;d++){
-                    Inter[q].F[d].resize(nbnodeseq);
-                    Inter[q].W[d].resize(nbnodeseq);
-                    Inter[q].Fchap[d].resize(nbnodeseq);
-                    Inter[q].Wchap[d].resize(nbnodeseq);
                     for(int ne=0;ne<nbnodeseq;ne++){
-                        Inter[q].F[d][ne]=Inter[q].side[data].t[1].F[ne*DIM+d];
-                        Inter[q].W[d][ne]=Inter[q].side[data].t[1].W[ne*DIM+d];
-                        Inter[q].Fchap[d][ne]=Inter[q].side[data].t[1].Fchap[ne*DIM+d];
-                        Inter[q].Wchap[d][ne]=Inter[q].side[data].t[1].Wchap[ne*DIM+d];
+                        field_structure_user.group_interfaces[i_inter].F[i_side][d][ne]=I[q].side[data].t[1].F[ne*DIM+d];
+                        field_structure_user.group_interfaces[i_inter].W[i_side][d][ne]=I[q].side[data].t[1].W[ne*DIM+d];
                     }
                 }       
-            }
-        }*/
+            //}
+        }
     }
     
 }
