@@ -13,6 +13,9 @@ struct Projection_sigma_epsilon_on_skin{
       e.numsst_skin = parent.numsst;
       e.num_proc_skin = parent.num_proc;
       e.typmat_skin = parent.typmat;
+        e.numsst_skin = parent.numsst;
+        e.num_proc_skin = parent.num_proc;
+        e.typmat_skin = parent.typmat;
       //e.epsilon_skin[0] =parent.Yde[0];
       //e.epsilon_skin[1] =parent.Yde[1];
 

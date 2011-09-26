@@ -43,13 +43,13 @@ inline void read_data_process(Param &process, DataUser &data_user) {
         process.affichage->type_affichage= "Inter";
         process.affichage->affich_mesh= 1;
     }else{
-        process.affichage->type_affichage= "Sbord";
+        process.affichage->type_affichage= "Sinterieur";
         process.affichage->affich_mesh= 0;
     }
     process.affichage->display_error= 0; 
     process.affichage->save= "save";
     if(process.affichage->type_affichage== "Sinterieur"){
-        process.affichage->display_fields.resize(8);
+        process.affichage->display_fields.resize(10);
         process.affichage->display_fields[0]= "dep";
         process.affichage->display_fields[1]= "qtrans";
         process.affichage->display_fields[2]= "sigma";
@@ -58,14 +58,17 @@ inline void read_data_process(Param &process, DataUser &data_user) {
         process.affichage->display_fields[5]= "sigma_mises";
         process.affichage->display_fields[6]= "numsst";
         process.affichage->display_fields[7]= "f_vol_e";
+        process.affichage->display_fields[8]= "num_proc";
     }
     else if(process.affichage->type_affichage== "Sbord"){
-        process.affichage->display_fields.resize(6);
+        process.affichage->display_fields.resize(8);
         process.affichage->display_fields[0]= "dep";
         process.affichage->display_fields[1]= "qtrans";
         process.affichage->display_fields[2]= "sigma_skin";
         process.affichage->display_fields[3]= "epsilon_skin";
         process.affichage->display_fields[5]= "sigma_mises_skin";
+        process.affichage->display_fields[6]= "numsst_skin";
+        process.affichage->display_fields[7]= "num_proc_skin";
     }
 
 //     process.affichage->display_fields.resize(1);

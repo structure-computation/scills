@@ -66,6 +66,7 @@ template<class TV1>
 void affich_SST(TV1 &S,Param &process) {
 
     string typemail=process.affichage->type_affichage;
+    std::cout << typemail << std::endl;
     string save=process.affichage->save;
     string nom_generique = process.affichage->repertoire_save +typemail;
 

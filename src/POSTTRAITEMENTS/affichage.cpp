@@ -132,6 +132,8 @@ void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
     if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) 
         affich_SST_resultat_latin(S,process, data_user);
+      
+
 };
 
 

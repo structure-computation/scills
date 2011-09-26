@@ -84,7 +84,6 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
             symbols.push_back("z");
         }
         
-        
         if(data_user.options.Multiresolution_on==1){
             //ajout des variables de multiresolution aux symboles
             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
@@ -92,6 +91,9 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
                 symbols.push_back(var.c_str());
             }
         }
+
+        Ex Pi = symbol("PI");
+        symbols.push_back(Pi);
         
         Vec<std::string> vstr;
         vstr.resize(data_user.dim, "0");
@@ -125,7 +127,8 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
                 var[symbols[TV3::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
         }
-        
+        var[symbols[TV3::template SubType<0>::T::dim+data_user.Multiresolution_parameters.size()]]=M_PI;
+
         for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
             data[d2] = (double)expr[d2].subs_numerical(var);
 
@@ -150,7 +153,8 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
                 for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
                     var_temp[symbols[TV3::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
-            
+            var_temp[symbols[TV3::template SubType<0>::T::dim+data_user.Multiresolution_parameters.size()]]=M_PI;
+
             mat_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);
 /*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }

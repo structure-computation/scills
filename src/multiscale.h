@@ -303,7 +303,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     process.affichage->name_fields = "/Level_0/Fields";
     if (process.size == 1 or process.rank>0) {
         if(process.save_data==1){
-            //write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+           // write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
             String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
             geometry_user.write_hdf5_in_parallel(file_output_hdf,process.rank);
         }
@@ -317,7 +317,10 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     }
         
     /// affichage du maillage si necessaire
+    //process.affichage->affich_mesh=1;
+/*    process.affichage->type_affichage= "Sinterieur";*/
     affichage_maillage(SubS,SubI,S,process);
+/*    process.affichage->type_affichage= "Sbord";*/
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Affichage maillage : " ;
@@ -368,7 +371,12 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
         affichage_resultats(SubS,process, data_user);
     }
-     
+    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+    if(process.temps->type_de_calcul!="stat"){
+       if (process.size>1 and process.rank==0){affichage_resultats_temps(process);}
+    }
+    
+    
     memory_free(S,Inter,process);
    
     
