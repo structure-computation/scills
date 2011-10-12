@@ -361,7 +361,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
                 affichage_resultats(SubS,process, data_user);
             }
         }
-        else{
+        else {
             std::cerr <<"TODO : plan d'experience" << std::endl;
             assert(0);
         }

@@ -216,10 +216,10 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
         
         if(process.save_data==1) 
             if (process.size == 1 or process.rank>0) {
-                write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
-                // convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
-//                 String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
-//                 field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields.c_str(), process.temps->pt_cur, process.temps->current_time, process.rank);
+               // write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
+                 convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
+                 String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+                 field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields.c_str(), process.temps->pt_cur, process.temps->current_time, process.rank);
             }
         
         //modification de certaines interfaces ou sst (exemple endommagement)

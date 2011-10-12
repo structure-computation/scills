@@ -2,6 +2,8 @@
 #include <boost/concept_check.hpp>
 #include "FieldStructureUser.h"
 
+
+//Assignation des champs de géométrie d'éléments sur la peau à partir des champs des éléments parents correspondant
 struct Projection_data_elements_0_on_skin_sst{
   template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
     const typename TM::EA *ea = mskin.get_parents_of(e)[0];
@@ -13,6 +15,7 @@ struct Projection_data_elements_0_on_skin_sst{
   }
 };
 
+//Assignation des champs de résultat d'éléments sur la peau à partir des champs des éléments parents correspondant
 struct Projection_fields_on_skin_sst{
    template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
       const typename TM::EA *ea = mskin.get_parents_of(e)[0];
@@ -32,7 +35,17 @@ struct Projection_fields_on_skin_sst{
    }
 };
 
+//calcul du champ permettant de réaliser un éclaté de la structure (champ qtrans)
+template<class SST>
+void calcul_explode_displacements(SST &S){
+    typedef Vec<typename SST::T,SST::dim> TV;
+    TV G=barycenter_constant_rho(*S.mesh.m);
+    for(int i=0;i<S.mesh->node_list.size();i++){
+        S.mesh->node_list[i].qtrans=S.mesh->node_list[i].pos+G;
+    }
+}
 
+//Permet de calculer les champs sur la SST et sur sa peau pour un pas de temps donné
 template<class TSST>
 void calcul_fields_on_sst(TSST &S, Param &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
@@ -43,11 +56,15 @@ void calcul_fields_on_sst(TSST &S, Param &process, DataUser &data_user) {
         //assign_dep_cont_slave(S,S.t[1].q);
     }
     else{std::cout << "Type de calcul non reconnu dans save_geometry_sst " << std::endl;assert(0);}
+    
+    calcul_explode_displacements(S);
+    
     S.mesh->update_skin();
 /*    apply(S.mesh->skin.elem_list,Projection_elements_0_skin(),S.mesh->skin, *S.mesh.m);*/
     apply(S.mesh->skin.elem_list,Projection_fields_on_skin_sst(),S.mesh->skin,*S.mesh.m);
 }
 
+//Conversion des champs d'éléments de peau à la structure de donnée de type BasicVec
 struct Extract_fields_on_element_sst_skin{
    template<class TE, class TS> void operator()(TE &e, TS &S ) const{
         int nb_comp=DIM*(DIM+1)/2;
@@ -63,6 +80,8 @@ struct Extract_fields_on_element_sst_skin{
             field_structure_group_elements->sigma_skin[i_comp][e.number]=e.sigma_skin[i_comp];
             field_structure_group_elements->epsilon_skin[i_comp][e.number]=e.epsilon_skin[i_comp];
             field_structure_group_elements->sigma_mises_skin[e.number]=e.sigma_mises_skin;
+            field_structure_group_elements->num_processor_skin[e.number]=e.num_proc_skin;
+            field_structure_group_elements->material_behaviour_skin[e.number]=e.typmat_skin;
         }
    }
 };
@@ -82,6 +101,8 @@ struct Extract_fields_on_element_sst{
             field_structure_group_elements->sigma[i_comp][e.number]=e.sigma[0][i_comp];
             field_structure_group_elements->epsilon[i_comp][e.number]=e.epsilon[0][i_comp];
             field_structure_group_elements->sigma_mises[e.number]=e.sigma_von_mises;
+            field_structure_group_elements->num_processor[e.number]=e.num_proc;
+            field_structure_group_elements->material_behaviour[e.number]=e.typmat;
         }
    }
 };
@@ -92,22 +113,29 @@ void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &proces
     for(unsigned i_sst=0;i_sst<SubS.size();i_sst++){
         //extraction des champs à partir du resultat de calcul (LMTpp)
         calcul_fields_on_sst(SubS[i_sst],process, data_user);
-        
+
         int id_sst=SubS[i_sst].id;
         //conversion des deplacements des noeuds de la SST
 
         for(int d=0;d<DIM;d++){
             for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes;i++){
                 field_structure_user.find_group_elements(id_sst)->displacement_local_nodes[d][i]=SubS[i_sst].mesh->node_list[i].dep[d];
+                field_structure_user.find_group_elements(id_sst)->explode_displacement_local_nodes[d][i]=SubS[i_sst].mesh->node_list[i].qtrans[d];
             }
         }
 
         //conversion des deplacements des noeuds sur la peau
         for(int d=0;d<DIM;d++){
-            for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes_skin;i++){
-                field_structure_user.find_group_elements(id_sst)->displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->skin.node_list[i].dep[d];
+            for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes;i++){
+                field_structure_user.find_group_elements(id_sst)->displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->node_list[i].dep[d];
+                field_structure_user.find_group_elements(id_sst)->explode_displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->node_list[i].qtrans[d];
             }
         }
+//         for(int d=0;d<DIM;d++){
+//             for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes_skin;i++){
+//                 field_structure_user.find_group_elements(id_sst)->displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->skin.node_list[i].dep[d];
+//             }
+//         }
 
         //conversion des donnees sur les elements
         //extraction sur la SST
@@ -115,23 +143,23 @@ void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &proces
         //extraction sur la peau
         apply(SubS[i_sst].mesh->skin.elem_list,Extract_fields_on_element_sst_skin(), field_structure_user.find_group_elements(id_sst));
 
-        for(unsigned j=0;j<SubS[i_sst].edge.size();++j) {
-            unsigned q=SubS[i_sst].edge[j].internum;
-            unsigned data=SubS[i_sst].edge[j].datanum;
-            int i_inter=geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[j];
-            int i_side=geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[j];
-            std::cout << i_inter << " " << i_side << std::endl;
-            //if(data==0){
-                int nbnodeseq=field_structure_user.group_interfaces[i_inter].nb_interfaces;
-                std::cout << field_structure_user.find_group_interfaces(i_inter)->id << " " << nbnodeseq << " " << I[q].side[data].t[1].F.size() << std::endl;
-                for(int d=0;d<DIM;d++){
-                    for(int ne=0;ne<nbnodeseq;ne++){
-                        field_structure_user.find_group_interfaces(i_inter)->F[i_side][d][ne]=I[q].side[data].t[1].F[ne*DIM+d];
-                        field_structure_user.find_group_interfaces(i_inter)->W[i_side][d][ne]=I[q].side[data].t[1].W[ne*DIM+d];
-                    }
-                }       
-            //}
-        }
+//         for(unsigned j=0;j<SubS[i_sst].edge.size();++j) {
+//             unsigned q=SubS[i_sst].edge[j].internum;
+//             unsigned data=SubS[i_sst].edge[j].datanum;
+//             int i_inter=geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[j];
+//             int i_side=geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[j];
+//             std::cout << i_inter << " " << i_side << std::endl;
+//             //if(data==0){
+//                 int nbnodeseq=field_structure_user.group_interfaces[i_inter].nb_interfaces;
+//                 std::cout << field_structure_user.find_group_interfaces(i_inter)->id << " " << nbnodeseq << " " << I[q].side[data].t[1].F.size() << std::endl;
+//                 for(int d=0;d<DIM;d++){
+//                     for(int ne=0;ne<nbnodeseq;ne++){
+//                         field_structure_user.find_group_interfaces(i_inter)->F[i_side][d][ne]=I[q].side[data].t[1].F[ne*DIM+d];
+//                         field_structure_user.find_group_interfaces(i_inter)->W[i_side][d][ne]=I[q].side[data].t[1].W[ne*DIM+d];
+//                     }
+//                 }       
+//             //}
+//         }
     }
     
 }
