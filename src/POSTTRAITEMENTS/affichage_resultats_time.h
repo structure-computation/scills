@@ -26,6 +26,68 @@ struct Projection_sigma_epsilon_on_skin{
    }
 };
 
+//procedure permettant de sortir les fichiers paraview pour le volume et la peau des sst en une seule passe.
+template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser &data_user) {
+    
+    //preparation des noms et des repertoires pour ecriture des resultats
+    String name_multiresolution="";
+    if(data_user.options.Multiresolution_on==1)
+        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+    Vec<string,2> directory_names=Vec<string>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
+    Vec<string,2> generic_names;
+    for(int i=0;i<2;i++) {
+        int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
+        generic_names[i]=directory_names[i]+"/"+name_multiresolution.c_str()+ process.affichage->name_data; //nom generique du fichier vtu
+    }
+   
+   //eclatement de chaque sous-structure
+   double ecl=1;
+   eclat_SST(S,ecl);
+   
+    for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
+        //creation du maillage global
+        typename TV1::template SubType<0>::T::TMESH::TM meshglob;
+        for(unsigned i=0;i<S.size();++i){
+            if(process.nom_calcul=="incr")
+                assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user);
+            else if(process.nom_calcul=="latin")
+                assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
+            meshglob.append(*S[i].mesh.m);
+            S[i].mesh.unload();
+        }
+     
+        //extraction des quantites pour la peau
+        meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+    /*         remove_doubles(meshglob,1e-8, true);*/
+        meshglob.update_skin();
+        apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
+
+        //ecriture des fichiers vtu
+        for(unsigned i=0;i<2;i++){
+            DisplayParaview dp;
+            //ecriture fichier paraview generique de tous les champs (volume ou peau)
+            ostringstream sp;
+            sp<<"./tmp/paraview_"<<process.rank<<"_";
+            string strp(sp.str());
+            if(process.size > 1) process.affichage->save="save";
+            if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
+            else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
+            
+            if(process.affichage->save=="display") dp.exec();
+            //modification du nom et deplacement du fichier generique
+            ostringstream ss;
+            ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+            string namefile(ss.str());
+            int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+        }
+    } 
+   
+}
+
+
+
 /**\ingroup Post_traitement 
  \brief Procedure permettant d'afficher les champs après calcul sur les sous-structures pour un calcul itératif (statique ou quasistatique)
  
@@ -38,10 +100,39 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
    
    string typemail=process.affichage->type_affichage;
+   
+    if(process.affichage->type_affichage== "Sinterieur"){
+        process.affichage->display_fields.resize(10);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma";
+        process.affichage->display_fields[3]= "epsilon";
+        process.affichage->display_fields[4]= "ener";
+        process.affichage->display_fields[5]= "sigma_mises";
+        process.affichage->display_fields[6]= "numsst";
+        process.affichage->display_fields[7]= "f_vol_e";
+        process.affichage->display_fields[8]= "num_proc";
+    }
+    else if(process.affichage->type_affichage== "Sbord"){
+        process.affichage->display_fields.resize(8);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma_skin";
+        process.affichage->display_fields[3]= "epsilon_skin";
+        process.affichage->display_fields[5]= "sigma_mises_skin";
+        process.affichage->display_fields[6]= "numsst_skin";
+        process.affichage->display_fields[7]= "num_proc_skin";
+    }
+   
+   
+   string name_directory;   
+   if(typemail=="Sinterieur") name_directory=process.affichage->repertoire_save +"results/sst_bulk";
+   else name_directory=process.affichage->repertoire_save +"results/sst_skin";
+   int tmp=system(("mkdir -p "+name_directory).c_str());
+   string nom_generique = name_directory+"/"+name_multiresolution.c_str()+ process.affichage->name_data;
    string save=process.affichage->save;
-   string nom_generique = process.affichage->repertoire_save +name_multiresolution.c_str()+"sst_"+ process.affichage->name_data;
      
-   int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+   //int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
    //eclatement de chaque sous-structure
    double ecl=1;
@@ -52,6 +143,8 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
       //mise a zeros des quantites sigma_old et epsilon_old (visco uniquement)
       //apply(S[i].mesh.elem_list,mise_a_zero_old_quantities());
    }*/
+
+
 
    if (typemail=="Sinterieur") {
       for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
@@ -66,9 +159,10 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
          }
+             
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_"<<imic<<".vtu";
-         else ss<<nom_generique << "_"<<S[0].num_proc<<"_"<<imic<<".vtu";
+         if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
          string namefile(ss.str());
          
          ostringstream sp;
@@ -100,13 +194,12 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
          }
          meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
          meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-/*         remove_doubles(meshglob,1e-8, true);*/
          meshglob.update_skin();
          apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
          
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_"<<imic<<".vtu";
-         else ss<<nom_generique << "_"<<S[0].num_proc<<"_"<<imic<<".vtu";
+         if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
          string namefile(ss.str());
          
          ostringstream sp;
@@ -121,6 +214,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
       }
    }
    
+
 /*   //Tri du vecteur display_fields de facon a le mettre dans le meme ordre que les donnees par noeud et par element pour que la creation des PVTU se fasse dans le bon ordre
    typedef typename TV1::template SubType<0>::T::TMESH TM;
    const char *names[TM::TNode::nb_params+(TM::TNode::nb_params==0)];
@@ -404,8 +498,9 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
  */
 template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param &process) {
    
-
-   int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+   string save_directory=process.affichage->repertoire_save+"results/inter/";
+   
+   int tmp=system(("mkdir -p "+save_directory).c_str());
    
    if(process.size > 1) process.affichage->save="save";
 
@@ -413,13 +508,14 @@ template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param
       process.temps->pt=i;
       process.affichage->pt=i;
       affich_inter_data_time(Inter, S, process);
-      string nom_generique = process.affichage->repertoire_save + "inter_"+process.affichage->name_data;
+      string nom_generique = save_directory + process.affichage->name_data;
       ostringstream sp;
       sp<<"./tmp/paraview_"<<process.rank<<"_";
       string strp(sp.str());
       ostringstream ss;
-      if (process.size == 1) ss<<nom_generique << "_"<<i<<".vtu";
-      else ss<<nom_generique << "_"<<process.rank<<"_"<<i<<".vtu";
+      /*if (process.size == 1) ss<<nom_generique << "_time_"<<i<<".vtu";
+      else */
+      ss<<nom_generique << "_proc_"<<process.rank<<"_time_"<<i<<".vtu";
       string namefile(ss.str());
       int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
    }

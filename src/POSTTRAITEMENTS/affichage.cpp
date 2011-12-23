@@ -45,12 +45,12 @@ void fake_affichage() {
     Vec<Interface<DIM,TYPEREEL> > Inter3;
     Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > InterP3;
     
-    affichage_maillage(SP3, InterP3,S3, process);
+    affichage_maillage(SP3, InterP3,S3, process, data_user);
     affichage_resultats(SP3, process, data_user);
     affichage_depl_pt(SP3, process);
     affichage_var_inter(SP3,Inter3, process);
     affichage_inter_data(Inter3, S3, process);
-    affichage_resultats_inter(InterP3, S3 , process);
+    affichage_resultats_inter(InterP3, S3 , process, data_user);
     affichage_energie(SP3,Inter3, process, data_user);
 
 }
@@ -105,19 +105,26 @@ void affichage_inter_temps(Param &process) {
  - si le champ type_affichage est "Inter", on appelle affich_INTER()
  */
 template <class TV3,class TV4, class TV1> 
-void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
+void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process, DataUser &data_user){
     if (process.affichage->affich_mesh==1) {
       if (process.size==1 or process.rank>0){
-        if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" or process.affichage->type_affichage=="all"){
+          std::cout << "type " << process.affichage->type_affichage << std::endl;
+        if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" ){
             affich_SST(S,process);
-	    affich_INTER(Inter,Stot, process);
-	}else if (process.affichage->type_affichage=="Inter" or process.affichage->type_affichage=="all") {
+	}else if (process.affichage->type_affichage=="Inter" ) {
+            affich_INTER(Inter,Stot, process);
+        }else if (process.affichage->type_affichage=="all") { 
+            process.affichage->type_affichage="Sbord";
+            affich_SST(S,process);
+            process.affichage->type_affichage="Inter";
             affich_INTER(Inter,Stot, process);
         } else
             std::cout << "erreur d'affichage" << endl;
       }
       if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-      if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
+//       if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
+        if (process.size>1 and process.rank==0) create_file_pvd_geometry(process,data_user,"Geometry_sst");
+        if (process.size>1 and process.rank==0) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 
     }
 }
@@ -130,8 +137,13 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
 template <class TV3> 
 void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
     if (process.affichage->affich_resultat==1)
-      if (process.size == 1 or process.rank > 0) 
-        affich_SST_resultat_latin(S,process, data_user);
+      if (process.size == 1 or process.rank > 0) {
+        write_paraview_results(S,process, data_user);
+        create_file_pvd(process,data_user,"sst_bulk");
+        create_file_pvd(process,data_user,"sst_skin");
+        //process.affichage->type_affichage="Sinterieur"; //sortie paraview pour les SST en volume
+        //affich_SST_resultat_latin(S,process, data_user);
+      }
       
 
 };
@@ -143,10 +155,12 @@ void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
  On appelle affich_resultats_inter() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 template <class TV1,class TV4> 
-void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process) {
+void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process, DataUser &data_user) {
   if (process.affichage->affich_resultat==1)
-      if (process.size == 1 or process.rank > 0) 
+      if (process.size == 1 or process.rank > 0) {
         affich_INTER_resultat(Inter,S,process);
+        create_file_pvd(process,data_user,"inter");
+      }
 };
 
 /** \ingroup Post_Traitement

@@ -37,6 +37,8 @@ struct AFFICHAGE{
   string type_affichage;   ///< type d'affichage "Sinterieur", "Sbord", "Interface"
   bool display_error; ///< affichage graphique de l'erreur au cours des iterations
   Vec<string> display_fields; ///< champs a afficher pour le resultat du calcul (ex : "dep sigma epsilon")
+  Vec<string> display_fields_sst_bulk; ///< liste de tous les champs a afficher pour les sst volumiques
+  Vec<string> display_fields_sst_skin; ///< liste de tous les champs a afficher pour les sst peau
   Vec<string> display_fields_inter; ///< champs a afficher pour le resultat du calcul des interfaces, par defaut c est tout donc on extrait l ensemble des donnees au element et on remplit ce vecteur (ex : "dep qtrans")
   string save;         ///< sauvegarde ou affichage des resultats (save ou display)
   string repertoire_save;   ///< repertoire de sauvegarde (ex : ./tmp/data/)

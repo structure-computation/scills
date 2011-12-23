@@ -48,27 +48,32 @@ inline void read_data_process(Param &process, DataUser &data_user) {
     }
     process.affichage->display_error= 0; 
     process.affichage->save= "save";
+    
+    process.affichage->display_fields_sst_bulk.resize(10);
+    process.affichage->display_fields_sst_bulk[0]= "dep";
+    process.affichage->display_fields_sst_bulk[1]= "qtrans";
+    process.affichage->display_fields_sst_bulk[2]= "sigma";
+    process.affichage->display_fields_sst_bulk[3]= "epsilon";
+    process.affichage->display_fields_sst_bulk[4]= "ener";
+    process.affichage->display_fields_sst_bulk[5]= "sigma_mises";
+    process.affichage->display_fields_sst_bulk[6]= "numsst";
+    process.affichage->display_fields_sst_bulk[7]= "f_vol_e";
+    process.affichage->display_fields_sst_bulk[8]= "num_proc";
+
+    process.affichage->display_fields_sst_skin.resize(8);
+    process.affichage->display_fields_sst_skin[0]= "dep";
+    process.affichage->display_fields_sst_skin[1]= "qtrans";
+    process.affichage->display_fields_sst_skin[2]= "sigma_skin";
+    process.affichage->display_fields_sst_skin[3]= "epsilon_skin";
+    process.affichage->display_fields_sst_skin[5]= "sigma_mises_skin";
+    process.affichage->display_fields_sst_skin[6]= "numsst_skin";
+    process.affichage->display_fields_sst_skin[7]= "num_proc_skin";
+    
     if(process.affichage->type_affichage== "Sinterieur"){
-        process.affichage->display_fields.resize(10);
-        process.affichage->display_fields[0]= "dep";
-        process.affichage->display_fields[1]= "qtrans";
-        process.affichage->display_fields[2]= "sigma";
-        process.affichage->display_fields[3]= "epsilon";
-        process.affichage->display_fields[4]= "ener";
-        process.affichage->display_fields[5]= "sigma_mises";
-        process.affichage->display_fields[6]= "numsst";
-        process.affichage->display_fields[7]= "f_vol_e";
-        process.affichage->display_fields[8]= "num_proc";
+        process.affichage->display_fields=process.affichage->display_fields_sst_bulk;
     }
     else if(process.affichage->type_affichage== "Sbord"){
-        process.affichage->display_fields.resize(8);
-        process.affichage->display_fields[0]= "dep";
-        process.affichage->display_fields[1]= "qtrans";
-        process.affichage->display_fields[2]= "sigma_skin";
-        process.affichage->display_fields[3]= "epsilon_skin";
-        process.affichage->display_fields[5]= "sigma_mises_skin";
-        process.affichage->display_fields[6]= "numsst_skin";
-        process.affichage->display_fields[7]= "num_proc_skin";
+        process.affichage->display_fields=process.affichage->display_fields_sst_skin;
     }
 
 //     process.affichage->display_fields.resize(1);

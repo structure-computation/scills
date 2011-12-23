@@ -108,6 +108,85 @@ inline void create_file_pvd(Param &process,const string prefix="sst_",unsigned p
    file_pvd << " </Collection> \n </VTKFile>";
 }
 
+//creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
+inline void create_file_pvd(Param &process, DataUser &data_user, const string prefix="sst_bulk"){
+   string save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
+    
+   //creation du nom et du fichier pvd
+   std::ostringstream spvd;
+   String name_multiresolution="";
+   if(data_user.options.Multiresolution_on==1)
+       name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+   
+   spvd<<process.affichage->repertoire_save<<"results/"<<name_multiresolution.c_str()<<prefix<<".pvd";
+   string namepvd( spvd.str() );
+   std::ofstream file_pvd;
+   file_pvd.open( (namepvd).c_str(), ofstream::out);
+   
+   //ecriture entete
+   file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<endl;
+   
+   unsigned ini_proc=1;
+   if(process.size==1) ini_proc=0;
+   else ini_proc=1;
+   //ecriture des lignes correspondant aux fichier a lire
+   //boucle sur le nb de processeur, les step et les piquets de temps
+    process.temps->pt_cur=0;
+    for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+        process.temps->step_cur=i_step;
+        for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
+            process.temps->time_step[i_step].pt_cur=i_pt;
+            process.temps->pt_cur+=1;
+            process.temps->current_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
+            for(unsigned i_proc=ini_proc;i_proc<process.size;++i_proc){
+                //nom du fichier a lire pour le piquet de temps et le processeur considere
+                std::ostringstream ss;
+                ss << save_directory << name_multiresolution.c_str()<<process.affichage->name_data << "_proc_"<<i_proc<<"_time_"<<process.temps->pt_cur <<  ".vtu";
+                string nom1( ss.str() );
+                //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
+                std::ostringstream ss2;
+                ss2 << " <DataSet timestep=\" " << process.temps->current_time << "\" group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+                string ligne1(ss2.str()); 
+                file_pvd << ligne1;
+            }          
+        }
+    }
+   //fin du fichier pvd
+   file_pvd << " </Collection> \n </VTKFile>";   
+}
 
+//creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
+inline void create_file_pvd_geometry(Param &process, DataUser &data_user, const string prefix="sst_bulk"){
+   string save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
+    
+   //creation du nom et du fichier pvd
+   std::ostringstream spvd;
+   
+   spvd<<process.affichage->repertoire_save<<"results/"<<prefix<<".pvd";
+   string namepvd( spvd.str() );
+   std::ofstream file_pvd;
+   file_pvd.open( (namepvd).c_str(), ofstream::out);
+   
+   //ecriture entete
+   file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<endl;
+   
+   unsigned ini_proc=1;
+   if(process.size==1) ini_proc=0;
+   else ini_proc=1;
+   //ecriture des lignes correspondant aux fichier a lire
+    for(unsigned i_proc=ini_proc;i_proc<process.size;++i_proc){
+        //nom du fichier a lire pour le piquet de temps et le processeur considere
+        std::ostringstream ss;
+        ss << process.affichage->repertoire_save<<"results/"<<prefix<< "_proc_"<<i_proc <<  ".vtu";
+        string nom1( ss.str() );
+        //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
+        std::ostringstream ss2;
+        ss2 << " <DataSet timestep=\"1\"" << " group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+        string ligne1(ss2.str()); 
+        file_pvd << ligne1;
+    }          
+   //fin du fichier pvd
+   file_pvd << " </Collection> \n </VTKFile>";   
+}
 
 #endif //CREATE_FILE_PVD

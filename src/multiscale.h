@@ -318,8 +318,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         
     /// affichage du maillage si necessaire
     //process.affichage->affich_mesh=1;
-/*    process.affichage->type_affichage= "Sinterieur";*/
-    affichage_maillage(SubS,SubI,S,process);
+    process.affichage->type_affichage= "all";
+    affichage_maillage(SubS,SubI,S,process, data_user);
 /*    process.affichage->type_affichage= "Sbord";*/
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
@@ -359,6 +359,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
                 }
                 multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);   
                 affichage_resultats(SubS,process, data_user);
+                affichage_resultats_inter(SubI, S ,process, data_user); //sortie paraview pour les interfaces
             }
         }
         else {
@@ -369,12 +370,18 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     else{
         process.temps->dt=0;
         multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
-        affichage_resultats(SubS,process, data_user);
+        affichage_resultats(SubS,process, data_user); //sortie paraview pour les sst (volume et peau)
+        affichage_resultats_inter(SubI, S ,process, data_user); //sortie paraview pour les interfaces
     }
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if(process.temps->type_de_calcul!="stat"){
-       if (process.size>1 and process.rank==0){affichage_resultats_temps(process);}
-    }
+//     if(process.temps->type_de_calcul!="stat"){
+//        if (process.size>1 and process.rank==0){
+//            affichage_resultats_temps(process);
+//            
+//         }
+//     }
+    
+    
     
     
     memory_free(S,Inter,process);

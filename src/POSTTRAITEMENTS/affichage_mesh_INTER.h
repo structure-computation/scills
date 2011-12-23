@@ -64,22 +64,24 @@ On visualise ensuite le type d'interface par le champ "type" dans paraview.
 Le numéro de l'interface est aussi assigné au champ "num"
 */
 template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &process) {
-    string typemail=process.affichage->type_affichage;
-    string save=process.affichage->save;
-    unsigned data=process.affichage->side;
-    string nom_generique = process.affichage->repertoire_save +typemail;
+    
+    string typemail=process.affichage->type_affichage;    
+    string nom_generique = process.affichage->repertoire_save +"results/Geometry_inter";
 
-    int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+    int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"results").c_str());
 
-    ostringstream ss;
-    ss<<nom_generique << "_"<<process.rank<< "_";
-    string namefile(ss.str());
+    //ecriture fichier paraview generique 
+    ostringstream sp;
+    sp<<"./tmp/paraview_"<<process.rank<<"_";
+    string strp(sp.str());
+    
     
     
    //eclate des maillages d'interfaces
    double ecl=1.0;
    eclat_INTER(Inter,ecl);
   
+    unsigned data=process.affichage->side;
    
    //assignation du numero et du type d'interface
    for(unsigned q=0;q<Inter.size();++q){
@@ -111,10 +113,14 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &proce
                    meshglob.append(*Inter[i].side[1-data].mesh);
         }
     }
-   dp.add_mesh(meshglob,namefile,Vec<string>("num","type","qtrans","d"));
+   dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d"));
+    if(process.affichage->save=="display") dp.exec();
+    //modification du nom et deplacement du fichier generique
+    ostringstream ss;
+    ss<<nom_generique << "_proc_"<<process.rank<<".vtu";
+    string namefile(ss.str());
+    int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 
-   if(save=="display" and process.size==1 and process.affichage->command_file=="")
-      dp.exec();
 };
 
 
