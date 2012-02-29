@@ -19,7 +19,7 @@ debug = 1-opt
 timdavis=0 #pour utiliser un solveur different : pas encore bien teste
 
 #Repertoires contenant les .cpp et .h
-mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI  '
+mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI GEOMETRY  COMPUTE '
 mes_repertoires = map( lambda x: 'src/'+x, split(mes_repertoires))
 
 list_repertoires = ['LMT/include', 'build']+mes_repertoires + ['LMT/formulations']
@@ -181,7 +181,7 @@ autres=[
  #'makerefinement.cpp'
  #  'FICHIERS_TEST/conversion_maillage_data_gmsh.cpp'
 # 'validation/validation_elements.cpp',
-  'test_structure.cpp',
+#  'test_structure.cpp',
 #  'treillis.cpp',
 ]
 autres+=libs
@@ -190,5 +190,6 @@ autres+=libs
 
 env2=env
 env2["CPPFLAGS"]+=' -DTYPEREEL=double'
-prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
-Default(prg)
+#prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
+#prg = env2.Program('compil_init',(pb_libs))
+#Default(prg)

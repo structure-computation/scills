@@ -1,12 +1,12 @@
 Import('env pb_libs ')
 
 liste1 = [ 
-   './src/multiscale.cpp',
-   './src/MAILLAGE/multiscale_geometry_mesh.cpp',
-   './src/MATERIAUX/assignation_materials_property.cpp',
-   './src/OPERATEURS/multiscale_operateurs.cpp',
-   './src/ITERATIONS/iterate_stat_Qstat.cpp',
-   './src/POSTTRAITEMENTS/affichage.cpp',
+#   './src/multiscale.cpp',
+#   './src/MAILLAGE/multiscale_geometry_mesh.cpp',
+#   './src/MATERIAUX/assignation_materials_property.cpp',
+#   './src/OPERATEURS/multiscale_operateurs.cpp',
+#   './src/ITERATIONS/iterate_stat_Qstat.cpp',
+#   './src/POSTTRAITEMENTS/affichage.cpp',
 ]
 
 liste2 = [
