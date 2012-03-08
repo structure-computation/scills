@@ -103,7 +103,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
         for(int i_fvol=0; i_fvol<data_user.behaviour_bc_volume.size(); i_fvol++){
             if(data_user.behaviour_bc_volume[i_fvol].select){
                 for(int d=0; d<data_user.dim; d++){
-                    vstr[d] += " + " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6] ;
+                    vstr[d] += " + (" + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + ") * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6] ;
                 }
             }
         }
