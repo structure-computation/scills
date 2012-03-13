@@ -1,5 +1,6 @@
 #ifndef PARAM_DAMAGE_SST_H
 #define PARAM_DAMAGE_SST_H
+/*
 #include "mesh/mesh.h"
 
 #include "meshcaracinter.h" //utilise pour la class PARAM_DAMAGE_SST (uniquement pour le mesomodele et les sst)
@@ -32,7 +33,7 @@ struct PARAM_DAMAGE_SST {
     Vec<T,2> d, dmax, Y, Ymax;
     TMESH mesh;
 };
-
+*/
 
 #endif //PARAM_DAMAGE_SST_H
 

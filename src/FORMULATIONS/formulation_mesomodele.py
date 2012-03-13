@@ -34,7 +34,7 @@ density = Variable( interpolation='global', default_value='1', unit='kg/m^3' )
 # PLASTICITE
 # ----------
 k_p =  Variable( interpolation='global', default_value='100e3', unit='N/mm^2')
-m =  Variable( interpolation='global', default_value='1.0', unit='')
+m_p =  Variable( interpolation='global', default_value='1.0', unit='')
 R0 =  Variable( interpolation='global', default_value='0', unit='N/mm^2')
 couplage = Variable( interpolation='global', default_value='0', unit='')
 

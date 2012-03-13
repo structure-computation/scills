@@ -103,7 +103,7 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
         for(int i_fvol=0; i_fvol<data_user.behaviour_bc_volume.size(); i_fvol++){
             if(data_user.behaviour_bc_volume[i_fvol].select){
                 for(int d=0; d<data_user.dim; d++){
-                    vstr[d] += " + (" + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + ") * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6] ;
+                    vstr[d] += " + " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[d] + " * " + data_user.behaviour_bc_volume[i_fvol].step[0].CLv_step_prop[6];
                 }
             }
         }
@@ -164,30 +164,30 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
         std::cout << (matprop[i].type) <<endl;
         if(matprop[i].type.find("isotrope")<matprop[i].type.size()) {                 // comportement isotrope elastique
 //            PRINT("comportement isotrope elastique");
-            matprop[i].coef.push_back(mat_prop_temp[i][0]);   // E
-            matprop[i].coef.push_back(mat_prop_temp[i][1]);   // nu
-            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   // alpha
-            matprop[i].coefth.push_back(0);                                              // deltaT
+            matprop[i].coef.push_back(mat_prop_temp[i][0]);   /// E
+            matprop[i].coef.push_back(mat_prop_temp[i][1]);   /// nu
+            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   /// alpha
+            matprop[i].coefth.push_back(0);                                              /// deltaT
         } else if (matprop[i].comp.find("visqueux")<matprop[i].comp.size() and matprop[i].type.find("isotrope")<matprop[i].type.size()) {          // comportement isotrope elastique visqueux
 //             PRINT("comportement isotrope visqueux");
-            matprop[i].coef.push_back(mat_prop_temp[i][0]);   // E
-            matprop[i].coef.push_back(mat_prop_temp[i][1]);   // nu
-            matprop[i].coef.push_back(mat_prop_temp[i][4]);   // viscosite
-            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   // alpha
-            matprop[i].coefth.push_back(0);                                              // deltaT
-        } else if (matprop[i].type.find("orthotrope")<matprop[i].type.size()) {          // orthotrope
+            matprop[i].coef.push_back(mat_prop_temp[i][0]);   /// E
+            matprop[i].coef.push_back(mat_prop_temp[i][1]);   /// nu
+            matprop[i].coef.push_back(mat_prop_temp[i][4]);   /// viscosite
+            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   /// alpha
+            matprop[i].coefth.push_back(0);                                              /// deltaT
+        } else if (matprop[i].type.find("orthotrope")<matprop[i].type.size()) {          /// orthotrope
             PRINT("comportement orthotrope");
-            matprop[i].coef.push_back(mat_prop_temp[i][14]);   // E1
-            matprop[i].coef.push_back(mat_prop_temp[i][15]);   // E2
-            matprop[i].coef.push_back(mat_prop_temp[i][16]);   // E3
+            matprop[i].coef.push_back(mat_prop_temp[i][14]);   /// E1
+            matprop[i].coef.push_back(mat_prop_temp[i][15]);   /// E2
+            matprop[i].coef.push_back(mat_prop_temp[i][16]);   /// E3
             
-            matprop[i].coef.push_back(mat_prop_temp[i][20]);   // nu12
-            matprop[i].coef.push_back(mat_prop_temp[i][22]);   // nu13
-            matprop[i].coef.push_back(mat_prop_temp[i][21]);   // nu23
+            matprop[i].coef.push_back(mat_prop_temp[i][20]);   /// nu12
+            matprop[i].coef.push_back(mat_prop_temp[i][22]);   /// nu13
+            matprop[i].coef.push_back(mat_prop_temp[i][21]);   /// nu23
             
-            matprop[i].coef.push_back(mat_prop_temp[i][17]);   // G12
-            matprop[i].coef.push_back(mat_prop_temp[i][19]);   // G13
-            matprop[i].coef.push_back(mat_prop_temp[i][18]);   // G23
+            matprop[i].coef.push_back(mat_prop_temp[i][17]);   /// G12
+            matprop[i].coef.push_back(mat_prop_temp[i][19]);   /// G13
+            matprop[i].coef.push_back(mat_prop_temp[i][18]);   /// G23
 
             for(int d=0; d<data_user.dim; d++){
                 matprop[i].direction[0][d]=mat_prop_temp[i][d+5];
@@ -201,177 +201,32 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
 
             //coefficients thermiques
             matprop[i].coefth.resize(4);
-            matprop[i].coefth[0]=mat_prop_temp[i][23];         //alpha_1
-            matprop[i].coefth[0]=mat_prop_temp[i][24];         //alpha_2
-            matprop[i].coefth[0]=mat_prop_temp[i][25];         //alpha_3
+            matprop[i].coefth[0]=mat_prop_temp[i][23];      ///alpha_1
+            matprop[i].coefth[1]=mat_prop_temp[i][24];      ///alpha_2
+            matprop[i].coefth[2]=mat_prop_temp[i][25];      ///alpha_3
             matprop[i].coefth[3]=0;
             
-            if (matprop[i].comp.find("endommageable")<matprop[i].comp.size()) {
-                PRINT("comportement orthotrope endommageable");
-                //parametres d'endommagement
-                matprop[i].param_damage.Yo = mat_prop_temp[i][26];
-                matprop[i].param_damage.Yop = mat_prop_temp[i][27];
-                matprop[i].param_damage.Ysp = mat_prop_temp[i][28];
-                matprop[i].param_damage.Yc = mat_prop_temp[i][29];
-                matprop[i].param_damage.Ycp = mat_prop_temp[i][30];
-                matprop[i].param_damage.b = mat_prop_temp[i][31];
-            }
+            PRINT("comportement plastique");
+            //parametres de plasticite
+            matprop[i].coefp[0] = mat_prop_temp[i][26];     /// k_p
+            matprop[i].coefp[1] = mat_prop_temp[i][27];     /// m_p
+            matprop[i].coefp[2] = mat_prop_temp[i][28];     /// R0
+            matprop[i].coefp[3] = mat_prop_temp[i][29];     /// couplage
+            
+            PRINT("comportement endommageable");
+            //parametres d'endommagement
+            matprop[i].coefendom[0] = mat_prop_temp[i][30];     /// Yo
+            matprop[i].coefendom[1] = mat_prop_temp[i][31];     /// Yc
+            matprop[i].coefendom[2] = mat_prop_temp[i][32];     /// Ycf
+            matprop[i].coefendom[3] = mat_prop_temp[i][33];     /// dmax
+            matprop[i].coefendom[4] = mat_prop_temp[i][34];     /// b_c
+            matprop[i].coefendom[5] = mat_prop_temp[i][35];     /// effet_retard
+            matprop[i].coefendom[6] = mat_prop_temp[i][36];     /// a
+            matprop[i].coefendom[7] = mat_prop_temp[i][37];     /// tau_c
         }
     }
 };
 
-
-
-
-template<class TV3>
-void read_material_properties(TV3 &matprop, Param &process, const XmlNode &n) {
-
-    XmlNode nmat=n.get_element("materials");
-    unsigned nbmat = nmat.nb_elements("coefficients");
-
-    matprop.resize(nbmat);
-    for(unsigned i=0;i<nbmat;++i) {
-        XmlNode nc = nmat.get_element("coefficients",i);
-        int id;
-        nc.get_attribute( "identificateur", id );
-        nc.get_attribute( "type", matprop[id].type );
-
-        string resolution;
-        if (TV3::template SubType<0>::T::dim==2) {
-            nc.get_attribute( "resolution", resolution );
-            if (resolution=="contrainte_plane")
-                matprop[id].resolution=1;
-            else if (resolution=="deformation_plane")
-                matprop[id].resolution=0;
-            else {
-                std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;
-                assert(0);
-            }
-        }
-        else
-            matprop[id].resolution=0;
-
-
-        std::vector<Ex> symbols;
-        if (TV3::template SubType<0>::T::dim==2) {
-            symbols.push_back("x");
-            symbols.push_back("y");
-        }
-        else if (TV3::template SubType<0>::T::dim==3) {
-            symbols.push_back("x");
-            symbols.push_back("y");
-            symbols.push_back("z");
-        }
-        string fvolstr;
-        nc.get_attribute( "f_vol", fvolstr );
-        Vec<string> vstr=tokenize(fvolstr,';');
-        Vec<Ex> expr;
-        expr.resize(TV3::template SubType<0>::T::dim);
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
-            expr[d2] = read_ex(vstr[d2],symbols);
-        }
-        Vec<double,TV3::template SubType<0>::T::dim> data;
-        Ex::MapExNum var;
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
-            var[symbols[d2]]= 0.;
-        }
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
-            data[d2] = (double)expr[d2].subs_numerical(var);
-
-        matprop[id].f_vol=data;
-//         std::cout << "Pour le materiau  " << id << " : " << data << std::endl;
-
-        if (matprop[id].type=="isotrope") {
-            double E;
-            nc.get_attribute( "elastic_modulus", E );
-            double nu;
-            nc.get_attribute( "poisson_ratio", nu );
-            matprop[id].coef.push_back(E);
-            matprop[id].coef.push_back(nu);
-            double alpha,deltaT;
-            nc.get_attribute( "alpha", alpha );
-            deltaT=process.properties->deltaT;
-            Vec<double> coefth(alpha,deltaT);
-            matprop[id].coefth.append(coefth);
-            if(process.temps->type_de_calcul=="Qstat")
-                matprop[id].dt = process.temps->dt;
-
-        } else if (matprop[id].type=="viscoelas") {
-            double E;
-            nc.get_attribute( "elastic_modulus", E );
-            double nu;
-            nc.get_attribute( "poisson_ratio", nu );
-            double viscosite;
-            nc.get_attribute( "viscosite", viscosite );
-            matprop[id].coef.push_back(E);
-            matprop[id].coef.push_back(nu);
-            matprop[id].coef.push_back(viscosite);
-            double alpha,deltaT;
-            nc.get_attribute( "alpha", alpha );
-            deltaT=process.properties->deltaT;
-            Vec<double> coefth(alpha,deltaT);
-            matprop[id].coefth.append(coefth);
-            if(process.temps->type_de_calcul=="Qstat")
-                matprop[id].dt = process.temps->dt;
-        } else if (matprop[id].type=="orthotrope" or matprop[id].type=="orthotrope_DPG" or matprop[id].type=="orthotrope_damage") {
-            double E1,E2,E3,nu12,nu13,nu23,G12,G13,G23;
-            nc.get_attribute( "E1", E1 );
-            nc.get_attribute( "E2", E2 );
-            nc.get_attribute( "E3", E3 );
-            nc.get_attribute( "nu12", nu12 );
-            nc.get_attribute( "nu13", nu13 );
-            nc.get_attribute( "nu23", nu23 );
-            nc.get_attribute( "G12", G12 );
-            nc.get_attribute( "G13", G13 );
-            nc.get_attribute( "G23", G23);
-            Vec<double> coef(E1,E2,E3,nu12,nu13,nu23,G12,G13,G23);
-            matprop[id].coef.append(coef);
-
-            string exprv1 = nc.get_attribute( "v1" ),exprv2 = nc.get_attribute( "v2" );
-            Vec<string> v1=tokenize(exprv1,';');
-            Vec<string> v2=tokenize(exprv2,';');
-
-            Ex Pi = symbol("Pi");
-            std::vector<Ex> symbols;
-            symbols.push_back(Pi);
-            for(unsigned q=0;q<v1.size();++q) {
-                Ex res1 = read_ex(v1[q].c_str(),symbols);
-                Ex res2 = read_ex(v2[q].c_str(),symbols);
-
-                matprop[id].direction[0][q]=res1.subs_numerical(Pi,M_PI);
-                matprop[id].direction[1][q]=res2.subs_numerical(Pi,M_PI);
-            }
-            std::cout << "assignation_materials_sst.h " << matprop[id].direction[0] << " v1 et v2 " << matprop[id].direction[1] << std::endl;
-            //normalisation des directions d'orthotropie
-            matprop[id].direction[0]=matprop[id].direction[0]/norm_2(matprop[id].direction[0]);
-            matprop[id].direction[1]=matprop[id].direction[1]/norm_2(matprop[id].direction[1]);
-
-            //coefficients thermiques
-            matprop[id].coefth.resize(4);
-            nc.get_attribute( "alpha_1", matprop[id].coefth[0] );
-            nc.get_attribute( "alpha_2", matprop[id].coefth[1] );
-            nc.get_attribute( "alpha_3", matprop[id].coefth[2] );
-
-            double deltaT=process.properties->deltaT;
-            matprop[id].coefth[3]=deltaT;
-            if(process.temps->type_de_calcul=="Qstat")
-                matprop[id].dt = process.temps->dt;
-            //if (matprop[id].type=="orthotrope_DPG"){
-            //   matprop[id].epshorsplan = process.properties->epshorsplan;
-            //   }
-            if (matprop[id].type=="orthotrope_damage") {
-                //parametres d'endommagement
-                nc.get_attribute( "Yo", matprop[id].param_damage.Yo );
-                nc.get_attribute( "Yop", matprop[id].param_damage.Yop );
-                nc.get_attribute( "Ysp", matprop[id].param_damage.Ysp );
-                nc.get_attribute( "Yc", matprop[id].param_damage.Yc );
-                nc.get_attribute( "Ycp", matprop[id].param_damage.Ycp );
-                nc.get_attribute( "b", matprop[id].param_damage.b );
-            }
-
-        }
-    }
-};
 
 /** \ingroup Materiaux
 \brief Lecture des proprietes materiau d'interface 
@@ -484,125 +339,12 @@ void read_propinter(TV4 &propinter,const DataUser &data_user, BasicVec<BasicVec<
             }
             link_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);           
         }
-        propinter[i].f_coeffrottement = data_user.behaviour_links[i].link_prop[0];         // coeff frottement analytique
-        propinter[i].coeffrottement = link_prop_temp[i][0];        // coeff frottement
-        propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   // jeux ou epaisseur negative        
-        propinter[i].Gcrit = link_prop_temp[i][7];                                         // limite en rupture    
-        propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];         // coeff frottement analytique
+        propinter[i].f_coeffrottement = data_user.behaviour_links[i].link_prop[0];      /// coeff frottement analytique
+        propinter[i].coeffrottement = link_prop_temp[i][0];                             /// coeff frottement
+        propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   /// jeux ou epaisseur negative        
+        propinter[i].Gcrit = link_prop_temp[i][7];                                      /// limite en rupture    
+        propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];                   /// coeff frottement analytique
         PRINT(link_prop_temp[i]);
     }        
 
 }
-
-
-template<class TV4>
-void read_propinter(TV4 &propinter,const XmlNode &n) {
-
-    XmlNode nmat=n.get_element("proprietes_interfaces");
-    unsigned nbmat = nmat.nb_elements("coefficients");
-
-    propinter.resize(nbmat);
-
-    for(unsigned i=0;i<nbmat;++i) {
-
-        XmlNode nc = nmat.get_element("coefficients",i);
-        nc.get_attribute( "type", propinter[i].type);
-        nc.get_attribute( "name",propinter[i].name);
-        if (propinter[i].type=="contact_sst") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            nc.get_attribute( "num_sst", propinter[i].num_sst);
-            propinter[i].box[0].set(0.);
-            propinter[i].box[1].set(0.);
-            propinter[i].comp="Contact";
-        } else if (propinter[i].type=="contact_box") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            Vec<typename TV4::template SubType<0>::T::T> box;
-            nc.get_attribute( "box",box);
-            propinter[i].box[0]=box[range((int)TV4::template SubType<0>::T::dim)]
-                                ;
-            propinter[i].box[1]=box[range((int)TV4::template SubType<0>::T::dim,(int)(2*TV4::template SubType<0>::T::dim))]
-                                ;
-            propinter[i].num_sst.set(0);
-            propinter[i].comp="Contact";
-        } else if (propinter[i].type=="contact_jeu_sst") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            nc.get_attribute( "num_sst", propinter[i].num_sst);
-            propinter[i].box[0].set(0.);
-            propinter[i].box[1].set(0.);
-            nc.get_attribute( "jeu",propinter[i].jeu);
-            propinter[i].comp="Contact_jeu";
-        } else if (propinter[i].type=="contact_jeu_box") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            Vec<typename TV4::template SubType<0>::T::T> box;
-            nc.get_attribute( "box",box);
-            propinter[i].box[0]=box[range((int)TV4::template SubType<0>::T::dim)]
-                                ;
-            propinter[i].box[1]=box[range((int)TV4::template SubType<0>::T::dim,(int)(2*TV4::template SubType<0>::T::dim))]
-                                ;
-            propinter[i].num_sst.set(0);
-            nc.get_attribute( "jeu",propinter[i].jeu);
-            propinter[i].comp="Contact_jeu";
-        } else if (propinter[i].type=="contact_jeu_physique") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            nc.get_attribute( "num_sst", propinter[i].num_sst);
-            propinter[i].box[0].set(0.);
-            propinter[i].box[1].set(0.);
-            propinter[i].comp="Contact_jeu_physique";
-        } else if (propinter[i].type=="discrete") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            nc.get_attribute( "Gcrit", propinter[i].Gcrit);
-            Vec<typename TV4::template SubType<0>::T::T> box;
-            nc.get_attribute( "box",box);
-            propinter[i].box[0]=box[range((int)TV4::template SubType<0>::T::dim)]
-                                ;
-            propinter[i].box[1]=box[range((int)TV4::template SubType<0>::T::dim,(int)(2*TV4::template SubType<0>::T::dim))]
-                                ;
-            propinter[i].num_sst.set(0);
-            propinter[i].comp="Parfait";
-        } else if (propinter[i].type=="cohesive") {
-            nc.get_attribute( "coeffrottement", propinter[i].coeffrottement);
-            Vec<typename TV4::template SubType<0>::T::T> box;
-            nc.get_attribute( "box",box);
-            propinter[i].box[0]=box[range((int)TV4::template SubType<0>::T::dim)]
-                                ;
-            propinter[i].box[1]=box[range((int)TV4::template SubType<0>::T::dim,(int)(2*TV4::template SubType<0>::T::dim))]
-                                ;
-            propinter[i].num_sst.set(0);
-            nc.get_attribute( "kn",propinter[i].param_damage.kn);
-            nc.get_attribute( "knc",propinter[i].param_damage.knc);
-            nc.get_attribute( "kt",propinter[i].param_damage.kt);
-            nc.get_attribute( "alpha",propinter[i].param_damage.alpha);
-            nc.get_attribute( "gamma",propinter[i].param_damage.gamma);
-            nc.get_attribute( "Yc",propinter[i].param_damage.Yc);
-            nc.get_attribute( "Yo",propinter[i].param_damage.Yo);
-            nc.get_attribute( "n",propinter[i].param_damage.n);
-            propinter[i].comp="Cohesive";
-        } else if (propinter[i].type=="jeu_impose_sst") {
-            propinter[i].coeffrottement=0;
-            nc.get_attribute( "num_sst", propinter[i].num_sst);
-            propinter[i].box[0].set(0.);
-            propinter[i].box[1].set(0.);
-            nc.get_attribute( "jeu",propinter[i].jeu);
-            nc.get_attribute( "nbpas",propinter[i].nbpastempsimpos,1);
-            propinter[i].comp="Jeu_impose";
-        } else if (propinter[i].type=="jeu_impose_box") {
-            propinter[i].coeffrottement=0;
-            Vec<typename TV4::template SubType<0>::T::T> box;
-            nc.get_attribute( "box",box);
-            propinter[i].box[0]=box[range((int)TV4::template SubType<0>::T::dim)]
-                                ;
-            propinter[i].box[1]=box[range((int)TV4::template SubType<0>::T::dim,(int)(2*TV4::template SubType<0>::T::dim))]
-                                ;
-            propinter[i].num_sst.set(0);
-            nc.get_attribute( "jeu",propinter[i].jeu);
-            nc.get_attribute( "nbpas",propinter[i].nbpastempsimpos,1);
-            propinter[i].comp="Jeu_impose";
-        } else {
-            std::cout << "comportement d'interfaces non implemente : choix : contact_sst, contact_box, contact_jeu_sst, contact_jeu_box, contact_jeu_physique, discrete, cohesive, jeu_impose_sst, jeu_impose_box" << std::endl;
-            assert(0);
-        }
-
-    }
-
-};
-

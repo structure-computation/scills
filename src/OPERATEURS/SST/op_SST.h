@@ -57,7 +57,7 @@ struct efface_mesh_edge{
  car \f$ \int_{\partial \Omega_E} k W W* \f$ correspond à \f$ W*^t M k W \f$ et \f$ W = N U[repddlbord] \f$
  */
 #include "util/solveLDL.h"
-#include "assign_material.h"
+#include "assignation_materiaux_sst.h"
 
 struct Calc_SST_rigidite_K0_k {
     template<class SST,class TV2>

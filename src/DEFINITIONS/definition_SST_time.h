@@ -11,7 +11,7 @@
 using namespace LMT;
 using namespace std;
 
-template<unsigned dim,class T> struct PARAM_DAMAGE_SST;
+//template<unsigned dim,class T> struct PARAM_DAMAGE_SST;
 
 //**********************************
 // Sous structure
@@ -86,8 +86,8 @@ template<unsigned dim_, class TT_> struct Sst
 
   /// Structure temporelle contenant differents vecteurs
   struct Time{
-  Vec<T> q; ///< vecteurs solution q
-  void allocations(unsigned nbnode,Param &process); ///< defini dans allocate.h
+    Vec<T> q; ///< vecteurs solution q
+    void allocations(unsigned nbnode,Param &process); ///< defini dans allocate.h
   };
   
   Vec<Time> t;///< Vecteur contenant pour chaque piquet de temps les solutions
@@ -95,7 +95,7 @@ template<unsigned dim_, class TT_> struct Sst
   
   Vec<T> Fadd;///vecteur effort macro sur le bord d'une SST Fadd
   //ajout mesomodele
-  PARAM_DAMAGE_SST<dim,T> *param_damage; ///< paramètres d'endommagement pour le mésomodèle
+  //PARAM_DAMAGE_SST<dim,T> *param_damage; ///< paramètres d'endommagement pour le mésomodèle
 
 #warning "on suppose qu'en 2D, la connectivite vaut 2, en 3D elle vaut 3  pour les elements de peau"
 #if DIM==2

@@ -48,8 +48,9 @@ mes_elements = [ 'Triangle', 'Quad', 'Tetra', 'Wedge', 'Hexa']
 nom_repertoire_prog='build/'+arch+'_debug'*debug+'_opt'*opt+'/monprog_dim'+'2'*dim2+'_'+dim3*'3'
 
 # generation automatique des certains fichiers du programme en fonction des formulations
-import src.generation_auto
-src.generation_auto.generation_auto(mes_formulations)
+# Obsolete
+#import src.generation_auto
+#src.generation_auto.generation_auto(mes_formulations)
 #######################################################################
 
 
