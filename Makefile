@@ -14,7 +14,7 @@ CFLAGS= -LUTIL/metis -lmetis -LUTIL/openmpi/lib -lmpi -lmpi_cxx
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
 DIR_SOURCES_MPI = -IUTIL/openmpi -IUTIL/openmpi/include
-OPT = -ne -j4 -O3 -ffast-math -fexpensive-optimizations
+OPT = -ne -j2 -O3 -ffast-math -fexpensive-optimizations
 OPT_DBG = -ne -j4 -g3 -g -ffast-math -fexpensive-optimizations
 
 # all: compact_GEOMETRY 
@@ -45,15 +45,15 @@ metil_comp_test :
 metil_comp_create_cpu :
 	$(LOC_MC)  -o  $(PRG_create) -DDIM=$(DIM) -DCPU  -DTYPE=double -DLDL -DWITH_CHOLMOD -DWITH_UMFPACK $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(CFLAGS) $(LIBS) $(OPT)  src/SC_create_2.cpp
 
-# codegen_py:
-# 	cd LMT/include/codegen; scons
+codegen_py:
+	cd LMT/include/codegen; scons
 
-local:  
+local:
 	scons -j1 dep_py=1 
 
-# clean:
-# 	scons -c
-# 	cd LMT/include/codegen; scons -c
+clean:
+	scons -c
+	cd LMT/include/codegen; scons -c
 
 rsync : 
 # 	rsync -r --exclude '.git' --exclude 'EXEMPLES'  --exclude 'LMT'  --exclude 'UTIL*'  --exclude 'src/COMPUTE'  --exclude 'src/GEOMETRY'  --exclude 'src/SC_create_2.cpp'  --exclude 'src/UTILS'. /home/scproduction/Developpement/SC_code
