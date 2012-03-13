@@ -318,6 +318,8 @@ struct Meshmulti {
     Vec<double,Carac::dim> f_vol;//champs de force volumique
     Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
     double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
+    double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
+    bool effet_retard;
     Vec<double,Carac::dim> v1,v2;
     string type_formulation;
     

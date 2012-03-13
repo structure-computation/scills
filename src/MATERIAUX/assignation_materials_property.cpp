@@ -72,7 +72,7 @@ void assignation_materials_property_SST(DataUser &data_user, TV1 &S, TV2 &Inter,
         BasicVec<BasicVec<TYPE > > mat_prop_temp;
         read_material_properties(matprop,process,data_user, mat_prop_temp); 
        //assignation des proprietes aux SST
-        apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop,process, data_user);        
+        apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop);        
         //assignation des proprietes aux group_elements (pour GPU)
         field_structure_user.assign_material_id_to_group_elements(data_user);
         field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
@@ -105,30 +105,3 @@ void assignation_materials_property_INTER(DataUser &data_user, TV2 &Inter, TV1 &
 //         Inter[i_inter].affiche();
 //     }
 }
-
-
-
-
-template <class TV1, class TV2>
-void assignation_materials_property_SST(const XmlNode &n, TV1 &S, TV2 &Inter,Param &process){
-   if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
-   // lecture des proprietes materiau des ssts
-   Vec<SstCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > matprop;
-   read_material_properties(matprop,process,n); 
-   apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprop,process);
-   
-   //pour le mesomodele uniquement
-   #ifdef FORMUENDO
-   initialisation_mesh_meso(S, Inter, matprop);
-   #endif
-}
-
-template <class TV1, class TV2>
-void assignation_materials_property_INTER(const XmlNode &n, TV2 &Inter, TV1 &S, Param &process){
-   if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
-   Vec<InterCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > propinter;
-   read_propinter(propinter,n);
-   modif_inter(Inter,propinter,S,process);
-}
-
-
