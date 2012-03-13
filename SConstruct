@@ -34,7 +34,7 @@ formumeso = 1
 crout=1
 
 #pour compiler uniquement en 2 ou 3d (mettre les 2 a 1 pour compiler en 2D et en 3D
-dim2 = 1
+dim2 = 0
 dim3 = 1
 
 mes_formulations =  ['elasticity_isotropy_stat_Qstat']*formuiso +  ['elasticity_orthotropy_stat_Qstat']*formuortho + ['mesomodele']*formumeso
