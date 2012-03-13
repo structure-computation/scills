@@ -149,7 +149,8 @@ template<class T1> void assign_material_on_element(T1 &S, DataUser &data_user){
         S.mesh->f_vol             = S.mesh.f_vol            ;
         S.mesh->density           = S.mesh.density          ;
         
-        /*S.mesh->k_p    = S.mesh.k_p;
+        //*
+        S.mesh->k_p    = S.mesh.k_p;
         S.mesh->m_p      = S.mesh.m_p;
         S.mesh->R0       = S.mesh.R0;
         S.mesh->couplage = S.mesh.couplage;
@@ -163,6 +164,7 @@ template<class T1> void assign_material_on_element(T1 &S, DataUser &data_user){
         S.mesh->a            = S.mesh.a;
         S.mesh->tau_c        = S.mesh.tau_c;
         
-        S.mesh.load_f_vol_e(data_user);*/
+        S.mesh.load_f_vol_e(data_user);
+        //*/
     }
 }
