@@ -28,14 +28,10 @@ metil_comp_multi_dbg :
 codegen_py:
 	cd LMT/include/codegen; scons
 
-local:  
+local:
 	scons -j1 dep_py=1 
 
 clean:
 	scons -c
 	cd LMT/include/codegen; scons -c
-
-
-
-
 

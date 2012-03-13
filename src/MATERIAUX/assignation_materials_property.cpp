@@ -91,6 +91,7 @@ void assignation_materials_property_INTER(DataUser &data_user, TV2 &Inter, TV1 &
    Vec<InterCarac<TV1::template SubType<0>::T::dim,TYPEREEL> > propinter;
    BasicVec<BasicVec<TYPE > > link_prop_temp;
    read_propinter(propinter,data_user, link_prop_temp);
+   PRINT("lecture propriete interface ok");
 //     for(int i_inter=0; i_inter<propinter.size(); i_inter++){
 //         propinter[i_inter].affiche();
 //     }
