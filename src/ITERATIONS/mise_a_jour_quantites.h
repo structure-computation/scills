@@ -22,7 +22,7 @@
 // 	}
 // };
 
-#include "assign_material.h"
+#include "assignation_materiaux_sst.h"
 
 struct assign_dep_contrainte{
 template<class SST> void operator()(SST &S) const{
