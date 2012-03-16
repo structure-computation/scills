@@ -58,42 +58,38 @@ template<unsigned dim_, class TT_> struct Sst
   {
       Edge(){
           mesh=NULL;
-/*          mesh.sub_mesh(Number<1>()).elem_list.change_hash_size( mesh,1);
-          mesh.sub_mesh(Number<2>()).elem_list.change_hash_size( mesh,1);
-          mesh.sub_mesh(Number<0>()).elem_list.change_hash_size( mesh,1);
-          mesh.elem_list.change_hash_size( mesh,1);*/
       }
 
-     int datanum; ///< cote correspondant de l'interface (0 ou 1)
-     int internum; ///< numero de l'interface
-     Vec<unsigned> repddledge; ///< reperage des ddls de bords dans les ddls du maillage
-     Vec<unsigned> repLE; ///< reperage des ddls macro dans l'operateur homogeneise     
-     TMESHedge *mesh; ///< maillage de bord
-     Vec<Pvec,2> box; ///< boite englobant le cote
-     Pvec G; ///< centre de gravite du cote
+     int datanum;                                               ///< cote correspondant de l'interface (0 ou 1)
+     int internum;                                              ///< numero de l'interface
+     Vec<unsigned> repddledge;                                  ///< reperage des ddls de bords dans les ddls du maillage
+     Vec<unsigned> repLE;                                       ///< reperage des ddls macro dans l'operateur homogeneise     
+     TMESHedge *mesh;                                           ///< maillage de bord
+     Vec<Pvec,2> box;                                           ///< boite englobant le cote
+     Pvec G;                                                    ///< centre de gravite du cote
   };
 
-  Vec<Edge> edge; ///< Bords de la sous-structure
+  Vec<Edge> edge;                                               ///< Bords de la sous-structure
 
  // operateurs
-  unsigned nb_macro; ///< nbre de fcts de base macro par sst (somme des fonctions macro des interfaces autour de la sst)
-  unsigned nb_macro_espace; ///< nbre de fcts de base macro spatiale par sst
-  Mat <T , Gen<>, Dense<> > LE; ///< matrice de comportement homogeneise
-  TMATS *K; ///< matrice de rigidite + directions de recherche (utile pour le solver Cholmod)
+  unsigned nb_macro;                                            ///< nbre de fcts de base macro par sst (somme des fonctions macro des interfaces autour de la sst)
+  unsigned nb_macro_espace;                                     ///< nbre de fcts de base macro spatiale par sst
+  Mat <T , Gen<>, Dense<> > LE;                                 ///< matrice de comportement homogeneise
+  TMATS *K;                                                     ///< matrice de rigidite + directions de recherche (utile pour le solver Cholmod)
 
-  Vec<T> fvol ; ///< second membre provenant des efforts ou quantites chapeaux volumiques par sous-structure
-  LDL_solver l; ///< solver sparse direct plus rapide que skyline
+  Vec<T> fvol ;                                                 ///< second membre provenant des efforts ou quantites chapeaux volumiques par sous-structure
+  LDL_solver l;                                                 ///< solver sparse direct plus rapide que skyline
 
   /// Structure temporelle contenant differents vecteurs
   struct Time{
-    Vec<T> q; ///< vecteurs solution q
-    void allocations(unsigned nbnode,Param &process); ///< defini dans allocate.h
+    Vec<T> q;                                                   ///< vecteurs solution q
+    void allocations(unsigned nbnode,Param &process);           ///< defini dans allocate.h
   };
   
-  Vec<Time> t;///< Vecteur contenant pour chaque piquet de temps les solutions
-  Vec<Time> t_post; ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
+  Vec<Time> t;                                                  ///< Vecteur contenant pour chaque piquet de temps les solutions
+  Vec<Time> t_post;                                             ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
   
-  Vec<T> Fadd;///vecteur effort macro sur le bord d'une SST Fadd
+  Vec<T> Fadd;                                                  ///vecteur effort macro sur le bord d'une SST Fadd
   //ajout mesomodele
   //PARAM_DAMAGE_SST<dim,T> *param_damage; ///< paramètres d'endommagement pour le mésomodèle
 
@@ -103,29 +99,29 @@ template<unsigned dim_, class TT_> struct Sst
 #else
   static const   int nb_nodes_by_element=3; 
 #endif  
-  BasicVec<BasicVec<T>,dim_> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
-  BasicVec<BasicVec<T>,dim_ > dep_nodes_skin; ///< deplacements aux noeuds de peau d'une sst
-  BasicVec<BasicVec<T>,dim_ > dep_nodes; ///< deplacements aux noeuds de peau d'une sst
-  BasicVec<BasicVec<int> > mesh_connectivities_skin; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
-  BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
-  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma_skin; ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon_skin; ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec< T > sigma_mises_skin; ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma; ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon; ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec< T > sigma_mises; ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
-  BasicVec< int > num_processor; ///< vecteur numéro du processeur d'une sst pour la sortie hdf 
-  BasicVec< int > num_group; ///< vecteur numéro des sst pour la sortie hdf 
-  BasicVec< int > material; ///< vecteur numéro des materiaux des sst pour la sortie hdf 
-  Vec<int,4> nb_elements_with_type; ///< utilisé pour connaitre le nombre d'elements d'un type donné pour une SST : Triangle, Quadrilateral, Tetrahedron, Hexahedron
+  BasicVec<BasicVec<T>,dim_> nodes;                             ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
+  BasicVec<BasicVec<T>,dim_ > dep_nodes_skin;                   ///< deplacements aux noeuds de peau d'une sst
+  BasicVec<BasicVec<T>,dim_ > dep_nodes;                        ///< deplacements aux noeuds de peau d'une sst
+  BasicVec<BasicVec<int> > mesh_connectivities_skin;            ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec<int> > mesh_connectivities;                 ///< connectivites du maillage d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma_skin;        ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon_skin;      ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< T > sigma_mises_skin;                               ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > sigma;             ///< vecteur contrainte du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec<BasicVec< T > , dim_*(dim_+1)/2 > epsilon;           ///< vecteur deformation du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< T > sigma_mises;                                    ///< vecteur contrainte de von mises du maillage de peau d'une sst pour la sortie hdf 
+  BasicVec< int > num_processor;                                ///< vecteur numéro du processeur d'une sst pour la sortie hdf 
+  BasicVec< int > num_group;                                    ///< vecteur numéro des sst pour la sortie hdf 
+  BasicVec< int > material;                                     ///< vecteur numéro des materiaux des sst pour la sortie hdf 
+  Vec<int,4> nb_elements_with_type;                             ///< utilisé pour connaitre le nombre d'elements d'un type donné pour une SST : Triangle, Quadrilateral, Tetrahedron, Hexahedron
   int nb_nodes_by_element_sst, nb_nodes_by_element_sst_skin, pattern_id;
   String type_elements_sst, type_elements_sst_skin;
   
-  Sst() : pb(*mesh.m,true) {} ///< constructeur de la formulation pour la sous-structure
+  Sst() : pb(*mesh.m,true) {}                                   ///< constructeur de la formulation pour la sous-structure
   
   ~Sst() { }
   
-  void free(){///destructeur de la SST - on ne peut pas libérer les entiers et flottants
+  void free(){                                                  ///destructeur de la SST - on ne peut pas libérer les entiers et flottants
     vois.free();
     //box.free();
     //pb.free();
