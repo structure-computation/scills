@@ -34,4 +34,3 @@ local:
 clean:
 	scons -c
 	cd LMT/include/codegen; scons -c
-
