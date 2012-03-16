@@ -10,9 +10,6 @@ struct PARAM_DAMAGE_INTER{
 };
  
 struct PARAM_COMP_INTER{
-  
-  
-    
     double coeffrottement;
     Vec<double> f_coeffrottement;
     Vec<double> jeu;

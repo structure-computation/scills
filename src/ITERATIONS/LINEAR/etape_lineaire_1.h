@@ -21,8 +21,8 @@ template<class SST,class TV2>
 void semilin1slave(SST &S,TV2 &Inter, const Param &process) {
     unsigned pt=process.temps->pt;
     // assemblage du second membre : droitm
-    Vec<typename SST::T> droitm,Qd ;
-    droitm.resize(SST::dim*S.mesh.node_list_size,0.);
+    Vec<TYPEREEL> droitm,Qd ;
+    droitm.resize(DIM*S.mesh.node_list_size,0.);
 
     //second membre prenant en compte le comportement thermique et les quantites chapeau:
     //S.f->assemble(false,true);
@@ -39,7 +39,7 @@ void semilin1slave(SST &S,TV2 &Inter, const Param &process) {
 // TicToc2 tic1;
 // tic1.start();
     //calcul du deplacement q1
-    Vec<typename SST::T> Sq;
+    Vec<TYPEREEL> Sq;
 #if LDL
 
     Sq=droitm;

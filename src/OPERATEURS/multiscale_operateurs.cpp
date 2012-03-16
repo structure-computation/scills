@@ -147,10 +147,10 @@ void fake_multiscale_operateurs() {
     Param process;
     DataUser data_user;
     
-    Vec<Interface<DIM,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3,S3;
-    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
-    Glob<DIM,TYPEREEL> Global3;
+    Vec<Interface> Inter3;
+    Vec<VecPointedValues<Sst> > SubS3,S3;
+    Vec<VecPointedValues<Interface> > SubI3;
+    Glob Global3;
 
     multiscale_operateurs(S3, SubS3,Inter3, SubI3, process, Global3, data_user);
 

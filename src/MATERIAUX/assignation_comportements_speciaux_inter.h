@@ -21,8 +21,8 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
         total_allocated[ typeid(PARAM_COMP_INTER).name() ] += sizeof(PARAM_COMP_INTER);
 #endif
         Inter[q].param_comp = new PARAM_COMP_INTER(Inter[q].side[0].nodeeq.size());
-        Inter[q].param_comp->jeu.resize(Inter[q].side[0].nodeeq.size()*TV2::template SubType<0>::T::dim,0.);
-// 	std::cout << "DEBUG : " << Inter[q].side[0].nodeeq.size()*TV2::template SubType<0>::T::dim << std::endl;
+        Inter[q].param_comp->jeu.resize(Inter[q].side[0].nodeeq.size()*DIM,0.);
+        // 	std::cout << "DEBUG : " << Inter[q].side[0].nodeeq.size()*DIM << std::endl;
     }
 
     //assignation des proprietes materiau des interfaces
@@ -73,12 +73,11 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
                 Inter[q].param_comp->jeu.set(0.);
                 if (propinter[i].type=="jeu_impose_sst" or propinter[i].type=="jeu_impose_box" ) Inter[q].param_comp->nbpastempsimpos=propinter[i].nbpastempsimpos;
-                typedef typename TV2::template SubType<0>::T::T T;
                 std::vector<Ex> symbols;
-                if (TV2::template SubType<0>::T::dim==2) {
+                if (DIM==2) {
                     symbols.push_back("x");
                     symbols.push_back("y");
-                } else if (TV2::template SubType<0>::T::dim==3) {
+                } else if (DIM==3) {
                     symbols.push_back("x");
                     symbols.push_back("y");
                     symbols.push_back("z");
@@ -98,40 +97,40 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
                     Ex expr;
                     expr = read_ex(propinter[i].jeu.c_str(),symbols);
                     for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
-                        T data;
+                        TYPEREEL data;
                         Ex::MapExNum var;
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                             var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
                         if(data_user.options.Multiresolution_on==1){
                             //evaluation des variables de multiresolution
                             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                                var[symbols[TV2::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
                         }
                         
-                        data = (T)expr.subs_numerical(var);
-                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data*Inter[q].side[0].neq[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))];
+                        data = (TYPEREEL)expr.subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(DIM*k,DIM*(k+1))]=data*Inter[q].side[0].neq[range(DIM*k,DIM*(k+1))];
                     }
                 } else {//Jeu complet
                     Vec<Ex> expr;
-                    expr.resize(TV2::template SubType<0>::T::dim);
+                    expr.resize(DIM);
 
-                    for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                    for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
                         expr[d2] = read_ex(jeu_cut[d2],symbols);
                     }
                     for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
-                        Vec<T,TV2::template SubType<0>::T::dim> data;
+                        Vec<TYPEREEL,DIM> data;
                         Ex::MapExNum var;
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
                             var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
                         }
                         if(data_user.options.Multiresolution_on==1){
                             //evaluation des variables de multiresolution
                             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                                var[symbols[TV2::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
                         }
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
-                            data[d2] = (T)expr[d2].subs_numerical(var);
-                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data;
+                        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                            data[d2] = (TYPEREEL)expr[d2].subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(DIM*k,DIM*(k+1))]=data;
 
                     }
                 }
@@ -165,12 +164,11 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
                 Inter[q].param_comp->coeffrottement=0.;
                 Inter[q].param_comp->f_coeffrottement.set(0.);
                 Inter[q].param_comp->jeu.set(0.);
-                typedef typename TV2::template SubType<0>::T::T T;
                 std::vector<Ex> symbols;
-                if (TV2::template SubType<0>::T::dim==2) {
+                if (DIM==2) {
                     symbols.push_back("x");
                     symbols.push_back("y");
-                } else if (TV2::template SubType<0>::T::dim==3) {
+                } else if (DIM==3) {
                     symbols.push_back("x");
                     symbols.push_back("y");
                     symbols.push_back("z");
@@ -187,21 +185,21 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
 
                 // coefficient de frottement
                 Inter[q].param_comp->fcts_spatiales=propinter[i].f_coeffrottement;
-                T sum_data=0;
+                TYPEREEL sum_data=0;
                 if (f_coeffrottement_cut.size() == 1) {//Jeu normal
                     Ex expr;
                     expr = read_ex(propinter[i].f_coeffrottement.c_str(),symbols);
                     for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
-                        T data;
+                        TYPEREEL data;
                         Ex::MapExNum var;
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                             var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
                         if(data_user.options.Multiresolution_on==1){
                             //evaluation des variables de multiresolution
                             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                                var[symbols[TV2::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
                         }
-                        data = (T)expr.subs_numerical(var);
+                        data = (TYPEREEL)expr.subs_numerical(var);
                         Inter[q].param_comp->f_coeffrottement[k]=data;
                         sum_data += data;
                     }
@@ -214,39 +212,39 @@ void modif_inter(TV2 &Inter, TV4 &propinter, TV1 &S,Param &process,const DataUse
                     Ex expr;
                     expr = read_ex(propinter[i].jeu.c_str(),symbols);
                     for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
-                        T data;
+                        TYPEREEL data;
                         Ex::MapExNum var;
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
                             var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
                         if(data_user.options.Multiresolution_on==1){
                             //evaluation des variables de multiresolution
                             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                                var[symbols[TV2::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
                         }
-                        data = (T)expr.subs_numerical(var);
-                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data*Inter[q].side[0].neq[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))];
+                        data = (TYPEREEL)expr.subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(DIM*k,DIM*(k+1))]=data*Inter[q].side[0].neq[range(DIM*k,DIM*(k+1))];
                     }
                 } else {//Jeu complet
                     Vec<Ex> expr;
-                    expr.resize(TV2::template SubType<0>::T::dim);
+                    expr.resize(DIM);
 
-                    for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                    for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
                         expr[d2] = read_ex(jeu_cut[d2],symbols);
                     }
                     for(unsigned k=0;k<Inter[q].side[0].nodeeq.size();++k) {
-                        Vec<T,TV2::template SubType<0>::T::dim> data;
+                        Vec<TYPEREEL,DIM> data;
                         Ex::MapExNum var;
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+                        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
                             var[symbols[d2]]= Inter[q].side[0].nodeeq[k][d2];
                         }
                         if(data_user.options.Multiresolution_on==1){
                             //evaluation des variables de multiresolution
                             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                                var[symbols[TV2::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
                         }
-                        for(unsigned d2=0;d2<TV2::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
-                            data[d2] = (T)expr[d2].subs_numerical(var);
-                        Inter[q].param_comp->jeu[range(TV2::template SubType<0>::T::dim*k,TV2::template SubType<0>::T::dim*(k+1))]=data;
+                        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+                            data[d2] = (TYPEREEL)expr[d2].subs_numerical(var);
+                        Inter[q].param_comp->jeu[range(DIM*k,DIM*(k+1))]=data;
 
                     }
                 }

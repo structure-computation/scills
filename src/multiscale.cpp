@@ -15,15 +15,17 @@
 #pragma src_file multiscale_geometry_mesh.cpp
 #pragma src_file assignation_materials_property.cpp
 #pragma src_file multiscale_operateurs.cpp
-#pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
-#pragma src_file formulation_3_double_elasticity_isotropy_stat_Qstat.cpp
-#pragma src_file formulation_2_double_elasticity_orthotropy_stat_Qstat.cpp
-#pragma src_file formulation_3_double_elasticity_orthotropy_stat_Qstat.cpp
-#pragma src_file formulation_2_double_mesomodele.cpp
-#pragma src_file formulation_3_double_mesomodele.cpp
+#if DIM == 2
+    #pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
+    #pragma src_file formulation_2_double_elasticity_orthotropy_stat_Qstat.cpp
+    #pragma src_file formulation_2_double_mesomodele.cpp
+#else
+    #pragma src_file formulation_3_double_elasticity_isotropy_stat_Qstat.cpp
+    #pragma src_file formulation_3_double_elasticity_orthotropy_stat_Qstat.cpp
+    #pragma src_file formulation_3_double_mesomodele.cpp
+#endif
 #pragma src_file iterate_stat_Qstat.cpp
 #pragma src_file affichage.cpp
-
 #endif
 
 //librairie Hugo
@@ -114,7 +116,7 @@ int main(int argc,char **argv) {
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
         DataUser data_user(id_model, id_calcul);
         data_user.read_json_calcul();
-
+        
         std::cout << "lecture de la geometrie" << std::endl;
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
@@ -154,16 +156,16 @@ int main(int argc,char **argv) {
             process.affichage->name_data= argv[2];
             if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
-    //         Vec<Splitted<Sst<DIM,TYPEREEL> , 16> > S;
-            Vec<Sst<DIM,TYPEREEL> > S;
-            Vec<Interface<DIM,TYPEREEL> > Inter;
-            Vec<Boundary<DIM,TYPEREEL> > CL;
-            Glob<DIM,TYPEREEL> Global;
+            Vec<SstCarac> matprops;
+            Vec<Sst> S;
+            Vec<Interface> Inter;
+            Vec<Boundary> CL;
+            Glob Global;
 
 
             
             S.resize(geometry_user.nb_group_elements);
-            multiscale(data_user, geometry_user, S, Inter, process,  CL, Global);
+            multiscale(data_user, geometry_user, matprops, S, Inter, process,  CL, Global);
 
             }
     #ifdef INFO_TIME

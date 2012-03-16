@@ -23,8 +23,8 @@ struct modif_qtrans {
 
 struct eclat_SST_struct {
     template<class SST>
-    void operator()(SST &S, typename SST::T ecl) const {
-        typedef Vec<typename SST::T,SST::dim> TV;
+    void operator()(SST &S, TYPEREEL ecl) const {
+        typedef Vec<TYPEREEL,DIM> TV;
         // calcul cdg du maillage
         S.mesh.load();
         TV G=barycenter_constant_rho(*S.mesh.m);

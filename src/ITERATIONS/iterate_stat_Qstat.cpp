@@ -254,13 +254,13 @@ void fake_iterate() {
     Hdf hdf_file;
     BasicVec<int> nb_previous_nodes;
     
-    Vec<Interface<DIM,TYPEREEL> > Inter3;
+    Vec<Interface> Inter3;
 //     Vec<Splitted<Sst<DIM,TYPEREEL>,16 > > S3;
-    Vec<Sst<DIM,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SubS3;
-    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > SubI3;
-    Glob<DIM,TYPEREEL> Global3;
-    Vec<Boundary<DIM,TYPEREEL> > CL3;
+    Vec<Sst> S3;
+    Vec<VecPointedValues<Sst> > SubS3;
+    Vec<VecPointedValues<Interface> > SubI3;
+    Glob Global3;
+    Vec<Boundary> CL3;
     DataUser data_user;
     FieldStructureUser field_structure_user;
     GeometryUser geometry_user;

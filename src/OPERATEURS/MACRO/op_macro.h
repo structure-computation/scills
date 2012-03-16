@@ -103,11 +103,47 @@ Lorsque seuls quelques mouvements de corps rigides ne sont pas bloqués (ex : uti
 
 Cette procédure est écrite d'une part pour le 2D et pour le 3D d'autre part. On repère parmi les interfaces celles qui possèdent une direction principale (la 3ème) parallèle à un axe demandé par l'utilisateur (ex : blocage de la translation selon x : Tx, on recherche une direction colinéaire à x). On bloque ensuite la translation selon cet axe si celle ci est demandée, ou la rotation autour de cet axe. On ajoute les ddl macro correspondant à la liste des ddl bloqués.
 */
-template<class T> void bloqrbm(Vec<Interface<3,T> > &Inter, Param &process,Vec<unsigned> &repddlMbloq){
+void bloqrbm(Vec<Interface> &Inter, Param &process,Vec<unsigned> &repddlMbloq){
+#if DIM == 2
+    // definition des translations possibles
+    Vec<string> translations("Tx","Ty");
+    Vec<Vec<TYPEREEL> > vectbase(Vec<TYPEREEL>(1.,0.),Vec<TYPEREEL>(0.,1.));
+    TYPEREEL eps=1e-10;
+
+    for(unsigned l=0;l<translations.size();++l){
+        if (find(process.rbm.mvts_bloques,LMT::_1==translations[l])==1){
+            for(unsigned q=0;q<Inter.size();++q){
+                if( length(Inter[q].BPI[1]-vectbase[l])<eps or length(-1.0*Inter[q].BPI[1]-vectbase[l])<eps ){
+                    repddlMbloq.push_back(Inter[q].repddl[1]);// blocage translation selon N3
+                    break;
+                }
+            }
+        }
+    }
+
+    // definition des rotations possibles
+    Vec<string> rotations("Rz");
+    Vec<Vec<TYPEREEL,2>,1> vectbase2;
+    vectbase2[0]=Vec<TYPEREEL>(0.,1.);
+
+
+    for(unsigned l=0;l<rotations.size();++l){
+        if (find(process.rbm.mvts_bloques,LMT::_1==rotations[l])==1){
+            for(unsigned q=0;q<Inter.size();++q){
+                if( length(Inter[q].BPI[1]-vectbase2[l])<eps or length(-1.0*Inter[q].BPI[1]-vectbase2[l])<eps ){
+                    repddlMbloq.push_back(Inter[q].repddl[2]); // blocage rotation autour de N3
+                    break;
+                }
+            }
+        }
+    }
+
+    remove_doubles(repddlMbloq);
+#elif DIM == 3
 // definition des translations possibles
    Vec<string> translations("Tx","Ty","Tz");
-   Vec<Vec<T> > vectbase(Vec<T>(1.,0.,0.),Vec<T>(0.,1.,0.),Vec<T>(0.,0.,1.));
-   T eps=1e-10;
+   Vec<Vec<TYPEREEL> > vectbase(Vec<TYPEREEL>(1.,0.,0.),Vec<TYPEREEL>(0.,1.,0.),Vec<TYPEREEL>(0.,0.,1.));
+   TYPEREEL eps=1e-10;
 
    for(unsigned l=0;l<translations.size();++l){
       if (find(process.rbm.mvts_bloques,LMT::_1==translations[l])==1){
@@ -122,7 +158,7 @@ template<class T> void bloqrbm(Vec<Interface<3,T> > &Inter, Param &process,Vec<u
    
 // definition des rotations possibles
    Vec<string> rotations("Rx","Ry","Rz");
-   Vec<Vec<T> > vectbase2(Vec<T>(1.,0.,0.),Vec<T>(0.,1.,0.),Vec<T>(0.,0.,1.));
+   Vec<Vec<TYPEREEL> > vectbase2(Vec<TYPEREEL>(1.,0.,0.),Vec<TYPEREEL>(0.,1.,0.),Vec<TYPEREEL>(0.,0.,1.));
 
 
    for(unsigned l=0;l<rotations.size();++l){
@@ -137,7 +173,7 @@ template<class T> void bloqrbm(Vec<Interface<3,T> > &Inter, Param &process,Vec<u
    }
 
    remove_doubles(repddlMbloq);
-
+#endif
 }
 
 /** \ingroup Operateurs_macro
@@ -147,7 +183,41 @@ On repère les interfaces à déplacement imposés pour lesquels tous les ddls macro
 
 Si aucun ddl macro n'est bloqué, on repère les 6 ddls d'une interface permettant de bloquer les modes de corps rigides de la structure entière, de façon automatique. Enfin pour bloquer seulement quelques modes de corps rigides, l'utilisateur doit spécifier les translations et rotations à bloquer (Tx, Ty, Tz, Rx, Ry et Rz) et la fonction bloqrbm() détecte automatiquement les ddls macro à bloquer.
 */
-template<class T> Vec<unsigned> macro_CL(Vec<Interface<3,T> > &Inter, Param &process){
+Vec<unsigned> macro_CL(Vec<Interface> &Inter, Param &process){
+#if DIM == 2
+    //creation du vecteur contenant les ddls a bloquer
+    Vec<unsigned> repddlMbloq;
+    bool bloq=0;
+    for(unsigned q=0;q<Inter.size();++q){
+        if (Inter[q].type=="Ext" and Inter[q].comp=="depl"){
+            //ddl bloques
+            repddlMbloq.append(Inter[q].repddl);
+            bloq=1;
+        }
+        else if(Inter[q].type=="Ext" and (Inter[q].comp=="sym" or Inter[q].comp=="depl_normal") ){
+            Vec<unsigned,2> repimp(1,2);
+            repddlMbloq.append(Inter[q].repddl[repimp]);
+            bloq=1;
+        }
+    }
+    
+    if (bloq==0 && process.rbm.bloq==0){ // blocage des mvts de corps rigide
+      for(unsigned q=0;q<Inter.size();++q){
+          if (Inter[q].type=="Ext"){
+              std::cout << "\t Blocage mvts corps rigide : interface " << q << endl;
+              repddlMbloq.append(Inter[q].repddl[range(3)]);
+              break;
+          }
+      }
+      
+    }
+    else if (process.rbm.bloq==1){
+        std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
+        bloqrbm(Inter, process,repddlMbloq);
+    }
+    
+    return repddlMbloq;
+#elif DIM == 3
    //creation du vecteur contenant les ddls a bloquer
    Vec<unsigned> repddlMbloq;
    bool bloq=0;
@@ -179,6 +249,7 @@ template<class T> Vec<unsigned> macro_CL(Vec<Interface<3,T> > &Inter, Param &pro
    }
   
    return repddlMbloq;
+#endif
 }
 
 // idem en dimension 2
@@ -190,6 +261,7 @@ Lorsque seuls quelques mouvements de corps rigides ne sont pas bloqués (ex : uti
 
 Cette procédure est écrite d'une part pour le 2D et pour le 3D d'autre part. On repère parmi les interfaces celles qui possèdent une direction principale (la 3ème) parallèle à un axe demandé par l'utilisateur (ex : blocage de la translation selon x : Tx, on recherche une direction colinéaire à x). On bloque ensuite la translation selon cet axe si celle ci est demandée, ou la rotation autour de cet axe. On ajoute les ddl macro correspondant à la liste des ddl bloqués.
 */
+/*
 template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<unsigned> &repddlMbloq){
 // definition des translations possibles
    Vec<string> translations("Tx","Ty");
@@ -226,7 +298,7 @@ template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<u
 
    remove_doubles(repddlMbloq);
   
-}
+}*/
 
 /** \ingroup Operateurs_macro
 \brief Blocage des ddl macro en fonction des conditions aux limites
@@ -235,6 +307,7 @@ On repère les interfaces à déplacement imposés pour lesquels tous les ddls macro
 
 Si aucun ddl macro n'est bloqué, on repère les 6 ddls d'une interface permettant de bloquer les modes de corps rigides de la structure entière, de façon automatique. Enfin pour bloquer seulement quelques modes de corps rigides, l'utilisateur doit spécifier les translations et rotations à bloquer (Tx, Ty, Tz, Rx, Ry et Rz) et la fonction bloqrbm() détecte automatiquement les ddls macro à bloquer.
 */
+/*
 template<class T> Vec<unsigned> macro_CL(Vec<Interface<2,T> > &Inter, Param &process){
    //creation du vecteur contenant les ddls a bloquer
    Vec<unsigned> repddlMbloq;
@@ -268,4 +341,4 @@ template<class T> Vec<unsigned> macro_CL(Vec<Interface<2,T> > &Inter, Param &pro
    }
 
    return repddlMbloq;
-}
+}*/

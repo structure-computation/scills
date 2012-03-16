@@ -8,16 +8,15 @@ que l'on somme au numérateur et dénominateur précédents.
 */
 struct calcerror_ener {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
-        typedef typename SST::T TT;
         unsigned data,q;
 
         unsigned imic = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
-            Vec<TT> tempF,tempW,tempFchap, tempWchap;
+            Vec<TYPEREEL> tempF,tempW,tempFchap, tempWchap;
             tempF=Inter[q].side[data].t[imic].F;
             tempW=Inter[q].side[data].t[imic].Wp;
             tempWchap=Inter[q].side[data].t[imic].Wpchap;
@@ -36,9 +35,8 @@ En bouclant sur les cotes des sous-structures, on calcule les termes suivants :
 */
 struct calcerror_residu_depl_post {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
-        typedef typename SST::T TT;
         unsigned data,q;
 
         unsigned imic = process.temps->pt;
@@ -46,7 +44,7 @@ struct calcerror_residu_depl_post {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
             if ((Inter[q].type == "Int" or Inter[q].comp == "periodique") and data == 0) {
-                Vec<TT> W1,W2;
+                Vec<TYPEREEL> W1,W2;
                 W1=Inter[q].side[data].t_post[imic].Wp;
                 W2=Inter[q].side[1-data].t_post[imic].Wp;
                 frac[0] += std::pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
@@ -56,9 +54,8 @@ struct calcerror_residu_depl_post {
 };
 struct calcerror_residu_depl {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
-        typedef typename SST::T TT;
         unsigned data,q;
 
         unsigned imic = process.temps->pt;
@@ -66,7 +63,7 @@ struct calcerror_residu_depl {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
             if ((Inter[q].type == "Int" or Inter[q].comp == "periodique") and data == 0) {
-                Vec<TT> W1,W2;
+                Vec<TYPEREEL> W1,W2;
                 W1=Inter[q].side[data].t[imic].Wp;
                 W2=Inter[q].side[1-data].t[imic].Wp;
                 frac[0] += std::pow(dot(W1-W2,Inter[q].side[data].M*(W1-W2)) ,0.5);
@@ -85,10 +82,9 @@ que l'on somme au numérateur et dénominateur précédents.
 */
 struct calcerror_ddr {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
-        typedef typename SST::T TT;
-        Vec<TT,2> errF, errW;
+        Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
         errW.set(0.0);
 
@@ -98,18 +94,12 @@ struct calcerror_ddr {
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
-            //Vec<TT> tempF,tempW,tempFchap, tempWchap;
-            Vec<TT> &tempF=Inter[q].side[data].t[imic].F;
-            Vec<TT> &tempW=Inter[q].side[data].t[imic].Wp;
-            Vec<TT> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
-            Vec<TT> &tempFchap=Inter[q].side[data].t[imic].Fchap;
-            const Vec<TT> &JJ=Inter[q].param_comp->jeu;
-            //          if(process.latin->iter>0 and process.latin->error[process.latin->iter-1]<=process.latin->critere_erreur){
-            //          cout <<q << " side " << data <<endl;
-            //          cout << " F-Fchap : " <<  dot(tempF-tempFchap,Inter[q].side[data].M*Inter[q].side[data].hglo*(tempF-tempFchap)) << endl;
-            //           cout <<" Wp-Wpchap : " << dot(tempW-tempWchap,Inter[q].side[data].M*Inter[q].side[data].kglo*(tempW-tempWchap)) <<endl;
-            //           }
-            Vec<TT> temp=tempF-tempFchap;
+            Vec<TYPEREEL> &tempF=Inter[q].side[data].t[imic].F;
+            Vec<TYPEREEL> &tempW=Inter[q].side[data].t[imic].Wp;
+            Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
+            Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t[imic].Fchap;
+            const Vec<TYPEREEL> &JJ=Inter[q].param_comp->jeu;
+            Vec<TYPEREEL> temp=tempF-tempFchap;
             double temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
             double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
@@ -139,10 +129,9 @@ que l'on somme au numérateur et dénominateur précédents.
 */
 struct calcerror_ddr_post {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
-        typedef typename SST::T TT;
-        Vec<TT,2> errF, errW;
+        Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
         errW.set(0.0);
 
@@ -153,21 +142,11 @@ struct calcerror_ddr_post {
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
-            //Vec<TT> tempF,tempW,tempFchap, tempWchap;
-            Vec<TT> &tempF=Inter[q].side[data].t_post[imic].F;
-            Vec<TT> &tempW=Inter[q].side[data].t_post[imic].Wp;
-            Vec<TT> &tempWchap=Inter[q].side[data].t_post[imic].Wpchap;
-            Vec<TT> &tempFchap=Inter[q].side[data].t_post[imic].Fchap;
-            //          if(process.latin->iter>0 and process.latin->error[process.latin->iter-1]<=process.latin->critere_erreur){
-            //          cout <<q << " side " << data <<endl;
-            //          cout << " F-Fchap : " <<  dot(tempF-tempFchap,Inter[q].side[data].M*Inter[q].side[data].hglo*(tempF-tempFchap)) << endl;
-            //           cout <<" Wp-Wpchap : " << dot(tempW-tempWchap,Inter[q].side[data].M*Inter[q].side[data].kglo*(tempW-tempWchap)) <<endl;
-            //           }
-/*            errF[0] +=dot(tempF-tempFchap,Inter[q].side[data].M*Inter[q].side[data].hglo*(tempF-tempFchap));
-            errW[0] +=dot(tempW-tempWchap,Inter[q].side[data].M*Inter[q].side[data].kglo*(tempW-tempWchap));
-            errF[1] +=dot(tempF+tempFchap,Inter[q].side[data].M*Inter[q].side[data].hglo*(tempF+tempFchap));
-            errW[1] +=dot(tempW+tempWchap,Inter[q].side[data].M*Inter[q].side[data].kglo*(tempW+tempWchap));*/
-            Vec<TT> temp=tempF-tempFchap;
+            Vec<TYPEREEL> &tempF=Inter[q].side[data].t_post[imic].F;
+            Vec<TYPEREEL> &tempW=Inter[q].side[data].t_post[imic].Wp;
+            Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t_post[imic].Wpchap;
+            Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t_post[imic].Fchap;
+            Vec<TYPEREEL> temp=tempF-tempFchap;
             double temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
             double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
@@ -195,7 +174,7 @@ On calcule l'energie dissipee sur les interfaces de contact a partir des quantit
 */
 struct calcerror_dissi {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
         unsigned data,q;
 
@@ -221,7 +200,7 @@ struct calcerror_dissi {
 
 struct calcerror_dissi_post {
   template<class SST, class TV2>
-      void  operator()(SST &S, TV2 &Inter, Vec<typename SST::T> &frac, Param &process) const {
+  void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
 
         unsigned data,q;
 

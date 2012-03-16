@@ -7,8 +7,9 @@
  
 Deux procédures sont écrites pour le 2d et pour le 3d (en changeant l'argument Interface<>). On sélectionne les composantes macro différentes de la résultante et moment selon la normale des efforts Fchap pour le pas de temps donné.
 */
-// En 2d : Ajout des conditions aux limites pour le cas de CL symetriques dans le probleme macro
-template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<2,T> &inter, unsigned &data,int &imic) {
+// Ajout des conditions aux limites pour le cas de CL symetriques dans le probleme macro
+template<class TV> void add_bigF_CLsym(TV &q, Interface &inter, unsigned &data,int &imic) {
+#if DIM == 2
    Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
@@ -16,10 +17,7 @@ template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<2,T> &inter, uns
    //Vec<unsigned> repnimp(0,3);
    Vec<unsigned> repF=inter.repddl[repnimp];
    q[repF] += trans( inter.side[data].MeM( range(inter.side[data].MeM.nb_rows() ) ,repnimp ) ) * inter.side[data].t[imic].Fchap;
-}
-
-// En 3d : Ajout des conditions aux limites pour le cas de CL symetriques dans le probleme macro
-template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<3,T> &inter, unsigned &data,int &imic) {
+#elif DIM == 3
    Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
    Vec<unsigned> repnimp;
    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
@@ -30,6 +28,7 @@ template<class T,class TV> void add_bigF_CLsym(TV &q, Interface<3,T> &inter, uns
    //Vec<unsigned> repnimp(0,1,5,6,7,8);
    Vec<unsigned> repF=inter.repddl[repnimp];
    q[repF] += trans(inter.side[data].MeM(range(inter.side[data].MeM.nb_rows()),repnimp) ) * inter.side[data].t[imic].Fchap;
+#endif
 }
 
 
@@ -82,29 +81,29 @@ struct macroassemble {
  
 Deux procédures sont écrites pour le 2d et pour le 3d. \f$ \tilde{W}^M \f$ pour le pas de temps donné est imposé égal à 0 puis on sélectionne les composantes macro différentes de la translation et rotation autour de la normale à l'interface.
 */
-// En 3d : Modification des multiplicateurs pour le cas de CL symetriques a la sortie du probleme macro
-template<class T,class TV> void modif_WtildeM_CLsym(Interface<3,T> &Inter,TV &q, unsigned &data,int &imic) {
-   Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
-   Vec<unsigned> repnimp;
-   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
-   for(unsigned i=5;i<Inter.side[data].MeM.nb_cols();i++)
-         if(find(rep,LMT::_1==i)){repnimp.push_back(i);}
-   //Vec<unsigned> repnimp(0,1,5,6,7,8);
-   Vec<unsigned> repW=Inter.repddl[repnimp];
-   Inter.side[data].t[imic].WtildeM.set(0.0);
-   Inter.side[data].t[imic].WtildeM=Inter.side[data].eM(range(Inter.side[data].eM.nb_rows()),repnimp) * q[repW];
-}
-// En 2d : Modification des multiplicateurs pour le cas de CL symetriques a la sortie du probleme macro
-template<class T,class TV> void modif_WtildeM_CLsym(Interface<2,T> &Inter,TV &q, unsigned &data,int &imic) {
-   Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
-   Vec<unsigned> repnimp;
-   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
-   //Vec<unsigned> repnimp(0,3);
-   Vec<unsigned> repW=Inter.repddl[repnimp];
-   Inter.side[data].t[imic].WtildeM.set(0.0);
-   Inter.side[data].t[imic].WtildeM=Inter.side[data].eM(range(Inter.side[data].eM.nb_rows()),repnimp) * q[repW];
+// Modification des multiplicateurs pour le cas de CL symetriques a la sortie du probleme macro
+template<class TV> void modif_WtildeM_CLsym(Interface &Inter,TV &q, unsigned &data,int &imic) {
+#if DIM == 2
+    Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
+    Vec<unsigned> repnimp;
+    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+    if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
+    for(unsigned i=5;i<Inter.side[data].MeM.nb_cols();i++)
+        if(find(rep,LMT::_1==i)){repnimp.push_back(i);}
+    //Vec<unsigned> repnimp(0,1,5,6,7,8);
+    Vec<unsigned> repW=Inter.repddl[repnimp];
+    Inter.side[data].t[imic].WtildeM.set(0.0);
+    Inter.side[data].t[imic].WtildeM=Inter.side[data].eM(range(Inter.side[data].eM.nb_rows()),repnimp) * q[repW];
+#elif DIM == 3
+    Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
+    Vec<unsigned> repnimp;
+    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+    if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
+    //Vec<unsigned> repnimp(0,3);
+    Vec<unsigned> repW=Inter.repddl[repnimp];
+    Inter.side[data].t[imic].WtildeM.set(0.0);
+    Inter.side[data].t[imic].WtildeM=Inter.side[data].eM(range(Inter.side[data].eM.nb_rows()),repnimp) * q[repW];
+#endif
 }
 
 

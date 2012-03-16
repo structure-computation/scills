@@ -235,9 +235,9 @@ void find_SST_in_box(TV1 &S, TV &normale, TV &G, T &rayon, Vec<unsigned> &vois) 
 //
 
 
-template<class INTER, class T>
-void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
-    T facteur = 1000.;
+template<class INTER>
+void modification_direction_CL(INTER &Inter, TYPEREEL &kn, TYPEREEL &kt, TYPEREEL &hn, TYPEREEL &ht) {
+    TYPEREEL facteur = 1000.;
 //     std::cout << Inter.type << std::endl;
 //     std::cout << Inter.comp << std::endl;
     if(Inter.type=="Ext") {
@@ -264,8 +264,8 @@ void modification_direction_CL(INTER &Inter, T &kn, T &kt, T &hn, T &ht) {
         }
     } else if(Inter.type=="Int") {
         if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive" and Inter.comp!="Contact_ep") {
-            T facteur_frottement;
-            T eps=1e-6;
+            TYPEREEL facteur_frottement;
+            TYPEREEL eps=1e-6;
             if(Inter.param_comp->coeffrottement<=eps){facteur_frottement=1e-3;}
             else{facteur_frottement=Inter.param_comp->coeffrottement;}
             //facteur_frottement=1;
@@ -287,7 +287,6 @@ struct optimise_direction {
     template<class TV1, class INTER>
     void operator()(INTER &inter, TV1 &S, LATIN &process) const {
         typedef typename INTER::TMATS TMAT;
-        typedef typename INTER::T T;
         for(unsigned q=0;q<inter.side.size();++q) {
             // recherche des ssts complementaires
             unsigned ii=0,jj=0;
@@ -301,27 +300,27 @@ struct optimise_direction {
                 jj=inter.side[!q].vois[1];
             }
 
-            T L=0, En=0, Et=0;
+            TYPEREEL L=0, En=0, Et=0;
             //calcul de la longueur de l'interface à prendre en compte pour la determination automatique du scalaire
-            if (INTER::dim==2)
+            if (DIM==2)
                 L = inter.measure;
-            else if (INTER::dim==3)
+            else if (DIM==3)
                 L= std::sqrt(inter.measure);
 
             //determination du module d'young correspondant
             //fonction generee a partir du __init__.py
             calcul_En_Et(S[ii],En,Et);
             //calcul des directions de recherche normale et tangentielle
-            T kn=0, kt=0, hn=0, ht=0;
+            TYPEREEL kn=0, kt=0, hn=0, ht=0;
 
 
             TMAT k, h;
-            k.resize(INTER::dim);
-            h.resize(INTER::dim);
+            k.resize(DIM);
+            h.resize(DIM);
 
             TMAT Id;
-            Id.resize(INTER::dim);
-            Id.diag()=Vec<T,INTER::dim>(1);
+            Id.resize(DIM);
+            Id.diag()=Vec<TYPEREEL,DIM>(1);
 
             if(process.ktype=="scalaire_donne") {
                 kn = process.kfact;
@@ -359,12 +358,12 @@ struct optimise_direction {
             inter.side[q].ht = ht;
             inter.side[q].kn = kn;
             inter.side[q].kt = kt;
-            inter.side[q].kglo.resize(inter.side[q].nodeeq.size()*INTER::dim);
-            inter.side[q].hglo.resize(inter.side[q].nodeeq.size()*INTER::dim);
+            inter.side[q].kglo.resize(inter.side[q].nodeeq.size()*DIM);
+            inter.side[q].hglo.resize(inter.side[q].nodeeq.size()*DIM);
 
             for(unsigned i=0;i<inter.side[q].nodeeq.size();i++) {
-                Vec<unsigned> rep=range(i*INTER::dim,(i+1)*INTER::dim);
-                Vec<T,INTER::dim> n=inter.side[q].neq[rep];
+                Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
+                Vec<TYPEREEL,DIM> n=inter.side[q].neq[rep];
                 TMAT nn;
                 tens(n,n,nn);
 
@@ -375,10 +374,10 @@ struct optimise_direction {
 
         //copie des directions de recherche
         if(process.copydirection==1) {
-            T kn=0,kt=0,hn=0,ht=0;
+            TYPEREEL kn=0,kt=0,hn=0,ht=0;
             TMAT kglo, hglo;
-            kglo.resize(inter.side[0].nodeeq.size()*INTER::dim);
-            hglo.resize(inter.side[0].nodeeq.size()*INTER::dim);
+            kglo.resize(inter.side[0].nodeeq.size()*DIM);
+            hglo.resize(inter.side[0].nodeeq.size()*DIM);
             for(unsigned q=0;q<inter.side.size();q++) {
                 kn+=inter.side[q].kn;
                 kt+=inter.side[q].kt;

@@ -60,13 +60,12 @@ struct NodesEq {
 /** \ingroup  maillages 
 \brief Structure pour le hashage du maillage
 */
-template<class T, unsigned dim>
 struct Noeud_Hash {
     Noeud_Hash() {
         num_hash=0;
         pos.set(0);
     }
-    Vec<T, dim> pos;
+    Vec<TYPEREEL, DIM> pos;
     unsigned num_hash;
 };
 
@@ -81,7 +80,7 @@ struct add_nodes {
         Pvec G = center(e);
         m.add_node(G);
         //creation de la structure pour hashage
-        Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+        Noeud_Hash newnoeud;
         newnoeud.pos=G;
 
         //reperage des numeros des noeuds extremes de l'element
@@ -114,7 +113,7 @@ struct ModifTypeElem {
             typename TM::EA *ea = m.get_children_of(e,LMT::Number<number>())[i]; //element ancestor i;
             typename TM::Pvec G = center(*ea);
 
-            Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+            Noeud_Hash newnoeud;
             newnoeud.pos=G;
             unsigned num_hash=0;
             for(unsigned j=0;j<ea->nb_nodes_virtual();j++)
@@ -147,7 +146,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
     
     //ajout des noeuds au maillage
     map<int,TNode *> map_num_node;
-    Vec<TYPE,DIM> vec;
+    Vec<TYPEREEL,DIM> vec;
     for(int i_node=0; i_node<nbnode; i_node++){
         for(unsigned d=0; d<DIM; d++){
             vec[d] = geometry_user.find_group_elements(id_sst)->local_nodes[d][i_node];
@@ -232,9 +231,7 @@ struct assigne_f_vol_e {
     void operator() (TE &e, TM &m, Vec<std::string> force_volumique, DataUser &data_user) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
-	
         Pvec G = center(e);
-	
         
         std::vector<Ex> symbols;
         if (DIM==2) {
@@ -272,21 +269,8 @@ struct assigne_f_vol_e {
         }
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
-            //e.f_vol_e[d2] = measure(e) * m.density * (double)expr[d2].subs_numerical(var);
-	    e.f_vol_e[d2] = m.density * (double)expr[d2].subs_numerical(var);
+            e.f_vol_e[d2] = m.density * (double)expr[d2].subs_numerical(var);
         }
-        
-//         if(e.number<10){
-// 	    PRINT("-----------element------------" );
-// 	    PRINT(e.number);
-// 	    for(unsigned d2=0;d2<DIM;++d2) {
-// 		std::cout << "        " << G[d2] << std::endl;
-// 	    }
-// 	    for(unsigned d2=0;d2<DIM;++d2) {
-// 		std::cout << " 		force_volumique = " << force_volumique[d2] << std::endl;
-// 		std::cout << " 		e.f_vol_e[d2] = " << e.f_vol_e[d2] << std::endl;
-// 	    }
-// 	}
     }
 };
 
@@ -315,12 +299,12 @@ struct Meshmulti {
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
-    Vec<double,Carac::dim> f_vol;//champs de force volumique
-    Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
-    double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
-    double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
-    bool effet_retard;
-    Vec<double,Carac::dim> v1,v2;
+    //Vec<double,Carac::dim> f_vol;//champs de force volumique
+    //Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
+    //double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
+    //double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
+    //bool effet_retard;
+    //Vec<double,Carac::dim> v1,v2;
     string type_formulation;
     
     //ajout pour les données venant de SC_create_2
@@ -372,7 +356,7 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e(DataUser &data_user) {///application du chargement à chaque noeud
+    void load_f_vol_e(Vec<string,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
     }
     //    
@@ -381,7 +365,7 @@ struct Meshmulti {
         m->update_elem_children();
         m->update_elem_parents();
         //1ere etape : ajout des noeuds et creation de la table de hashage
-        typedef Noeud_Hash<typename Meshmulti<Carac>::TM::Tpos, Carac::dim> TNH;
+        typedef Noeud_Hash TNH;
         hash_map<TNH, unsigned, MyHash, NodesEq> hm;
         apply(m->sub_mesh(LMT::Number<Carac::dim-1>()).elem_list,add_nodes(),*m,hm);
         //2eme etape : boucle sur les noeuds et creation de nouveaux éléments

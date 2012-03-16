@@ -38,7 +38,7 @@ struct Projection_fields_on_skin_sst{
 //calcul du champ permettant de réaliser un éclaté de la structure (champ qtrans)
 template<class SST>
 void calcul_explode_displacements(SST &S){
-    typedef Vec<typename SST::T,SST::dim> TV;
+    typedef Vec<TYPEREEL,DIM> TV;
     TV G=barycenter_constant_rho(*S.mesh.m);
     for(int i=0;i<S.mesh->node_list.size();i++){
         S.mesh->node_list[i].qtrans=S.mesh->node_list[i].pos+G;

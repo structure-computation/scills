@@ -60,8 +60,8 @@ using namespace std;
 /** \ingroup
 \brief Fonction principale pour un calcul sous-structuré. Cette routine est appelée plusieurs fois dans le cas d'une multirésolution
 */
-template<class TV1,class TV2,class TV5,class GLOB>
-void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, FieldStructureUser &field_structure_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global, Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &SubS,  Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &Stot,  Vec<VecPointedValues<typename TV2::template SubType<0>::T> > &SubI) {
+template<class Matprops, class TV1,class TV2,class TV5,class GLOB>
+void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Matprops& matprops, FieldStructureUser &field_structure_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global, Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &SubS,  Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &Stot,  Vec<VecPointedValues<typename TV2::template SubType<0>::T> > &SubI) {
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     TicTac tic1;
@@ -72,7 +72,7 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Fi
     bool calculate_operator=0;
     if(data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_material_link_CL_CLvolume[0]==1){
         if (process.rank==0) std::cout << "Reevaluation (multiresolution) des materiaux SST : " ;
-        assignation_materials_property_SST(data_user, S, Inter,process, field_structure_user);
+        assignation_materials_property_SST(data_user, matprops, S, Inter,process, field_structure_user);
         assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);
         calculate_operator=1;
     }
@@ -190,9 +190,9 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Fi
 /** \ingroup
 \brief Fonction principale pour un calcul sous-structurï¿½
 */
-template<class TV1,class TV2,class TV5,class GLOB>
+template<class MatProps, class TV1,class TV2,class TV5,class GLOB>
 
-void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global) {
+void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matprops, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global) {
 
     /// lecture des donnees de calcul
 #ifdef INFO_TIME
@@ -239,8 +239,8 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     if (process.rank == 0) std::cout << " Construction du maillage micro et macro" << std::endl;
     if (process.rank == 0) std::cout << "******************************************" << std::endl;
     /// construction de la geometrie et des maillages
-    Vec<VecPointedValues<typename TV1::template SubType<0>::T> > Stot,SubS;
-    Vec<VecPointedValues<typename TV2::template SubType<0>::T> > SubI;
+    Vec<VecPointedValues<Sst> > Stot,SubS;
+    Vec<VecPointedValues<Interface> > SubI;
     
     multiscale_geometry_mesh( data_user, geometry_user, S, Inter, process, CL, Stot, SubS, SubI );
     
@@ -264,13 +264,11 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     
     //recherche des donnees utilisant les parametres de multiresolution
     data_user.find_Multiresolution_parameters();
-    
-    //assignation des proprietes materiaux aux maillages des sst
 
     FieldStructureUser field_structure_user(geometry_user);
 
-    
-    assignation_materials_property_SST(data_user, S, Inter,process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+    //assignation des proprietes materiaux aux maillages des sst
+    assignation_materials_property_SST(data_user, matprops, S, Inter,process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
     #ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Assignation materiaux SST : " ;
@@ -278,6 +276,41 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
         if (process.rank==0) std::cout << std::endl;
         if (process.rank==0) tic1.start();
     #endif
+    
+    //#ifdef DEBUG
+        //Verification
+        if (process.rank == 0){
+            std::cout << std::endl << std::endl << "*******************ALEXIS_DEBUG**********************" << std::endl;
+            //std::cout << "type_formulation : " << S[0].matprop.type_formulation << std::endl;
+            std::cout << "density : " << S[0].matprop.density << std::endl;
+            std::cout << "viscosite : " << S[0].matprop.viscosite << std::endl;
+            std::cout << "elastic_modulus_1 : " << S[0].matprop.elastic_modulus_1 << std::endl;
+            std::cout << "elastic_modulus_2 : " << S[0].matprop.elastic_modulus_2 << std::endl;
+            std::cout << "elastic_modulus_3 : " << S[0].matprop.elastic_modulus_3 << std::endl;
+            std::cout << "poisson_ratio_12 : " << S[0].matprop.poisson_ratio_12 << std::endl;
+            std::cout << "poisson_ratio_13 : " << S[0].matprop.poisson_ratio_13 << std::endl;
+            std::cout << "poisson_ratio_23 : " << S[0].matprop.poisson_ratio_23 << std::endl;
+            std::cout << "shear_modulus_12 : " << S[0].matprop.shear_modulus_12 << std::endl;
+            std::cout << "shear_modulus_13 : " << S[0].matprop.shear_modulus_13 << std::endl;
+            std::cout << "shear_modulus_23 : " << S[0].matprop.shear_modulus_23 << std::endl;
+            std::cout << "alpha_1 : " << S[0].matprop.alpha_1 << std::endl;
+            std::cout << "alpha_2 : " << S[0].matprop.alpha_2 << std::endl;
+            std::cout << "alpha_3 : " << S[0].matprop.alpha_3 << std::endl;
+            std::cout << "deltaT  : " << S[0].matprop.deltaT << std::endl;
+            std::cout << "k_p      : " << S[0].matprop.k_p << std::endl;
+            std::cout << "m_p      : " << S[0].matprop.m_p << std::endl;
+            std::cout << "R0       : " << S[0].matprop.R0 << std::endl;
+            std::cout << "couplage : " << S[0].matprop.coefvm_composite << std::endl;
+            std::cout << "Yo           : " << S[0].matprop.Yo << std::endl;
+            std::cout << "Yc           : " << S[0].matprop.Yc << std::endl;
+            std::cout << "Ycf          : " << S[0].matprop.Ycf << std::endl;
+            std::cout << "dmax         : " << S[0].matprop.dmax << std::endl;
+            std::cout << "b_c          : " << S[0].matprop.b_c << std::endl;
+            std::cout << "effet_retard : " << S[0].matprop.effet_retard << std::endl;
+            std::cout << "a            : " << S[0].matprop.a << std::endl;
+            std::cout << "tau_c        : " << S[0].matprop.tau_c << std::endl;
+        }
+    //#endif
 
     /// modification du comportement des interfaces interieures si besoin : contact...
     assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
@@ -357,7 +390,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
                     data_user.Multiresolution_parameters[i_par].current_value=data_user.options.Multiresolution_nb_cycle*i_res+data_user.Multiresolution_parameters[i_par].min_value;
                     PRINT(data_user.Multiresolution_parameters[i_par].current_value);
                 }
-                multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);   
+                multiscale_calculation(data_user, geometry_user, matprops, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);   
                 affichage_resultats(SubS,process, data_user);
                 affichage_resultats_inter(SubI, S ,process, data_user); //sortie paraview pour les interfaces
             }
@@ -369,7 +402,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, TV1 &S, TV2 &I
     }
     else{
         process.temps->dt=0;
-        multiscale_calculation(data_user, geometry_user, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
+        multiscale_calculation(data_user, geometry_user, matprops, field_structure_user, S, Inter, process,  CL, Global, SubS, Stot, SubI);
         affichage_resultats(SubS,process, data_user); //sortie paraview pour les sst (volume et peau)
         affichage_resultats_inter(SubI, S ,process, data_user); //sortie paraview pour les interfaces
     }

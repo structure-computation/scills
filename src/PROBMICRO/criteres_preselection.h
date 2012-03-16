@@ -2,13 +2,12 @@
 
 
 //calcul de la somme de <sign>^2+sigt^2 pour selection d'une interface  
-template<class INTER> typename INTER::T calc_sign_sigt(INTER &Inter){
-   typedef typename INTER::T TT;
+template<class INTER> TYPEREEL calc_sign_sigt(INTER &Inter){
    
-   Vec<TT> Fn1 = Inter.side[0].Pn*Inter.side[0].F;
-   Vec<TT> Fn2 = Inter.side[1].Pn*Inter.side[1].F;
-   Vec<TT> Ft1 = Inter.side[0].Pt*Inter.side[0].F;
-   Vec<TT> Ft2 = Inter.side[1].Pt*Inter.side[1].F;
+    Vec<TYPEREEL> Fn1 = Inter.side[0].Pn*Inter.side[0].F;
+    Vec<TYPEREEL> Fn2 = Inter.side[1].Pn*Inter.side[1].F;
+    Vec<TYPEREEL> Ft1 = Inter.side[0].Pt*Inter.side[0].F;
+    Vec<TYPEREEL> Ft2 = Inter.side[1].Pt*Inter.side[1].F;
    
    // utilisation de la partie positive de la composante normale
    for(unsigned i=0;i<Fn1.size();++i){
@@ -17,20 +16,17 @@ template<class INTER> typename INTER::T calc_sign_sigt(INTER &Inter){
    }
    
    // calcul d'un critere
-   TT sn1=dot(Fn1,Inter.side[0].M*Fn1);
-   TT sn2=dot(Fn2,Inter.side[0].M*Fn2);
-   TT sn = (sn1+sn2)/2;
+   TYPEREEL sn1=dot(Fn1,Inter.side[0].M*Fn1);
+   TYPEREEL sn2=dot(Fn2,Inter.side[0].M*Fn2);
+   TYPEREEL sn = (sn1+sn2)/2;
    
-   TT st1=dot(Ft1,Inter.side[0].M*Ft1);
-   TT st2=dot(Ft2,Inter.side[0].M*Ft2);
-   TT st = (st1+st2)/2;
+   TYPEREEL st1=dot(Ft1,Inter.side[0].M*Ft1);
+   TYPEREEL st2=dot(Ft2,Inter.side[0].M*Ft2);
+   TYPEREEL st = (st1+st2)/2;
    
-   TT res;
+   TYPEREEL res;
    res = st + sn ;
-   return res;
-   
-      
-      
+   return res;      
 }         
 
 //********************************************************************************************

@@ -25,20 +25,20 @@
 #include "assignation_materiaux_sst.h"
 
 struct assign_dep_contrainte{
-template<class SST> void operator()(SST &S) const{
-assign_material_on_element(S);
-S.f->set_mesh(S.mesh.m);
-S.f->get_result()=S.q;
-S.f->update_variables();
-S.f->call_after_solve();
-//S.f.vectors[0]=S.q;
-//S.f.update_variables();
-//S.f.call_after_solve();
-}
+    template<class SST> void operator()(SST &S) const{
+        assign_material_on_element(S);
+        S.f->set_mesh(S.mesh.m);
+        S.f->get_result()=S.q;
+        S.f->update_variables();
+        S.f->call_after_solve();
+        //S.f.vectors[0]=S.q;
+        //S.f.update_variables();
+        //S.f.call_after_solve();
+    }
 };
 
 
-template<class SST> void assign_dep_cont_slave(SST &S,Vec<typename SST::T> &q, DataUser &data_user){
+template<class SST> void assign_dep_cont_slave(SST &S,Vec<TYPEREEL> &q, DataUser &data_user){
    S.mesh.load();
    assign_material_on_element(S,data_user);
    S.f->set_mesh(S.mesh.m);

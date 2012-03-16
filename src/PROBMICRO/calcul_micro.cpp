@@ -50,7 +50,7 @@ using namespace std;
 
 
 
-void calcul_micro(const XmlNode &n,Vec<Sst<DIMENSION,TYPEREEL> > &S, Vec<Interface<DIMENSION,TYPEREEL> > &Inter, Param &process,  Vec<Boundary<DIMENSION,TYPEREEL> > &CL,Glob<DIMENSION,TYPEREEL> &Global)
+void calcul_micro(const XmlNode &n,Vec<Sst<DIM,TYPEREEL> > &S, Vec<Interface<DIM,TYPEREEL> > &Inter, Param &process,  Vec<Boundary<DIM,TYPEREEL> > &CL,Glob<DIM,TYPEREEL> &Global)
 {
 
   cout << "*************************" <<endl;
@@ -58,13 +58,13 @@ void calcul_micro(const XmlNode &n,Vec<Sst<DIMENSION,TYPEREEL> > &S, Vec<Interfa
   cout << "*************************" <<endl;
 
       //lecture des parametres micro et proprietes d'interface
-      Param_Micro<DIMENSION,TYPEREEL> parammicro;
+  Param_Micro<DIM,TYPEREEL> parammicro;
       read_micro(parammicro,n);
       //modification du comportement des interfaces interieures si besoin : contact defini a priori
       for(unsigned q=0;q<Inter.size();++q)
          Inter[q].parammicro = new PARAM_MICRO_INTER;
       
-      Vec<InterCarac<DIMENSION,TYPEREEL> > propintermicro;
+      Vec<InterCarac<DIM,TYPEREEL> > propintermicro;
       read_prop_inter_micro(propintermicro,n);
       
       // selection des interfaces potentiellement degradables et assignation des parametres materiaux

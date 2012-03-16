@@ -41,7 +41,7 @@ template<class TE, class TM, class TNH> void operator()(TE &e, TM &m, hash_map<T
       rep_nodes[i]=e.node(i)->number_in_original_mesh();
    
    typename TM::Pvec G = center(e);
-   Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+   Noeud_Hash newnoeud;
    newnoeud.pos=G;
    unsigned num_hash=0;
    for(unsigned j=0;j<e.nb_nodes;j++)
@@ -66,8 +66,7 @@ template<class TM> void create_new_mesh_p_2D(TM &m, TM &m2){
     m.update_elem_children();
    m.update_elem_parents();
    //1ere etape : ajout des noeuds et creation de la table de hashage
-   typedef Noeud_Hash<typename TM::Tpos, TM::dim> TNH;
-   hash_map<TNH, unsigned, MyHash, NodesEq> hm;
+   hash_map<Noeud_Hash, unsigned, MyHash, NodesEq> hm;
    apply(m.elem_list,add_nodes(),m,hm);
 
    //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
@@ -116,9 +115,9 @@ struct p_decoup_INTER{
       S[ii].edge[jj].mesh->elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       
       // creation du maillage de bord de la sous-structure correspondant
-      if (TV1::template SubType<0>::T::dim==3)
+      if (DIM==3)
       create_new_mesh_p_3D(*inter.side[j].mesh,*S[ii].edge[jj].mesh);
-      else if(TV1::template SubType<0>::T::dim==2)
+      else if(DIM==2)
       create_new_mesh_p_2D(*inter.side[j].mesh,*S[ii].edge[jj].mesh);
       else{ std::cout << "pas de multiechelle en 1D" << endl;
          assert(0);}

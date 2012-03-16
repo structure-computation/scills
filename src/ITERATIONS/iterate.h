@@ -13,7 +13,6 @@ using namespace std;
 #include "containers/evaluate_nb_cycles.h"
 
 #include "create_file_pvd.h"
-
 #include "containers/gnuplot.h"
 
 extern Crout crout;
@@ -88,71 +87,10 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global,
 
         if (process.size==1 or process.rank>0)
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-            process.temps->pt=pt;
-            process.temps->pt_cur=pt;
-// #ifdef LOOK_CONTACT_ZONE
-
-            //                          if (process.size==1 or process.rank>0)
-// #endif
+                process.temps->pt=pt;
+                process.temps->pt_cur=pt;
                 etape_locale(SubI,S,process);
-            //etape locale sur les sous-structures
-            //etape_locale(S);
-            
-/*#ifdef LOOK_CONTACT_ZONE
-            if (find(process.affichage->display_fields,LMT::_1==string("contact"))) {
-                if (process.size==1 or process.rank>0) {
-                    string nom_generique = process.affichage->repertoire_save ;
-                    ostringstream ss;
-                    if (process.size>1)
-                        ss<<nom_generique << "contact_"+process.affichage->name_data <<"_"<<process.rank<< "_"<<pt<< "_"<<i;
-                    else
-                        ss<<nom_generique << "contact_"+process.affichage->name_data << "_"<<pt<<"_"<<i;
-                    string namefile(ss.str());
-                    DisplayParaview dp;
-                    typename TV2::template SubType<0>::T::TMESH meshglob;
-                    for(unsigned ii=0;ii<S.size();++ii)
-                        for( unsigned jj=0;jj<S[ii].edge.size() ;jj++ )
-                            if (S[ii].edge[jj].datanum == 0 and (Inter[S[ii].edge[jj].internum].comp=="Contact" or Inter[S[ii].edge[jj].internum].comp=="Contact_jeu" or Inter[S[ii].edge[jj].internum].comp=="Contact_jeu_physique"))
-                                meshglob.append(*Inter[S[ii].edge[jj].internum].side[0].mesh);
-                    dp.add_mesh(meshglob,namefile,Vec<string>("type"));
-                    system(("mv "+namefile+"0.vtu "+namefile+".vtu").c_str());
-                }
-                if (process.size>1) {
-                    int rank =1;
-                    std::ostringstream ss2;
-                    ss2<<process.affichage->repertoire_save<<"contact_"<< process.affichage->name_data << "_" << pt << "_" << i << ".pvtu";
-                    string nom(ss2.str());
-                    std::ifstream fichier;
-                    if (process.rank==0) {
-                        fichier.open( nom.c_str() );
-                        if (fichier.is_open()) {
-                            system(("rm "+nom ).c_str());
-                            fichier.close();
-                        }
-                    }
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    int test=0;
-                    //fichier.open( nom.c_str() );
-                    while( test==0 ) {
-                        //fichier.close();
-//                         std::cout << "Rank en cours : " << rank << " pour " << process.rank << endl;
-//                         std::cout << process.rank << " " << nom << " pt " << pt << endl;
-                        if (process.rank==rank )
-                            create_file_pvtu(process,"contact_",i,pt);
-                        MPI_Barrier(MPI_COMM_WORLD);
-                        rank+=1;
-                        if (process.rank==0) {
-                            fichier.open( nom.c_str() );
-                            test=fichier.is_open();
-                        }
-                        MPI_Bcast(&test,1,MPI_INT,0,MPI_COMM_WORLD);
-                    }
-                    if (process.rank==0)
-                        fichier.close();
-                }
             }
-#endif*/
-        }
 
 
         crout << process.rank<< " : etape locale : ";

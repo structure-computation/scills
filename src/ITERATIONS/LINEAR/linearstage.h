@@ -103,7 +103,7 @@ On effectue de même avec les quantités d'interfaces, puis on met à jour les anci
 */
 template<class SST, class TV2>
 void relaxation (SST &S,TV2 &Inter,Param &process) {
-    typename SST::T mu = process.latin->mu;
+    TYPEREEL mu = process.latin->mu;
     unsigned pt = process.temps->pt;
 //     if(process.latin->save_depl_SST==1) {
 //         S.t[pt].q=(1-mu)*S.t[pt].oldq + mu*S.t[pt].q;
@@ -214,9 +214,9 @@ struct calcul_secmemb_micro_sst {
     void operator()(SST &S, Param &process, DataUser &data_user) const {
         //second membre prenant en compte le comportement thermique et la condition au pas de temps precedent ou les quantites chapeau:
         S.mesh.load();
-        S.mesh->density=S.mesh.density;
-        S.mesh.load_f_vol_e(data_user);
-        S.mesh->f_vol=S.mesh.f_vol;
+        S.mesh->density=S.matprop.density;
+        S.mesh.load_f_vol_e(S.matprop.f_vol_e,data_user);
+        S.mesh->f_vol=S.matprop.f_vol;
         S.f->set_mesh(S.mesh.m);
         S.f->assemble(false,true);
         S.fvol = S.f->get_sollicitation();
@@ -230,66 +230,58 @@ struct calcul_secmemb_micro_sst {
 template<class TV1, class TV2, class GLOB>
 void etape_lineaire(TV1 &S, TV2 &Inter,Param &process,GLOB &Global) {
     unsigned nb_threads=process.nb_threads;
-     TicToc2 tic1,tic2;
-     if (process.temps->pt==2) {tic1.start();tic2.start();}
+    TicToc2 tic1,tic2;
+    if (process.temps->pt==2)
+        {tic1.start();tic2.start();}
 
-    if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,semilinstage1(),Inter,process);
+    if (process.size == 1 or process.rank > 0)
+        apply_mt(S,nb_threads,semilinstage1(),Inter,process);
 
-   if (process.temps->pt==2) {crout << process.rank<<" : lineaire1 :"; tic1.stop();tic1.start();}
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere2" << endl;
+    if (process.temps->pt==2) 
+        {crout << process.rank<<" : lineaire1 :"; tic1.stop();tic1.start();}
     if (process.multiscale->multiechelle ==1) {
-//         cout << "Assemblage du second membre macro" << endl;
         Global.bigF.set(0.0);
-        if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
-   if (process.temps->pt==2) {crout << process.rank<<" : macroassemble :"; tic1.stop();}
-//        cout << "Attention : " << process.rank << " " << Global.bigF << endl;
-         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere3" << endl;
+        if (process.size == 1 or process.rank > 0)
+            apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
+        if (process.temps->pt==2) 
+            {crout << process.rank<<" : macroassemble :"; tic1.stop();}
+        if (process.size > 1)
+            MPI_Barrier( MPI_COMM_WORLD );
         //Deploiement de bigF sur le master
-         if (process.temps->pt==2) {tic1.start();}
-         if (process.size > 1) SendbigF(process,Global.bigF);
-   if (process.temps->pt==2) {crout << process.rank<<" : send bidF :"; tic1.stop();tic1.start();}
-//         cout << "Attention : " << process.rank << " " << norm_2(Global.bigF) << endl;
-//          if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere4" << endl;
-//         cout << "Resolution du probleme macro" << endl;
-        if (process.rank==0) Global.resolmacro();
-
-        if (process.temps->pt==2) {crout << process.rank<<" : resolmacro :"; tic1.stop();}
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere5" << endl;
+        if (process.temps->pt==2)
+            {tic1.start();}
+        if (process.size > 1)
+            SendbigF(process,Global.bigF);
+        if (process.temps->pt==2)
+            {crout << process.rank<<" : send bidF :"; tic1.stop();tic1.start();}
+        if (process.rank==0)
+            Global.resolmacro();
+        if (process.temps->pt==2)
+            {crout << process.rank<<" : resolmacro :"; tic1.stop();}
         //Deploiement de bigW sur toutes les machines
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-        if (process.temps->pt==2) {tic1.start();}
-
-//   if (process.temps->pt==2) {cout << process.rank<<" : synchro :"; tic1.stop();tic1.start();}
-//          cout << process.rank << "  " << Global.bigW.size() << endl;
-        if (process.size > 1) MPI_Bcast(Global.bigW.ptr(),Global.bigW.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        if (process.temps->pt==2)
+            {tic1.start();}
+        if (process.size > 1) 
+            MPI_Bcast(Global.bigW.ptr(),Global.bigW.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
         if (process.temps->pt==2) {crout << process.rank<<" : bcast bigW :"; tic1.stop();tic1.start();}
-//         if (process.rank==0) cout << "DEBUG : bigW apres etape macro : " << norm_2(Global.bigW) << endl;
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere6" << endl;
-        //double erreur=norm_2(Global.bigW)/Global.bigW.size();
-        //Global.max_erreur=max(Global.max_erreur,erreur);
-         if(process.multiscale->opti_multi==1 and (norm_2(Global.bigW)/Global.bigW.size()<=process.multiscale->erreur_macro) and process.latin->iter != 0)
-//        if(process.multiscale->opti_multi==1 and erreur/Global.max_erreur<=process.multiscale->erreur_macro and process.latin->iter != 0)
-          process.multiscale->multiechelle=0;
-        //cout << norm_2(Global.bigW)/Global.bigW.size() << endl;
-        //cout << "Extraction des deplacements macro - multiplicateur" << endl;
-        if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,interextrmacro(),Inter,*process.temps,Global);
-   if (process.temps->pt==2) {crout << process.rank<<" : interextrmacro :"; tic1.stop();tic1.start();}
-        //cout << "Etape micro 2" << endl;
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere7" << endl;
-        if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,semilinstage2(),Inter,process);
-   if (process.temps->pt==2) {crout << process.rank<<" : lineaire2 :"; tic1.stop();tic1.start();}
+        if(process.multiscale->opti_multi==1 and (norm_2(Global.bigW)/Global.bigW.size()<=process.multiscale->erreur_macro) and process.latin->iter != 0)
+            process.multiscale->multiechelle=0;
+        if (process.size == 1 or process.rank > 0) 
+            apply_mt(S,nb_threads,interextrmacro(),Inter,*process.temps,Global);
+        if (process.temps->pt==2)
+            {crout << process.rank<<" : interextrmacro :"; tic1.stop();tic1.start();}
+        if (process.size == 1 or process.rank > 0)
+            apply_mt(S,nb_threads,semilinstage2(),Inter,process);
+        if (process.temps->pt==2)
+            {crout << process.rank<<" : lineaire2 :"; tic1.stop();tic1.start();}
     }
-//         if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
-//         cout << "Barriere8" << endl;
-//    if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,reconstruction_quantites(),Inter,process);
-    if (process.size == 1 or process.rank > 0) apply_mt(S,nb_threads,derivation_quantites_sst(),Inter,process);
+    if (process.size == 1 or process.rank > 0)
+        apply_mt(S,nb_threads,derivation_quantites_sst(),Inter,process);
 
-   if (process.temps->pt==2) {crout << process.rank<<" : reconstruction :"; tic1.stop();crout << process.rank<<" : cout d une etape lineaire par pas de temps : "; tic2.stop();}
+    if (process.temps->pt==2){
+        crout << process.rank<<" : reconstruction :"; 
+        tic1.stop();
+        crout << process.rank<<" : cout d une etape lineaire par pas de temps : ";
+        tic2.stop();}
 };
 

@@ -18,8 +18,8 @@ template<class SST,class TV2> void semilin2slave(SST &S,TV2 &Inter, Param &proce
    unsigned pt=process.temps->pt;
 
    // assemblage du second membre : droitm
-   Vec<typename SST::T> droitm,Qd,W2 ;
-   droitm.resize(SST::dim*S.mesh.node_list_size);
+   Vec<TYPEREEL> droitm,Qd,W2 ;
+   droitm.resize(DIM*S.mesh.node_list_size);
    // mise a  zero du second membre
    droitm.set(0.0);
 
@@ -34,7 +34,7 @@ template<class SST,class TV2> void semilin2slave(SST &S,TV2 &Inter, Param &proce
 // TicToc2 tic1;
 // tic1.start();
    // resolution du probleme : choix lors de la compilation
-   Vec<typename SST::T> Sq;
+   Vec<TYPEREEL> Sq;
 #if LDL
    Sq=droitm;
    S.l.solve(Sq);
