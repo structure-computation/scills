@@ -1,5 +1,7 @@
 #ifndef CALCULATE_MEASURE_G_SST_H
 #define CALCULATE_MEASURE_G_SST_H
+
+
 /** \ingroup  Maillage_geometrie 
 \brief Calcul de la mesure et centre de gravité des sst à partir du maillage
 */

@@ -40,10 +40,10 @@ void fake_affichage() {
     Param process;
     DataUser data_user;
 //     Vec<Splitted<Sst<DIM,TYPEREEL> ,16> > S3;
-    Vec<Sst<DIM,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<DIM,TYPEREEL> > > SP3;
-    Vec<Interface<DIM,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Interface<DIM,TYPEREEL> > > InterP3;
+    Vec<Sst> S3;
+    Vec<VecPointedValues<Sst> > SP3;
+    Vec<Interface> Inter3;
+    Vec<VecPointedValues<Interface> > InterP3;
     
     affichage_maillage(SP3, InterP3,S3, process, data_user);
     affichage_resultats(SP3, process, data_user);

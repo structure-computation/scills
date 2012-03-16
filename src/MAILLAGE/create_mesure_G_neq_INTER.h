@@ -1,3 +1,8 @@
+#ifndef CREATE_MESURE_G_NEQ_INTER
+#define CREATE_MESURE_G_NEQ_INTER
+
+#include "algebre.h"
+#include "utilitaires.h"
 
 //********************************************
 // calcul mesure cdg pour les interfaces
@@ -61,7 +66,7 @@ template<class TV1, class INTER > void calculate_normales(INTER &Inter, TV1 &S) 
       //preselection des elements du maillage de peau qui peuvent convenir (pour accelerer les calculs)
       Vec<typename TV1::template SubType<0>::T::TMESH::TM::Pvec,2> box = create_box_mesh(*Inter.side[q].mesh);
 
-      Inter.side[q].neq.resize(Inter.side[q].mesh->elem_list.size()*INTER::dim,0.);
+      Inter.side[q].neq.resize(Inter.side[q].mesh->elem_list.size()*DIM,0.);
       S[ii].mesh->update_skin();
       apply(S[ii].mesh->skin.elem_list,Calculate_Normales(),*S[ii].mesh.m,box,Inter.side[q]);
       S[ii].mesh.unload();
@@ -83,3 +88,4 @@ struct calculate_measure_G_neq_INTER {
    }
 };
 
+#endif CREATE_MESURE_G_NEQ_INTER

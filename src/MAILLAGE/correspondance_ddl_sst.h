@@ -21,7 +21,7 @@ using namespace std;
 template<class SST>
 void Calc_SST_Correspddl(SST &S, Param &process) {
     for(unsigned j=0;j<S.edge.size();++j) {
-        S.edge[j].repddledge.resize(S.edge[j].mesh->node_list.size()*SST::dim);
+        S.edge[j].repddledge.resize(S.edge[j].mesh->node_list.size()*DIM);
         typename IntersectionCarac<typename SST::TMESHedge::TNodeList, typename SST::TMESH::TM::TNodeList >::T inter=
             intersection_ptr(S.edge[j].mesh->node_list,S.mesh->node_list,Function<DistBetweenNodes>() < 0.0001);
 
@@ -38,7 +38,7 @@ void Calc_SST_Correspddl(SST &S, Param &process) {
         for(unsigned i=0;i<inter.size();++i)
             repnode[inter[i].first->number_in_original_mesh()]=inter[i].second->number_in_original_mesh();
         for(unsigned i=0;i<repnode.size();++i)
-            S.edge[j].repddledge[range(i*SST::dim,(i+1)*SST::dim)]=range(repnode[i]*SST::dim,(repnode[i]+1)*SST::dim);
+            S.edge[j].repddledge[range(i*DIM,(i+1)*DIM)]=range(repnode[i]*DIM,(repnode[i]+1)*DIM);
     }
 //     S.mesh.unload();
 }

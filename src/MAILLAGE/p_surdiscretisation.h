@@ -129,8 +129,7 @@ template<unsigned number,class TM> void p_surdiscretise(TM &m){
    m.update_elem_children();
    m.update_elem_parents();   
    //1ere etape : ajout des noeuds et creation de la table de hashage
-   typedef Noeud_Hash<typename TM::Tpos, TM::dim> TNH;
-   hash_map<TNH, unsigned, MyHash, NodesEq> hm;
+   hash_map<Noeud_Hash, unsigned, MyHash, NodesEq> hm;
    apply(m.sub_mesh(LMT::Number<number>()).elem_list,add_nodes(),m,hm);
    
    //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
@@ -154,7 +153,7 @@ La procédure de modification des éléments est décrite dans la fonction p_surdisc
 */
 struct p_surdiscretise_SST {
    template<class SST> void operator()(SST &S) const {
-      p_surdiscretise<SST::dim-1>(S.mesh);
+      p_surdiscretise<DIM-1>(S.mesh);
       apply(S.mesh.elem_list,apply_mat_elem(),S.typmat,S.num,S.num_proc);
    }
 };

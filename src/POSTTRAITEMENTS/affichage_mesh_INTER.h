@@ -7,23 +7,21 @@ using namespace std;
 // Eclate des interfaces
 
 struct eclat_INTER_struct {
-   template<class INTER> void operator()(INTER &Inter, typename INTER::T ecl) const{
-   typedef Vec<typename INTER::T,INTER::dim> TV;
-   // calcul cdg du maillage
-   
-   TV G=barycenter_constant_rho(*Inter.side[0].mesh);
-   // translation du maillage
-   TV trans=G*ecl;
-   // modification du champ qtrans
-   apply(Inter.side[0].mesh->node_list,modif_qtrans(),trans);
-   }
+    template<class INTER> void operator()(INTER &Inter, TYPEREEL ecl) const{
+        // calcul cdg du maillage
+        Vec<TYPEREEL,DIM> G=barycenter_constant_rho(*Inter.side[0].mesh);
+        // translation du maillage
+        Vec<TYPEREEL,DIM> trans=G*ecl;
+        // modification du champ qtrans
+        apply(Inter.side[0].mesh->node_list,modif_qtrans(),trans);
+    }
 };
 
 
 /** \ingroup  Post_Traitement 
 \brief Eclaté des maillages d'interface
 */
-template<class TV2> void eclat_INTER(TV2 &Inter,typename TV2::template SubType<0>::T::T ecl) {
+template<class TV2> void eclat_INTER(TV2 &Inter,TYPEREEL ecl) {
    apply(Inter,eclat_INTER_struct(),ecl);
 };
 

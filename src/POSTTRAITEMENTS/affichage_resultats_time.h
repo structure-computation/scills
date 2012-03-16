@@ -290,14 +290,14 @@ Cette procédure s'applique pour une interface seulement.
 */
 template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV1 &S,unsigned data=0,unsigned pt=1,double dt=1.0){
 
-   Vec<typename INTER::T, INTER::dim> normale = Inter.G-S[Inter.vois[data*2]].G;
+   Vec<TYPEREEL, DIM> normale = Inter.G-S[Inter.vois[data*2]].G;
    double sign=1.;
-   if (dot(Inter.side[data].neq[range(0,(int)INTER::dim)],normale)<=0.00001)   sign=-1.;
+   if (dot(Inter.side[data].neq[range(0,(int)DIM)],normale)<=0.00001)   sign=-1.;
    //assignation des deplacements et contraintes      
    unsigned numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_effort<INTER::dim>(),numelem,sign*Inter.side[data].t[pt].Fchap);
+   apply(Inter.side[data].mesh->elem_list,assign_effort<DIM>(),numelem,sign*Inter.side[data].t[pt].Fchap);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_deplacement<INTER::dim>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
+   apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
 
    int type=0;
    if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
@@ -326,16 +326,16 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    tmp0=Inter.side[0].Pt(Inter.side[0].t[pt].Wchap);
    tmp1=Inter.side[1].Pt(Inter.side[1].t[pt].Wchap);
    Ut=tmp0[Inter.side[0].ddlcorresp]-tmp1[Inter.side[1].ddlcorresp];
-   Vec<double,INTER::dim> a0;a0.set(0.);
-   for( unsigned k=0;k< Un.size()/INTER::dim; k++){
-      if (norm_2(Un[range(k*INTER::dim,(k+1)*INTER::dim)]) > 1e-8 or norm_2(Ut[range(k*INTER::dim,(k+1)*INTER::dim)]) < 1e-8) {
-        Ut[range(k*INTER::dim,(k+1)*INTER::dim)]=a0;
+   Vec<double,DIM> a0;a0.set(0.);
+   for( unsigned k=0;k< Un.size()/DIM; k++){
+      if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) > 1e-8 or norm_2(Ut[range(k*DIM,(k+1)*DIM)]) < 1e-8) {
+        Ut[range(k*DIM,(k+1)*DIM)]=a0;
       }
    }
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<INTER::dim>(),numelem,Un);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<DIM>(),numelem,Un);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<INTER::dim>(),numelem,Ut);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<DIM>(),numelem,Ut);
    
    
    //calcul de la dissipation par element puis assignation
@@ -349,23 +349,23 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
     }*/
    dissi_inter= Inter.side[0].Pt(Inter.side[0].t[pt].Fchap)*(Inter.side[0].M*(Inter.side[0].Pt(Inter.side[0].t[pt].Wpchap)-Inter.side[1].Pt(Inter.side[1].t[pt].Wpchap)));
    numelem=0;
-    apply(Inter.side[data].mesh->elem_list,assign_dissipation<INTER::dim>(),numelem,dissi_inter);
+    apply(Inter.side[data].mesh->elem_list,assign_dissipation<DIM>(),numelem,dissi_inter);
 
    }
 
 }
 template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1 &S,unsigned data=0,unsigned pt=1,double dt=1.0){
 
-   Vec<typename INTER::T, INTER::dim> normale = Inter.G-S[Inter.vois[data*2]].G;
+   Vec<TYPEREEL, DIM> normale = Inter.G-S[Inter.vois[data*2]].G;
    double sign=1.;
-   if (dot(Inter.side[data].neq[range(0,(int)INTER::dim)],normale)<=0.00001)   sign=-1.;
+   if (dot(Inter.side[data].neq[range(0,(int)DIM)],normale)<=0.00001)   sign=-1.;
    //assignation des deplacements et contraintes  
    //PRINT("affichage des champs par interfaces");
    
    unsigned numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_effort<INTER::dim>(),numelem,sign*Inter.side[data].t_post[pt].Fchap);
+   apply(Inter.side[data].mesh->elem_list,assign_effort<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Fchap);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_deplacement<INTER::dim>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
+   apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
 
    int type=0;
    if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
@@ -394,17 +394,17 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    tmp0=Inter.side[0].Pt(Inter.side[0].t_post[pt].Wchap);
    tmp1=Inter.side[1].Pt(Inter.side[1].t_post[pt].Wchap);
    Ut=tmp0[Inter.side[0].ddlcorresp]-tmp1[Inter.side[1].ddlcorresp];
-   Vec<double,INTER::dim> a0;a0.set(0.);
-   for( unsigned k=0;k< Un.size()/INTER::dim; k++){
-      if (norm_2(Un[range(k*INTER::dim,(k+1)*INTER::dim)]) > 1e-8 or norm_2(Ut[range(k*INTER::dim,(k+1)*INTER::dim)]) < 1e-8) {
-        Ut[range(k*INTER::dim,(k+1)*INTER::dim)]=a0;
+   Vec<double,DIM> a0;a0.set(0.);
+   for( unsigned k=0;k< Un.size()/DIM; k++){
+      if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) > 1e-8 or norm_2(Ut[range(k*DIM,(k+1)*DIM)]) < 1e-8) {
+        Ut[range(k*DIM,(k+1)*DIM)]=a0;
       }
    }
 
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<INTER::dim>(),numelem,Un);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<DIM>(),numelem,Un);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<INTER::dim>(),numelem,Ut);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<DIM>(),numelem,Ut);
    
    //calcul de la dissipation par element puis assignation
    Vec<double> dissi_inter;
@@ -416,7 +416,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
                (Inter.side[1].Pt(Inter.side[1].t_post[j+1].Fchap)+Inter.side[1].Pt(Inter.side[1].t_post[j].Fchap))*Inter.side[1].Pt(Inter.side[1].t_post[j+1].Wpchap));
    }
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_dissipation<INTER::dim>(),numelem,dissi_inter);
+   apply(Inter.side[data].mesh->elem_list,assign_dissipation<DIM>(),numelem,dissi_inter);
    }
   
 }

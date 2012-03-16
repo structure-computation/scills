@@ -8,8 +8,8 @@ Cet operateur() permet d'assigner la valeur dt (pas de temps) et theta (paramètr
  */
 struct assign_val_temporelle {
    template<class SST> void operator() (SST &S, TEMPS &temps) const{
-      S.mesh.dt = temps.dt;
-      S.mesh.stat = 1;
+      S.matprop.dt = temps.dt;
+      S.matprop.stat = 1;
       //S.mesh.theta = temps.theta;
    }
 };

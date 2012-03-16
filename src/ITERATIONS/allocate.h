@@ -1,72 +1,6 @@
 using namespace LMT;
 using namespace std;
 
-//allocations des quantites par SST
-template<unsigned dim_, class TT_> void Sst<dim_,TT_>::Time::allocations(unsigned nbnode,Param &process)
-{
-//    if (process.rank>0 or process.size==1) oldq.resize(nbnode);//otable
-//    if (process.rank>0 or process.size==1) oldq.set(0.0);
-   if (process.rank>0 or process.size==1) q.resize(nbnode);
-   if (process.rank>0 or process.size==1) q.set(0.0);
-//    if (process.rank>0 or process.size==1) q1.resize(nbnode);//otable
-//    if (process.rank>0 or process.size==1) q1.set(0.0);
-//    if (process.rank>0 or process.size==1) q2.resize(nbnode);//otable
-//    if (process.rank>0 or process.size==1) q2.set(0.0);
-   
-}
-
-//allocations des quantites par INTER
-template<unsigned dim_, class TT_> void Interface<dim_,TT_>::Side::Time::allocations(unsigned nbnodeeq,Param &process)
-{
-//    if (process.rank>0 or process.size==1) Wd.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) Wd.set(0.0);
-//    if (process.rank>0 or process.size==1) Qd.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) Qd.set(0.0);
-//    if (process.rank>0 or process.size==1) Wtemp.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) Wtemp.set(0.0);
-   if (process.rank>0 or process.size==1) F.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) F.set(0.0);
-   if (process.rank>0 or process.size==1) Wp.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) Wp.set(0.0);
-   if (process.rank>0 or process.size==1) W.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) W.set(0.0);
-   if (process.rank>0 or process.size==1) oldW.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) oldW.set(0.0);
-   if (process.rank>0 or process.size==1) Fchap.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) Fchap.set(0.0);
-   if (process.rank>0 or process.size==1) Wchap.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) Wchap.set(0.0);
-   if (process.rank>0 or process.size==1) Wpchap.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) Wpchap.set(0.0);
-   if (process.rank>0 or process.size==1) WtildeM.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) WtildeM.set(0.0);
-   if (process.rank>0 or process.size==1) oldF.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) oldF.set(0.0);
-   if (process.rank>0 or process.size==1) oldWp.resize(nbnodeeq);
-   if (process.rank>0 or process.size==1) oldWp.set(0.0);
-//    if (process.rank>0 or process.size==1) F1.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) F1.set(0.0);
-//    if (process.rank>0 or process.size==1) W1.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) W1.set(0.0);
-//    if (process.rank>0 or process.size==1) F2.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) F2.set(0.0);
-//    if (process.rank>0 or process.size==1) W2.resize(nbnodeeq);//otable
-//    if (process.rank>0 or process.size==1) W2.set(0.0);
-//    if (process.rank>0 or process.size==1) Wp1.resize(nbnodeeq);//non utilise
-//    if (process.rank>0 or process.size==1) Wp1.set(0.0);
-//    if (process.rank>0 or process.size==1) Wp2.resize(nbnodeeq);//non utilise
-//    if (process.rank>0 or process.size==1) Wp2.set(0.0);
-}
-
-//allocations pour le probleme macro
-template<unsigned dim_, class TT_> void Glob<dim_,TT_>::allocations(Param &process)
-{
-   bigW.resize(process.multiscale->sizeM);
-   bigW.set(0.0);
-   bigF.resize(process.multiscale->sizeM);
-   bigF.set(0.0);
-}
-
 
 //allocation de t_post uniquement pour les sorties de resultat
 template<class TV1, class TV2> void allocate_quantities_post(TV1 &S, TV2 &Inter,Param &process){
@@ -85,10 +19,10 @@ template<class TV1, class TV2> void allocate_quantities_post(TV1 &S, TV2 &Inter,
       else
          S[i].t_post.resize(process.temps->nbpastemps+1);//utile pour le post traitement en incremental
       for(unsigned pt=1;pt<(nbpastemps+1);pt++)
-         S[i].t[pt].allocations(S[i].mesh.node_list_size*TV2::template SubType<0>::T::dim,process);
+         S[i].t[pt].allocations(S[i].mesh.node_list_size*DIM,process);
       if (process.nom_calcul=="incr")
         for(unsigned pt=1;pt<(process.temps->nbpastemps+1);pt++)
-          S[i].t_post[pt].allocations(S[i].mesh.node_list_size*TV2::template SubType<0>::T::dim,process);
+          S[i].t_post[pt].allocations(S[i].mesh.node_list_size*DIM,process);
 
    }
    if (process.rank>0 or process.size==1)
@@ -100,10 +34,10 @@ template<class TV1, class TV2> void allocate_quantities_post(TV1 &S, TV2 &Inter,
          else{
             Inter[i].side[j].t_post.resize(process.temps->nbpastemps+1); //utile pour le post traitement en incremental
             for(unsigned pt=0;pt<(nbpastemps+1);pt++)
-               Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*TV2::template SubType<0>::T::dim,process);
+               Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);
             for(unsigned pt=0;pt<(process.temps->nbpastemps+1);pt++)
               if(process.nom_calcul=="incr")
-                  Inter[i].side[j].t_post[pt].allocations(Inter[i].side[j].nodeeq.size()*TV2::template SubType<0>::T::dim,process);                        
+                  Inter[i].side[j].t_post[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);                        
 
             }
       }
@@ -138,10 +72,10 @@ template<class TV1, class TV2, class GLOB> void allocate_quantities(TV1 &S, TV2 
 /*      else
          S[i].t_post.resize(process.temps->nbpastemps+1);//utile pour le post traitement en incremental*/
       for(unsigned pt=1;pt<(nbpastemps+1);pt++)
-         S[i].t[pt].allocations(S[i].mesh.node_list_size*TV2::template SubType<0>::T::dim,process);
+         S[i].t[pt].allocations(S[i].mesh.node_list_size*DIM,process);
 //       if (process.nom_calcul=="incr")
 //         for(unsigned pt=1;pt<(process.temps->nbpastemps+1);pt++)
-//           S[i].t_post[pt].allocations(S[i].mesh.node_list_size*TV2::template SubType<0>::T::dim,process);
+         //           S[i].t_post[pt].allocations(S[i].mesh.node_list_size*DIM,process);
 
    }
    if (process.rank>0 or process.size==1)
@@ -153,10 +87,10 @@ template<class TV1, class TV2, class GLOB> void allocate_quantities(TV1 &S, TV2 
          else{
 /*            Inter[i].side[j].t_post.resize(process.temps->nbpastemps+1); //utile pour le post traitement en incremental*/
             for(unsigned pt=0;pt<(nbpastemps+1);pt++)
-               Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*TV2::template SubType<0>::T::dim,process);
+                Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);
 //             for(unsigned pt=0;pt<(process.temps->nbpastemps+1);pt++)
 //               if(process.nom_calcul=="incr")
-//                   Inter[i].side[j].t_post[pt].allocations(Inter[i].side[j].nodeeq.size()*TV2::template SubType<0>::T::dim,process);                        
+//                   Inter[i].side[j].t_post[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);                        
 
             }
       }

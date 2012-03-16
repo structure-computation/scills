@@ -72,9 +72,9 @@ struct Calc_SST_rigidite_K0_k {
         S.f->allocate_matrices();
         S.f->assemble(true,true);
 #if LDL
-        Mat<typename SST::T, Sym<>,SparseLine<> > *Kl;
+        Mat<TYPEREEL, Sym<>,SparseLine<> > *Kl;
         S.f->get_mat(Kl);
-        Mat<typename SST::T, Sym<>,SparseLine<> > &K = *Kl;
+        Mat<TYPEREEL, Sym<>,SparseLine<> > &K = *Kl;
 #else
         S.f->get_mat( S.K );
         typename SST::TMATS &K = *S.K;
@@ -263,7 +263,7 @@ struct Calc_SST_LE {
                 repg=repgj+k;
                 //calcul du second membre Qd associe a une deplacement macro d'un cote donnee et assemblage du second membre
                 Vec<TYPEREEL> droitm,Wd;
-                droitm.resize(SST::dim*S.mesh.node_list_size);
+                droitm.resize(DIM*S.mesh.node_list_size);
                 droitm.set(0.0);
                 for(unsigned j=0;j<S.edge.size();++j) {
                     unsigned q=S.edge[j].internum;

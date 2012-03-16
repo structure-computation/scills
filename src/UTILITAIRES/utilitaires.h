@@ -62,13 +62,13 @@ template<class TV> bool inCL(Vec<TV,2> &box1, Vec<TV,2> &box2, const double &eps
  * @param box2 : vecteur contenant les coordonnees des noeuds extremite de la boite 2
  * @return : booleen =1 si la boite 1 est completement incluse dans la boite 2 (a epsilon près = 1e-12)
  */
-template<class T>
-bool inCL(Vec<T,4> &box1, Vec<T,4> &box2) {
-    T eps=1e-6;
-    Vec<T,2> P1( box1[range(0,2)] );
-    Vec<T,2> P2=box1[range(2,4)];
-    Vec<T,2> Q1=box2[range(0,2)];
-    Vec<T,2> Q2=box2[range(2,4)];
+template<class TT>
+bool inCL(Vec<TT,4> &box1, Vec<TT,4> &box2) {
+    TT eps=1e-6;
+    Vec<TT,2> P1( box1[range(0,2)] );
+    Vec<TT,2> P2=box1[range(2,4)];
+    Vec<TT,2> Q1=box2[range(0,2)];
+    Vec<TT,2> Q2=box2[range(2,4)];
     bool testin=0;
 
     // verification si P1 et P2 sont dans la boite box2
@@ -81,13 +81,13 @@ bool inCL(Vec<T,4> &box1, Vec<T,4> &box2) {
     return testin;
 };
 
-template<class T>
-bool inCL(Vec<T,6> &box1, Vec<T,6> &box2) {
-    T eps=1e-6;
-    Vec<T,3> P1=box1[range(0,3)];
-    Vec<T,3> P2=box1[range(3,6)];
-    Vec<T,3> Q1=box2[range(0,3)];
-    Vec<T,3> Q2=box2[range(3,6)];
+template<class TT>
+bool inCL(Vec<TT,6> &box1, Vec<TT,6> &box2) {
+    TT eps=1e-6;
+    Vec<TT,3> P1=box1[range(0,3)];
+    Vec<TT,3> P2=box1[range(3,6)];
+    Vec<TT,3> Q1=box2[range(0,3)];
+    Vec<TT,3> Q2=box2[range(3,6)];
 
     bool testin=0;
     // verification si P1 et P2 sont dans la boite box2
@@ -150,6 +150,7 @@ Vec<TT,static_size_,void> ProjT(Vec<TT,static_size_,void> &v1, Vec<TT,static_siz
     res=v1-dot(v1,n)*n;
     return res;
 }
+
 
 template<class TT,int static_size_>
 TT norm_2(Vec<TT,static_size_,void> &v) {

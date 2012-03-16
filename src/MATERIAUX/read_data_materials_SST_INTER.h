@@ -49,36 +49,36 @@ On aura donc les possibilités suivantes :
 
 
 template<class TV3>
-void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user , BasicVec<BasicVec<TYPE> > &mat_prop_temp) {
+void read_material_properties(TV3 &matprops, Param &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {
 
     unsigned nbmat = data_user.behaviour_materials.size();
 //     PRINT(nbmat);
-    matprop.resize(nbmat);
+    matprops.resize(nbmat);
     mat_prop_temp.resize(nbmat);
     for(unsigned i=0;i<nbmat;++i) {
-        matprop[i].id = data_user.behaviour_materials[i].id;
-        matprop[i].type_num = data_user.behaviour_materials[i].type_num;
-        matprop[i].type = data_user.behaviour_materials[i].type;
-        matprop[i].comp = data_user.behaviour_materials[i].comp;
+        matprops[i].id = data_user.behaviour_materials[i].id;
+        matprops[i].type_num = data_user.behaviour_materials[i].type_num;
+        matprops[i].type = data_user.behaviour_materials[i].type;
+        matprops[i].comp = data_user.behaviour_materials[i].comp;
         if(data_user.dim == 2){
             if (data_user.behaviour_materials[i].resolution =="CP")
-                matprop[i].resolution=1;
+                matprops[i].resolution=1;
             else if (data_user.behaviour_materials[i].resolution =="DP")
-                matprop[i].resolution=0;
+                matprops[i].resolution=0;
             else {
                 std::cout << "type de resolution non implemente : choix contrainte_plane ou deformation_plane" << std::endl;
                 assert(0);
             }
         }else{
-            matprop[i].resolution=0;
+            matprops[i].resolution=0;
         }
 
         std::vector<Ex> symbols;
-        if (TV3::template SubType<0>::T::dim==2) {
+        if (DIM==2) {
             symbols.push_back("x");
             symbols.push_back("y");
         }
-        else if (TV3::template SubType<0>::T::dim==3) {
+        else if (DIM==3) {
             symbols.push_back("x");
             symbols.push_back("y");
             symbols.push_back("z");
@@ -112,28 +112,28 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
         std::cout << "force volumique 2 = " << vstr[2] << std::endl;
         
         Vec<Ex> expr;
-        expr.resize(TV3::template SubType<0>::T::dim);
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+        expr.resize(DIM);
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
             expr[d2] = read_ex(vstr[d2],symbols);
         }
         
-        Vec<double,TV3::template SubType<0>::T::dim> data;
+        Vec<double,DIM> data;
         Ex::MapExNum var;
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= 0.;
         }
         if(data_user.options.Multiresolution_on==1){
             //evaluation des variables de multiresolution aux symboles
             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                var[symbols[TV3::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
         }
-        var[symbols[TV3::template SubType<0>::T::dim+data_user.Multiresolution_parameters.size()]]=M_PI;
+        var[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
 
-        for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
+        for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
             data[d2] = (double)expr[d2].subs_numerical(var);
 
-        matprop[i].f_vol_e=vstr;
-        matprop[i].f_vol=data;
+        matprops[i].f_vol_e=vstr;
+        matprops[i].f_vol=data;
 	
         
         mat_prop_temp[i].resize(data_user.behaviour_materials[i].mat_prop.size());
@@ -145,84 +145,84 @@ void read_material_properties(TV3 &matprop, Param &process, DataUser &data_user 
             Ex expr_temp;
             expr_temp = read_ex(data_user.behaviour_materials[i].mat_prop[i_prop],symbols);
             Ex::MapExNum var_temp;
-            for(unsigned d2=0;d2<TV3::template SubType<0>::T::dim;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
                 var_temp[symbols[d2]]= 0.;
             }
             if(data_user.options.Multiresolution_on==1){
                 //evaluation des variables de multiresolution aux symboles
                 for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                    var_temp[symbols[TV3::template SubType<0>::T::dim+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+                    var_temp[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
-            var_temp[symbols[TV3::template SubType<0>::T::dim+data_user.Multiresolution_parameters.size()]]=M_PI;
+            var_temp[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
 
             mat_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);
 /*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }
 /*        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;*/
-        matprop[i].density = mat_prop_temp[i][3];
+        matprops[i].density = mat_prop_temp[i][3];
         
-        std::cout << (matprop[i].type) <<endl;
-        if(matprop[i].type.find("isotrope")<matprop[i].type.size()) {                 // comportement isotrope elastique
+        std::cout << (matprops[i].type) <<endl;
+        if(matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement isotrope elastique
 //            PRINT("comportement isotrope elastique");
-            matprop[i].coef.push_back(mat_prop_temp[i][0]);   /// E
-            matprop[i].coef.push_back(mat_prop_temp[i][1]);   /// nu
-            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   /// alpha
-            matprop[i].coefth.push_back(0);                                              /// deltaT
-        } else if (matprop[i].comp.find("visqueux")<matprop[i].comp.size() and matprop[i].type.find("isotrope")<matprop[i].type.size()) {          // comportement isotrope elastique visqueux
+            matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
+            matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
+            matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
+            matprops[i].deltaT          = 0;                     /// deltaT
+        } else if (matprops[i].comp.find("visqueux")<matprops[i].comp.size() and matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement isotrope elastique visqueux
 //             PRINT("comportement isotrope visqueux");
-            matprop[i].coef.push_back(mat_prop_temp[i][0]);   /// E
-            matprop[i].coef.push_back(mat_prop_temp[i][1]);   /// nu
-            matprop[i].coef.push_back(mat_prop_temp[i][4]);   /// viscosite
-            matprop[i].coefth.push_back(mat_prop_temp[i][2]);   /// alpha
-            matprop[i].coefth.push_back(0);                                              /// deltaT
-        } else if (matprop[i].type.find("orthotrope")<matprop[i].type.size()) {          /// orthotrope
+            matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
+            matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
+            matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
+            matprops[i].deltaT          = 0;                     /// deltaT
+            matprops[i].viscosite       = mat_prop_temp[i][4];   /// viscosite
+        } else if (matprops[i].type.find("orthotrope")<matprops[i].type.size() or
+                   matprops[i].type.find("mesomodele")<matprops[i].type.size()) {/// orthotrope
             PRINT("comportement orthotrope");
-            matprop[i].coef.push_back(mat_prop_temp[i][14]);   /// E1
-            matprop[i].coef.push_back(mat_prop_temp[i][15]);   /// E2
-            matprop[i].coef.push_back(mat_prop_temp[i][16]);   /// E3
+            matprops[i].elastic_modulus_1 = mat_prop_temp[i][14];   /// E1
+            matprops[i].elastic_modulus_2 = mat_prop_temp[i][15];   /// E2
+            matprops[i].elastic_modulus_3 = mat_prop_temp[i][16];   /// E3
             
-            matprop[i].coef.push_back(mat_prop_temp[i][20]);   /// nu12
-            matprop[i].coef.push_back(mat_prop_temp[i][22]);   /// nu13
-            matprop[i].coef.push_back(mat_prop_temp[i][21]);   /// nu23
+            matprops[i].poisson_ratio_12 = mat_prop_temp[i][20];   /// nu12
+            matprops[i].poisson_ratio_13 = mat_prop_temp[i][22];   /// nu13
+            matprops[i].poisson_ratio_23 = mat_prop_temp[i][21];   /// nu23
             
-            matprop[i].coef.push_back(mat_prop_temp[i][17]);   /// G12
-            matprop[i].coef.push_back(mat_prop_temp[i][19]);   /// G13
-            matprop[i].coef.push_back(mat_prop_temp[i][18]);   /// G23
+            matprops[i].shear_modulus_12 = mat_prop_temp[i][17];   /// G12
+            matprops[i].shear_modulus_13 = mat_prop_temp[i][19];   /// G13
+            matprops[i].shear_modulus_23 = mat_prop_temp[i][18];   /// G23
 
             for(int d=0; d<data_user.dim; d++){
-                matprop[i].direction[0][d]=mat_prop_temp[i][d+5];
-                matprop[i].direction[1][d]=mat_prop_temp[i][d+8];
+                matprops[i].v1[d]=mat_prop_temp[i][d+5];
+                matprops[i].v2[d]=mat_prop_temp[i][d+8];
             }
             
-            std::cout << "assignation_materials_sst.h " << matprop[i].direction[0] << " v1 et v2 " << matprop[i].direction[1] << std::endl;
+            std::cout << "assignation_materials_sst.h " << matprops[i].v1 << " v1 et v2 " << matprops[i].v2 << std::endl;
             //normalisation des directions d'orthotropie
-            matprop[i].direction[0]=matprop[i].direction[0]/norm_2(matprop[i].direction[0]);
-            matprop[i].direction[1]=matprop[i].direction[1]/norm_2(matprop[i].direction[1]);
+            matprops[i].v1=matprops[i].v1/norm_2(matprops[i].v1);
+            matprops[i].v2=matprops[i].v2/norm_2(matprops[i].v2);
 
             //coefficients thermiques
-            matprop[i].coefth.resize(4);
-            matprop[i].coefth[0]=mat_prop_temp[i][23];      ///alpha_1
-            matprop[i].coefth[1]=mat_prop_temp[i][24];      ///alpha_2
-            matprop[i].coefth[2]=mat_prop_temp[i][25];      ///alpha_3
-            matprop[i].coefth[3]=0;
+            matprops[i].alpha_1 = mat_prop_temp[i][23];      ///alpha_1
+            matprops[i].alpha_2 = mat_prop_temp[i][24];      ///alpha_2
+            matprops[i].alpha_3 = mat_prop_temp[i][25];      ///alpha_3
+            matprops[i].deltaT  = 0;                         /// deltaT
             
             PRINT("comportement plastique");
             //parametres de plasticite
-            matprop[i].coefp[0] = mat_prop_temp[i][26];     /// k_p
-            matprop[i].coefp[1] = mat_prop_temp[i][27];     /// m_p
-            matprop[i].coefp[2] = mat_prop_temp[i][28];     /// R0
-            matprop[i].coefp[3] = mat_prop_temp[i][29];     /// couplage
+            matprops[i].k_p              = mat_prop_temp[i][26];     /// k_p
+            matprops[i].m_p              = mat_prop_temp[i][27];     /// m_p
+            matprops[i].R0               = mat_prop_temp[i][28];     /// R0
+            matprops[i].coefvm_composite = mat_prop_temp[i][29];     /// couplage
             
             PRINT("comportement endommageable");
             //parametres d'endommagement
-            matprop[i].coefendom[0] = mat_prop_temp[i][30];     /// Yo
-            matprop[i].coefendom[1] = mat_prop_temp[i][31];     /// Yc
-            matprop[i].coefendom[2] = mat_prop_temp[i][32];     /// Ycf
-            matprop[i].coefendom[3] = mat_prop_temp[i][33];     /// dmax
-            matprop[i].coefendom[4] = mat_prop_temp[i][34];     /// b_c
-            matprop[i].coefendom[5] = mat_prop_temp[i][35];     /// effet_retard
-            matprop[i].coefendom[6] = mat_prop_temp[i][36];     /// a
-            matprop[i].coefendom[7] = mat_prop_temp[i][37];     /// tau_c
+            matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
+            matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
+            matprops[i].Ycf          = mat_prop_temp[i][32];     /// Ycf
+            matprops[i].dmax         = mat_prop_temp[i][33];     /// dmax
+            matprops[i].b_c          = mat_prop_temp[i][34];     /// b_c
+            matprops[i].effet_retard = mat_prop_temp[i][35];     /// effet_retard
+            matprops[i].a            = mat_prop_temp[i][36];     /// a
+            matprops[i].tau_c        = mat_prop_temp[i][37];     /// tau_c
         }
     }
 };

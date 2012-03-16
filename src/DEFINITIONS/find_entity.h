@@ -7,7 +7,7 @@
 
 // trouver une sst à paritr de son id----------------------------------------------
 template< class TV1 > 
-Sst<DIM,TYPEREEL>* find_sst(TV1 &S,int id_) {
+Sst* find_sst(TV1 &S,int id_) {
     for (int i_group=0; i_group<S.size(); i_group++) {
         if (S[i_group].id == id_) {
             return &S[i_group];
@@ -28,7 +28,7 @@ int find_index_sst(TV1 &S, int id_) {
 
 // trouver une interface à paritr de son id----------------------------------------------
 template< class TV1 > 
-Interface<DIM,TYPEREEL>* find_inter(TV1 &Inter,int id_) {
+Interface* find_inter(TV1 &Inter,int id_) {
     for (int i_group=0; i_group<Inter.size(); i_group++) {
         if (Inter[i_group].id == id_) {
             return &Inter[i_group];
@@ -49,8 +49,8 @@ int find_index_inter(TV1 &Inter,int id_) {
 
 // trouver un group d' interfaces à paritr de leur edge_id----------------------------------------------
 template< class TV1 > 
-Vec< Interface<DIM,TYPEREEL>* > find_group_edges(TV1 &Inter, int edge_id_) {
-    Vec< Interface<DIM,TYPEREEL>* > group_edges_temp;
+Vec< Interface* > find_group_edges(TV1 &Inter, int edge_id_) {
+    Vec< Interface* > group_edges_temp;
     for (int i_group=0; i_group<Inter.size(); i_group++) {
         if (Inter[i_group].edge_id == edge_id_) {
             group_edges_temp.push_back(&Inter[i_group]);

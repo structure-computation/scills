@@ -363,7 +363,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proce
         
 //ajout de l'energie par element
 struct add_ener_elem{
-    template<class TE> void operator()(TE &e, typename TE::T &ener) const {
+    template<class TE> void operator()(TE &e, TYPEREEL &ener) const {
         ener+=e.ener;
     }
 };
@@ -421,7 +421,7 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
             Ftj.set(0.);
             if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
-                Vec<double,TI::template SubType<0>::T::dim> a0;
+                Vec<double,DIM> a0;
                 a0.set(0.);
                 std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
@@ -432,11 +432,11 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[1].Wchap);
                     Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                     Ft0=Inter[i].side[0].t_post[2].Fchap;
-                    for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                        if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                    for( unsigned k=0;k< Un.size()/DIM; k++) {
+                        if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                 < 1e-6) {
-                            Ft0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                            Ft0[range(k*DIM,(k+1)*DIM)]
                             =a0;
                         }
                     }
@@ -448,11 +448,11 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Wchap);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                         Ftj=Inter[i].side[0].t_post[j+1].Fchap;
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                Ftj[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ftj[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -466,11 +466,11 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[1].Wchap);
                     Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                     Ft0=Inter[i].side[0].t[2].Fchap;
-                    for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                        if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                    for( unsigned k=0;k< Un.size()/DIM; k++) {
+                        if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                 < 1e-6) {
-                            Ft0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                            Ft0[range(k*DIM,(k+1)*DIM)]
                             =a0;
                         }
                     }
@@ -482,11 +482,11 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wchap);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                         Ftj=Inter[i].side[0].t[j+1].Fchap;
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                Ftj[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ftj[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -530,7 +530,7 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
             Ftj.set(0.);
             if ((Inter[i].comp=="Contact" or Inter[i].comp=="Contact_jeu" or Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="Contact_ep") and data == 0) {
                 dissi_inter.set(0.);
-                Vec<double,TI::template SubType<0>::T::dim> a0;
+                Vec<double,DIM> a0;
                 a0.set(0.);
                 std::cout << Inter[i].measure << endl;
                 if(process.nom_calcul=="incr") {
@@ -541,11 +541,11 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[1].W);
                     Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                     Ft0=Inter[i].side[0].t_post[2].F;
-                    for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                        if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                    for( unsigned k=0;k< Un.size()/DIM; k++) {
+                        if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                 < 1e-6) {
-                            Ft0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                            Ft0[range(k*DIM,(k+1)*DIM)]
                             =a0;
                         }
                     }
@@ -557,11 +557,11 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].W);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                         Ftj=Inter[i].side[0].t_post[j+1].F;
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                Ftj[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ftj[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -575,11 +575,11 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                     tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[1].W);
                     Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                     Ft0=Inter[i].side[0].t[2].F;
-                    for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                        if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                    for( unsigned k=0;k< Un.size()/DIM; k++) {
+                        if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                 < 1e-6) {
-                            Ft0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                            Ft0[range(k*DIM,(k+1)*DIM)]
                             =a0;
                         }
                     }
@@ -591,11 +591,11 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].W);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
                         Ftj=Inter[i].side[0].t[j+1].F;
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                Ftj[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ftj[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -636,7 +636,7 @@ void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 vecy.set(0.);
                 vecz.resize(Inter[i].side[0].nodeeq.size());
                 vecz.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -688,7 +688,7 @@ void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 vecy.set(0.);
                 vecz.resize(Inter[i].side[0].nodeeq.size());
                 vecz.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -746,7 +746,7 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 vecy.set(0.);
                 vecz.resize(Inter[i].side[0].nodeeq.size());
                 vecz.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -803,7 +803,7 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 vecy.set(0.);
                 vecz.resize(Inter[i].side[0].nodeeq.size());
                 vecz.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -875,7 +875,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 tmp0.set(0.);
                 tmp1.resize(Inter[i].side[0].nodeeq.size());
                 tmp1.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -889,16 +889,16 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].Wchap);
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].Wchap);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
-                        Vec<double,TI::template SubType<0>::T::dim> a0;
+                        Vec<double,DIM> a0;
                         a0.set(0.);
                         tmp0.set(1.);
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                tmp0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                tmp0[range(k*DIM,(k+1)*DIM)]
                                 = a0;
-                                Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ut[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -906,8 +906,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
                         dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
-                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
-                        ::T::dim;
+                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/DIM;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -917,16 +916,16 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].Wchap);
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].Wchap);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
-                        Vec<double,TI::template SubType<0>::T::dim> a0;
+                        Vec<double,DIM> a0;
                         a0.set(0.);
                         tmp0.set(1.);
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                tmp0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                tmp0[range(k*DIM,(k+1)*DIM)]
                                 = a0;
-                                Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ut[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -934,8 +933,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
                         dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
-                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
-                        ::T::dim;
+                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/DIM;
                     }
                 } else {
                     std::cout << "Nom de calcul nom pris en compte" << endl;
@@ -979,7 +977,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                 tmp0.set(0.);
                 tmp1.resize(Inter[i].side[0].nodeeq.size());
                 tmp1.set(0.);
-                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/TI::template SubType<0>::T::dim ;ii++ ) {
+                for( unsigned ii=0;ii<Inter[i].side[0].nodeeq.size()/DIM ;ii++ ) {
                     vecx[3*ii]=1.;
                     vecy[3*ii+1]=1.;
                     vecz[3*ii+2]=1.;
@@ -993,16 +991,16 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t_post[j+1].W);
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t_post[j+1].W);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
-                        Vec<double,TI::template SubType<0>::T::dim> a0;
+                        Vec<double,DIM> a0;
                         a0.set(0.);
                         tmp0.set(1.);
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                tmp0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                tmp0[range(k*DIM,(k+1)*DIM)]
                                 = a0;
-                                Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ut[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -1010,8 +1008,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
                         dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
-                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
-                        ::T::dim;
+                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/DIM;
                     }
                 } else if(process.nom_calcul=="latin") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -1021,16 +1018,16 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         tmp0=Inter[i].side[0].M*Inter[i].side[0].Pt(Inter[i].side[0].t[j+1].W);
                         tmp1=Inter[i].side[1].M*Inter[i].side[1].Pt(Inter[i].side[1].t[j+1].W);
                         Ut=tmp0[Inter[i].side[0].ddlcorresp]-tmp1[Inter[i].side[1].ddlcorresp];
-                        Vec<double,TI::template SubType<0>::T::dim> a0;
+                        Vec<double,DIM> a0;
                         a0.set(0.);
                         tmp0.set(1.);
-                        for( unsigned k=0;k< Un.size()/TI::template SubType<0>::T::dim; k++) {
-                            if (norm_2(Un[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]) >
-                                    1e-6 or norm_2(Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)])
+                        for( unsigned k=0;k< Un.size()/DIM; k++) {
+                            if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) >
+                                    1e-6 or norm_2(Ut[range(k*DIM,(k+1)*DIM)])
                                     < 1e-6) {
-                                tmp0[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                tmp0[range(k*DIM,(k+1)*DIM)]
                                 = a0;
-                                Ut[range(k*TI::template SubType<0>::T::dim,(k+1)*TI::template SubType<0>::T::dim)]
+                                Ut[range(k*DIM,(k+1)*DIM)]
                                 =a0;
                             }
                         }
@@ -1038,8 +1035,7 @@ void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
                         double b=dot(vecy,Ut);
                         double c=dot(vecz,Ut);
                         dissi_inter[j+1]=std::sqrt((pow(a,2)+pow(b,2)+pow(c,2)))/Inter[i].measure;
-                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/TI::template SubType<0>
-                        ::T::dim;
+                        surf[j+1]=dot(tmp0,Inter[i].side[0].M*tmp0)/DIM;
                     }
                 } else {
                     std::cout << "Nom de calcul nom pris en compte" << endl;

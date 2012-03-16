@@ -44,22 +44,20 @@ struct CalcMN {
 
 template<class TMAT, class TM, class TVe, class INTER>
 void testMN(TMAT &N,TM &mesh,TVe &nodeeq, INTER &inter) {
-    unsigned dim = INTER::dim;
-    typedef Vec<typename INTER::T> TV;
 
-    TV xbord;
+    Vec<TYPEREEL> xbord;
     xbord.resize(N.nb_cols(),0.0);
     for(unsigned i=0;i<mesh.node_list.size();++i) {
-        xbord[range(i*dim,(i+1)*dim)]=mesh.node_list[i].pos;
+        xbord[range(i*DIM,(i+1)*DIM)]=mesh.node_list[i].pos;
         std::cout << mesh.node_list[i].pos << std::endl;
     }
     std::cout << "\n" << std::endl;
     std::cout << "xbord" << xbord <<std::endl;
 
-    TV xinter;
+    Vec<TYPEREEL> xinter;
     xinter.resize(N.nb_rows(),0.0);
     for(unsigned i=0;i<nodeeq.size();++i) {
-        xinter[range(i*dim,(i+1)*dim)]=nodeeq[i];
+        xinter[range(i*DIM,(i+1)*DIM)]=nodeeq[i];
     }
     //
     std::cout << "xinter " << xinter << std::endl;
@@ -88,9 +86,9 @@ struct  Corresp_ddlinter {
                 assert(0);
             }
 
-            Inter.side[0].ddlcorresp.resize(Inter.side[0].mesh->elem_list.size()*INTER::dim);
-            Inter.side[1].ddlcorresp.resize(Inter.side[1].mesh->elem_list.size()*INTER::dim);
-            Inter.side[0].ddlcorresp=range(0,int(Inter.side[1].nodeeq.size()*INTER::dim));
+            Inter.side[0].ddlcorresp.resize(Inter.side[0].mesh->elem_list.size()*DIM);
+            Inter.side[1].ddlcorresp.resize(Inter.side[1].mesh->elem_list.size()*DIM);
+            Inter.side[0].ddlcorresp=range(0,int(Inter.side[1].nodeeq.size()*DIM));
             Inter.side[1].ddlcorresp.set(0);
 
             int test=0;
@@ -98,7 +96,7 @@ struct  Corresp_ddlinter {
             for (unsigned i=0;i<Inter.side[0].mesh->elem_list.size();i++) {
                 typename INTER::TMESH::EA *e1=Inter.side[0].mesh->elem_list[i];
                 typename INTER::Pvec g1 = center(*e1);
-                typename INTER::Pvec n1 = Inter.side[0].neq[range(i*INTER::dim,(i+1)*INTER::dim)];
+                typename INTER::Pvec n1 = Inter.side[0].neq[range(i*DIM,(i+1)*DIM)];
 
                 for( unsigned j=0;j<candidats.size() ;j++ ) {
                     typename INTER::TMESH::EA *e2=Inter.side[1].mesh->elem_list[candidats[j]];
@@ -107,13 +105,13 @@ struct  Corresp_ddlinter {
                         test=1;
                         //on rentre le jeu physique :)
                         if (Inter.comp=="Contact_jeu_physique" )
-                            Inter.param_comp->jeu[range(INTER::dim*i,INTER::dim*(i+1))]=g2-g1;
+                            Inter.param_comp->jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
                         //on ecrit la correspondance entre les elements du cote 0 et cote 1
-                        Inter.side[1].ddlcorresp[range(i*INTER::dim,(i+1)*INTER::dim)]=range(candidats[j]*INTER::dim,(candidats[j]+1)*INTER::dim);
+                            Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);
                         break;
                     } else if (Inter.comp=="periodique" and (length(vect_prod(g2-g1,n1)) <= 1E-6 ) and (dot(g2-g1,n1)  <= 1E-6)) {
-                        Inter.side[1].ddlcorresp[range(i*INTER::dim,(i+1)*INTER::dim)]=range(candidats[j]*INTER::dim,(candidats[j]+1)*INTER::dim);
+                        Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);
                         break;
                     }
@@ -152,31 +150,8 @@ Selon le champ  process.multiscale->type_base_macro différentes bases macro sont
 struct Apply_nb_macro {
     static const double eps=1e-6;
     //cas 3d
-    template<class T>
-    void operator()(Interface<3,T> &Inter, Param &process) const {
-
-        if(process.multiscale->type_base_macro==1) {
-            //resultantes :
-            Inter.nb_macro_espace=3;
-        } else if(process.multiscale->type_base_macro==2) {
-            //resultantes + moments:
-            Inter.nb_macro_espace=6;
-        } else if(process.multiscale->type_base_macro==3) {
-           //resultantes + moments + extensions:
-            if (Inter.side[0].mesh->elem_list.size()==0 or nb_moment_inertie_inf_eps(Inter.Moments_inertie,eps)>1) {
-                Inter.nb_macro_espace=0;
-            } else if(min(abs(Inter.Moments_inertie))<=eps) {
-                Inter.nb_macro_espace=9;
-            } else {
-                Inter.nb_macro_espace=12;
-            }
-        } else {
-            std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
-            assert(0);
-        }
-    }
-    template<class T>
-    void operator()(Interface<2,T> &Inter, Param &process) const {
+    void operator()(Interface &Inter, Param &process) const {
+#if DIM == 2
         if(process.multiscale->type_base_macro==1) {
             //resultantes :
             Inter.nb_macro_espace=2;
@@ -196,23 +171,28 @@ struct Apply_nb_macro {
             std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
             assert(0);
         }
-    }
-
-
-    /*    template<class INTER >
-         void operator()(INTER &Inter, Param &process) const {
-            if(process.multiscale->nbmacro_identique==1)
-                Inter.nb_macro_espace = process.multiscale->nbmacro;
-            else {
-                Vec<unsigned> ind;
-                ind = find_with_index(process.multiscale->inter_correspondantes==(unsigned)Inter.num);
-                if(ind.size()>0) {
-                    Inter.nb_macro_espace=process.multiscale->nb_fcts_macro_par_inter[ind[0]];
-                } else {
-                    Inter.nb_macro_espace=process.multiscale->nbmacro;
-                }
+#elif DIM == 3
+        if(process.multiscale->type_base_macro==1) {
+            //resultantes :
+            Inter.nb_macro_espace=3;
+        } else if(process.multiscale->type_base_macro==2) {
+            //resultantes + moments:
+            Inter.nb_macro_espace=6;
+        } else if(process.multiscale->type_base_macro==3) {
+           //resultantes + moments + extensions:
+            if (Inter.side[0].mesh->elem_list.size()==0 or nb_moment_inertie_inf_eps(Inter.Moments_inertie,eps)>1) {
+                Inter.nb_macro_espace=0;
+            } else if(min(abs(Inter.Moments_inertie))<=eps) {
+                Inter.nb_macro_espace=9;
+            } else {
+                Inter.nb_macro_espace=12;
             }
-        }*/
+        } else {
+            std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
+            assert(0);
+        }
+#endif
+    }
 };
 
 //*************************************************
@@ -226,31 +206,29 @@ Connaissant le centre de gravité et la position des noeuds équivalents de l'inte
 struct CalcBPI {
     template<class INTER >
     void operator()(INTER &inter) const {
-        typedef Vec<typename INTER::T,INTER::dim> TV;
-        typedef typename INTER::T T;
-        Vec<TV > nodeeq;
+        Vec<Vec<TYPEREEL,DIM> > nodeeq;
         nodeeq=inter.side[0].nodeeq;
         //calcul de la distance GM (entre G et un noeud de l'interface)
-        Mat<T, Gen<>, Dense<> > GM;
-        GM.resize(nodeeq.size(),INTER::dim);
+        Mat<TYPEREEL, Gen<>, Dense<> > GM;
+        GM.resize(nodeeq.size(),DIM);
         for(unsigned m=0 ;m<GM.nb_rows() ;++m)
             GM.row(m)=nodeeq[m]-inter.G;
         //calcul matrice de masse
-        Mat<T, Gen<>, SparseLine<> > M1;
+            Mat<TYPEREEL, Gen<>, SparseLine<> > M1;
         M1.resize(nodeeq.size(),nodeeq.size());
-        M1=inter.side[0].M(range(0,(int)INTER::dim,(int)inter.side[0].M.nb_rows()),range(0,(int)INTER::dim,(int)inter.side[0].M.nb_rows()));
+        M1=inter.side[0].M(range(0,(int)DIM,(int)inter.side[0].M.nb_rows()),range(0,(int)DIM,(int)inter.side[0].M.nb_rows()));
         //calcul matrice d'inertie secondaire int(X'X);
-        Mat<T, Gen<INTER::dim>, Dense<> > I1;
-        for(unsigned i=0;i<INTER::dim;++i)
-            for(unsigned j=0;j<INTER::dim;++j)
+        Mat<TYPEREEL, Gen<DIM>, Dense<> > I1;
+        for(unsigned i=0;i<DIM;++i)
+            for(unsigned j=0;j<DIM;++j)
                 I1(i,j)=dot(GM.col(i),M1*GM.col(j));
         //calcul valeurs et vecteurs propres
-        Vec<Vec<T> > V;
-        Vec<T> D;
+        Vec<Vec<TYPEREEL> > V;
+        Vec<TYPEREEL> D;
         eig_jacobi(I1,V,D);
 
         // classement par ordre decroissant des valeurs propres
-        Vec<unsigned,INTER::dim> ind;
+        Vec<unsigned,DIM> ind;
         D*=-1.0;
         ind=sort_with_index(D);
         inter.BPI=V[ind];
@@ -260,11 +238,10 @@ struct CalcBPI {
 };
 
 //pour affichage
-template<unsigned dim>
 struct assign_depl {
     template<class TE, class TV>
     void operator()(TE &e, unsigned &compt, TV &W) const {
-        Vec<unsigned> rep=range(compt*dim,(compt+1)*dim);
+        Vec<unsigned> rep=range(compt*DIM,(compt+1)*DIM);
         e.W=W[rep];
         compt+=1;
     }
@@ -283,25 +260,23 @@ Par défaut, 4 fonctions de base macro sont construites en 2D (résultantes, momen
 */
 struct CreateProjMacro {
     static const double eps=1e-6;
-    // dimension 2
-    template<class TT >
-    void operator()(Interface<2,TT> &inter, Param &process) const {
-
+    void operator()(Interface &inter, Param &process) const {
+#if DIM == 2
         for(unsigned q=0;q<inter.side.size();++q) {
             //if(q==0) {
-                unsigned n=inter.side[q].nodeeq.size();
-                //calcul de la distance GM (entre G et un noeud de l'interface)
-                Vec<Vec<TT,2> > GM;
-                GM.resize(n);
-                for(unsigned m=0 ;m<n ;++m)
-                    GM[m]=inter.side[q].nodeeq[m]-inter.G;
-
-                //fcts de base
-                Vec<Vec<TT> > T;
+            unsigned n=inter.side[q].nodeeq.size();
+            //calcul de la distance GM (entre G et un noeud de l'interface)
+            Vec<Vec<TYPEREEL,2> > GM;
+            GM.resize(n);
+            for(unsigned m=0 ;m<n ;++m)
+                GM[m]=inter.side[q].nodeeq[m]-inter.G;
+            
+            //fcts de base
+                Vec<Vec<TYPEREEL> > T;
                 T.resize(inter.nb_macro_espace);
                 for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
                     T[i].resize(n*2);
-
+                
                 if(inter.nb_macro_espace==2)
                     for(unsigned i=0;i<n;++i) {
                         // resultante selon N1
@@ -309,186 +284,169 @@ struct CreateProjMacro {
                         // resultante selon N2
                         T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
                     }
-                else if(inter.nb_macro_espace==3)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
-                        // Moment selon N3
-                        T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
-                    }
-                else if (inter.nb_macro_espace==4)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
-                        // Moment selon N3
-                        T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
-                        // Extension selon N1
-                        T[3][range(i*2,(i+1)*2)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
-                    }
-                else if (inter.nb_macro_espace==6) {
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
-                        // Moment selon N3
-                        T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
-                        // Extension selon N1
-                        T[3][range(i*2,(i+1)*2)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
-                        // Extension selon N2
-                        T[4][range(i*2,(i+1)*2)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
-                        // cisaillement selon N1,N2
-                        T[5][range(i*2,(i+1)*2)]=(dot(inter.BPI[0],GM[i])*inter.BPI[1]+dot(inter.BPI[1],GM[i])*inter.BPI[0])/2.;
-                    }
-                }
-
-                //orthonormalisation des vecteurs de base
-                for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++) {
-                    Vec<TT> Tsupp;
-                    Tsupp=T[i];
-                    for(unsigned j=0;j<i;j++)
-                        Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
-                    T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
-                }
-
-                // stockage matrice de base macro
-                inter.side[q].eM.resize(2*n,inter.nb_macro_espace);
-                for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
-                    inter.side[q].eM.col(i)=T[i];
-
-                inter.side[q].MeM=inter.side[q].M*inter.side[q].eM;
-/*            } else {
-                inter.side[q].eM=inter.side[0].eM;
-                inter.side[q].MeM=inter.side[0].MeM;
-            }*/
+                    else if(inter.nb_macro_espace==3)
+                        for(unsigned i=0;i<n;++i) {
+                            // resultante selon N1
+                            T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
+                            // resultante selon N2
+                            T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
+                            // Moment selon N3
+                            T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
+                        }
+                        else if (inter.nb_macro_espace==4)
+                            for(unsigned i=0;i<n;++i) {
+                                // resultante selon N1
+                                T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
+                                // resultante selon N2
+                                T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
+                                // Moment selon N3
+                                T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
+                                // Extension selon N1
+                                T[3][range(i*2,(i+1)*2)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                            }
+                            else if (inter.nb_macro_espace==6) {
+                                for(unsigned i=0;i<n;++i) {
+                                    // resultante selon N1
+                                    T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
+                                    // resultante selon N2
+                                    T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
+                                    // Moment selon N3
+                                    T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
+                                    // Extension selon N1
+                                    T[3][range(i*2,(i+1)*2)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                                    // Extension selon N2
+                                    T[4][range(i*2,(i+1)*2)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
+                                    // cisaillement selon N1,N2
+                                    T[5][range(i*2,(i+1)*2)]=(dot(inter.BPI[0],GM[i])*inter.BPI[1]+dot(inter.BPI[1],GM[i])*inter.BPI[0])/2.;
+                                }
+                            }
+                            
+                            //orthonormalisation des vecteurs de base
+                            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++) {
+                                Vec<TYPEREEL> Tsupp;
+                                Tsupp=T[i];
+                                for(unsigned j=0;j<i;j++)
+                                    Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
+                                T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
+                            }
+                            
+                            // stockage matrice de base macro
+                            inter.side[q].eM.resize(2*n,inter.nb_macro_espace);
+                            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
+                                inter.side[q].eM.col(i)=T[i];
+                            
+                            inter.side[q].MeM=inter.side[q].M*inter.side[q].eM;
+                            /*            } else {
+                            *       inter.side[q].eM=inter.side[0].eM;
+                            *       inter.side[q].MeM=inter.side[0].MeM;
+                            }*/
         }
-    }
-
-    // dimension 3
-    template<class TT >
-    void operator()(Interface<3,TT> &inter, Param &process) const {
+#elif DIM == 3
         for(unsigned q=0;q<inter.side.size();++q) {
             //if(q==0) {
                 unsigned n=inter.side[q].nodeeq.size();
-
+                
                 //calcul de la distance GM (entre G et un noeud de l'interface)
-                Vec<Vec<TT,3> > GM;
+                Vec<Vec<TYPEREEL,3> > GM;
                 GM.resize(n);
                 for(unsigned m=0 ;m<n ;++m)
                     GM[m]=inter.side[q].nodeeq[m]-inter.G;
-
+                
                 //fcts de base
-                Vec<Vec<TT> > T;
-                T.resize(inter.nb_macro_espace);
-                for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
-                    T[i].resize(n*3);
-
-                if(inter.nb_macro_espace==3)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
-                        // resultante selon N3
-                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
-                    }
-                else if(inter.nb_macro_espace==6)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
-                        // resultante selon N3
-                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
-                        // Moment selon N1
-                        T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
-                        // Moment selon N2
-                        T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
-                        // Moment selon N3
-                        T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
-                    }
-                else if(inter.nb_macro_espace==9)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
-                        // resultante selon N3
-                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
-                        // Moment selon N1
-                        T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
-                        // Moment selon N2
-                        T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
-                        // Moment selon N3
-                        T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
-                        // Extension selon N1
-                        T[6][range(i*3,(i+1)*3)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
-                        // Extension selon N2
-                        T[7][range(i*3,(i+1)*3)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
-                        // Cisaillement selon N1, N2
-                        T[8][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
-                    }
-                else if(inter.nb_macro_espace==12)
-                    for(unsigned i=0;i<n;++i) {
-                        // resultante selon N1
-                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
-                        // resultante selon N2
-                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
-                        // resultante selon N3
-                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
-                        // Moment selon N1
-                        T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
-                        // Moment selon N2
-                        T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
-                        // Moment selon N3
-                        T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
-                        // Extension selon N1
-                        T[6][range(i*3,(i+1)*3)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
-                        // Extension selon N2
-                        T[7][range(i*3,(i+1)*3)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
-                        // Extension selon N3
-                        T[8][range(i*3,(i+1)*3)]=dot(inter.BPI[2],GM[i])*inter.BPI[2];
-                        //cisaillement selon N1, N2
-                        T[9][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
-                        //cisaillement selon N1, N3
-                        T[10][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[0],GM[i]))/2.;
-                        //cisaillement selon N2, N3
-                        T[11][range(i*3,(i+1)*3)]=(inter.BPI[1]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[1],GM[i]))/2.;
-                    }
-
-                // orthonormalisation des fonctions supplementaires
-                for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++) {
-                    Vec<TT> Tsupp;
-                    Tsupp=T[i];
-                    for(unsigned j=0;j<i;j++)
-                        Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
-                    T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
-                }
-
-                // stockage matrice de base macro
-                inter.side[q].eM.resize(3*n,inter.nb_macro_espace);
-                for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
-                    inter.side[q].eM.col(i)=T[i];
-                inter.side[q].MeM=inter.side[q].M*inter.side[q].eM;
-
-//                         DisplayParaview dp;
-//                         for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++){
-//                         unsigned numelem=0;
-//                         apply(inter.side[0].mesh.elem_list,assign_depl<3>(),numelem,inter.side[0].eM.col(i));
-//                         dp.add_mesh(inter.side[0].mesh);
-//                         }
-//                         dp.exec();
-
-/*            }
-            else {
-                inter.side[q].eM=inter.side[0].eM;
-                inter.side[q].MeM=inter.side[0].MeM;
-            }*/
+                    Vec<Vec<TYPEREEL> > T;
+                    T.resize(inter.nb_macro_espace);
+                    for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
+                        T[i].resize(n*3);
+                    
+                    if(inter.nb_macro_espace==3)
+                        for(unsigned i=0;i<n;++i) {
+                            // resultante selon N1
+                            T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
+                            // resultante selon N2
+                            T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
+                            // resultante selon N3
+                            T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
+                        }
+                        else if(inter.nb_macro_espace==6)
+                            for(unsigned i=0;i<n;++i) {
+                                // resultante selon N1
+                                T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
+                                // resultante selon N2
+                                T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
+                                // resultante selon N3
+                                T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
+                                // Moment selon N1
+                                T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
+                                // Moment selon N2
+                                T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
+                                // Moment selon N3
+                                T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
+                            }
+                            else if(inter.nb_macro_espace==9)
+                                for(unsigned i=0;i<n;++i) {
+                                    // resultante selon N1
+                                    T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
+                                    // resultante selon N2
+                                    T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
+                                    // resultante selon N3
+                                    T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
+                                    // Moment selon N1
+                                    T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
+                                    // Moment selon N2
+                                    T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
+                                    // Moment selon N3
+                                    T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
+                                    // Extension selon N1
+                                    T[6][range(i*3,(i+1)*3)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                                    // Extension selon N2
+                                    T[7][range(i*3,(i+1)*3)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
+                                    // Cisaillement selon N1, N2
+                                    T[8][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
+                                }
+                                else if(inter.nb_macro_espace==12)
+                                    for(unsigned i=0;i<n;++i) {
+                                        // resultante selon N1
+                                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
+                                        // resultante selon N2
+                                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
+                                        // resultante selon N3
+                                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
+                                        // Moment selon N1
+                                        T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
+                                        // Moment selon N2
+                                        T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
+                                        // Moment selon N3
+                                        T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
+                                        // Extension selon N1
+                                        T[6][range(i*3,(i+1)*3)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                                        // Extension selon N2
+                                        T[7][range(i*3,(i+1)*3)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
+                                        // Extension selon N3
+                                        T[8][range(i*3,(i+1)*3)]=dot(inter.BPI[2],GM[i])*inter.BPI[2];
+                                        //cisaillement selon N1, N2
+                                        T[9][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
+                                        //cisaillement selon N1, N3
+                                        T[10][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[0],GM[i]))/2.;
+                                        //cisaillement selon N2, N3
+                                        T[11][range(i*3,(i+1)*3)]=(inter.BPI[1]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[1],GM[i]))/2.;
+                                    }
+                                    
+                                    // orthonormalisation des fonctions supplementaires
+                                    for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++) {
+                                        Vec<TYPEREEL> Tsupp;
+                                        Tsupp=T[i];
+                                        for(unsigned j=0;j<i;j++)
+                                            Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
+                                        T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
+                                    }
+                                    
+                                    // stockage matrice de base macro
+                                    inter.side[q].eM.resize(3*n,inter.nb_macro_espace);
+                                    for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
+                                        inter.side[q].eM.col(i)=T[i];
+                                    inter.side[q].MeM=inter.side[q].M*inter.side[q].eM;
         }
+#endif
     }
 
 };
