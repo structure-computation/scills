@@ -1,7 +1,6 @@
 #ifndef CALCUL_ERREUR
 #define CALCUL_ERREUR
 using namespace LMT;
-using namespace std;
 #include "types_erreurs.h"
 #include "assign_quantities_current_to_old.h"
 

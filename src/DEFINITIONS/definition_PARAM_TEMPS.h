@@ -1,7 +1,8 @@
 #ifndef PARAM_TEMPS_H
 #define PARAM_TEMPS_H
+
+#include <string>
 using namespace LMT;
-using namespace std;
 
 /** \ingroup Paramètres_calcul
 Parametres temporels
@@ -38,7 +39,7 @@ struct TEMPS{
   double dt;         ///< pas de temps
   double theta;   ///< paramètre de la theta_methode
   unsigned nbpastemps; ///< nb de pas de temps total
-  string type_de_calcul; ///< type de calcul, choix entre : stat (statique (1 pas de temps)), qstat (plusieurs pas de temps)
+  std::string type_de_calcul; ///< type de calcul, choix entre : stat (statique (1 pas de temps)), qstat (plusieurs pas de temps)
   Vec<STEP> time_step;  ///< steps de calcul
   int nb_step;          ///< nombre de step de calcul
 };

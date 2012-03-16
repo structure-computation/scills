@@ -9,11 +9,11 @@
 
 //#include "../entete.h"
 //fichiers de definition des variables
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_MULTI.h"
 //#include "definition_PARAM_LATIN.h"
 #include "definition_GLOB.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 
 
 // fonctions speciales math et autre

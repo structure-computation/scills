@@ -1,5 +1,4 @@
 #include "write_xdmf_geometry_fields.h"
-#include <iostream>
 #include <fstream>
 #include <cassert>
 using namespace Metil;

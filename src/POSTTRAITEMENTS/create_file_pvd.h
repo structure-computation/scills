@@ -3,7 +3,7 @@
 
 #include "definition_PARAM_AFFICHAGE.h"
 #include "definition_PARAM_TEMPS.h"
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_LATIN.h"
 
 

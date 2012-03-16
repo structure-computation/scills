@@ -4,7 +4,6 @@
 #include "definition_PARAM_MULTI.h"
 
 using namespace LMT;
-using namespace std;
 
 //********************************
 // Operateurs probleme macro

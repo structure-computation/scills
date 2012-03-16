@@ -2,7 +2,7 @@
 #include "containers/mat.h"
 
 //fichiers de definition des variables 
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_MULTI.h"
 
 // fonctions speciales math et autre

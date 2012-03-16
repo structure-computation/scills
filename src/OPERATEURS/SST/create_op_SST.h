@@ -4,7 +4,7 @@
 #include "containers/vec_mt.h"
 
 //fichiers de definition des variables
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_LATIN.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_MPI.h"

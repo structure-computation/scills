@@ -1,7 +1,6 @@
 #ifndef PARAM_MULTI_MPI_H
 #define PARAM_MULTI_MPI_H
 using namespace LMT;
-using namespace std;
 
 /** \ingroup Parametres
 \brief Parmamètres associés aux données MPI

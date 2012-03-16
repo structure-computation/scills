@@ -1,6 +1,6 @@
 
 using namespace LMT;
-using namespace std;
+
 
 #ifndef CALC_SST_CORRESP
 #define CALC_SST_CORRESP

@@ -9,7 +9,7 @@ using namespace std;
 
 #include "definition_INTER.h"
 #include "definition_PARAM_MICRO_INTER.h"
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_AFFICHAGE.h"
 #include "definition_micro.h"
 

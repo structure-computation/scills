@@ -5,15 +5,14 @@
 #include "DataUser.h"
 #include "FieldStructureUser.h"
 
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 #include "containers/vec_mt.h"
 #include "containers/vecpointedvalues.h"
 
 using namespace LMT;
-using namespace std;
 
 void multiscale_geometry_mesh(DataUser                          &data_user, 
                               GeometryUser                      &geometry_user,

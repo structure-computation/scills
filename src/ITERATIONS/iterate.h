@@ -1,6 +1,6 @@
 // fonction utilisees pour la procedure iterative
 using namespace LMT;
-using namespace std;
+
 
 #include "linearstage.h"
 #include "localstage.h"
@@ -168,7 +168,7 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global,
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
             std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
-    if (process.rank ==0 and (find(process.affichage->display_fields,LMT::_1==string("contact"))))
+    if (process.rank ==0 and (find(process.affichage->display_fields,LMT::_1==std::string("contact"))))
         for (unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
             create_file_pvd(process,"contact_",pt);
 }

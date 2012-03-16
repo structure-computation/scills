@@ -1,7 +1,6 @@
 #include "codegen/codegen.h"
 #include "containers/basicops.h"
 using namespace LMT;
-using namespace std;
 
 using namespace Codegen;
 
@@ -65,7 +64,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
     }
 
     double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
-    string fcttemps;
+    std::string fcttemps;
     Ex res;
 /*    std::cout << i_step << " " << tpas << " " << ti << endl;*/
     for(unsigned j=0;j<CL.size();++j) {
@@ -78,7 +77,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
 //             }
 //         }
         ////modif DAVID 02-09-2007
-        CL[j].ft.resize(BOUNDARY::dim);
+        CL[j].ft.resize(DIM);
         Ex expr;
         expr = read_ex(fcttemps.c_str(),symbols);
         Ex::MapExNum var_temp;
@@ -89,7 +88,7 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
                 var_temp[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
         }
 
-        for( unsigned d1=0;d1<BOUNDARY::dim ;d1++ ){
+        for( unsigned d1=0;d1<DIM ;d1++ ){
                 //CL[j].ft[d1]=(T)expr.subs_numerical(t,ti);
                 CL[j].ft[d1]=(TYPEREEL)expr.subs_numerical(var_temp);
         }    
@@ -99,9 +98,9 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
             expr = read_ex(fcttemps[d1].c_str(),symbols);
             CL[j].ft[d1]= (T)expr.subs_numerical(t,ti);
         }
-        if (CL[j].ft.size() != BOUNDARY::dim) {
-            CL[j].ft.resize(BOUNDARY::dim) ;
-            for( unsigned d1=1;d1<BOUNDARY::dim ;d1++ ){
+        if (CL[j].ft.size() != DIM) {
+            CL[j].ft.resize(DIM) ;
+            for( unsigned d1=1;d1<DIM ;d1++ ){
                 CL[j].ft[d1]=CL[j].ft[0];
             }
         }*/

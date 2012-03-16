@@ -1,19 +1,17 @@
 #include <string>
 
-#include "read_data_process.h"
-#include "read_data_structure.h"
 #include "read_CL.h"
 
 //fichiers de definition des variables
 #include "definition_PARAM_COMP_INTER.h"
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_LATIN.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_TEMPS.h"
 #include "definition_GLOB.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 #include "allocate.h"
 
 //pour le post traitement
@@ -201,20 +199,11 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
     if (process.rank==0) {tic1.init();tic1.start();}
 #endif
     // read_data_process(process,n);
-    read_data_process(process, data_user);
+    process.read_data(data_user);
     // donnees associees a la geometrie, maillage...
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Lecture data_process : " ; 
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) std::cout << std::endl;
-    if (process.rank==0) tic1.start();
-#endif
-    //read_data_structure(process,n);
-    read_data_structure(process, data_user);
-#ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Lecture data_structure : " ;
+    if (process.rank==0) std::cout << "Lecture de DataUser : " ; 
     if (process.rank==0) tic1.stop();
     if (process.rank==0) std::cout << std::endl;
     if (process.rank==0) tic1.start();
@@ -283,6 +272,9 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
             std::cout << std::endl << std::endl << "*******************ALEXIS_DEBUG**********************" << std::endl;
             //std::cout << "type_formulation : " << S[0].matprop.type_formulation << std::endl;
             std::cout << "density : " << S[0].matprop.density << std::endl;
+            std::cout << "elastic_modulus : " << S[0].matprop.elastic_modulus << std::endl;
+            std::cout << "poisson_ratio : " << S[0].matprop.poisson_ratio << std::endl;
+            std::cout << "alpha : " << S[0].matprop.alpha << std::endl;
             std::cout << "viscosite : " << S[0].matprop.viscosite << std::endl;
             std::cout << "elastic_modulus_1 : " << S[0].matprop.elastic_modulus_1 << std::endl;
             std::cout << "elastic_modulus_2 : " << S[0].matprop.elastic_modulus_2 << std::endl;

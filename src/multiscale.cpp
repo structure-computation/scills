@@ -1,17 +1,4 @@
- #ifdef METIL_COMP_DIRECTIVE
-// #pragma src_file LMT/include/util/solveLDL.cpp
-// #pragma src_file LMT/include/util/solveLDL_semimorse.cpp
-// #pragma src_file LMT/include/util/symamd.cpp
-// #pragma src_file LMT/include/util/symrcm.cpp
-// #pragma cpp_path /usr/include/suitesparse/
-// #pragma inc_path /usr/include/suitesparse/
-// #pragma lib_name cholmod
-// 
-// #pragma inc_path /home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/lib /home/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/lib/
-// #pragma lib_name lam 
-// #pragma lib_name ldl 
-// #pragma gpu_flag --maxrregcount 62 -arch=sm_21 
-
+#ifdef METIL_COMP_DIRECTIVE
 #pragma src_file multiscale_geometry_mesh.cpp
 #pragma src_file assignation_materials_property.cpp
 #pragma src_file multiscale_operateurs.cpp
@@ -32,14 +19,12 @@
 #include "containers/mat.h"
 
 // fichiers de definition des classes
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_GLOB.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 
-//allocation memoire
-#include "allocation_memoire_PARAM.h"
 
 //lecture des parametres
 #include "multiscale.h"
@@ -88,7 +73,6 @@ int main(int argc,char **argv) {
     }
     try {
         Param process;
-        allocation_memoire_PARAM(process);
         /// on fait ce qu il y a faire quand on est en MPI
         if (argc == 4 and strcmp(argv[3], "mpi")==0 ) {
             definition_mpi_param(process,argc,argv);
@@ -176,10 +160,10 @@ int main(int argc,char **argv) {
     #endif
 
         
-            if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-            desallocation_memoire_PARAM(process);       
-
-            if (process.size > 1 ) MPI_Finalize();
+            if (process.size>1) {
+                MPI_Barrier(MPI_COMM_WORLD);
+                MPI_Finalize();
+            }
 
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;
