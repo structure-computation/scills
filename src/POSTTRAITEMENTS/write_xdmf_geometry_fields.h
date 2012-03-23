@@ -5,7 +5,7 @@ using namespace Metil;
 
 #include "containers/mat.h"
 using namespace LMT;
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_LATIN.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_TEMPS.h"

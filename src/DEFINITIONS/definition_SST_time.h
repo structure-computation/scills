@@ -10,7 +10,6 @@
 
 #include "util/solveLDL.h"
 using namespace LMT;
-using namespace std;
 
 
 //**********************************

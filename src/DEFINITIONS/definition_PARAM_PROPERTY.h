@@ -1,7 +1,6 @@
 #ifndef PARAM_PROPERTY_H
 #define PARAM_PROPERTY_H
 using namespace LMT;
-using namespace std;
 
 /** Parametres materiau definis de maniere globale sur la structure 
 */

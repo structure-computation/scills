@@ -4,14 +4,14 @@
 
 //fichiers de definition des variables
 #include "definition_PARAM_COMP_INTER.h"
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_LATIN.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_TEMPS.h"
 #include "definition_GLOB.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 #include "definition_PARAM_AFFICHAGE.h"
 
 // fonctions speciales math
@@ -37,7 +37,7 @@
 #include "FieldStructureUser.h"
 
 using namespace LMT;
-using namespace std;
+using namespace Metil;
 
 /**\defgroup Strategie_iterative Strat�gie It�rative
 \brief Strat�gie it�rative
@@ -218,7 +218,9 @@ void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &pro
             if (process.size == 1 or process.rank>0) {
                // write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);
                  convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
-                 String file_output_hdf5 ; file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+                 String rank; rank << process.rank;
+                 std::string file_output_hdf5 = process.affichage->name_hdf + "_" + rank.c_str() + ".h5";
+                 //file_output_hdf5 << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
                  field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields.c_str(), process.temps->pt_cur, process.temps->current_time, process.rank);
             }
         

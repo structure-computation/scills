@@ -14,14 +14,14 @@ using namespace std;
 #include "definition_SST.h"
 #include "definition_INTER.h"
 #include "definition_PARAM_MICRO_INTER.h"
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_STRUCTURE.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_LATIN.h"
 #include "definition_PARAM_AFFICHAGE.h"
 #include "definition_materials_property.h"
 #include "definition_GLOB.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 #include "definition_fcts.h"
 
 // fonctions speciales

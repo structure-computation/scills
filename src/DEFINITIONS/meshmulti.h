@@ -22,7 +22,6 @@
 #include "codegen/codegen.h"
 #include <boost/concept_check.hpp>
 
-using namespace std;
 using namespace LMT;
 using namespace Codegen;
 using namespace __gnu_cxx;
@@ -294,8 +293,8 @@ template<class Carac>
 struct Meshmulti {
     typedef LMT::Mesh<Carac> TM;//type de maillage utilsé pour les sous-structures
     TM *m;//pointeur du maillage
-    string name;//nom du maillage a lire
-    string sousintegration;//type de sousintegration
+    std::string name;//nom du maillage a lire
+    std::string sousintegration;//type de sousintegration
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
@@ -305,7 +304,7 @@ struct Meshmulti {
     //double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
     //bool effet_retard;
     //Vec<double,Carac::dim> v1,v2;
-    string type_formulation;
+    std::string type_formulation;
     
     //ajout pour les données venant de SC_create_2
     int id_sst;
@@ -356,7 +355,7 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e(Vec<string,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
+    void load_f_vol_e(Vec<std::string,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
     }
     //    

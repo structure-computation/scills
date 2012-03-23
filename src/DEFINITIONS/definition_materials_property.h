@@ -4,9 +4,8 @@
 // Ajout class PARAM_DAMAGE_SST contenant les grandeurs materiaux associées a l'endommagement
 #include "definition_PARAM_COMP_INTER.h"
 #include <boost/concept_check.hpp>
-
+#include <string>
 using namespace LMT;
-using namespace std;
 
 
 //*******************************************
@@ -21,8 +20,8 @@ struct SstCarac
     
     int id;             ///< identite du materiaux dans data_user
     int type_num;       ///< numero d'identité du comportement materiaux : 0=isotrope elastique
-    string type;        ///< type de formulation : isotrope, orthotrope, orthotrope endommageable, mesomodele
-    string comp;        ///< type de comportement : elastique, endommageable, plastique...
+    std::string type;        ///< type de formulation : isotrope, orthotrope, orthotrope endommageable, mesomodele
+    std::string comp;        ///< type de comportement : elastique, endommageable, plastique...
     bool resolution;    ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
     Vec<TYPEREEL,DIM> v1,v2;    ///< direction pour les materiaux orthotropes
     TYPEREEL density;      ///< densite du materiaux
@@ -32,7 +31,7 @@ struct SstCarac
     TYPEREEL Yo,Yc,Ycf,dmax,b_c,a,tau_c;           ///< Coefficients de l'endommagement
     bool effet_retard;
     Vec<TYPEREEL,DIM> f_vol;       ///< champs de force volumique constant
-    Vec<string,DIM> f_vol_e;    ///< champs de force volumique par element
+    Vec<std::string,DIM> f_vol_e;    ///< champs de force volumique par element
     TYPEREEL dt;           ///< pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
     TYPEREEL viscosite;
 };
@@ -49,24 +48,23 @@ Deux possibilites sont offertes pour selectionner les interfaces particulieres :
 
 */
 
-template<unsigned dim_, class Reel_> struct InterCarac
+struct InterCarac
 {
-    static const unsigned dim=dim_; ///< dimension 2 ou 3
-    typedef Vec<Reel_,dim_> Pvec; ///< type des points
+    typedef Vec<TYPEREEL,DIM> Pvec; ///< type des points
     
     //selection des interfaces pour application des parametres materiau : 2 possibilites : boite ou numero des sst voisines
     Vec<Pvec,2> box; ///< boite dans laquelle les interfaces possedant cette propriete doivent se trouver
     Vec<unsigned,2> num_sst; ///< numero des sous-structures adjacentes
-    Reel_ coeffrottement; ///< coefficient de frottement 
-    string jeu ; ///< fonction donnant le jeu en fonction des variables d'espace par une fonction analytique
-    string f_coeffrottement; ///< fonction analytique donnant le coeficient de frottement
-    string f_R; ///< fonction analytique donnant la raideur d'une interface elastique
+    TYPEREEL coeffrottement; ///< coefficient de frottement 
+    std::string jeu ; ///< fonction donnant le jeu en fonction des variables d'espace par une fonction analytique
+    std::string f_coeffrottement; ///< fonction analytique donnant le coeficient de frottement
+    std::string f_R; ///< fonction analytique donnant la raideur d'une interface elastique
     
     unsigned nbpastempsimpos;
 
     unsigned id;    ///< numero d'identification de cette caracteristique
     string name;    ///< nom de la caracteristique d'interface (informatif)
-    Reel_ Gcrit;     ///< valeur de taux de restitution critique pour les interfaces discretes
+    TYPEREEL Gcrit;     ///< valeur de taux de restitution critique pour les interfaces discretes
     string type;    ///< type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
     string comp;    ///< comportement des interfaces incluses
     

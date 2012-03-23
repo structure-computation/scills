@@ -155,7 +155,7 @@ void read_material_properties(TV3 &matprops, Param &process, DataUser &data_user
             }
             var_temp[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
 
-            mat_prop_temp[i][i_prop] = (TYPE) expr_temp.subs_numerical(var_temp);
+            mat_prop_temp[i][i_prop] = (TYPEREEL) expr_temp.subs_numerical(var_temp);
 /*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }
 /*        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;*/

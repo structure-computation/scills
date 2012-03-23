@@ -1,3 +1,4 @@
+/*
 #include "definition_PARAM_AFFICHAGE.h"
 #include "definition_PARAM_STRUCTURE.h"
 #include "definition_PARAM_MULTI.h"
@@ -39,3 +40,4 @@ inline void desallocation_memoire_PARAM(Param &process){
 }
 
 
+*/

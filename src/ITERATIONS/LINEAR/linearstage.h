@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 #include "containers/vec_mt.h"
 #include "etape_lineaire_1.h"

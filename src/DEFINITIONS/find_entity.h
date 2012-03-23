@@ -1,9 +1,9 @@
 // fichiers de definition des classes
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_GLOB.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"
-#include "definition_CL.h"
+#include "Boundary.h"
 
 // trouver une sst à paritr de son id----------------------------------------------
 template< class TV1 > 

@@ -7,7 +7,7 @@
 #define INFO_TIME
 #endif 
 //fichiers de definition des variables
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_MULTI.h"
 #include "definition_PARAM_TEMPS.h"
 #include "definition_PARAM_COMP_INTER.h"

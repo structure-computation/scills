@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 
 //allocation de t_post uniquement pour les sorties de resultat

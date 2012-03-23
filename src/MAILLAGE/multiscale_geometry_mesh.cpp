@@ -9,8 +9,8 @@
 #include "containers/vec_mt.h"
 
 //fichiers de definition des variables
-#include "definition_CL.h"
-#include "definition_PARAM.h"
+#include "Boundary.h"
+#include "Param.h"
 #include "definition_PARAM_STRUCTURE.h"
 #include "definition_SST_time.h"
 #include "definition_INTER_time.h"

@@ -7,7 +7,7 @@
 #include "containers/vec_mt.h"
 
 //fichiers de definition des variables 
-#include "definition_PARAM.h"
+#include "Param.h"
 #include "definition_PARAM_PROPERTY.h"
 #include "definition_PARAM_TEMPS.h"
 #include "definition_PARAM_COMP_INTER.h"
