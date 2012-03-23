@@ -1,7 +1,7 @@
 #ifndef PARAM_COMP_INTER_H
 #define PARAM_COMP_INTER_H
 
-#include <string>
+#include "../UTILS/Sc2String.h"
 using namespace LMT;
 
 struct PARAM_DAMAGE_INTER{
@@ -14,7 +14,7 @@ struct PARAM_COMP_INTER{
     double coeffrottement;
     Vec<double> f_coeffrottement;
     Vec<double> jeu;
-    std::string fcts_spatiales;
+    Sc2String fcts_spatiales;
     double Gcrit;
     bool degradable;
     Vec<double> dmax,d;

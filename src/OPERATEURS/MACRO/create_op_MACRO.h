@@ -10,9 +10,8 @@
 //#include "../entete.h"
 //fichiers de definition des variables
 #include "Param.h"
-#include "definition_PARAM_MULTI.h"
-//#include "definition_PARAM_LATIN.h"
-#include "definition_GLOB.h"
+#include "MULTI.h"
+#include "Glob.h"
 #include "Boundary.h"
 
 
@@ -22,7 +21,6 @@
 #include "op_macro.h"
 
 using namespace LMT;
-using namespace std;
 
 
 /** \defgroup Operateurs_macro Creation du problème macro global
@@ -83,7 +81,7 @@ void create_op_MACRO(TV1 &S, TV2 &Inter, Param &process,  GLOB &Global) {
            }
        }
     }
-   string name="Kmacro";
+    Sc2String name="Kmacro";
    ofstream f(name.c_str());
    for(unsigned i=0;i<bigK.data.size();++i) {
        for(unsigned j=0;j<bigK.data[i].indices.size();j++){

@@ -9,7 +9,7 @@ struct add_sigmoy_epsmoy_elem{
 //calcul de sigma moyen et epsilon moyen par SST
 // --------> non prise en compte des SST dont le comportement est egal a 2
 struct calcul_sigmoy_epsmoy_SST{
-   template<class SST> void operator()(SST &S, Vec<typename SST::T,SST::dim*(SST::dim+1)/2 >  &sigmoy, Vec<typename SST::T,SST::dim*(SST::dim+1)/2 >  &epsmoy) const{
+   template<class SST> void operator()(SST &S, Vec<TYPEREEL,DIM*(DIM+1)/2 >  &sigmoy, Vec<TYPEREEL,DIM*(DIM+1)/2 >  &epsmoy) const{
    if (S.typmat!= 2) {
       apply(S.mesh.elem_list,add_sigmoy_epsmoy_elem(),sigmoy,epsmoy);
       }
@@ -25,7 +25,7 @@ struct add_ener_elem{
 
 // calcul d'energie par SST : (sigma*epsilon*volume_element)/2
 struct calcul_energie_SST{
-template<class SST, class TV> void operator()(SST &S, typename SST::T &ener, TV &sigmoy, TV &epsmoy) const{
+template<class SST, class TV> void operator()(SST &S, TYPEREEL &ener, TV &sigmoy, TV &epsmoy) const{
    //mise a jour des deplacements contraintes deformations pour la SST
    assign_dep_contrainte calcdep_sig;
    calcdep_sig(S);
@@ -54,7 +54,7 @@ template<class TV1,class PARAMMICRO> void calcul_EP_sigmoy_epsmoy(typename PARAM
 
 //calcul du terme a effort impose pour la determination de l'energie potentielle
 struct calcul_eff_imposes{
-   template<class INTER> void operator()(INTER &Inter, typename INTER::T &Fimp) const{
+   template<class INTER> void operator()(INTER &Inter, TYPEREEL &Fimp) const{
       if(Inter.type=="Ext" && Inter.comp=="effort"){
          Fimp+=dot(Inter.side[0].W,(*Inter.side[0].M*Inter.side[0].F));
          }

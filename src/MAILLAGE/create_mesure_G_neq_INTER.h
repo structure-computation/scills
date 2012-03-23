@@ -1,8 +1,8 @@
 #ifndef CREATE_MESURE_G_NEQ_INTER
 #define CREATE_MESURE_G_NEQ_INTER
 
-#include "algebre.h"
-#include "utilitaires.h"
+#include "../UTILITAIRES/algebre.h"
+#include "../UTILITAIRES/utilitaires.h"
 
 //********************************************
 // calcul mesure cdg pour les interfaces

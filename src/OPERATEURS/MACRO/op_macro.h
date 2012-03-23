@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 template<class TV1> void renum_loc(TV1 &S, Vec<unsigned> &repSloc, Vec<unsigned> &repSglob, Vec<unsigned> &numI){
 
@@ -106,7 +105,7 @@ Cette procédure est écrite d'une part pour le 2D et pour le 3D d'autre part. On 
 void bloqrbm(Vec<Interface> &Inter, Param &process,Vec<unsigned> &repddlMbloq){
 #if DIM == 2
     // definition des translations possibles
-    Vec<string> translations("Tx","Ty");
+    Vec<Sc2String> translations("Tx","Ty");
     Vec<Vec<TYPEREEL> > vectbase(Vec<TYPEREEL>(1.,0.),Vec<TYPEREEL>(0.,1.));
     TYPEREEL eps=1e-10;
 
@@ -122,7 +121,7 @@ void bloqrbm(Vec<Interface> &Inter, Param &process,Vec<unsigned> &repddlMbloq){
     }
 
     // definition des rotations possibles
-    Vec<string> rotations("Rz");
+    Vec<Sc2String> rotations("Rz");
     Vec<Vec<TYPEREEL,2>,1> vectbase2;
     vectbase2[0]=Vec<TYPEREEL>(0.,1.);
 
@@ -141,7 +140,7 @@ void bloqrbm(Vec<Interface> &Inter, Param &process,Vec<unsigned> &repddlMbloq){
     remove_doubles(repddlMbloq);
 #elif DIM == 3
 // definition des translations possibles
-   Vec<string> translations("Tx","Ty","Tz");
+   Vec<Sc2String> translations("Tx","Ty","Tz");
    Vec<Vec<TYPEREEL> > vectbase(Vec<TYPEREEL>(1.,0.,0.),Vec<TYPEREEL>(0.,1.,0.),Vec<TYPEREEL>(0.,0.,1.));
    TYPEREEL eps=1e-10;
 
@@ -157,7 +156,7 @@ void bloqrbm(Vec<Interface> &Inter, Param &process,Vec<unsigned> &repddlMbloq){
    }
    
 // definition des rotations possibles
-   Vec<string> rotations("Rx","Ry","Rz");
+   Vec<Sc2String> rotations("Rx","Ry","Rz");
    Vec<Vec<TYPEREEL> > vectbase2(Vec<TYPEREEL>(1.,0.,0.),Vec<TYPEREEL>(0.,1.,0.),Vec<TYPEREEL>(0.,0.,1.));
 
 
@@ -264,7 +263,7 @@ Cette procédure est écrite d'une part pour le 2D et pour le 3D d'autre part. On 
 /*
 template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<unsigned> &repddlMbloq){
 // definition des translations possibles
-   Vec<string> translations("Tx","Ty");
+   Vec<Sc2String> translations("Tx","Ty");
    Vec<Vec<T> > vectbase(Vec<T>(1.,0.),Vec<T>(0.,1.));
    T eps=1e-10;
 
@@ -280,7 +279,7 @@ template<class T> void bloqrbm(Vec<Interface<2,T> > &Inter, Param &process,Vec<u
    }
    
 // definition des rotations possibles
-   Vec<string> rotations("Rz");
+   Vec<Sc2String> rotations("Rz");
    Vec<Vec<T,2>,1> vectbase2;
    vectbase2[0]=Vec<T>(0.,1.);
 

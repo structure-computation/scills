@@ -13,7 +13,6 @@
 //
 #include "mpi_lmt_functions.h"
 
-using namespace std;
 using namespace LMT;
 
 

@@ -2,7 +2,6 @@
 #define CALCUL_EN_ET_H
 
 using namespace LMT;
-using namespace std;
 
 //Attention fichier generer dans : generation_auto.py
 template<class SST> void calcul_En_Et(SST &S, TYPEREEL &En, TYPEREEL &Et){

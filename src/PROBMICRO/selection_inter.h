@@ -6,7 +6,7 @@ template<class TV2> void stockage_interfaces_testees(TV2 &Inter, AFFICHAGE &proc
    //affich_INTER_testees(Inter,process.save,repI,inddeg);
    std::ostringstream ss;
    ss << process.name_data << "_inter_testee_" << numfile << ".vtu";
-   string name_file( ss.str() );
+   Sc2String name_file( ss.str() );
    system( ("mv ./tmp/paraview0.vtu "+process.repertoire_save+name_file).c_str() );
 }
 

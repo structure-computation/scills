@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 /** \ingroup Operateurs_sst_Qstat
 \brief Assignation des valeurs temporelles aux sous-structures à partir du champ Time de process

@@ -91,7 +91,6 @@ Plus de détails sur MPI http://www.lam-mpi.org/
 
 */
 
-using namespace std;
 using namespace LMT;
 
 

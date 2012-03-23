@@ -1,11 +1,11 @@
 #ifndef PARAM_H
 #define PARAM_H
-#include <string>
+#include "../UTILS/Sc2String.h"
 
-#include <containers/vec.h>
+#include "../../LMT/include/containers/vec.h"
 using namespace LMT;
 
-#include "DataUser.h"
+#include "../COMPUTE/DataUser.h"
 
 /** \defgroup Parametres
 \brief Paramètres du programme multiéchelle 
@@ -49,12 +49,12 @@ struct Param
   //donnees globales pour le calcul 
   unsigned dim; ///< Dimension pour le calcul multiéchelle permettant de sélectionner sans recompiler la dimension du problème
   bool sousint;///< sousintegration oui = 1 non=0
-  std::string type_sousint; ///< type de sous-intégration h ou p
+  Sc2String type_sousint; ///< type de sous-intégration h ou p
   ///structure pour bloquer les modes de corps rigides manuellement
   struct RBM
   {
     bool bloq;      ///< blocage ou non des modes de corps rigide
-    Vec<std::string> mvts_bloques; ///< liste des modes de corps rigides bloques (ex : "Tx Ty Rz")
+    Vec<Sc2String> mvts_bloques; ///< liste des modes de corps rigides bloques (ex : "Tx Ty Rz")
   };
   RBM rbm;
   int nb_threads; ///< nombre de threads par machine pour parallelisme
@@ -69,7 +69,7 @@ struct Param
   MULTI_MPI *multi_mpi;
   int rank,size;
   
-  std::string nom_calcul; ///< nom du calcul effectué : latin ou incremental (valable pour le quasistatique ou statique)
+  Sc2String nom_calcul; ///< nom du calcul effectué : latin ou incremental (valable pour le quasistatique ou statique)
   bool recopie_t_post; ///< booleen pour recopier les quantites obtenues par un calcul incremental aux quantites pour un calcul latin
   bool save_data; ///< booléen permettant de sauvegarder dans des fichiers textes les données aux interfaces et aux sst
   bool read_data; ///< booléen permettant de lire dans des fichiers textes les données aux interfaces et aux sst

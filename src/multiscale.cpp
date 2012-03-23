@@ -1,6 +1,7 @@
 #ifdef METIL_COMP_DIRECTIVE
 #pragma src_file multiscale_geometry_mesh.cpp
-#pragma src_file assignation_materials_property.cpp
+#pragma src_file assignation_material_properties_Sst.cpp
+#pragma src_file assignation_material_properties_Interface.cpp
 #pragma src_file multiscale_operateurs.cpp
 #if DIM == 2
     #pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
@@ -16,21 +17,22 @@
 #endif
 
 //librairie Hugo
-#include "containers/mat.h"
+#include "../LMT/include/containers/mat.h"
 
 // fichiers de definition des classes
-#include "Param.h"
-#include "definition_GLOB.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
-#include "Boundary.h"
+#include "DEFINITIONS/AFFICHAGE.h"
+#include "DEFINITIONS/Param.h"
+#include "DEFINITIONS/Glob.h"
+#include "DEFINITIONS/Sst.h"
+#include "DEFINITIONS/Interface.h"
+#include "DEFINITIONS/Boundary.h"
 
 
 //lecture des parametres
 #include "multiscale.h"
 
 //assignation des différents paramètres MPI
-#include "assignation_mpi.h"
+#include "MPI/assignation_mpi.h"
 
 
 // #include "containers/evaluate_nb_cycles.h"
@@ -43,8 +45,8 @@
 #include <Metil/Hdf.h>
 using namespace Metil;
 
-#include "GeometryUser.h"
-#include "DataUser.h"
+#include "GEOMETRY/GeometryUser.h"
+#include "COMPUTE/DataUser.h"
 
 #ifndef INFO_TIME
 #define INFO_TIME
@@ -52,11 +54,10 @@ using namespace Metil;
 
 
 using namespace LMT;
-using namespace std;
 Crout crout;
 #ifdef PRINT_ALLOC
 namespace LMT {
-    std::map<std::string,long long> total_allocated;
+    std::map<Sc2String,long long> total_allocated;
 };
 #endif
 
@@ -83,9 +84,9 @@ int main(int argc,char **argv) {
         }
         crout.open(process.rank);
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    TicTac tic1;
-    if (process.rank==0) {tic1.init();tic1.start();}
+        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        TicTac tic1;
+        if (process.rank==0) {tic1.init();tic1.start();}
 #endif
         
         if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
@@ -93,8 +94,8 @@ int main(int argc,char **argv) {
         if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
         if (process.rank == 0 ) std::cout << std::endl;
     
-        std::string id_model = argv[ 1 ];
-        std::string id_calcul = argv[ 2 ];
+        Sc2String id_model = argv[ 1 ];
+        Sc2String id_calcul = argv[ 2 ];
         
         // ******************************************************************************************************************
         //lecture des données utilisateur (fichier de calcul .json) et compilation à la volée 
@@ -105,17 +106,15 @@ int main(int argc,char **argv) {
         // ******************************************************************************************************************
         //lecture de la geometrie--------------------------------------------------
         GeometryUser geometry_user(id_model, id_calcul);
+        geometry_user.read_hdf5(false,true,data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
         std::cout << data_user.options.mode << std::endl;
         if(data_user.options.mode=="visu_CL"){
             std::cout << "Mode de visualisation des bords" << std::endl;
             //on ne lit que les groupes d'interfaces
-            geometry_user.read_hdf5(false,true,data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
             geometry_user.visualize_group_edges_within_geometry(data_user);
             std::cout << "fin lecture de la geometrie - CL uniquement" << std::endl;   
             //on ecrit le champ "select" sur les groupes d'interface
-        }
-        else{
-            geometry_user.read_hdf5(false,true, data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
+        }else{
             std::cout << "fin lecture de la geometrie" << std::endl;
             geometry_user.split_group_edges_within_geometry(data_user);
             std::cout << "fin lecture de la geometrie" << std::endl;
@@ -145,8 +144,6 @@ int main(int argc,char **argv) {
             Vec<Interface> Inter;
             Vec<Boundary> CL;
             Glob Global;
-
-
             
             S.resize(geometry_user.nb_group_elements);
             multiscale(data_user, geometry_user, matprops, S, Inter, process,  CL, Global);

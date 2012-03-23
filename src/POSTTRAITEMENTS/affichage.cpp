@@ -10,16 +10,16 @@
 // fichiers de definition des variables
 #include "definition_PARAM_MICRO_INTER.h"
 #include "Param.h"
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
+#include "AFFICHAGE.h"
+#include "Sst.h"
+#include "Interface.h"
 
 #include "mise_a_jour_quantites.h"
 
 #include "affichage_mesh_SST.h"
 #include "affichage_mesh_INTER.h"
 
-#include "definition_PARAM_TEMPS.h"
+#include "TEMPS.h"
 #include "affichage_resultats_time.h"
 #include "create_file_pvd.h"
 
@@ -31,7 +31,6 @@
 
 //#include "calcul_dep3d_defPG.h"
 using namespace LMT;
-using namespace std;
 
 
 #include "affichage.h"
@@ -71,10 +70,10 @@ Plusieurs fonctions sont accessibles dans tous les fichiers, en incluant le fich
 */
 void affichage_resultats_temps(Param &process) {
       create_file_pvd(process,"sst_");
-      string namepvd = process.affichage->repertoire_save+"sst_"+process.affichage->name_data+".pvd";
+      Sc2String namepvd = process.affichage->repertoire_save+"sst_"+process.affichage->name_data+".pvd";
       std::cout << "nom pvd : " << namepvd << endl;
-      //string cmd = process.affichage->repertoire_save+"paraview --data="+namepvd;
-      string cmd = "paraview";
+      //Sc2String cmd = process.affichage->repertoire_save+"paraview --data="+namepvd;
+      Sc2String cmd = "paraview";
       if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 };
 
@@ -85,10 +84,10 @@ Possibilité de choisir une interface donnée ou toutes les interfaces.
 */
 void affichage_inter_temps(Param &process) {
     create_file_pvd(process,"inter_");
-    string namepvd = process.affichage->repertoire_save+"inter_"+process.affichage->name_data+".pvd";
+    Sc2String namepvd = process.affichage->repertoire_save+"inter_"+process.affichage->name_data+".pvd";
     std::cout << "nom pvd : " << namepvd << endl;
-    //string cmd = "paraview --data="+namepvd;
-    string cmd = "paraview";
+    //Sc2String cmd = "paraview --data="+namepvd;
+    Sc2String cmd = "paraview";
     if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 }
 
@@ -122,7 +121,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process, DataUser &
             std::cout << "erreur d'affichage" << endl;
       }
       if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-//       if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
+//       if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
         if (process.size>1 and process.rank==0) create_file_pvd_geometry(process,data_user,"Geometry_sst");
         if (process.size>1 and process.rank==0) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 

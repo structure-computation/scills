@@ -5,22 +5,21 @@
 
 //fichiers de definition des variables
 #include "Param.h"
-#include "definition_PARAM_LATIN.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_MPI.h"
+#include "LATIN.h"
 
 // fonctions speciales
 #include "utilitaires.h"
 
 // fonctions utilisees dans le programme
-#include "definition_PARAM_TEMPS.h"
+#include "MULTI.h"
+#include "MULTI_MPI.h"
+#include "TEMPS.h"
 #include "optimisation_direction.h"
 #include "op_SST.h"
 
 #include "mpi.h"
 
 using namespace LMT;
-using namespace std;
 
 /** \defgroup Operateurs_sst Creation des operateurs par sous-structure
 \ingroup Operateurs

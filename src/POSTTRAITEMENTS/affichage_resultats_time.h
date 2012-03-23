@@ -1,23 +1,22 @@
 #include "mesh/remove_doubles.h"
 
 using namespace LMT;
-using namespace std;
 
 struct Projection_sigma_epsilon_on_skin{
-   template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
-      const typename TM::EA *ea = mskin.get_parents_of(e)[0];
-      typedef typename TM::TElemList::template SubType<0>::T TypeParent;
-      const TypeParent &parent = static_cast<const TypeParent &>( *ea );
-      e.sigma_skin = parent.sigma[0];
-      e.epsilon_skin = parent.epsilon[0];
-      e.numsst_skin = parent.numsst;
-      e.num_proc_skin = parent.num_proc;
-      e.typmat_skin = parent.typmat;
+    template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
+        const typename TM::EA *ea = mskin.get_parents_of(e)[0];
+        typedef typename TM::TElemList::template SubType<0>::T TypeParent;
+        const TypeParent &parent = static_cast<const TypeParent &>( *ea );
+        e.sigma_skin = parent.sigma[0];
+        e.epsilon_skin = parent.epsilon[0];
         e.numsst_skin = parent.numsst;
         e.num_proc_skin = parent.num_proc;
         e.typmat_skin = parent.typmat;
-      //e.epsilon_skin[0] =parent.Yde[0];
-      //e.epsilon_skin[1] =parent.Yde[1];
+        e.numsst_skin = parent.numsst;
+        e.num_proc_skin = parent.num_proc;
+        e.typmat_skin = parent.typmat;
+        //e.epsilon_skin[0] =parent.Yde[0];
+        //e.epsilon_skin[1] =parent.Yde[1];
 
 //#warning A modifier pour les comportements orthotrope
       #ifdef FORMUORTHO
@@ -30,11 +29,11 @@ struct Projection_sigma_epsilon_on_skin{
 template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser &data_user) {
     
     //preparation des noms et des repertoires pour ecriture des resultats
-    String name_multiresolution="";
+    Sc2String name_multiresolution="";
     if(data_user.options.Multiresolution_on==1)
         name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
-    Vec<string,2> directory_names=Vec<string>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
-    Vec<string,2> generic_names;
+    Vec<Sc2String,2> directory_names=Vec<Sc2String>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
+    Vec<Sc2String,2> generic_names;
     for(int i=0;i<2;i++) {
         int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
         generic_names[i]=directory_names[i]+"/"+name_multiresolution.c_str()+ process.affichage->name_data; //nom generique du fichier vtu
@@ -70,7 +69,7 @@ template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser 
             //ecriture fichier paraview generique de tous les champs (volume ou peau)
             ostringstream sp;
             sp<<"./tmp/paraview_"<<process.rank<<"_";
-            string strp(sp.str());
+            Sc2String strp(sp.str());
             if(process.size > 1) process.affichage->save="save";
             if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
             else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
@@ -79,7 +78,7 @@ template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser 
             //modification du nom et deplacement du fichier generique
             ostringstream ss;
             ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
-            string namefile(ss.str());
+            Sc2String namefile(ss.str());
             int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
         }
     } 
@@ -94,12 +93,11 @@ template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser 
  Pour un calcul quasistatique en latin, on a stocké dans le vecteur t la solution a convergence pour chaque pas de temps, c'est donc celle ci qui est affichée et pour laquelle on calcule contrainte déformation et autre quantité.
  */
 template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUser &data_user) {
-
-   String name_multiresolution="";
-   if(data_user.options.Multiresolution_on==1)
-       name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+    Sc2String name_multiresolution="";
+    if(data_user.options.Multiresolution_on==1)
+        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
    
-   string typemail=process.affichage->type_affichage;
+    Sc2String typemail=process.affichage->type_affichage;
    
     if(process.affichage->type_affichage== "Sinterieur"){
         process.affichage->display_fields.resize(10);
@@ -125,12 +123,12 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
     }
    
    
-   string name_directory;   
+   Sc2String name_directory;   
    if(typemail=="Sinterieur") name_directory=process.affichage->repertoire_save +"results/sst_bulk";
    else name_directory=process.affichage->repertoire_save +"results/sst_skin";
    int tmp=system(("mkdir -p "+name_directory).c_str());
-   string nom_generique = name_directory+"/"+name_multiresolution.c_str()+ process.affichage->name_data;
-   string save=process.affichage->save;
+   Sc2String nom_generique = name_directory+"/"+name_multiresolution.c_str()+ process.affichage->name_data;
+   Sc2String save=process.affichage->save;
      
    //int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
@@ -163,11 +161,11 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
          ostringstream ss;
          if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
          else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
-         string namefile(ss.str());
+         Sc2String namefile(ss.str());
          
          ostringstream sp;
          sp<<"./tmp/paraview_"<<process.rank<<"_";
-         string strp(sp.str());
+         Sc2String strp(sp.str());
          //ecriture fichier paraview
          if(process.size > 1) process.affichage->save="save";
          dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
@@ -200,11 +198,11 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
          ostringstream ss;
          if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
          else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
-         string namefile(ss.str());
+         Sc2String namefile(ss.str());
          
          ostringstream sp;
          sp<<"./tmp/paraview_"<<process.rank<<"_";
-         string strp(sp.str());
+         Sc2String strp(sp.str());
          //ecriture fichier paraview
          if(process.size > 1) process.affichage->save="save";
          dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields);
@@ -219,10 +217,10 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUs
    typedef typename TV1::template SubType<0>::T::TMESH TM;
    const char *names[TM::TNode::nb_params+(TM::TNode::nb_params==0)];
    DM::get_names<typename TM::TNode>( names );
-   Vec<string> display_fields_temp,display_fields=process.affichage->display_fields;
+   Vec<Sc2String> display_fields_temp,display_fields=process.affichage->display_fields;
    for(unsigned i=0;i<TM::TNode::nb_params;++i)
-     if ( std::find(display_fields.begin(),display_fields.end(),std::string(names[i]))!=display_fields.end())
-       display_fields_temp.push_back(std::string(names[i]));
+     if ( std::find(display_fields.begin(),display_fields.end(),Sc2String(names[i]))!=display_fields.end())
+       display_fields_temp.push_back(Sc2String(names[i]));
    
      Data_vtk_extract_elem<true> dve;
      S[0].mesh.elem_list.apply_static(dve);
@@ -486,9 +484,9 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
 
       ostringstream sp;
       sp<<"./tmp/paraview_"<<process.rank<<"_";
-      string strp(sp.str());
+      Sc2String strp(sp.str());
       //dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
-      dp.add_mesh(meshglob,strp.c_str(),Vec<string>("num","type","qtrans","F","W"));
+      dp.add_mesh(meshglob,strp.c_str(),Vec<Sc2String>("num","type","qtrans","F","W"));
       if(process.affichage->save=="display") dp.exec();
 
 }
@@ -498,7 +496,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
  */
 template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param &process) {
    
-   string save_directory=process.affichage->repertoire_save+"results/inter/";
+   Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
    
    int tmp=system(("mkdir -p "+save_directory).c_str());
    
@@ -508,15 +506,15 @@ template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param
       process.temps->pt=i;
       process.affichage->pt=i;
       affich_inter_data_time(Inter, S, process);
-      string nom_generique = save_directory + process.affichage->name_data;
+      Sc2String nom_generique = save_directory + process.affichage->name_data;
       ostringstream sp;
       sp<<"./tmp/paraview_"<<process.rank<<"_";
-      string strp(sp.str());
+      Sc2String strp(sp.str());
       ostringstream ss;
       /*if (process.size == 1) ss<<nom_generique << "_time_"<<i<<".vtu";
       else */
       ss<<nom_generique << "_proc_"<<process.rank<<"_time_"<<i<<".vtu";
-      string namefile(ss.str());
+      Sc2String namefile(ss.str());
       int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
    }
 

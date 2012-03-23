@@ -1,23 +1,23 @@
 #ifndef CREATE_FILE_PVD
 #define CREATE_FILE_PVD
 
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_PARAM_TEMPS.h"
+#include "AFFICHAGE.h"
+#include "TEMPS.h"
 #include "Param.h"
-#include "definition_PARAM_LATIN.h"
+#include "LATIN.h"
 
 
-inline void create_file_pvtu(Param &process, const string prefix="sst_", unsigned pt=0, unsigned pt1=0){
+inline void create_file_pvtu(Param &process, const Sc2String prefix="sst_", unsigned pt=0, unsigned pt1=0){
   int dim=process.dim;
-  Vec<string> display_fields;
+  Vec<Sc2String> display_fields;
   unsigned typepvtu=1; //defaut quand on sort les inter ou sst et contact
   if (prefix=="sst_" or prefix=="inter_" or prefix=="contact_") typepvtu=0;
   
-  string name_data = prefix+process.affichage->name_data;
+  Sc2String name_data = prefix+process.affichage->name_data;
   std::ostringstream ss2;
   ss2<<process.affichage->repertoire_save<<prefix<< ( (typepvtu==0) ? process.affichage->name_data : "" ) << ( (typepvtu==0) ? "_" : "" ) << ( (pt1!=0) ?  to_string(pt1) :"" ) << ( (pt1!=0) ? "_" :"" ) << ( (typepvtu==0) ?  to_string(pt) :"" ) << ".pvtu";
   
-  string nom(ss2.str());
+  Sc2String nom(ss2.str());
   std::ofstream os(nom.c_str());
   os << "<VTKFile type=\"PUnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">"<<endl;
   os << "<PUnstructuredGrid GhostLevel=\"0\">"<<endl;
@@ -26,7 +26,7 @@ inline void create_file_pvtu(Param &process, const string prefix="sst_", unsigne
   
   std::ostringstream ss1;
   ss1<<process.affichage->repertoire_save<<((typepvtu==0)? prefix+process.affichage->name_data:process.affichage->type_affichage)<<"_"<<((pt1!=0)?process.rank:1)<<"_"<<((pt1!=0)? to_string(pt1)+"_":"")<<((typepvtu==0)?"1":"0")<<".vtu";
-  string nomvtu(ss1.str());
+  Sc2String nomvtu(ss1.str());
   ifstream is(nomvtu.c_str());
   unsigned nbdatapoint=1;
   unsigned nbdatacell=1;
@@ -71,15 +71,15 @@ inline void create_file_pvtu(Param &process, const string prefix="sst_", unsigne
 }
 
 
-inline void create_file_pvd(Param &process,const string prefix="sst_",unsigned pt=0){
+inline void create_file_pvd(Param &process,const Sc2String prefix="sst_",unsigned pt=0){
    unsigned nbfiles = process.temps->nbpastemps;
-   string name_data = process.affichage->repertoire_save+prefix+process.affichage->name_data;
+   Sc2String name_data = process.affichage->repertoire_save+prefix+process.affichage->name_data;
    if (prefix=="contact_") nbfiles=process.latin->iter+1;
    //nom du fichier pvd
    std::ostringstream spvd;
    if (prefix=="contact_") spvd<<process.affichage->repertoire_save<<prefix<<process.affichage->name_data<<"_"<<pt<<".pvd";
    else spvd<<process.affichage->repertoire_save<<prefix<<process.affichage->name_data<<".pvd";
-   string namepvd( spvd.str() );
+   Sc2String namepvd( spvd.str() );
    std::ofstream file_pvd;
    file_pvd.open( (namepvd).c_str(), ofstream::out);
    
@@ -97,11 +97,11 @@ inline void create_file_pvd(Param &process,const string prefix="sst_",unsigned p
         if (process.size > 1 ) ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".pvtu";
         else ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".vtu";
       }
-      string nom1( ss.str() );
+      Sc2String nom1( ss.str() );
       std::ostringstream ss2;
       if (pt == 0) ss2 << " <DataSet timestep=\" " << i << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
       else ss2 << " <DataSet timestep=\" " << i-1 << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
-      string ligne1(ss2.str());
+      Sc2String ligne1(ss2.str());
       file_pvd << ligne1;
    }
    //fin du fichier pvd
@@ -109,17 +109,17 @@ inline void create_file_pvd(Param &process,const string prefix="sst_",unsigned p
 }
 
 //creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
-inline void create_file_pvd(Param &process, DataUser &data_user, const string prefix="sst_bulk"){
-   string save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
+inline void create_file_pvd(Param &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
+   Sc2String save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
     
    //creation du nom et du fichier pvd
    std::ostringstream spvd;
-   String name_multiresolution="";
+   Sc2String name_multiresolution="";
    if(data_user.options.Multiresolution_on==1)
        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
    
    spvd<<process.affichage->repertoire_save<<"results/"<<name_multiresolution.c_str()<<prefix<<".pvd";
-   string namepvd( spvd.str() );
+   Sc2String namepvd( spvd.str() );
    std::ofstream file_pvd;
    file_pvd.open( (namepvd).c_str(), ofstream::out);
    
@@ -142,11 +142,11 @@ inline void create_file_pvd(Param &process, DataUser &data_user, const string pr
                 //nom du fichier a lire pour le piquet de temps et le processeur considere
                 std::ostringstream ss;
                 ss << save_directory << name_multiresolution.c_str()<<process.affichage->name_data << "_proc_"<<i_proc<<"_time_"<<process.temps->pt_cur <<  ".vtu";
-                string nom1( ss.str() );
+                Sc2String nom1( ss.str() );
                 //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
                 std::ostringstream ss2;
                 ss2 << " <DataSet timestep=\" " << process.temps->current_time << "\" group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
-                string ligne1(ss2.str()); 
+                Sc2String ligne1(ss2.str()); 
                 file_pvd << ligne1;
             }          
         }
@@ -156,14 +156,14 @@ inline void create_file_pvd(Param &process, DataUser &data_user, const string pr
 }
 
 //creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
-inline void create_file_pvd_geometry(Param &process, DataUser &data_user, const string prefix="sst_bulk"){
-   string save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
+inline void create_file_pvd_geometry(Param &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
+   Sc2String save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
     
    //creation du nom et du fichier pvd
    std::ostringstream spvd;
    
    spvd<<process.affichage->repertoire_save<<"results/"<<prefix<<".pvd";
-   string namepvd( spvd.str() );
+   Sc2String namepvd( spvd.str() );
    std::ofstream file_pvd;
    file_pvd.open( (namepvd).c_str(), ofstream::out);
    
@@ -178,11 +178,11 @@ inline void create_file_pvd_geometry(Param &process, DataUser &data_user, const 
         //nom du fichier a lire pour le piquet de temps et le processeur considere
         std::ostringstream ss;
         ss << process.affichage->repertoire_save<<"results/"<<prefix<< "_proc_"<<i_proc <<  ".vtu";
-        string nom1( ss.str() );
+        Sc2String nom1( ss.str() );
         //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
         std::ostringstream ss2;
         ss2 << " <DataSet timestep=\"1\"" << " group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
-        string ligne1(ss2.str()); 
+        Sc2String ligne1(ss2.str()); 
         file_pvd << ligne1;
     }          
    //fin du fichier pvd

@@ -1,3 +1,5 @@
+#include "multiscale_operateurs.h"
+
 //librairies Hugo
 #include "containers/mat.h"
 #include "containers/vecpointedvalues.h"
@@ -6,19 +8,11 @@
 #ifndef INFO_TIME
 #define INFO_TIME
 #endif 
-//fichiers de definition des variables
-#include "Param.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_TEMPS.h"
-#include "definition_PARAM_COMP_INTER.h"
-#include "definition_GLOB.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
 
 // fonction utilisees pour la creation des operateurs
-#include "create_op_INTER.h"
-#include "create_op_MACRO.h"
-#include "create_op_SST.h"
+#include "INTER/create_op_INTER.h"
+#include "MACRO/create_op_MACRO.h"
+#include "SST/create_op_SST.h"
 
 //pour l'affichage : inclure ce .h
 // #include "affichage.h"
@@ -28,7 +22,6 @@
 
 
 using namespace LMT;
-using namespace std;
 extern Crout crout;
 
 const double Apply_nb_macro::eps;
@@ -63,8 +56,13 @@ L'ordre d'utilisation des fonctions est le suivant :
 //***************************************************************************************************
 //  Procedure de creation des operateurs utilises dans la strategie multiechelle
 //***************************************************************************************************
-template <class TV1, class TV2, class TV3, class TV4>
-void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &process,  TV4 &Global, DataUser &data_user) {
+void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
+                           Vec<VecPointedValues<Sst> >       &SubS, 
+                           Vec<Interface>                    &Inter, 
+                           Vec<VecPointedValues<Interface> > &SubI, 
+                           Param                             &process, 
+                           Glob                              &Global, 
+                           DataUser                          &data_user) {
 
     TicToc2 tic;
     tic.start();
@@ -81,8 +79,8 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
     if(data_user.options.Multiresolution_on==0 or (data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_current_resolution==0)){  
         if (process.rank == 0)
             std::cout << "Calcul des Quantites d'interfaces" << endl;
-            create_op_INTER(S,Inter,SubI,process);
-            crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
+        create_op_INTER(Stot,Inter,SubI,process);
+        crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
         tic.stop();
         if (process.size>1)
             MPI_Barrier(MPI_COMM_WORLD);
@@ -100,7 +98,7 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
 
     if (process.rank == 0)
         std::cout << "Calcul des Quantites par SST" << endl;
-    create_op_SST(S,Inter,SubS,SubI,process, data_user);
+    create_op_SST(Stot,Inter,SubS,SubI,process, data_user);
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation OP SST : " ;
@@ -120,7 +118,7 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
         if (process.rank == 0)
             std::cout << "Creation du probleme macro" << endl;
         if (process.rank == 0 and process.size>1)
-            create_op_MACRO(S,Inter,process,Global);
+            create_op_MACRO(Stot,Inter,process,Global);
         else
             create_op_MACRO(SubS,Inter,process,Global);//juste pour faire repddl pour savoir où on balance le macro dans bigF...
 #ifdef INFO_TIME
@@ -140,19 +138,3 @@ void multiscale_operateurs(TV1 &S, TV1 &SubS,TV2 &Inter, TV3 &SubI,Param &proces
     if (process.rank == 0)
         std::cout << endl;
 };
-
-
-
-void fake_multiscale_operateurs() {
-    Param process;
-    DataUser data_user;
-    
-    Vec<Interface> Inter3;
-    Vec<VecPointedValues<Sst> > SubS3,S3;
-    Vec<VecPointedValues<Interface> > SubI3;
-    Glob Global3;
-
-    multiscale_operateurs(S3, SubS3,Inter3, SubI3, process, Global3, data_user);
-
-
-}

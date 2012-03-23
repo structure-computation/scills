@@ -1,4 +1,5 @@
-#include "DataUser.h"
+#include "../COMPUTE/DataUser.h"
+#include "Boundary.h"
 
 using namespace Metil;
 using namespace Codegen;
@@ -16,43 +17,36 @@ using namespace LMT;
  On multiplie dans prelocalstage.h la valeur de la fonction spatiale en un noeud equivalent par la fonction temporel (en statique comme en quasistatique)
 */
 
-template<class BOUNDARY>
-void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
-    unsigned nbCL = data_user.behaviour_bc.size();
-    CL.resize(nbCL);
+void read_CL(DataUser &data_user, Vec<Boundary > &CL, Param &process) {
+    const unsigned nbCL = data_user.behaviour_bc.size();
+    const unsigned nbStep = process.temps->nb_step;
     unsigned nbfct_temporelle;
+    CL.resize(nbCL);
     for(unsigned i=0;i<nbCL;++i) {
         CL[i].id = data_user.behaviour_bc[i].id;
         CL[i].comp = data_user.behaviour_bc[i].type;
-	std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;
+        std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;
         if (CL[i].comp=="depl_nul") {
             CL[i].comp = "depl";
             data_user.behaviour_bc[i].type = "depl";
         }
         else if (CL[i].comp=="sym") {
-	    CL[i].fcts_spatiales.resize(process.temps->nb_step);
-	    CL[i].fcts_temporelles.resize(process.temps->nb_step);
-	    CL[i].intervalles_temps.resize(process.temps->nb_step);
-	    for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
-		CL[i].intervalles_temps[i_step][0]=0;
-		CL[i].intervalles_temps[i_step][1]=100000;
-		CL[i].fcts_spatiales[i_step].resize(data_user.dim,"0");
-		CL[i].fcts_temporelles[i_step]="1";
-	    } 
-//             CL[i].fcts_spatiales.set("0");
-//             CL[i].fcts_temporelles.resize(1);
-//             CL[i].fcts_temporelles[0]="1";
-//             CL[i].intervalles_temps.resize(1);
-//             CL[i].intervalles_temps[0]=Vec<typename BOUNDARY::T,2>(0,100000);
+            CL[i].fcts_spatiales.resize(nbStep);
+            CL[i].fcts_temporelles.resize(nbStep);
+            CL[i].intervalles_temps.resize(nbStep);
+            for(unsigned i_step=0;i_step<nbStep;i_step++){
+                CL[i].intervalles_temps[i_step][0]=0;
+                CL[i].intervalles_temps[i_step][1]=100000;
+                CL[i].fcts_spatiales[i_step].resize(data_user.dim,"0");
+                CL[i].fcts_temporelles[i_step]="1";
+            }
         }
         else{
-//             std::cout << "ATTENTION : une condition limite en deplacement normal n'est valable que pour des surfaces planes" << std::endl;
-            //lecture des fcts temporelles definies pour un intervalle de temps donne
             if(process.temps->type_de_calcul=="stat") {
-                CL[i].fcts_spatiales.resize(process.temps->nb_step);
-                CL[i].fcts_temporelles.resize(process.temps->nb_step);
-                CL[i].intervalles_temps.resize(process.temps->nb_step);                
-                for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+                CL[i].fcts_spatiales.resize(nbStep);
+                CL[i].fcts_temporelles.resize(nbStep);
+                CL[i].intervalles_temps.resize(nbStep);                
+                for(unsigned i_step=0;i_step<nbStep;i_step++){
                     CL[i].intervalles_temps[i_step][0]=0;
                     CL[i].intervalles_temps[i_step][1]=100000;
                     CL[i].fcts_spatiales[i_step].resize(data_user.dim,"0");
@@ -62,10 +56,10 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
                     CL[i].fcts_temporelles[i_step]="1";
                 }    
             }else if(process.temps->type_de_calcul=="Qstat") {
-                CL[i].fcts_spatiales.resize(process.temps->nb_step);
-                CL[i].fcts_temporelles.resize(process.temps->nb_step);
-                CL[i].intervalles_temps.resize(process.temps->nb_step);                 
-                for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
+                CL[i].fcts_spatiales.resize(nbStep);
+                CL[i].fcts_temporelles.resize(nbStep);
+                CL[i].intervalles_temps.resize(nbStep);                 
+                for(unsigned i_step=0;i_step<nbStep;i_step++){
                     PRINT(i_step);
                     CL[i].intervalles_temps[i_step][0]=process.temps->time_step[i_step].t_ini;
                     CL[i].intervalles_temps[i_step][1]=process.temps->time_step[i_step].t_fin;
@@ -84,8 +78,7 @@ void read_CL(DataUser &data_user, Vec<BOUNDARY > &CL, Param &process) {
 };
 
 // modification des valeurs des boites de CL en fonction du parametre d'echelle
-template<class BOUNDARY>
-void modif_CL_scale(Vec<BOUNDARY > &CL, TYPEREEL &scale) {
+void modif_CL_scale(Vec<Boundary > &CL, TYPEREEL &scale) {
     for(unsigned i=0;i<CL.size();++i)
         CL[i].box=CL[i].box*scale;
 };

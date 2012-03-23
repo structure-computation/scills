@@ -2,7 +2,6 @@
 #define AFFICH_MESH_SST_H
 
 using namespace LMT;
-using namespace std;
 
 #include "mesh/calculate_measure.h"
 #include "mesh/remove_doubles.h"
@@ -65,15 +64,15 @@ On crée un fichier (tmp/paraview0.vtu) dans lequel il est possible de visualiser
 template<class TV1>
 void affich_SST(TV1 &S,Param &process) {
 
-    string typemail=process.affichage->type_affichage;    
-    string nom_generique = process.affichage->repertoire_save +"results/Geometry_sst";
+    Sc2String typemail=process.affichage->type_affichage;    
+    Sc2String nom_generique = process.affichage->repertoire_save +"results/Geometry_sst";
 
     int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"results").c_str());
 
     //ecriture fichier paraview generique 
     ostringstream sp;
     sp<<"./tmp/paraview_"<<process.rank<<"_";
-    string strp(sp.str());
+    Sc2String strp(sp.str());
 
     //eclate des ssts
     double ecl=1.0;
@@ -88,13 +87,13 @@ void affich_SST(TV1 &S,Param &process) {
     //ecriture du maillage
     DisplayParaview dp;
     if (typemail=="Sinterieur") {
-       dp.add_mesh(meshglob,strp,Vec<string>("qtrans","typmat","numsst","num_proc"));
+       dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc"));
     } else if (typemail=="Sbord") {
         meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
         meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
         meshglob.update_skin();
         apply(meshglob.skin.elem_list,Projection_num_num_proc_on_skin(),meshglob.skin,meshglob);
-        dp.add_mesh(meshglob.skin,strp,Vec<string>("qtrans","typmat_skin","numsst_skin","num_proc_skin"));
+        dp.add_mesh(meshglob.skin,strp,Vec<Sc2String>("qtrans","typmat_skin","numsst_skin","num_proc_skin"));
     }
     
 
@@ -102,7 +101,7 @@ void affich_SST(TV1 &S,Param &process) {
     //modification du nom et deplacement du fichier generique
     ostringstream ss;
     ss<<nom_generique << "_proc_"<<S[0].num_proc<<".vtu";
-    string namefile(ss.str());
+    Sc2String namefile(ss.str());
     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 
 

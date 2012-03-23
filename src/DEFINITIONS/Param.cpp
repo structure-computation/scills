@@ -1,11 +1,11 @@
 #include "Param.h"
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_PARAM_STRUCTURE.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_LATIN.h"
-#include "definition_PARAM_TEMPS.h"
-#include "definition_PARAM_PROPERTY.h"
-#include "definition_PARAM_MPI.h"
+#include "AFFICHAGE.h"
+#include "STRUCTURE.h"
+#include "MULTI.h"
+#include "LATIN.h"
+#include "TEMPS.h"
+#include "PROPERTY.h"
+#include "MULTI_MPI.h"
 
 
 Param::Param()
@@ -44,48 +44,18 @@ void Param::read_data_user(DataUser &data_user) {
     multiscale->read_data_user(data_user);
     latin->read_data_user(data_user);
     affichage->read_data_user(data_user);
-    
-    //     std::cout<< "data_user.options.Temp_statique = " << data_user.options.Temp_statique << std::endl;
+    temps->read_data_user(data_user);
     
     if(data_user.options.Temp_statique == "statique"){
-        temps->type_de_calcul= "stat";
+        if (rank==0) std::cout << "************************" << std::endl;
+        if (rank==0) std::cout << "     STATIQUE           " << std::endl;
+        if (rank==0) std::cout << "************************" << std::endl;
     }else if(data_user.options.Temp_statique == "quasistatique"){
-        temps->type_de_calcul= "Qstat";
-    }
-    
-    if (temps->type_de_calcul=="stat") {
-        if (rank==0) std::cout << "************************" << std::endl;
-        if (rank==0) std::cout << "     STATIQUE     " << std::endl;
-        if (rank==0) std::cout << "************************" << std::endl;
-        temps->nbpastemps=1;
-        temps->dt=0;
-        nom_calcul="incr";
-        temps->nb_step = 1;
-        temps->time_step.resize(temps->nb_step);
-        temps->nbpastemps=temps->nb_step;
-        for(unsigned i_step=0;i_step<temps->nb_step;i_step++){
-            temps->time_step[i_step].dt=1;
-            temps->time_step[i_step].t_ini=0;
-            temps->time_step[i_step].t_fin=0;
-            temps->time_step[i_step].nb_time_step=1;
-        }
-        
-    }else if(temps->type_de_calcul=="Qstat") {
         if (rank==0) std::cout << "************************" << std::endl;
         if (rank==0) std::cout << "     QUASISTATIQUE      " << std::endl;
         if (rank==0) std::cout << "************************" << std::endl;
-        nom_calcul="incr";
-        temps->nb_step = data_user.time_step.size();
-        temps->time_step.resize(temps->nb_step);
-        temps->nbpastemps= 0;
-        for(unsigned i_step=0;i_step<temps->nb_step;i_step++){
-            temps->time_step[i_step].dt = data_user.time_step[i_step].dt;
-            temps->time_step[i_step].t_ini = data_user.time_step[i_step].ti;
-            temps->time_step[i_step].t_fin = data_user.time_step[i_step].tf;
-            temps->time_step[i_step].nb_time_step = data_user.time_step[i_step].nb_time_step;
-            temps->nbpastemps += temps->time_step[i_step].nb_time_step;
-        }
     }
+    nom_calcul = "incr";
 };
 
 

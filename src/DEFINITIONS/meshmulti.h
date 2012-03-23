@@ -11,15 +11,15 @@
 //
 #ifndef MESHMULTI_H
 #define MESHMULTI_H
-#include "create_new_elem_p.h"
+#include "../MAILLAGE/create_new_elem_p.h"
 #include <ext/hash_map>
 
-#include "mesh/read_avs.h"
-#include "mesh/read_geof.h"
+#include "../../LMT/include/mesh/read_avs.h"
+#include "../../LMT/include/mesh/read_geof.h"
 
-#include "GeometryUser.h"
-#include "DataUser.h"
-#include "codegen/codegen.h"
+#include "../GEOMETRY/GeometryUser.h"
+#include "../COMPUTE/DataUser.h"
+#include "../../LMT/include/codegen/codegen.h"
 #include <boost/concept_check.hpp>
 
 using namespace LMT;
@@ -227,7 +227,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
 */
 struct assigne_f_vol_e {
     template<class TE,class TM>
-    void operator() (TE &e, TM &m, Vec<std::string> force_volumique, DataUser &data_user) const {
+    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, DataUser &data_user) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
         Pvec G = center(e);
@@ -245,7 +245,7 @@ struct assigne_f_vol_e {
         if(data_user.options.Multiresolution_on==1){
             //ajout des variables de multiresolution aux symboles
             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-                String var="V"; var<<i_par; //nom de la variable de multiresolution
+                Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
                 symbols.push_back(var.c_str());
             }
         }
@@ -293,18 +293,18 @@ template<class Carac>
 struct Meshmulti {
     typedef LMT::Mesh<Carac> TM;//type de maillage utilsé pour les sous-structures
     TM *m;//pointeur du maillage
-    std::string name;//nom du maillage a lire
-    std::string sousintegration;//type de sousintegration
+    Sc2String name;//nom du maillage a lire
+    Sc2String sousintegration;//type de sousintegration
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
     //Vec<double,Carac::dim> f_vol;//champs de force volumique
-    //Vec<string,Carac::dim> f_vol_e;//champs de force volumique par element
+    //Vec<Sc2String,Carac::dim> f_vol_e;//champs de force volumique par element
     //double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
     //double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
     //bool effet_retard;
     //Vec<double,Carac::dim> v1,v2;
-    std::string type_formulation;
+    Sc2String type_formulation;
     
     //ajout pour les données venant de SC_create_2
     int id_sst;
@@ -355,7 +355,7 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e(Vec<std::string,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
+    void load_f_vol_e(Vec<Sc2String,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
     }
     //    

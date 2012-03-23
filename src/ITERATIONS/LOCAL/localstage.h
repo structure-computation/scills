@@ -1,3 +1,5 @@
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
 #include "comportements_interfaces.h"
 
 /** \defgroup etape_locale Etape locale
@@ -28,8 +30,7 @@ Selon le type d'interface on appelle la procédure correspondante :
 Il suffit donc de rajouter un comportement dans cette procédure et programmer la fonction correspondante pour ajouter un comportement d'interface.
 */
 struct etape_locale_inter {
-    template<class INTER>
-    void operator()(INTER &Inter,Param &process) const {
+    void operator()(Interface &Inter,Param &process) const {
 //         std::cout << Inter.type << std::endl;
 //         std::cout << Inter.comp << std::endl;
         if (Inter.type=="Ext") {
@@ -76,8 +77,7 @@ struct etape_locale_inter {
 \brief Etape locale pour les sous-structures.
 */
 struct etape_locale_sst {
-    template<class SST>
-    void operator()(SST &S) const {
+    void operator()(Sst &S) const {
 #ifdef FORMUENDO
         if (S.f->get_name()=="elasticity_orthotropy_damage_stat_Qstat")
             compt_sst_damage(S);
@@ -91,8 +91,7 @@ struct etape_locale_sst {
 /** \ingroup  etape_locale
 \brief Procédure principale pour l'étape locale
 */
-template<class TV2,class TV1>
-void etape_locale(TV2 &Inter,TV1 &S,Param &process) {
+void etape_locale(Vec<VecPointedValues<Interface > > &Inter,Vec<VecPointedValues<Sst > > &S,Param &process) {
     apply(Inter,etape_locale_inter(),process);
 //     apply(S,etape_locale_sst());
 };

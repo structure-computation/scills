@@ -1,19 +1,24 @@
 #ifndef CREATE_SST_INTER
 #define CREATE_SST_INTER
 
-#include<fstream>
-#include <sstream>
-#include "mesh/read_avs.h"
-#include "mesh/read_geof.h"
-#include "mesh/write_avs.h"
-#include "mesh/read_mshadv.h"
-#include "containers/algo.h"
-#include <map>
-#include "containers/vecpointedvalues.h"
-#include "find_entity.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/Glob.h"
+#include "../DEFINITIONS/Boundary.h"
+#include "../DEFINITIONS/Param.h"
 
-#include "GeometryUser.h"
-#include "DataUser.h"
+#include <fstream>
+#include <sstream>
+#include "../../LMT/include/mesh/read_avs.h"
+#include "../../LMT/include/mesh/read_geof.h"
+#include "../../LMT/include/mesh/write_avs.h"
+#include "../../LMT/include/mesh/read_mshadv.h"
+#include "../../LMT/include/containers/algo.h"
+#include <map>
+#include "../../LMT/include/containers/vecpointedvalues.h"
+
+#include "../GEOMETRY/GeometryUser.h"
+#include "../COMPUTE/DataUser.h"
 using namespace Metil;
 // #include "definition_PARAM_AFFICHAGE.h"
 // #include "affichage_mesh_SST.h"
@@ -30,7 +35,6 @@ extern "C" {
 }
 
 using namespace LMT;
-using namespace std;
 
 /** \defgroup Maillage_geometrie_sst Géométrie et maillage des Sous-structures
 \ingroup Maillage_geometrie
@@ -110,7 +114,7 @@ Le maillage de l'interface est obtenu par la lecture de geometry_user issue de S
 
 void read_mesh_interface_geometry_user(Sst::TMESH::TM &mesh, GeometryUser &geometry_user, int num_inter) throw(std::runtime_error);
 
-void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param process);
+void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param &process);
 
 /** \ingroup Maillage_geometrie_inter
 \brief Création des interfaces contenues dans une condition aux limites donnée
@@ -151,13 +155,14 @@ On construit ici le vecteur des sous-structures et des interfaces à partir des i
 #endif 
 #include "containers/evaluate_nb_cycles.h"
 
-void create_SST_INTER(DataUser &data_user, 
-                      GeometryUser &geometry_user, 
-                      Vec<Sst> &S,Vec<Interface> &Inter, 
-                      Vec<Boundary> &CL, 
-                      Param &process, 
-                      Vec<VecPointedValues<Sst> > &Stot,
-                      Vec<VecPointedValues<Sst> > &SubS,
+void create_SST_INTER(DataUser                          &data_user, 
+                      GeometryUser                      &geometry_user, 
+                      Vec<Sst>                          &S,
+                      Vec<Interface>                    &Inter, 
+                      Vec<Boundary>                     &CL, 
+                      Param                             &process, 
+                      Vec<VecPointedValues<Sst> >       &Stot,
+                      Vec<VecPointedValues<Sst> >       &SubS,
                       Vec<VecPointedValues<Interface> > &SubI);
 
 

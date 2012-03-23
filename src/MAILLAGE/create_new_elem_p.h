@@ -1,11 +1,11 @@
 #ifndef CREATE_NEW_ELEM_P_H
 #define CREATE_NEW_ELEM_P_H
-#include "mesh/tetra.h"
-#include "mesh/tetra_10.h"
-#include "mesh/wedge.h"
-#include "mesh/wedge_15.h"
-#include "mesh/hexa.h"
-#include "mesh/hexa_20.h"
+#include "../../LMT/include/mesh/tetra.h"
+#include "../../LMT/include/mesh/tetra_10.h"
+#include "../../LMT/include/mesh/wedge.h"
+#include "../../LMT/include/mesh/wedge_15.h"
+#include "../../LMT/include/mesh/hexa.h"
+#include "../../LMT/include/mesh/hexa_20.h"
 
 namespace LMT{
 ///Fonction generique

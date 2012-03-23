@@ -1,11 +1,12 @@
+#include "../../DEFINITIONS/definition_PARAM_COMP_INTER.h"
+
 
 //interface exterieure de type deplacement impose pour tous les ddls
 /** \ingroup  etape_locale
 \relates etape_locale_inter
 \brief Procédure pour les interfaces extérieures à déplacement imposé (ou vitesse)
 */
-template<class INTER>
-void compt_CL_depl (INTER &Inter,int &imic) {
+void compt_CL_depl (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + Inter.side[0].kglo*(Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp);
 }
 
@@ -14,8 +15,7 @@ void compt_CL_depl (INTER &Inter,int &imic) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces extérieures à effort imposé
 */
-template<class INTER>
-void compt_CL_eff (INTER &Inter,int &imic) {
+void compt_CL_eff (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Wpchap=Inter.side[0].t[imic].Wp+Inter.side[0].hglo*(Inter.side[0].t[imic].Fchap - Inter.side[0].t[imic].F);
 }
 
@@ -24,8 +24,7 @@ void compt_CL_eff (INTER &Inter,int &imic) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces extérieures de type symétrie ou ayant seulement le déplacement normal donné (ou vitesse)
 */
-template<class INTER>
-void compt_CL_sym (INTER &Inter,int &imic) {
+void compt_CL_sym (Interface &Inter,int &imic) {
     Vec<TYPEREEL> &WWchap1=Inter.side[0].t[imic].Wpchap;
     Vec<TYPEREEL> &QQchap1=Inter.side[0].t[imic].Fchap;
     const Vec<TYPEREEL> &Q1=Inter.side[0].t[imic].F;
@@ -72,8 +71,7 @@ struct Kloc{
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures parfaites
 */
-template<class INTER>
-void compt_parfait (INTER &Inter,int &imic) {
+void compt_parfait (Interface &Inter,int &imic) {
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
     Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
     Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
@@ -140,8 +138,7 @@ void compt_parfait (INTER &Inter,int &imic) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type jeu imposé
 */
-template<class INTER>
-void compt_jeu_impose (INTER &Inter,TEMPS &temps) {
+void compt_jeu_impose (Interface &Inter,TEMPS &temps) {
     int imic = temps.pt;
     unsigned pt_cur=temps.pt_cur;
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
@@ -262,8 +259,7 @@ struct apply_type_elem{
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type contact avec frottement, avec jeu ou non
 */
-template<class INTER>
-void compt_contact (INTER &Inter,TEMPS &temps) {
+void compt_contact (Interface &Inter,TEMPS &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -407,8 +403,7 @@ void compt_contact (INTER &Inter,TEMPS &temps) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type defaut de forme
 */
-template<class INTER>
-void compt_contact_ep (INTER &Inter,TEMPS &temps) {
+void compt_contact_ep (Interface &Inter,TEMPS &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -537,8 +532,7 @@ void compt_contact_ep (INTER &Inter,TEMPS &temps) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type parfait cassable
 */
-template<class INTER>
-void compt_breakable (INTER &Inter,TEMPS &temps) {
+void compt_breakable (Interface &Inter,TEMPS &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -700,8 +694,7 @@ struct assign_d_mesh {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type cohésif
 */
-template<class INTER>
-void compt_cohesif (INTER &Inter,TEMPS &temps) {
+void compt_cohesif (Interface &Inter,TEMPS &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -730,7 +723,7 @@ void compt_cohesif (INTER &Inter,TEMPS &temps) {
 
     double eps=1e-3;
 
-    typename INTER::PARAM_COMP::PARAM_DAMAGE damage=Inter.param_comp->param_damage;
+    PARAM_DAMAGE_INTER damage=Inter.param_comp->param_damage;
 
     // parametres de direction de recherche
     TYPEREEL h1n=Inter.side[0].hn;

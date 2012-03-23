@@ -16,7 +16,7 @@
 #include "implicitgeometry/shapedeclaration.h"
 #include "containers/algo.h"
 
-#include <string>
+#include "../UTILS/Sc2String.h"
 #include <fstream>
 #include <sstream>
 
@@ -37,10 +37,10 @@ public:
     ~DisplayParaview() {
     }
     
-    template<class TM> void add_mesh(const TM &m,const std::string &prefix="tmp/paraview",const Vec<std::string> &display_fields=Vec<std::string>("all")) {
+    template<class TM> void add_mesh(const TM &m,const Sc2String &prefix="tmp/paraview",const Vec<Sc2String> &display_fields=Vec<Sc2String>("all")) {
         std::ostringstream ss;
         ss << prefix << pvu_files.size() << ".vtu";
-        std::string pvu_name( ss.str() );
+        Sc2String pvu_name( ss.str() );
         pvu_files.push_back(pvu_name);
         std::ofstream f(pvu_name.c_str());
         
@@ -51,7 +51,7 @@ public:
         if ( m.node_list.size() )
             app_xminmax(xmi,xma);
     }
-    template<class TS> void add_shape(const Shape<2,TS> &shape,unsigned grid_size,const std::string &prefix="tmp/paraview") {
+    template<class TS> void add_shape(const Shape<2,TS> &shape,unsigned grid_size,const Sc2String &prefix="tmp/paraview") {
         typedef typename Shape<2,TS>::Pvec Pvec;
         typedef typename Shape<2,TS>::TPen TPen;
         Pvec tdim_min,tdim_max;
@@ -70,7 +70,7 @@ public:
         
         std::ostringstream ss;
         ss << prefix << vti_files.size() << ".vti";
-        std::string vti_name( ss.str() );
+        Sc2String vti_name( ss.str() );
         vti_files.push_back(vti_name);
         std::ofstream f(vti_name.c_str());
         
@@ -99,12 +99,12 @@ public:
         f << "  </ImageData>" << std::endl;
         f << "</VTKFile>" << std::endl;
     }
-    void set_field_to_display(const std::string &name,TypeField type) {
+    void set_field_to_display(const Sc2String &name,TypeField type) {
         field_to_display = name;
         type_field_to_display = type;
     }
-    void exec(bool all_mesh=true,const std::string &prefix="tmp/paraview") {
-        std::string tmp_file = prefix + ".pvs";
+    void exec(bool all_mesh=true,const Sc2String &prefix="tmp/paraview") {
+        Sc2String tmp_file = prefix + ".pvs";
         std::ofstream pvs( tmp_file.c_str() );
         pvs << "" << std::endl;
         pvs << "# ParaView State Version 1.8" << std::endl;
@@ -189,9 +189,9 @@ private:
         }
     }
 
-    Vec<std::string> pvu_files;
-    Vec<std::string> vti_files;
-    std::string field_to_display;
+    Vec<Sc2String> pvu_files;
+    Vec<Sc2String> vti_files;
+    Sc2String field_to_display;
     TypeField type_field_to_display;
     Vec<double,3> background_color;
     Vec<double,3> xmin,xmax;

@@ -1,17 +1,17 @@
 /** \ingroup   calcul_erreur
-\brief Calcul d'une erreur en determinant l'energie par interface : 
- 
-En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcul les termes suivants :
-- numérateur : \f$ (\int_{\Gamma} F*\dot{W} - Fchap*\dot{\hat{W}} )^2  \f$ en quasistatique
-- dénominateur : \f$ (\int_{\Gamma} F*\dot{W} + Fchap*\dot{\hat{W}} )^2 \f$ en quasistatique
-que l'on somme au numérateur et dénominateur précédents.
-*/
+ * \brief Calcul d'une erreur en determinant l'energie par interface : 
+ * 
+ * En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcul les termes suivants :
+ * - numÃ©rateur : \f$ (\int_{\Gamma} F*\dot{W} - Fchap*\dot{\hat{W}} )^2  \f$ en quasistatique
+ * - dÃ©nominateur : \f$ (\int_{\Gamma} F*\dot{W} + Fchap*\dot{\hat{W}} )^2 \f$ en quasistatique
+ * que l'on somme au numÃ©rateur et dÃ©nominateur prÃ©cÃ©dents.
+ */
 struct calcerror_ener {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         unsigned data,q;
-
+        
         unsigned imic = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
@@ -28,17 +28,17 @@ struct calcerror_ener {
 };
 
 /** \ingroup   calcul_erreur
-\brief Calcul d'une erreur en résidu sur le déplacement (ou vitesses) des interfaces : 
- 
-En bouclant sur les cotes des sous-structures, on calcule les termes suivants :
-- \f$ \Vert \int_{\Gamma} \hat{Wp} - \dot{Wp}) \Vert_2  \f$ 
-*/
+ * \brief Calcul d'une erreur en rÃ©sidu sur le dÃ©placement (ou vitesses) des interfaces : 
+ * 
+ * En bouclant sur les cotes des sous-structures, on calcule les termes suivants :
+ * - \f$ \Vert \int_{\Gamma} \hat{Wp} - \dot{Wp}) \Vert_2  \f$ 
+ */
 struct calcerror_residu_depl_post {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         unsigned data,q;
-
+        
         unsigned imic = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
@@ -55,9 +55,9 @@ struct calcerror_residu_depl_post {
 struct calcerror_residu_depl {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         unsigned data,q;
-
+        
         unsigned imic = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
@@ -73,24 +73,24 @@ struct calcerror_residu_depl {
 };
 
 /** \ingroup   calcul_erreur
-\brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur les directions de recherche
- 
-En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcule les termes suivants :
-- numérateur : \f$ \int_{\Gamma} h(F-\hat{F})^2 + k(\dot{W} - \dot{\hat{W}})^2  \f$ en quasistatique
-- dénominateur : \f$ \int_{\Gamma} h(F+\hat{F})^2 + k(\dot{W} + \dot{\hat{W}})^2  \f$ en quasistatique
-que l'on somme au numérateur et dénominateur précédents.
-*/
+ * \brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur les directions de recherche
+ * 
+ * En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcule les termes suivants :
+ * - numÃ©rateur : \f$ \int_{\Gamma} h(F-\hat{F})^2 + k(\dot{W} - \dot{\hat{W}})^2  \f$ en quasistatique
+ * - dÃ©nominateur : \f$ \int_{\Gamma} h(F+\hat{F})^2 + k(\dot{W} + \dot{\hat{W}})^2  \f$ en quasistatique
+ * que l'on somme au numÃ©rateur et dÃ©nominateur prÃ©cÃ©dents.
+ */
 struct calcerror_ddr {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
         errW.set(0.0);
-
+        
         unsigned data,q;
         unsigned imic = process.temps->pt;
-
+        
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
@@ -116,29 +116,29 @@ struct calcerror_ddr {
         frac[0]+=errF[0]+errW[0];
         frac[1]+=errF[1]+errW[1];
     }
-
+    
 };
 
 /** \ingroup   calcul_erreur
-\brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur les directions de recherche
- 
-En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcule les termes suivants :
-- numérateur : \f$ \int_{\Gamma} h(F-\hat{F})^2 + k(\dot{W} - \dot{\hat{W}})^2  \f$ en quasistatique
-- dénominateur : \f$ \int_{\Gamma} h(F+\hat{F})^2 + k(\dot{W} + \dot{\hat{W}})^2  \f$ en quasistatique
-que l'on somme au numérateur et dénominateur précédents.
-*/
+ * \brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur les directions de recherche
+ * 
+ * En bouclant sur les sous-structures et sur les interfaces entourant chaque sous-structure, on calcule les termes suivants :
+ * - numÃ©rateur : \f$ \int_{\Gamma} h(F-\hat{F})^2 + k(\dot{W} - \dot{\hat{W}})^2  \f$ en quasistatique
+ * - dÃ©nominateur : \f$ \int_{\Gamma} h(F+\hat{F})^2 + k(\dot{W} + \dot{\hat{W}})^2  \f$ en quasistatique
+ * que l'on somme au numÃ©rateur et dÃ©nominateur prÃ©cÃ©dents.
+ */
 struct calcerror_ddr_post {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
         errW.set(0.0);
-
+        
         unsigned data,q;
         unsigned imic = process.temps->pt;
-
-
+        
+        
         for(unsigned j=0;j<S.edge.size();++j) {
             q=S.edge[j].internum;
             data=S.edge[j].datanum;
@@ -161,23 +161,23 @@ struct calcerror_ddr_post {
         frac[0]+=errF[0]+errW[0];
         frac[1]+=errF[1]+errW[1];
     }
-
+    
 };
 
 
 
 
 /** \ingroup   calcul_erreur
-\brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur la dissipation
- 
-On calcule l'energie dissipee sur les interfaces de contact a partir des quantites chapeaux et des quantites n, puis on effectue l erreur relation entre les dissipations
-*/
+ * \brief Calcul d'un indicateur d'erreur entre les solutions \f$ \mathbf{s} \f$ et \f$ \mathbf{\hat{s}} \f$ avec une norme sur la dissipation
+ * 
+ * On calcule l'energie dissipee sur les interfaces de contact a partir des quantites chapeaux et des quantites n, puis on effectue l erreur relation entre les dissipations
+ */
 struct calcerror_dissi {
     template<class SST, class TV2>
     void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+        
         unsigned data,q;
-
+        
         for(unsigned i=0;i<S.edge.size();++i) {
             q=S.edge[i].internum;
             data=S.edge[i].datanum;
@@ -186,9 +186,9 @@ struct calcerror_dissi {
             if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<process.temps->nbpastemps ;j++ ) {
                     temp1+=process.temps->dt*(
-                                 dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wpchap)));
+                        dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wpchap)));
                     temp2+=process.temps->dt*(
-                                 dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].F)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].F))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wp)));
+                        dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].F)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].F))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wp)));
                 }
                 frac[0]+=temp1;
                 frac[2+q]+=temp1-temp2;
@@ -199,27 +199,27 @@ struct calcerror_dissi {
 };
 
 struct calcerror_dissi_post {
-  template<class SST, class TV2>
-  void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
-
+    template<class SST, class TV2>
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+        
         unsigned data,q;
-
+        
         for(unsigned i=0;i<S.edge.size();++i) {
-          q=S.edge[i].internum;
-          data=S.edge[i].datanum;
-          double temp1=0;
-          double temp2=0;
-          if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
-            for(unsigned j=0 ;j<(unsigned)process.temps->pt_cur ;j++ ) {
-            temp1+=process.temps->dt*(
-                dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wpchap)));
-            temp2+=process.temps->dt*(
-                dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].F)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].F))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wp)));
+            q=S.edge[i].internum;
+            data=S.edge[i].datanum;
+            double temp1=0;
+            double temp2=0;
+            if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
+                for(unsigned j=0 ;j<(unsigned)process.temps->pt_cur ;j++ ) {
+                    temp1+=process.temps->dt*(
+                        dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wpchap)));
+                    temp2+=process.temps->dt*(
+                        dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].F)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].F))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wp)));
+                }
+                frac[0]+=temp1;
+                frac[2+q]+=temp1-temp2;
+                frac[1]+=temp2;
             }
-            frac[0]+=temp1;
-            frac[2+q]+=temp1-temp2;
-            frac[1]+=temp2;
-          }
         }
-      }
+    }
 };

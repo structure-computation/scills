@@ -15,13 +15,13 @@ using namespace std;
 #include "definition_INTER.h"
 #include "definition_PARAM_MICRO_INTER.h"
 #include "Param.h"
-#include "definition_PARAM_STRUCTURE.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_LATIN.h"
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_PARAM_TEMPS.h"
-#include "definition_materials_property.h"
-#include "definition_GLOB.h"
+#include "STRUCTURE.h"
+#include "MULTI.h"
+#include "LATIN.h"
+#include "AFFICHAGE.h"
+#include "TEMPS.h"
+#include "SstCarac_InterCarac.h"
+#include "Glob.h"
 #include "Boundary.h"
 #include "definition_fcts.h"
 
@@ -89,7 +89,7 @@ void calcul_cohesif(const XmlNode &n,Vec<Sst<DIMENSION,TYPEREEL> > &S, Vec<Inter
       allocate_quantities(S,Inter,process,Global);
 
 ofstream file_sort;
-string nom_sortie="endosortie";
+Sc2String nom_sortie="endosortie";
 file_sort.open(nom_sortie.c_str(),ofstream::out );
       for(unsigned pt=1;pt<=process.temps->nbpastemps;++pt)
       {

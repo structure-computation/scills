@@ -11,13 +11,12 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "definition_PARAM_MPI.h"
-#include "calculate_measure_G_SST.h"
+#include "../DEFINITIONS/MULTI_MPI.h"
+#include "../MAILLAGE/calculate_measure_G_SST.h"
 #include "mpi_lmt_functions.h"
 #include <fstream>
 #include "crout.h"
-#include "GeometryUser.h"
-#include "../../../SC_code/src/GEOMETRY/GeometryUser.h"
+#include "../GEOMETRY/GeometryUser.h"
 
 extern "C" {
     // #include "metis.h"
@@ -25,7 +24,6 @@ extern "C" {
     void METIS_PartGraphRecursive(int *, int *, int *, int *, int *, int *, int *, int *, int *, int *, int *);
 }
 
-using namespace std;
 using namespace LMT;
 
 
@@ -44,14 +42,14 @@ template <class TS,class TI, class TP, class T1, class T2>
 void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, GeometryUser &geometry_user) {
     ///Lecture du fichier de repartion et creation des vecteurs de pointeurs de SST
     if (process.size>1) {//il s agit de creer un vecteur de vecteur qui donnera le numero des SST a parcourir par processeur
-        string namein=process.structure->repertoire_des_maillages;
-        string namempi="mpi_repartition";
+        Sc2String namein=process.structure->repertoire_des_maillages;
+        Sc2String namempi="mpi_repartition";
         namein.append(namempi);
         std::ifstream f(namein.data());
         if (f) {//lecture du fichier mpi_repartition s il existe
             process.multi_mpi->repartition_sst.resize(process.size);
             for( int i=1 ;i<process.size ; i++) {
-                string str;
+                Sc2String str;
                 getline(f,str);
                 istringstream s(str);
                 s >> process.multi_mpi->repartition_sst[i];
@@ -320,10 +318,10 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     //     typedef typename TS::template SubType<0>::T::TMESH TM;
     //     const char *names[TM::TNode::nb_params+(TM::TNode::nb_params==0)];
     //     DM::get_names<typename TM::TNode>( names );
-    //     Vec<string> display_fields_temp,display_fields=process.affichage->display_fields;
+    //     Vec<Sc2String> display_fields_temp,display_fields=process.affichage->display_fields;
     //     for(unsigned i=0;i<TM::TNode::nb_params;++i)
-    //       if ( std::find(display_fields.begin(),display_fields.end(),std::string(names[i]))!=display_fields.end())
-    //         display_fields_temp.push_back(std::string(names[i]));
+    //       if ( std::find(display_fields.begin(),display_fields.end(),Sc2String(names[i]))!=display_fields.end())
+    //         display_fields_temp.push_back(Sc2String(names[i]));
     //
     //     Data_vtk_extract_elem<true> dve;
     //     S[0].mesh.elem_list.apply_static(dve);
@@ -338,10 +336,10 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     //       typedef typename TS::template SubType<0>::T::TMESH::TSkin TM;
     //       const char *names[TM::TNode::nb_params+(TM::TNode::nb_params==0)];
     //       DM::get_names<typename TM::TNode>( names );
-    //       Vec<string> display_fields_temp,display_fields=process.affichage->display_fields;
+    //       Vec<Sc2String> display_fields_temp,display_fields=process.affichage->display_fields;
     //       for(unsigned i=0;i<TM::TNode::nb_params;++i)
-    //         if ( std::find(display_fields.begin(),display_fields.end(),std::string(names[i]))!=display_fields.end())
-    //           display_fields_temp.push_back(std::string(names[i]));
+    //         if ( std::find(display_fields.begin(),display_fields.end(),Sc2String(names[i]))!=display_fields.end())
+    //           display_fields_temp.push_back(Sc2String(names[i]));
     //
     //       Data_vtk_extract_elem<true> dve;
     //       S[0].mesh.skin.elem_list.apply_static(dve);
@@ -357,16 +355,16 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     //     typedef typename TI::template SubType<0>::T::TMESH TM1;
     //     const char *names1[TM1::TNode::nb_params+(TM1::TNode::nb_params==0)];
     //     DM::get_names<typename TM1::TNode>( names1 );
-    //     Vec<string> display_fields_temp;
+    //     Vec<Sc2String> display_fields_temp;
     //     unsigned nb_comp[TM1::TNode::nb_params+(TM1::TNode::nb_params==0)];
     //     DM::get_nb_comp<typename TM1::TNode>( nb_comp );
     //     for(unsigned i=0;i<TM1::TNode::nb_params;++i)
     //       if ( names1[i]!="pos" and nb_comp[i] )
-    //         display_fields_temp.push_back(std::string(names1[i]));
+    //         display_fields_temp.push_back(Sc2String(names1[i]));
     //
     //     Data_vtk_extract_elem<true> dve1;
     //     Inter[0].side[0].mesh.elem_list.apply_static(dve1);
-    //     Vec<string> display_fields1("all");
+    //     Vec<Sc2String> display_fields1("all");
     //     apply( Inter[0].side[0].mesh.elem_list, dve1, display_fields1 );
     //     for(typename Data_vtk_extract_elem<true>::Map::const_iterator iter=dve1.mapd.begin();iter!=dve1.mapd.end();++iter)
     //       if ( iter->second.nb_comp )

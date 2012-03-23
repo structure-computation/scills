@@ -32,7 +32,7 @@ template<class MICRO> void read_micro(MICRO &parammicro,const XmlNode &n){
    propinter[i].boxparammicro.boxdegrad[1]=box[range(DIM,(unsigned)(2*DIM))];
    np.get_attribute("nbinterdeg",parammicro.nbinterdeg);
    np.get_attribute("nb_inter_casse_ini",parammicro.nb_inter_casse_ini);
-//    string type_chargement;
+//    Sc2String type_chargement;
 //    np.get_attribute("type_chargement",type_chargement);
 //    if (type_chargement=="effort")
 //       parammicro.signG=1;

@@ -423,8 +423,8 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Param &process, int
 
 
 ///Ecriture des champs créés lors de la géométrie sur les elements des SST
-template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, String name_list){
-    String name_field = name_list + "/num_proc";
+template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, Sc2String name_list){
+    Sc2String name_field = name_list + "/num_proc";
     S.num_processor.write_to(hdf_file,name_field);
     name_field = name_list + "/material";
     S.material.write_to(hdf_file,name_field);        
@@ -432,8 +432,8 @@ template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, Stri
     S.num_group.write_to(hdf_file,name_field);    
 }
 ///Ecriture des champs créés lors de la géométrie sur les elements des INTERFACES
-template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, String name_list){
-    String name_field = name_list + "/number";
+template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, Sc2String name_list){
+    Sc2String name_field = name_list + "/number";
     S.number.write_to(hdf_file,name_field);
     name_field = name_list + "/nature";
     S.nature.write_to(hdf_file,name_field);        
@@ -442,17 +442,17 @@ template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, St
 /*
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST>
-void save_elements_hdf_sst(TSST &S, Param &process, Hdf &hdf_file, String name_geometry, String name_elements) {
-    String name_list ;
+void save_elements_hdf_sst(TSST &S, Param &process, Hdf &hdf_file, Sc2String name_geometry, Sc2String name_elements) {
+    Sc2String name_list ;
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element;i_connect++) {
-        String name_connect;
+        Sc2String name_connect;
         name_connect << name_list << "/mesh_c"<<i_connect;
         S.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }
     save_data_on_elements_SST(S, hdf_file, name_list);
     
-    String type_elements;
+    Sc2String type_elements;
     int pattern_id=0;
 #if DIM == 2
     type_elements="Bar";
@@ -468,14 +468,14 @@ void save_elements_hdf_sst(TSST &S, Param &process, Hdf &hdf_file, String name_g
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST, class TI>
-void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, String name_geometry) {
-    String name_list ;
-    String name_elements;
+void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, Sc2String name_geometry) {
+    Sc2String name_list ;
+    Sc2String name_elements;
  
     name_elements="elements_0";
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst;i_connect++) {
-        String name_connect;
+        Sc2String name_connect;
         name_connect << name_list << "/local_connectivities_"<<i_connect;
         S.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }    
@@ -487,7 +487,7 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
     name_elements="elements_0_skin";
     name_list=name_geometry; name_list << "/"<< name_elements <<"/list_" << S.num ;
     for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst_skin;i_connect++) {
-        String name_connect;
+        Sc2String name_connect;
         name_connect << name_list << "/local_connectivities_"<<i_connect;
         S.mesh_connectivities_skin[i_connect].write_to( hdf_file, name_connect );
     }    
@@ -504,7 +504,7 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
             name_list=name_geometry; name_list << "/"<< name_elements <<"/list_" << q ;
             if(data==0){
                 for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element_sst_skin;i_connect++) {
-                    String name_connect;
+                    Sc2String name_connect;
                     name_connect << name_list << "/local_connectivities_"<<i_connect;
                     I[q].mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
                 }
@@ -521,17 +521,17 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TI>
-void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, String name_geometry, String name_elements) {
-    String name_list ;
+void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, Sc2String name_geometry, Sc2String name_elements) {
+    Sc2String name_list ;
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << I.num ;
     for (unsigned i_connect=0;i_connect<I.nb_nodes_by_element;i_connect++) {
-        String name_connect;
+        Sc2String name_connect;
         name_connect << name_list << "/mesh_c"<<i_connect;
         I.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
     }
     save_data_on_elements_INTER(I, hdf_file, name_list);
     
-    String type_elements;
+    Sc2String type_elements;
     int pattern_id=0;
 #if DIM == 2
     type_elements="Bar";
@@ -617,85 +617,85 @@ void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Param &process ) {
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST>
-void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , String name_group_fields) {
-    String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
-    String name_sigma, name_epsilon ;
+void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , Sc2String name_group_fields) {
+    Sc2String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
+    Sc2String name_sigma, name_epsilon ;
     name_sigma<< name_fields << "/sigma/list_" << S.num ;
     name_epsilon<< name_fields << "/epsilon/list_" << S.num ;
 #if DIM==2
-    BasicVec<String> tensor_comp= BasicVec<String>("/xx","/yy","/xy");
+    BasicVec<Sc2String> tensor_comp= BasicVec<Sc2String>("/xx","/yy","/xy");
 #else
-    BasicVec<String> tensor_comp= BasicVec<String>("/xx","/yy","/zz","/xy","/xz","/yz");        
+    BasicVec<Sc2String> tensor_comp= BasicVec<Sc2String>("/xx","/yy","/zz","/xy","/xz","/yz");        
 #endif
     for(unsigned i_comp=0;i_comp<tensor_comp.size();i_comp++){
-        String name_sigma_field, name_epsilon_field;
+        Sc2String name_sigma_field, name_epsilon_field;
         name_sigma_field=name_sigma+tensor_comp[i_comp];
         name_epsilon_field=name_epsilon+tensor_comp[i_comp];
         S.sigma[i_comp].write_to(hdf,name_sigma_field.c_str());
         S.epsilon[i_comp].write_to(hdf,name_epsilon_field.c_str());
     }
-    String name_sigma_mises;
+    Sc2String name_sigma_mises;
     name_sigma_mises <<name_fields<<"/sigma_von_mises/list_" << S.num ;
     S.sigma_mises.write_to(hdf,name_sigma_mises.c_str());
 }
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST, class TINTER>
-void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Param &process, Hdf &hdf , String name_group_fields) {
-    String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
+void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Param &process, Hdf &hdf , Sc2String name_group_fields) {
+    Sc2String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
 #if DIM==2
-    BasicVec<String> tensor_comp= BasicVec<String>("/xx","/yy","/xy");
+    BasicVec<Sc2String> tensor_comp= BasicVec<Sc2String>("/xx","/yy","/xy");
 #else
-    BasicVec<String> tensor_comp= BasicVec<String>("/xx","/yy","/zz","/xy","/xz","/yz");        
+    BasicVec<Sc2String> tensor_comp= BasicVec<Sc2String>("/xx","/yy","/zz","/xy","/xz","/yz");        
 #endif
     //sauvegarde des champs des SST
-    String name_sigma, name_epsilon ;
+    Sc2String name_sigma, name_epsilon ;
     name_sigma<< name_fields << "/elements_0/sigma/list_" << S.num ;
     name_epsilon<< name_fields << "/elements_0/epsilon/list_" << S.num ;
     for(unsigned i_comp=0;i_comp<tensor_comp.size();i_comp++){
-        String name_sigma_field, name_epsilon_field;
+        Sc2String name_sigma_field, name_epsilon_field;
         name_sigma_field=name_sigma+tensor_comp[i_comp];
         name_epsilon_field=name_epsilon+tensor_comp[i_comp];
         S.sigma[i_comp].write_to(hdf,name_sigma_field.c_str());
         S.epsilon[i_comp].write_to(hdf,name_epsilon_field.c_str());
     }
-    String name_sigma_mises;
+    Sc2String name_sigma_mises;
     name_sigma_mises <<name_fields<<"/elements_0/sigma_von_mises/list_" << S.num ;
     S.sigma_mises.write_to(hdf,name_sigma_mises.c_str());
      //sauvegarde des champs de peau
-    String name_sigma_skin, name_epsilon_skin ;
+    Sc2String name_sigma_skin, name_epsilon_skin ;
     name_sigma_skin<< name_fields << "/elements_0_skin/sigma_skin/list_" << S.num ;
     name_epsilon_skin<< name_fields << "/elements_0_skin/epsilon_skin/list_" << S.num ;
     for(unsigned i_comp=0;i_comp<tensor_comp.size();i_comp++){
-        String name_sigma_field, name_epsilon_field;
+        Sc2String name_sigma_field, name_epsilon_field;
         name_sigma_field=name_sigma_skin+tensor_comp[i_comp];
         name_epsilon_field=name_epsilon_skin+tensor_comp[i_comp];
         S.sigma_skin[i_comp].write_to(hdf,name_sigma_field.c_str());
         S.epsilon_skin[i_comp].write_to(hdf,name_epsilon_field.c_str());
     }
-    String name_sigma_mises_skin;
+    Sc2String name_sigma_mises_skin;
     name_sigma_mises_skin <<name_fields<<"/elements_0_skin/sigma_von_mises_skin/list_" << S.num ;
     S.sigma_mises_skin.write_to(hdf,name_sigma_mises_skin.c_str());
       
     //sauvegarde des champs sur les interfaces
-    BasicVec<String> name_direction("x","y","z");
-    BasicVec<String> list_name_field("F","W","Fchap","Wchap");
+    BasicVec<Sc2String> name_direction("x","y","z");
+    BasicVec<Sc2String> list_name_field("F","W","Fchap","Wchap");
     for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
             unsigned data=S.edge[j].datanum;
-            String name_F; name_F<< name_fields << "/elements_1/F/list_" << q ;
-            String name_W; name_W<< name_fields << "/elements_1/W/list_" << q ;
-            String name_Fchap; name_Fchap<< name_fields << "/elements_1/Fchap/list_" << q ;
-            String name_Wchap; name_Wchap<< name_fields << "/elements_1/Wchap/list_" << q ;
+            Sc2String name_F; name_F<< name_fields << "/elements_1/F/list_" << q ;
+            Sc2String name_W; name_W<< name_fields << "/elements_1/W/list_" << q ;
+            Sc2String name_Fchap; name_Fchap<< name_fields << "/elements_1/Fchap/list_" << q ;
+            Sc2String name_Wchap; name_Wchap<< name_fields << "/elements_1/Wchap/list_" << q ;
             if(data==0){
                 for (unsigned d=0;d<DIM;d++) {
-                    String name_Fdim=name_F+"/"+name_direction[d]; 
+                    Sc2String name_Fdim=name_F+"/"+name_direction[d]; 
                     I[q].F[d].write_to(hdf,name_Fdim);
-                    String name_Wdim=name_W+"/"+name_direction[d]; 
+                    Sc2String name_Wdim=name_W+"/"+name_direction[d]; 
                     I[q].W[d].write_to(hdf,name_Wdim);
-                    String name_Fchapdim=name_Fchap+"/"+name_direction[d]; 
+                    Sc2String name_Fchapdim=name_Fchap+"/"+name_direction[d]; 
                     I[q].Fchap[d].write_to(hdf,name_Fchapdim);
-                    String name_Wchapdim=name_Wchap+"/"+name_direction[d]; 
+                    Sc2String name_Wchapdim=name_Wchap+"/"+name_direction[d]; 
                     I[q].Wchap[d].write_to(hdf,name_Wchapdim);
                 }
             }
@@ -717,18 +717,18 @@ void write_hdf_geometry_SST(TSST &SubS, Param &process ) {
     }
     //creation des donnees hdf et sauvegarde d'un fichier pour chaque processeur
     for(unsigned i=0;i<SubS.size();i++) create_hdf_geometry_data_SST(SubS[i],process,nb_previous_nodes[i]);
-    String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
-    if(FileExists(name_hdf.c_str())){ String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    if(FileExists(name_hdf.c_str())){ Sc2String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
     BasicVec<BasicVec<TYPE>,DIM> nodes;
-    BasicVec<String> name_direction("x","y","z");
+    BasicVec<Sc2String> name_direction("x","y","z");
     for(unsigned d=0;d<DIM;d++) {
         nodes[d].resize(nb_previous_nodes[SubS.size()]);
         for(unsigned i=0;i<SubS.size();i++) 
             for(unsigned j=0;j<SubS[i].nodes[d].size();j++)
                 nodes[d][j+nb_previous_nodes[i]]=SubS[i].nodes[d][j];
-        String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_0/" << name_direction[d];
+        Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_0/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
     //ecriture des elements et des champs aux elements créés lors de la géométrie
@@ -749,17 +749,17 @@ void write_hdf_geometry_INTER(TINTER &SubI, Param &process ) {
     }
     //creation des donnees hdf et sauvegarde d'un fichier pour chaque processeur
     for(unsigned i=0;i<SubI.size();i++) create_hdf_geometry_data_INTER(SubI[i],process,nb_previous_nodes[i]);
-    String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
     BasicVec<BasicVec<TYPE>,DIM> nodes;
-    BasicVec<String> name_direction("x","y","z");
+    BasicVec<Sc2String> name_direction("x","y","z");
     for(unsigned d=0;d<DIM;d++) {
         nodes[d].resize(nb_previous_nodes[SubI.size()]);
         for(unsigned i=0;i<SubI.size();i++) 
             for(unsigned j=0;j<SubI[i].nodes[d].size();j++)
                 nodes[d][j+nb_previous_nodes[i]]=SubI[i].nodes[d][j];
-        String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_1/" << name_direction[d];
+        Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_1/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
     //ecriture des elements et des champs aux elements créés lors de la géométrie
@@ -784,18 +784,18 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Param &process , Geomet
     for(unsigned i=0;i<SubS.size();i++) {
         create_hdf_geometry_data_SST_INTER(SubS[i],I, process,nb_previous_nodes[i]);
     }
-    String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
-    if(FileExists(name_hdf.c_str())){ String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    if(FileExists(name_hdf.c_str())){ Sc2String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
     BasicVec<BasicVec<TYPE>,DIM> nodes;
-    BasicVec<String> name_direction("x","y","z");
+    BasicVec<Sc2String> name_direction("x","y","z");
     for(unsigned d=0;d<DIM;d++) {
         nodes[d].resize(nb_previous_nodes[SubS.size()]);
         for(unsigned i=0;i<SubS.size();i++) 
             for(unsigned j=0;j<SubS[i].nodes[d].size();j++)
                 nodes[d][j+nb_previous_nodes[i]]=SubS[i].nodes[d][j];
-        String name_dim;  name_dim << process.affichage->name_geometry << "/nodes/" << name_direction[d];
+        Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/nodes/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
     //ecriture des elements et des champs aux elements créés lors de la géométrie
@@ -819,7 +819,7 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
         nb_previous_nodes.push_back(SubS[i].mesh->skin.node_list.size()+nb_previous_nodes[i]);
     }
     //ouverture d'un fichier pour chaque processeur
-    String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
     //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
@@ -829,14 +829,14 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
     
     //concatenation des noeuds et ecriture dans le hdf
     BasicVec<BasicVec<TYPE>, DIM> dep_nodes;
-    String name_displacements; name_displacements<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/displacements";
-    BasicVec<String> displacements_coor= BasicVec<String>("/x","/y","/z");
+    Sc2String name_displacements; name_displacements<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/displacements";
+    BasicVec<Sc2String> displacements_coor= BasicVec<Sc2String>("/x","/y","/z");
     for(unsigned d=0;d<DIM;d++) {
         dep_nodes[d].resize(nb_previous_nodes[SubS.size()]);
         for(unsigned i=0;i<SubS.size();i++) 
             for(unsigned j=0;j<SubS[i].nodes[d].size();j++)
                 dep_nodes[d][j+nb_previous_nodes[i]]=SubS[i].dep_nodes[d][j];
-        String name_displacement_coor; name_displacement_coor=name_displacements+displacements_coor[d];
+        Sc2String name_displacement_coor; name_displacement_coor=name_displacements+displacements_coor[d];
         dep_nodes[d].write_to(hdf_file,name_displacement_coor.c_str());
     }
 
@@ -844,7 +844,7 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
     for(unsigned i=0;i<SubS.size();i++) {
         save_fields_hdf_SST(SubS[i],process, hdf_file , process.affichage->name_fields);
     }
-    String name_fields ;
+    Sc2String name_fields ;
     name_fields<< process.affichage->name_fields <<"/pt_"<< process.temps->pt_cur ;
     int i_step=process.temps->step_cur;
     int i_pt=process.temps->time_step[i_step].pt_cur;
@@ -863,7 +863,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
         nb_previous_nodes.push_back(SubS[i].mesh->node_list.size()+nb_previous_nodes[i]);
     }
     //ouverture d'un fichier pour chaque processeur
-    String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
     //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
@@ -873,14 +873,14 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
     
     //concatenation des noeuds et ecriture dans le hdf
     BasicVec<BasicVec<TYPE>, DIM> dep_nodes;
-    String name_displacements; name_displacements<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/elements_0/displacements";
-    BasicVec<String> displacements_coor= BasicVec<String>("/x","/y","/z");
+    Sc2String name_displacements; name_displacements<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/elements_0/displacements";
+    BasicVec<Sc2String> displacements_coor= BasicVec<Sc2String>("/x","/y","/z");
     for(unsigned d=0;d<DIM;d++) {
         dep_nodes[d].resize(nb_previous_nodes[SubS.size()]);
         for(unsigned i=0;i<SubS.size();i++) 
             for(unsigned j=0;j<SubS[i].mesh->node_list.size();j++)
                 dep_nodes[d][j+nb_previous_nodes[i]]=SubS[i].dep_nodes[d][j];
-        String name_displacement_coor; name_displacement_coor=name_displacements+displacements_coor[d];
+        Sc2String name_displacement_coor; name_displacement_coor=name_displacements+displacements_coor[d];
         dep_nodes[d].write_to(hdf_file,name_displacement_coor.c_str());
     }
 
@@ -892,13 +892,13 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
     }
     //PRINT(nb_previous_nodes_skin);
     BasicVec<BasicVec<TYPE>, DIM> dep_nodes_skin;
-    String name_displacements_skin; name_displacements_skin<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/elements_0_skin/displacements_skin";
+    Sc2String name_displacements_skin; name_displacements_skin<< process.affichage->name_fields <<"/pt_"<<process.temps->pt_cur <<"/elements_0_skin/displacements_skin";
     for(unsigned d=0;d<DIM;d++) {
         dep_nodes_skin[d].resize(nb_previous_nodes_skin[SubS.size()]);
         for(unsigned i=0;i<SubS.size();i++) 
             for(unsigned j=0;j<SubS[i].mesh->skin.node_list.size();j++)
                 dep_nodes_skin[d][j+nb_previous_nodes_skin[i]]=SubS[i].dep_nodes_skin[d][j];
-        String name_displacement_coor; name_displacement_coor=name_displacements_skin+displacements_coor[d];
+        Sc2String name_displacement_coor; name_displacement_coor=name_displacements_skin+displacements_coor[d];
         dep_nodes_skin[d].write_to(hdf_file,name_displacement_coor.c_str());
     }
     
@@ -913,7 +913,7 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
     }
     
     
-    String name_fields ;
+    Sc2String name_fields ;
     name_fields<< process.affichage->name_fields <<"/pt_"<< process.temps->pt_cur ;
     int i_step=process.temps->step_cur;
     int i_pt=process.temps->time_step[i_step].pt_cur;
@@ -921,18 +921,18 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
     hdf_file.write_tag(name_fields,"time",val_time);
     
     int nb_comp_tensor=DIM*(DIM+1)/2, nb_comp_vector=DIM;
-    BasicVec< BasicVec<String>, 3 > list_name_field_elements;
+    BasicVec< BasicVec<Sc2String>, 3 > list_name_field_elements;
     BasicVec<BasicVec<int>, 3 > list_nb_comp;
-    list_name_field_elements[0]=BasicVec<String>("sigma","epsilon","sigma_von_mises");
+    list_name_field_elements[0]=BasicVec<Sc2String>("sigma","epsilon","sigma_von_mises");
     list_nb_comp[0]=BasicVec<int,3>(nb_comp_tensor,nb_comp_tensor,1);
-    list_name_field_elements[1]=BasicVec<String>("sigma_skin","epsilon_skin","sigma_von_mises_skin");
+    list_name_field_elements[1]=BasicVec<Sc2String>("sigma_skin","epsilon_skin","sigma_von_mises_skin");
     list_nb_comp[1]=BasicVec<int,3>(nb_comp_tensor,nb_comp_tensor,1);
-    list_name_field_elements[2]=BasicVec<String>("F","W","Fchap","Wchap");
+    list_name_field_elements[2]=BasicVec<Sc2String>("F","W","Fchap","Wchap");
     list_nb_comp[2]=BasicVec<int,3>(nb_comp_vector,nb_comp_vector,nb_comp_vector);
-    BasicVec<String,3> group_type("elements_0","elements_0_skin","elements_1");
+    BasicVec<Sc2String,3> group_type("elements_0","elements_0_skin","elements_1");
     for(int i=0;i<3;i++){
         for(int j=0;j<list_name_field_elements[i].size();j++){
-            String name_field=name_fields+"/"+group_type[i]+"/"+list_name_field_elements[i][j];
+            Sc2String name_field=name_fields+"/"+group_type[i]+"/"+list_name_field_elements[i][j];
             //PRINT(name_field);
             hdf_file.add_tag(name_field,"type","Elem");
             hdf_file.write_tag(name_field,"nb_comp",list_nb_comp[i][j]);

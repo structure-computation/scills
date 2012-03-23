@@ -19,9 +19,9 @@
 // fichiers de definition des variables
 #include "definition_PARAM_MICRO_INTER.h"
 #include "Param.h"
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
+#include "AFFICHAGE.h"
+#include "Sst.h"
+#include "Interface.h"
 
 
 /**

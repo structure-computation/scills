@@ -2,7 +2,6 @@
 #define AFFICH_MESH_INTER_H
 
 using namespace LMT;
-using namespace std;
 
 // Eclate des interfaces
 
@@ -63,15 +62,15 @@ Le numéro de l'interface est aussi assigné au champ "num"
 */
 template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &process) {
     
-    string typemail=process.affichage->type_affichage;    
-    string nom_generique = process.affichage->repertoire_save +"results/Geometry_inter";
+    Sc2String typemail=process.affichage->type_affichage;    
+    Sc2String nom_generique = process.affichage->repertoire_save +"results/Geometry_inter";
 
     int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"results").c_str());
 
     //ecriture fichier paraview generique 
     ostringstream sp;
     sp<<"./tmp/paraview_"<<process.rank<<"_";
-    string strp(sp.str());
+    Sc2String strp(sp.str());
     
     
     
@@ -116,14 +115,14 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &proce
     //modification du nom et deplacement du fichier generique
     ostringstream ss;
     ss<<nom_generique << "_proc_"<<process.rank<<".vtu";
-    string namefile(ss.str());
+    Sc2String namefile(ss.str());
     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 
 };
 
 
 // template<class INTER> void affich_INTER_endommagement(Vec<INTER> &Inter, Param &process) {
-//    string save = process.affichage->save;
+//    Sc2String save = process.affichage->save;
 //    for(unsigned q=0;q<Inter.size();++q){
 //       int type=0;
 //       if (Inter[q].type=="Ext" && Inter[q].comp=="depl"){type=0;}

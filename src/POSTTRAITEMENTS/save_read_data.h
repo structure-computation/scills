@@ -7,7 +7,7 @@
 L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
 */
 template<class TV2, class TV1>
-void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<string> &fields_to_save) {
+void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
     
     //nom du fichier de sauvegarde
@@ -16,7 +16,7 @@ void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<string> &fields_to_s
     ifstream is;
     std::ostringstream ss1;
     ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
-    string name(ss1.str());
+    Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
     os << process.size << std::endl;
@@ -91,12 +91,12 @@ void read_data_inter(TV2 &Inter, Param &process) {
     ifstream is;
     std::ostringstream ss1;
     ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
-    string name(ss1.str());
+    Sc2String name(ss1.str());
     is.open( name.c_str() );
 
 
     unsigned toutlire=1;
-    string str;
+    Sc2String str;
     if (is ) {
       getline(is,str);
       if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
@@ -115,7 +115,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
       std::ostringstream ss2;
       if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
       else ss2<<process.affichage->repertoire_save<<"save_inter_"<<i;
-      string name2(ss2.str());
+      Sc2String name2(ss2.str());
       is.open( name2.c_str() );
       getline(is,str);
 
@@ -127,41 +127,41 @@ void read_data_inter(TV2 &Inter, Param &process) {
             break;
         } else {
             istringstream s(str);
-            string nom; //nom = inter
+            Sc2String nom; //nom = inter
             s >> nom;
             unsigned q; //numero de l'interface
             s >> q ;
 
             while(true) {
                 //lecture numero du cote
-                string str2;
+                Sc2String str2;
                 getline(is,str2);
                 //std::cout << str2 << std::endl;
                 if(str2=="finSide") {
                     break;
                 } else {
                     istringstream s2(str2);
-                    string nom2; //nom = Side
+                    Sc2String nom2; //nom = Side
                     s2 >> nom2;
                     unsigned j; //numero du cote
                     s2 >> j ;
 
                     while(true) {
                         //lecture du pas de temps
-                        string str3;
+                        Sc2String str3;
                         getline(is,str3);
                         if(str3=="finPastemps") {
                             break;
                         } else {
                             istringstream s3(str3);
-                            string nom3; //nom = Pastemps
+                            Sc2String nom3; //nom = Pastemps
                             s3 >> nom3;
                             unsigned pt; //numero du pas de temps
                             s3 >> pt ;
 
                             while(true) {
                                 //lecture nom du champ
-                                string str4;
+                                Sc2String str4;
                                 getline(is,str4);
                                 if(str4=="Fchap") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Fchap.size() );
@@ -208,7 +208,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
  
 */
 template<class TV1>
-void save_data_sst(TV1 &S, Param &process, Vec<string> &fields_to_save) {
+void save_data_sst(TV1 &S, Param &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
 
     //nom du fichier de sauvegarde
@@ -217,7 +217,7 @@ void save_data_sst(TV1 &S, Param &process, Vec<string> &fields_to_save) {
     ifstream is;
     std::ostringstream ss1;
     ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
-    string name(ss1.str());
+    Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
     os << process.size << std::endl;
@@ -255,12 +255,12 @@ void read_data_sst(TV1 &S, Param &process) {
     ifstream is;
     std::ostringstream ss1;
     ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
-    string name(ss1.str());
+    Sc2String name(ss1.str());
     is.open( name.c_str() );
 
 
     unsigned toutlire=1;
-    string str;
+    Sc2String str;
     if (is) {
       getline(is,str);
       if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
@@ -279,13 +279,13 @@ void read_data_sst(TV1 &S, Param &process) {
       std::ostringstream ss2;
       if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
       else ss2<<process.affichage->repertoire_save<<"save_sst_"<<i;
-      string name2(ss2.str());
+      Sc2String name2(ss2.str());
       is.open( name2.c_str() );
       getline(is,str);
 
       while(true) {
         //lecture numero de la sst
-        string str;
+        Sc2String str;
         getline(is,str);
 
         if(str=="fin") {
@@ -293,27 +293,27 @@ void read_data_sst(TV1 &S, Param &process) {
           break;
         } else {
             istringstream s(str);
-            string nom; //nom = Sst
+            Sc2String nom; //nom = Sst
             s >> nom;
             unsigned q; //numero de la sst
             s >> q ;
 
             while(true) {
                 //lecture du pas de temps
-                string str3;
+                Sc2String str3;
                 getline(is,str3);
                 if(str3=="finPastemps") {
                     break;
                 } else {
                     istringstream s3(str3);
-                    string nom3; //nom = Pastemps
+                    Sc2String nom3; //nom = Pastemps
                     s3 >> nom3;
                     unsigned pt; //numero du pas de temps
                     s3 >> pt ;
 
                     while(true) {
                         //lecture nom du champ
-                        string str4;
+                        Sc2String str4;
                         getline(is,str4);
                         //std::cout << str4 << std::endl;
                         if(str4=="q") {

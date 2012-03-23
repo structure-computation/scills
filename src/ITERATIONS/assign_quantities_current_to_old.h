@@ -1,6 +1,8 @@
 #ifndef ASS_QUANTITIES_H
 #define ASS_QUANTITIES_H
 
+#include "../DEFINITIONS/TEMPS.h"
+
 template<class TV1,class TV2>
 void assign_quantities_current_to_old(TV1 &S, TV2 &Inter, Param &process){
 

@@ -1,11 +1,11 @@
 #ifndef INTER_H
 #define INTER_H
 
-#include <string>
+#include "../UTILS/Sc2String.h"
 using namespace LMT;
 
 //definition du maillage des interfaces
-#include "meshcaracinter.h"
+#include "../MAILLAGE/meshcaracinter.h"
 
 //struct PARAM_COMP_INTER;
 #include "definition_PARAM_COMP_INTER.h"
@@ -39,8 +39,8 @@ struct Interface
     TYPEREEL measure; ///< mesure de l'interface (aire ou longueur)
 
     //comportement de l'interface
-    std::string type; ///< type d'interface (exterieure : Ext ou interieure : Int )
-    std::string comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, vontact epais : Contact_ep
+    Sc2String type; ///< type d'interface (exterieure : Ext ou interieure : Int )
+    Sc2String comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, vontact epais : Contact_ep
     int refCL;   ///< numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
     int edge_id;   ///< identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
     int id_link;   ///< identite du behaviour_links dans le data_user issu du json
@@ -193,7 +193,6 @@ struct Interface
 
     Interface() {param_comp = NULL;}
     ~Interface() {Interface::free();}
-
 };
 
 

@@ -2,18 +2,18 @@
 using namespace LMT;
 
 
-#include "linearstage.h"
-#include "localstage.h"
-#include "calculate_error.h"
+#include "LINEAR/linearstage.h"
+#include "LOCAL/localstage.h"
+#include "ERROR/calculate_error.h"
 
 //fcts MPI
-#include "crout.h"
-#include "definition_PARAM_MPI.h"
-#include "mpi_transactions.h"
-#include "containers/evaluate_nb_cycles.h"
+#include "../MPI/crout.h"
+#include "../DEFINITIONS/MULTI_MPI.h"
+#include "../MPI/mpi_transactions.h"
+#include "../../LMT/include/containers/evaluate_nb_cycles.h"
 
-#include "create_file_pvd.h"
-#include "containers/gnuplot.h"
+#include "../POSTTRAITEMENTS/create_file_pvd.h"
+#include "../../LMT/include/containers/gnuplot.h"
 
 extern Crout crout;
 
@@ -30,8 +30,7 @@ On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LATI
 Pendant la boucle latin, on assigne une valeur différente au coefficient LATIN::mu pour la relaxation. A la première itération on lui assigne 1.0 sinon on lui affecte la valeur de LATIN::facteur_relaxation (donné par l'utilisateur). 
 Le paramètre LATIN::list_error permet de lister l'erreur latin au cours des itérations.
 */
-template<class TV1, class TV2,class TV3, class GLOBAL>
-void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global, DataUser &data_user) {
+void iterate_latin(Param &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface > > &SubI, Glob &Global, DataUser &data_user) {
     //phase iterative
     bool flag_convergence=0;
     bool save_depl_SST=process.latin->save_depl_SST;
@@ -168,7 +167,7 @@ void iterate_latin(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global,
         if (process.latin->error[ process.latin->iter]>=process.latin->critere_erreur)
             std::cout << "**** Sortie Nb iter max (pour info err=  ****" << process.latin->error[process.latin->iter] << ")" << endl;
     process.multiscale->multiechelle=multiechelle;
-    if (process.rank ==0 and (find(process.affichage->display_fields,LMT::_1==std::string("contact"))))
+    if (process.rank ==0 and (find(process.affichage->display_fields,LMT::_1==Sc2String("contact"))))
         for (unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
             create_file_pvd(process,"contact_",pt);
 }
@@ -188,8 +187,7 @@ On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LATI
  
 Le paramètre LATIN::list_error permet de lister l'erreur latin au cours des itérations.
 */
-template<class TV1, class TV2,class TV3, class GLOBAL>
-void iterate_incr(Param &process, TV1 &S, TV2 &Inter,TV3 &SubI, GLOBAL &Global) {
+void iterate_incr(Param &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, Glob &Global) {
 
     //phase iterative
     process.temps->pt=1;

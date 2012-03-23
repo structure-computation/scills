@@ -2,7 +2,7 @@
 #define CALCUL_ERREUR
 using namespace LMT;
 #include "types_erreurs.h"
-#include "assign_quantities_current_to_old.h"
+#include "../assign_quantities_current_to_old.h"
 
 /** \defgroup calcul_erreur Calcul de l'erreur
 \ingroup LATIN
@@ -137,7 +137,7 @@ void calcul_erreur_incr(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
       else process.latin->error[process.latin->iter] =std::abs(num-den)/std::abs(num);
     else
       process.latin->error[process.latin->iter] =1;
-
-
 };
+
+
 #endif //CALCUL_ERREUR

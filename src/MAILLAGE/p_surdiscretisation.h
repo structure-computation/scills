@@ -1,6 +1,5 @@
 #include <ext/hash_map>
 using namespace __gnu_cxx;
-using namespace std;
 
 
 /** \ingroup  maillages 

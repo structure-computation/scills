@@ -153,7 +153,7 @@ template<class TV1, class TV2,class TV3> void initialisation_mesh_meso(TV1 &S, T
 //    DisplayParaview dp;
 //    for(unsigned i=0;i<S.size();i++){
 //       dp.add_mesh(S[i].param_damage->mesh);
-//       dp.add_mesh(S[i].mesh,"tmp/paraview",Vec<string>("d"));
+//       dp.add_mesh(S[i].mesh,"tmp/paraview",Vec<Sc2String>("d"));
 //    }
 //    dp.exec();
 }

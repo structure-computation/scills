@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 #include "generate_Ne.h"
 

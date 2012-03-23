@@ -1,6 +1,5 @@
 
 using namespace LMT;
-using namespace std;
 
 //***********************************************************
 // Calcul des matrices de masse M et sous-integration N

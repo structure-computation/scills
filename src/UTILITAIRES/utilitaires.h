@@ -4,7 +4,6 @@
 #define UTILITAIRES_H
 
 using namespace LMT;
-using namespace std;
 
 ///creation d'une boite contenant tout le maillage donne
 template<class TM>
@@ -163,7 +162,7 @@ TT norm_2(Vec<TT,static_size_,void> &v) {
 
 // ecriture d'une matrice dans un fichier texte
 template<class TMAT>
-void write_matrix(TMAT &M, const string &name) {
+void write_matrix(TMAT &M, const Sc2String &name) {
     std::ofstream f(name.c_str());
     for(unsigned i=0;i<M.nb_rows();++i) {
         for(unsigned j=0;j<M.nb_cols();++j) {

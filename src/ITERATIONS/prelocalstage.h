@@ -1,5 +1,5 @@
-#include "codegen/codegen.h"
-#include "containers/basicops.h"
+#include "../../LMT/include/codegen/codegen.h"
+#include "../../LMT/include/containers/basicops.h"
 using namespace LMT;
 
 using namespace Codegen;
@@ -20,7 +20,7 @@ void assign_CL_spatial(TV &V, TVN &nodeeq, BOUNDARY &CL, DataUser &data_user) {
     if(data_user.options.Multiresolution_on==1){
         //ajout des variables de multiresolution aux symboles
         for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
             symbols.push_back(var.c_str());
         }
     }
@@ -58,13 +58,13 @@ void calc_CL_time(Param &process,Vec<BOUNDARY> &CL, DataUser &data_user ) {
     if(data_user.options.Multiresolution_on==1){
         //ajout des variables de multiresolution aux symboles
         for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
             symbols.push_back(var.c_str());
         }
     }
 
     double ti=process.temps->time_step[i_step].t_ini+(tpas+1)*process.temps->time_step[i_step].dt;
-    std::string fcttemps;
+    Sc2String fcttemps;
     Ex res;
 /*    std::cout << i_step << " " << tpas << " " << ti << endl;*/
     for(unsigned j=0;j<CL.size();++j) {
@@ -129,7 +129,7 @@ void assign_CL_spatial_temporel(TV &V, TVN &nodeeq, BOUNDARY &CL, int i_step, Da
     if(data_user.options.Multiresolution_on==1){
         //ajout des variables de multiresolution aux symboles
         for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
             symbols.push_back(var.c_str());
         }
     }
@@ -174,7 +174,7 @@ void assign_CL_spatial_temporel_normale(TV &V, TVN &nodeeq, TV2 &neqs, BOUNDARY 
     if(data_user.options.Multiresolution_on==1){
         //ajout des variables de multiresolution aux symboles
         for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-            String var="V"; var<<i_par; //nom de la variable de multiresolution
+            Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
             symbols.push_back(var.c_str());
         }
     }

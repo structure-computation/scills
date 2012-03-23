@@ -1,35 +1,39 @@
-#include <string>
+#include "../UTILS/Sc2String.h"
 
-#include "read_CL.h"
 
 //fichiers de definition des variables
-#include "definition_PARAM_COMP_INTER.h"
-#include "Param.h"
-#include "definition_PARAM_LATIN.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_TEMPS.h"
-#include "definition_GLOB.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
-#include "Boundary.h"
-#include "allocate.h"
+#include "DEFINITIONS/definition_PARAM_COMP_INTER.h"
+#include "DEFINITIONS/Param.h"
+#include "DEFINITIONS/LATIN.h"
+#include "DEFINITIONS/MULTI.h"
+#include "DEFINITIONS/TEMPS.h"
+#include "DEFINITIONS/Glob.h"
+#include "DEFINITIONS/Sst.h"
+#include "DEFINITIONS/Interface.h"
+#include "DEFINITIONS/Boundary.h"
+
+
 
 //pour le post traitement
-#include "containers/gnuplot.h"
-#include "containers/vecpointedvalues.h"
+#include "../LMT/include/containers/gnuplot.h"
+#include "../LMT/include/containers/vecpointedvalues.h"
 //pour l'affichage : inclure ce .h
-#include "affichage.h"
+#include "POSTTRAITEMENTS/affichage.h"
 //pour l'interactivite
-#include "interactivite.h"
+#include "POSTTRAITEMENTS/interactivite.h"
 // fcts pont entre les fichiers cpp
-#include "definition_fcts.h"
-
-#include "save_read_data.h"
-#include "mpi_sendrecvall.h"
+#include "DEFINITIONS/read_CL.h"
+#include "ITERATIONS/ITERATIONS_declarations.h"
+#include "ITERATIONS/ERROR/calculate_error.h"
+#include "MATERIAUX/MATERIAUX_declarations.h"
+#include "OPERATEURS/multiscale_operateurs.h"
+#include "POSTTRAITEMENTS/save_read_data.h"
 
 //fcts MPI
-#include "calculate_error.h"
-#include "prelocalstage.h"
+#include "MPI/mpi_lmt_functions.h"
+#include "MPI/mpi_sendrecvall.h"
+#include "MPI/assignation_mpi.h"
+
 
 #ifndef INFO_TIME
 #define INFO_TIME
@@ -44,13 +48,12 @@
 #include <Metil/CudaMetil.h>
 #include <Metil/Hdf.h>
 
-#include "GeometryUser.h"
-#include "DataUser.h"
-#include "FieldStructureUser.h"
+#include "GEOMETRY/GeometryUser.h"
+#include "COMPUTE/DataUser.h"
+#include "COMPUTE/FieldStructureUser.h"
 
 using namespace Metil;
 using namespace LMT;
-using namespace std;
 
 #include "write_xdmf_geometry_fields.h"
 #include "save_hdf_data.h"
@@ -70,8 +73,8 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Ma
     bool calculate_operator=0;
     if(data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_material_link_CL_CLvolume[0]==1){
         if (process.rank==0) std::cout << "Reevaluation (multiresolution) des materiaux SST : " ;
-        assignation_materials_property_SST(data_user, matprops, S, Inter,process, field_structure_user);
-        assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);
+        assignation_materials_property_SST(data_user,matprops,S,process,field_structure_user);
+        assignation_materials_property_INTER(data_user,Inter,process,field_structure_user);
         calculate_operator=1;
     }
     
@@ -147,9 +150,9 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Ma
 
         if(process.save_data==1) {
 //           if (process.rank == 0) std::cout << "Sauvegarde des resultats dans les fichiers save_sst et save_inter" << std::endl;
-//             Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
+//             Vec<Sc2String> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
 //             save_data_inter(Inter,SubS, process, fields_to_save);
-//             Vec<string> fields_to_save2("q");
+//             Vec<Sc2String> fields_to_save2("q");
 //             save_data_sst(SubS, process, fields_to_save2);
         }
 #ifdef INFO_TIME
@@ -188,9 +191,14 @@ void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Ma
 /** \ingroup
 \brief Fonction principale pour un calcul sous-structurï¿½
 */
-template<class MatProps, class TV1,class TV2,class TV5,class GLOB>
-
-void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matprops, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global) {
+void multiscale(DataUser       &data_user,
+                GeometryUser   &geometry_user,
+                Vec<SstCarac>  &matprops,
+                Vec<Sst>       &S,
+                Vec<Interface> &Inter,
+                Param          &process,
+                Vec<Boundary>  &CL,
+                Glob           &Global) {
 
     /// lecture des donnees de calcul
 #ifdef INFO_TIME
@@ -199,7 +207,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
     if (process.rank==0) {tic1.init();tic1.start();}
 #endif
     // read_data_process(process,n);
-    process.read_data(data_user);
+    process.read_data_user(data_user);
     // donnees associees a la geometrie, maillage...
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
@@ -257,7 +265,7 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
     FieldStructureUser field_structure_user(geometry_user);
 
     //assignation des proprietes materiaux aux maillages des sst
-    assignation_materials_property_SST(data_user, matprops, S, Inter,process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
+    assignation_materials_property_SST(data_user, matprops, S, process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
     #ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Assignation materiaux SST : " ;
@@ -265,47 +273,9 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
         if (process.rank==0) std::cout << std::endl;
         if (process.rank==0) tic1.start();
     #endif
-    
-    //#ifdef DEBUG
-        //Verification
-        if (process.rank == 0){
-            std::cout << std::endl << std::endl << "*******************ALEXIS_DEBUG**********************" << std::endl;
-            //std::cout << "type_formulation : " << S[0].matprop.type_formulation << std::endl;
-            std::cout << "density : " << S[0].matprop.density << std::endl;
-            std::cout << "elastic_modulus : " << S[0].matprop.elastic_modulus << std::endl;
-            std::cout << "poisson_ratio : " << S[0].matprop.poisson_ratio << std::endl;
-            std::cout << "alpha : " << S[0].matprop.alpha << std::endl;
-            std::cout << "viscosite : " << S[0].matprop.viscosite << std::endl;
-            std::cout << "elastic_modulus_1 : " << S[0].matprop.elastic_modulus_1 << std::endl;
-            std::cout << "elastic_modulus_2 : " << S[0].matprop.elastic_modulus_2 << std::endl;
-            std::cout << "elastic_modulus_3 : " << S[0].matprop.elastic_modulus_3 << std::endl;
-            std::cout << "poisson_ratio_12 : " << S[0].matprop.poisson_ratio_12 << std::endl;
-            std::cout << "poisson_ratio_13 : " << S[0].matprop.poisson_ratio_13 << std::endl;
-            std::cout << "poisson_ratio_23 : " << S[0].matprop.poisson_ratio_23 << std::endl;
-            std::cout << "shear_modulus_12 : " << S[0].matprop.shear_modulus_12 << std::endl;
-            std::cout << "shear_modulus_13 : " << S[0].matprop.shear_modulus_13 << std::endl;
-            std::cout << "shear_modulus_23 : " << S[0].matprop.shear_modulus_23 << std::endl;
-            std::cout << "alpha_1 : " << S[0].matprop.alpha_1 << std::endl;
-            std::cout << "alpha_2 : " << S[0].matprop.alpha_2 << std::endl;
-            std::cout << "alpha_3 : " << S[0].matprop.alpha_3 << std::endl;
-            std::cout << "deltaT  : " << S[0].matprop.deltaT << std::endl;
-            std::cout << "k_p      : " << S[0].matprop.k_p << std::endl;
-            std::cout << "m_p      : " << S[0].matprop.m_p << std::endl;
-            std::cout << "R0       : " << S[0].matprop.R0 << std::endl;
-            std::cout << "couplage : " << S[0].matprop.coefvm_composite << std::endl;
-            std::cout << "Yo           : " << S[0].matprop.Yo << std::endl;
-            std::cout << "Yc           : " << S[0].matprop.Yc << std::endl;
-            std::cout << "Ycf          : " << S[0].matprop.Ycf << std::endl;
-            std::cout << "dmax         : " << S[0].matprop.dmax << std::endl;
-            std::cout << "b_c          : " << S[0].matprop.b_c << std::endl;
-            std::cout << "effet_retard : " << S[0].matprop.effet_retard << std::endl;
-            std::cout << "a            : " << S[0].matprop.a << std::endl;
-            std::cout << "tau_c        : " << S[0].matprop.tau_c << std::endl;
-        }
-    //#endif
 
     /// modification du comportement des interfaces interieures si besoin : contact...
-    assignation_materials_property_INTER(data_user,Inter,S,process, field_structure_user);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
+    assignation_materials_property_INTER(data_user,Inter,process, field_structure_user);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
     #ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Assignation materiaux INTER : " ;
@@ -321,15 +291,15 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
 
     /// sauvegarde du maillage pour la visualisation des resultats
     if (process.rank == 0) std::cout << "Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats" << std::endl;
-    process.affichage->name_hdf << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str()<< "/results/";   
+    process.affichage->name_hdf << data_user.name_directory  << "/calcul_" << data_user.id_calcul << "/results/";
     int temp=system(("mkdir -p "+process.affichage->name_hdf).c_str());//Il faut créer le répertoire results
     process.affichage->name_hdf << "geometry_fields";   
     process.affichage->name_geometry = "/Level_0/Geometry";
     process.affichage->name_fields = "/Level_0/Fields";
     if (process.size == 1 or process.rank>0) {
         if(process.save_data==1){
-           // write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
-            String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+            // write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+            Sc2String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
             geometry_user.write_hdf5_in_parallel(file_output_hdf,process.rank);
         }
     }
@@ -398,34 +368,10 @@ void multiscale(DataUser &data_user, GeometryUser &geometry_user, MatProps &matp
         affichage_resultats(SubS,process, data_user); //sortie paraview pour les sst (volume et peau)
         affichage_resultats_inter(SubI, S ,process, data_user); //sortie paraview pour les interfaces
     }
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-//     if(process.temps->type_de_calcul!="stat"){
-//        if (process.size>1 and process.rank==0){
-//            affichage_resultats_temps(process);
-//            
-//         }
-//     }
-    
-    
-    
+    if (process.size>1)
+        MPI_Barrier(MPI_COMM_WORLD);
     
     memory_free(S,Inter,process);
-   
-    
-
-//     if(process.save_data==1) {
-//         if (process.rank == 0) std::cout << "Sauvegarde des résultats dans les fichiers save_sst et save_inter" << std::endl;
-//           
-//             //Vec<string> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
-//             //save_data_inter(Inter,SubS, process, fields_to_save);
-//             //Vec<string> fields_to_save2("q");
-//             //save_data_sst(SubS, process, fields_to_save2);
-//     }
-
-    // affichage sous paraview du resultat
-    //affichage_resultats(SubS,process);
-//     affichage_resultats_inter(SubI, S ,process); 
-//     affichage_resultats_inter(Inter, SubS , process);
 
 }
 

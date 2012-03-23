@@ -1,19 +1,18 @@
 //librairies Hugo
-#include "containers/mat.h"
+#include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/containers/vec_mt.h"
 
 //fichiers de definition des variables 
-#include "Param.h"
-#include "definition_PARAM_MULTI.h"
+#include "../../DEFINITIONS/Param.h"
+#include "../../DEFINITIONS/MULTI.h"
 
 // fonctions speciales math et autre
-#include "algebre.h"
-#include "utilitaires.h"
+#include "../../UTILITAIRES/algebre.h"
+#include "../../UTILITAIRES/utilitaires.h"
 
-#include "containers/vec_mt.h"
 #include "op_inter.h"
 
 using namespace LMT;
-using namespace std;
 
 /** \defgroup Operateurs_inter  Creation des operateurs par interface
 \ingroup Operateurs

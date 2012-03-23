@@ -1,11 +1,10 @@
 #ifndef AFFICHAGE_H
 #define AFFICHAGE_H
-#include "definition_PARAM_AFFICHAGE.h"
+#include "AFFICHAGE.h"
 #include "containers/vecpointedvalues.h"
 
 //permet un pont entre les differents cpp et les fonctions d'affichage sans avoir a tout recompiler
 using namespace LMT;
-using namespace std;
 
 template <class TV3,class TV4, class TV1> void affichage_maillage(TV3 &SubS, TV4 &Inter,TV1 & S, Param &process, DataUser &data_user) __attribute__((noinline));
 template <class TV3> void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) __attribute__((noinline));

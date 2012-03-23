@@ -1,6 +1,7 @@
 #include "create_SST_INTER.h"
-#include "definition_PARAM_STRUCTURE.h"
-#include "assignation_mpi.h"
+#include "../DEFINITIONS/STRUCTURE.h"
+#include "../MPI/assignation_mpi.h"
+#include "../DEFINITIONS/AFFICHAGE.h"
 
 void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Param &process) {
     
@@ -16,8 +17,8 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst>
     for(int i_data_group=0; i_data_group<data_user.group_elements.size(); i_data_group++){
         int id_mat = data_user.find_behaviour_materials(data_user.group_elements[i_data_group].id_material)->id;
         int index_mat = data_user.find_index_behaviour_materials(data_user.group_elements[i_data_group].id_material);
-        find_sst(S,data_user.group_elements[i_data_group].id)->id_material = id_mat ;
-        find_sst(S,data_user.group_elements[i_data_group].id)->typmat = index_mat ; 
+        Sst::find_sst(S,data_user.group_elements[i_data_group].id)->id_material = id_mat ;
+        Sst::find_sst(S,data_user.group_elements[i_data_group].id)->typmat = index_mat ; 
     }
 }
 
@@ -37,7 +38,7 @@ void convert_mesh_skin_to_geometry_user(Sst &S, GeometryUser &geometry_user){
 
 void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Param &process) {
     for(unsigned i=0;i<S.size();++i) {
-        std::string namein = data_user.find_group_elements(S[i].num)->name;
+        Sc2String namein = data_user.find_group_elements(S[i].num)->name;
         S[i].mesh.name=namein;
         S[i].mesh.load(geometry_user, S[i].id);
         S[i].mesh.load();
@@ -136,7 +137,7 @@ void read_mesh_interface_geometry_user(Interface::TMESH &mesh, GeometryUser &geo
 }
 
 
-void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param process) {  
+void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param &process) {  
     // initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
@@ -167,14 +168,14 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
         index_sst.resize(2);
         for(int i_group=0; i_group<2; i_group++){
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[i_inter].num)->group_elements_id[i_group];
-            index_sst[i_group] = find_index_sst(S, id_sst[i_group]);
+            index_sst[i_group] = Sst::find_index_sst(S, id_sst[i_group]);
         }
         edge.datanum=0;
-        find_sst(S, id_sst[0])->edge.push_back(edge);
-        find_sst(S, id_sst[0])->vois.push_back(index_sst[1]);
+        Sst::find_sst(S, id_sst[0])->edge.push_back(edge);
+        Sst::find_sst(S, id_sst[0])->vois.push_back(index_sst[1]);
         edge.datanum=1;
-        find_sst(S, id_sst[1])->edge.push_back(edge);
-        find_sst(S, id_sst[1])->vois.push_back(index_sst[0]);
+        Sst::find_sst(S, id_sst[1])->edge.push_back(edge);
+        Sst::find_sst(S, id_sst[1])->vois.push_back(index_sst[0]);
         
         Inter[i_inter].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1, index_sst[1], S[index_sst[1]].edge.size()-1);
         Inter[i_inter].side[0].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
@@ -188,8 +189,6 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
 
 
 void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Param &process) {
-    typedef Vec<TYPEREEL, DIM> Pvec;
-    
     // initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
@@ -199,8 +198,8 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<
             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
         }
     }
-    int nb_inter_actuel =  Inter.size();
-    int nb_inter_total =  nb_inter_actuel + nb_inter;
+    const int nb_inter_actuel =  Inter.size();
+    const int nb_inter_total =  nb_inter_actuel + nb_inter;
     Inter.resize(nb_inter_total);
     // assignation des id d'interfaces et des reférence vers un comportement
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
@@ -226,11 +225,11 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<
         index_sst.resize(1);
         for(int i_group=0; i_group<1; i_group++){
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[num_inter].num)->group_elements_id[i_group];
-            index_sst[i_group] = find_index_sst(S, id_sst[i_group]);
+            index_sst[i_group] = Sst::find_index_sst(S, id_sst[i_group]);
         }
         edge.datanum=0;
-        find_sst(S, id_sst[0])->edge.push_back(edge);
-        find_sst(S, id_sst[0])->vois.push_back(-1);
+        Sst::find_sst(S, id_sst[0])->edge.push_back(edge);
+        Sst::find_sst(S, id_sst[0])->vois.push_back(-1);
         Inter[num_inter].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
         Inter[num_inter].side[0].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
     }
@@ -271,23 +270,22 @@ void mesh_unload::operator()(Sst &S) const {
 }
 
 
-void create_SST_INTER(DataUser &data_user, 
-                      GeometryUser &geometry_user, 
-                      Vec<Sst> &S,Vec<Interface> &Inter, 
-                      Vec<Boundary> &CL, 
-                      Param &process, 
-                      Vec<VecPointedValues<Sst> > &Stot,
-                      Vec<VecPointedValues<Sst> > &SubS,
+void create_SST_INTER(DataUser                          &data_user, 
+                      GeometryUser                      &geometry_user, 
+                      Vec<Sst>                          &S,
+                      Vec<Interface>                    &Inter, 
+                      Vec<Boundary>                     &CL, 
+                      Param                             &process, 
+                      Vec<VecPointedValues<Sst> >       &Stot,
+                      Vec<VecPointedValues<Sst> >       &SubS,
                       Vec<VecPointedValues<Interface> > &SubI) {
     #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     TicToc tic1;
     if (process.rank==0) tic1.start();
-    
-    
     #endif
-    if (process.rank == 0)
-        std::cout << "Creation de la geometrie des SST" <<std::endl;
+    
+    if (process.rank == 0) std::cout << "Creation de la geometrie des SST" <<std::endl;
     create_SST_typmat(data_user, geometry_user,S,process);      // to be TEST
     
     #ifdef INFO_TIME
@@ -298,9 +296,9 @@ void create_SST_INTER(DataUser &data_user,
     #endif
     
     
-    if (process.rank == 0)
-        std::cout << "\t Lecture maillages des SST" <<std::endl;
+    if (process.rank == 0) std::cout << "\t Lecture maillages des SST" <<std::endl;
     create_maillage_SST(data_user, geometry_user,S,process);    // to be TEST
+    
     #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation maillage : " ;
@@ -309,21 +307,18 @@ void create_SST_INTER(DataUser &data_user,
     #endif
     
     
-    if (process.rank == 0)
-        std::cout << "Creation des Interfaces" <<std::endl;
-    if (process.rank == 0)
-        std::cout << "\tParfaites" << std::endl;
+    if (process.rank == 0) std::cout << "Creation des Interfaces" <<std::endl;
+    if (process.rank == 0) std::cout << "\tParfaites" << std::endl;
     create_perfect_interfaces(data_user, geometry_user, S, Inter, process);     // to be TEST
     #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation interfaces parfaites : " ;
-    if (process.rank==0) tic1.stop();;
+    if (process.rank==0) tic1.stop();
     if (process.rank==0) tic1.start();
     #endif
     
     //create_other_interfaces(structure,S,Inter);
-    if (process.rank == 0)
-        std::cout << "\tConditions aux limites" << std::endl;
+    if (process.rank == 0) std::cout << "\tConditions aux limites" << std::endl;
     create_interfaces_CL(data_user, geometry_user, S,Inter,CL, process);        // to be TEST
     #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
@@ -334,6 +329,7 @@ void create_SST_INTER(DataUser &data_user,
     
     //make subs et subi
     //assignation_mpi...
+    //process.multi_mpi->repartition_sst.free();  // un bug memoire se produit sinon
     mpi_repartition(S, Inter,process,Stot,SubS,SubI, geometry_user);                            // to be TEST
     
     #ifdef INFO_TIME
@@ -343,31 +339,28 @@ void create_SST_INTER(DataUser &data_user,
     if (process.rank==0) tic1.start();
     #endif
     
-    //create mesh of interface perfect (only necessary)
-    //     if (process.size > 1) {
-        apply(SubI,make_interface_inter(), geometry_user );                              // to be TEST
-        apply(SubI,make_interface_CL(), geometry_user);                                  // to be TEST
-        apply(S,mesh_unload());                                                 
-        //     }
+    apply(SubI,make_interface_inter(), geometry_user );                              // to be TEST
+    apply(SubI,make_interface_CL(), geometry_user);                                  // to be TEST
+    apply(S,mesh_unload());
         
-        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-        if (process.rank==0) std::cout << "\t Assignation des numeros aux interfaces " << std::endl;
-        //assignation du numero de l'interface
-        for(unsigned i=0;i<Inter.size();i++){
-            Inter[i].num=i;
+    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+    if (process.rank==0) std::cout << "\t Assignation des numeros aux interfaces " << std::endl;
+    //assignation du numero de l'interface
+    for(unsigned i=0;i<Inter.size();i++){
+        Inter[i].num=i;
+    }
+    
+    //copie des "id" et "side" des interfaces adjacentes aux groupes d'elements
+    for(unsigned i_sst=0;i_sst<S.size();i_sst++){
+        int id_sst=S[i_sst].id;
+        geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces.resize(S[i_sst].edge.size());
+        geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces.resize(S[i_sst].edge.size());
+        for(unsigned i_side=0;i_side<S[i_sst].edge.size();i_side++) {
+            int id_interface=S[i_sst].edge[i_side].internum;
+            int side_interface=S[i_sst].edge[i_side].datanum;
+            geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[i_side]=Inter[id_interface].id;
+            geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[i_side]=side_interface;
         }
-        
-        //copie des "id" et "side" des interfaces adjacentes aux groupes d'elements
-        for(unsigned i_sst=0;i_sst<S.size();i_sst++){
-            int id_sst=S[i_sst].id;
-            geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces.resize(S[i_sst].edge.size());
-            geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces.resize(S[i_sst].edge.size());
-            for(unsigned i_side=0;i_side<S[i_sst].edge.size();i_side++) {
-                int id_interface=S[i_sst].edge[i_side].internum;
-                int side_interface=S[i_sst].edge[i_side].datanum;
-                geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[i_side]=Inter[id_interface].id;
-                geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[i_side]=side_interface;
-            }
-        }
+    }
         
 };

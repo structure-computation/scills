@@ -1,6 +1,5 @@
 #include "containers/matcholamd.h"
 using namespace LMT;
-using namespace std;
 
 //**********************************************
 // Optimisation des directions de recherche

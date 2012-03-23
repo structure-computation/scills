@@ -1,0 +1,59 @@
+#ifndef DEFINITION_FCTS
+#define DEFINITION_FCTS
+//fichiers contenant les differentes declarations des fonctions utilisees dans le programme principal
+#include "../GEOMETRY/GeometryUser.h"
+#include "../COMPUTE/DataUser.h"
+#include "../COMPUTE/FieldStructureUser.h"
+
+#include "Param.h"
+#include "Glob.h"
+#include "Sst.h"
+#include "Interface.h"
+#include "Boundary.h"
+#include "../../LMT/include/containers/vec_mt.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+
+using namespace LMT;
+
+void multiscale_geometry_mesh(DataUser                          &data_user, 
+                              GeometryUser                      &geometry_user,
+                              Vec<Sst>                          &S,
+                              Vec<Interface>                    &Inter, 
+                              Param                             &process, 
+                              Vec<Boundary>                     &CL,
+                              Vec<VecPointedValues<Sst> >       &Stot,
+                              Vec<VecPointedValues<Sst> >       &SubS,
+                              Vec<VecPointedValues<Interface> > &SubI) __attribute__((noinline));
+
+
+void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
+                           Vec<VecPointedValues<Sst> >       &SubS, 
+                           Vec<Interface>                    &Inter, 
+                           Vec<VecPointedValues<Interface> > &SubI, 
+                           Param                             &process, 
+                           Glob                              &Global, 
+                           DataUser                          &data_user);
+
+
+void multiscale_iterate_latin(Vec<Sst>                          &S,
+                              Vec<VecPointedValues<Sst> >       &SubS, 
+                              Vec<Interface>                    &Inter, 
+                              Vec<VecPointedValues<Interface> > &SubI, 
+                              Param                             &process, 
+                              Glob                              &Global, 
+                              Vec<Boundary>                     &CL, 
+                              DataUser                          &data_user);
+
+
+void multiscale_iterate_incr(Vec<Sst>                          &S,
+                             Vec<VecPointedValues<Sst> >       &SubS, 
+                             Vec<Interface>                    &Inter, 
+                             Vec<VecPointedValues<Interface> > &SubI, 
+                             Param                             &process, 
+                             Glob                              &Global, 
+                             Vec<Boundary>                     &CL, 
+                             DataUser                          &data_user, 
+                             GeometryUser                      &geometry_user, 
+                             FieldStructureUser                &field_structure_user);
+
+#endif DEFINITION_FCTS

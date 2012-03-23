@@ -1,13 +1,17 @@
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
+#include "../../DEFINITIONS/Glob.h"
+
 using namespace LMT;
 
-#include "containers/vec_mt.h"
+#include "../../../LMT/include/containers/vec_mt.h"
 #include "etape_lineaire_1.h"
 #include "etape_lineaire_2.h"
 #include "etape_macro.h"
 
 //fcts MPI
-#include "mpi_transactions.h"
-#include "containers/evaluate_nb_cycles.h"
+#include "../../MPI/mpi_transactions.h"
+#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
 extern Crout crout;
 
 /** \defgroup etape_lineaire Etape linéaire
@@ -38,56 +42,43 @@ De la même manière on reconstruit les efforts, déplacements et vitesses d'interf
  
 Il est possible ici d'extraire les efforts macro ou micro, en utilisant le projecteur adéquat (cf : Interface).
 */
-template<class SST, class TV2>
-void reconstruction(SST &S,TV2 &Inter,Param &process) {
-    unsigned  pt=process.temps->pt;
-    
-    //reconstruction du deplacement si necessaire
-//     if(process.latin->save_depl_SST==1) {
-//         if(process.multiscale->multiechelle==1)
-//             S.t[pt].q=S.t[pt].q1+S.t[pt].q2;
-//         else
-//             S.t[pt].q=S.t[pt].q1;
-//     }
-
-    if(process.multiscale->multiechelle==1) {
-        for(unsigned j=0;j<S.edge.size();++j) {
-            unsigned data=S.edge[j].datanum;
-            unsigned q=S.edge[j].internum;
-            //Inter[q].side[data].t[pt].F=Inter[q].side[data].t[pt].F1+Inter[q].side[data].t[pt].F2;
-            //Inter[q].side[data].t[pt].Wp=Inter[q].side[data].t[pt].Wp1 + Inter[q].side[data].t[pt].Wp2;
-            //Inter[q].side[data].t[pt].W=Inter[q].side[data].t[pt].W1 + Inter[q].side[data].t[pt].W2;
-            Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
-            //extraction des quantites micro et macro si besoin
-            //Vec<typename INTER::T> FM;
-            //FM = Inter[q].side[data].PM(Inter[q].side[data].t[pt].F);
-            //Inter[q].side[data].Fm=Inter[q].side[data].Pm*Inter[q].side[data].F;
-        }
-    } else {
-        for(unsigned j=0;j<S.edge.size();++j) {
-            unsigned data=S.edge[j].datanum;
-            unsigned q=S.edge[j].internum;
-            //Inter[q].side[data].t[pt].F=Inter[q].side[data].t[pt].F1;
-            //Inter[q].side[data].t[pt].W=Inter[q].side[data].t[pt].W1;
-            Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
+struct reconstruction_quantites {
+    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+        unsigned  pt=process.temps->pt;
+        
+        if(process.multiscale->multiechelle==1) {
+            for(unsigned j=0;j<S.edge.size();++j) {
+                unsigned data=S.edge[j].datanum;
+                unsigned q=S.edge[j].internum;
+                Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
+            }
+        } else {
+            for(unsigned j=0;j<S.edge.size();++j) {
+                unsigned data=S.edge[j].datanum;
+                unsigned q=S.edge[j].internum;
+                Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
+            }
         }
     }
-}
+};
+
+
 /** \ingroup etape_lineaire
     \relates derivation
     \brief Etape Lineaire : Reconstruction de la vitesse
- 
  */
-template<class SST, class TV2>
-void derivation(SST &S,TV2 &Inter,Param &process) {
-  unsigned  pt=process.temps->pt;
+struct derivation_quantites_sst {
+    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+        unsigned  pt=process.temps->pt;
+        
+        for(unsigned j=0;j<S.edge.size();++j) {
+            unsigned data=S.edge[j].datanum;
+            unsigned q=S.edge[j].internum;
+            Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
+        }
+    }
+};
 
-  for(unsigned j=0;j<S.edge.size();++j) {
-    unsigned data=S.edge[j].datanum;
-    unsigned q=S.edge[j].internum;
-    Inter[q].side[data].t[pt].Wp=(Inter[q].side[data].t[pt].W-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
-  }
-}
 
 /** \ingroup etape_lineaire
 \relates relaxation_quantites
@@ -100,28 +91,23 @@ On effectue donc l'opération suivante, avec mu=0.8 par défaut (1 à la première i
 où oldq est le déplacement solution à l'itération précédente. 
 On effectue de même avec les quantités d'interfaces, puis on met à jour les anciennes quantités.
 */
-template<class SST, class TV2>
-void relaxation (SST &S,TV2 &Inter,Param &process) {
-    TYPEREEL mu = process.latin->mu;
-    unsigned pt = process.temps->pt;
-//     if(process.latin->save_depl_SST==1) {
-//         S.t[pt].q=(1-mu)*S.t[pt].oldq + mu*S.t[pt].q;
-//         S.t[pt].oldq=S.t[pt].q;
-//     }
-
-    for(unsigned j=0;j<S.edge.size();++j) {
-        unsigned q=S.edge[j].internum;
-        unsigned data=S.edge[j].datanum;
-        Inter[q].side[data].t[pt].F=(1-mu)*Inter[q].side[data].t[pt].oldF + mu*Inter[q].side[data].t[pt].F;
-        Inter[q].side[data].t[pt].Wp=(1-mu)*Inter[q].side[data].t[pt].oldWp + mu*Inter[q].side[data].t[pt].Wp;
-        Inter[q].side[data].t[pt].W=(1-mu)*Inter[q].side[data].t[pt].oldW + mu*Inter[q].side[data].t[pt].W;
-
-        Inter[q].side[data].t[pt].oldF=Inter[q].side[data].t[pt].F;
-        Inter[q].side[data].t[pt].oldWp=Inter[q].side[data].t[pt].Wp;
-        Inter[q].side[data].t[pt].oldW=Inter[q].side[data].t[pt].W;
-
+struct relaxation_quantites {
+    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+        TYPEREEL mu = process.latin->mu;
+        unsigned pt = process.temps->pt;
+        for(unsigned j=0;j<S.edge.size();++j) {
+            unsigned q=S.edge[j].internum;
+            unsigned data=S.edge[j].datanum;
+            Inter[q].side[data].t[pt].F=(1-mu)*Inter[q].side[data].t[pt].oldF + mu*Inter[q].side[data].t[pt].F;
+            Inter[q].side[data].t[pt].Wp=(1-mu)*Inter[q].side[data].t[pt].oldWp + mu*Inter[q].side[data].t[pt].Wp;
+            Inter[q].side[data].t[pt].W=(1-mu)*Inter[q].side[data].t[pt].oldW + mu*Inter[q].side[data].t[pt].W;
+            
+            Inter[q].side[data].t[pt].oldF=Inter[q].side[data].t[pt].F;
+            Inter[q].side[data].t[pt].oldWp=Inter[q].side[data].t[pt].Wp;
+            Inter[q].side[data].t[pt].oldW=Inter[q].side[data].t[pt].W;
+        }
     }
-}
+};
 
 
 /** \ingroup etape_lineaire
@@ -130,87 +116,36 @@ void relaxation (SST &S,TV2 &Inter,Param &process) {
  
 Connaissant la vitesse pour chaque pas de temps, il est possible de déterminer le déplacement à chaque piquet de temps en prenant en compte le déplacement initial (t=0) au départ.
 */
-template<class INTER>
-void integration (INTER &Inter,Param &process) {
-    for(unsigned j=0;j<Inter.side.size();j++) {
-        for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
-            Inter.side[j].t[pt].W = Inter.side[j].t[pt-1].W + process.temps->dt *  Inter.side[j].t[pt].Wp;
+struct integration_quantites {
+    void operator()(Interface &Inter,Param &process) const {
+        for(unsigned j=0;j<Inter.side.size();j++) {
+            for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
+                Inter.side[j].t[pt].W = Inter.side[j].t[pt-1].W + process.temps->dt *  Inter.side[j].t[pt].Wp;
+        }
     }
+};
 
-}
 
 /** \ingroup etape_lineaire
 \relates derivation_quantites
 \brief Etape Lineaire : Derivation
 */
-template<class INTER>
-void derivation (INTER &Inter,Param &process) {
-    for(unsigned j=0;j<Inter.side.size();j++) {
-        for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
-            Inter.side[j].t[pt].Wp = (Inter.side[j].t[pt].W - Inter.side[j].t[pt-1].W)/process.temps->dt ;
-    }
-
-}
-
-/**\ingroup etape_lineaire
- \brief Etape Lineaire : Reconstruction du déplacement et des quantités d'interface : cf reconstruction()
- */
-struct reconstruction_quantites {
-    template<class SST, class TV2>
-    void operator()(SST &S,TV2 &Inter,Param &process) const {
-        reconstruction(S,Inter,process);
-    }
-};
-
-/**\ingroup etape_lineaire
- \brief Etape Lineaire : Relaxation : cf relaxation()
- */
-struct relaxation_quantites {
-    template<class SST, class TV2>
-    void operator()(SST &S,TV2 &Inter,Param &process) const {
-        relaxation (S,Inter,process);
-    }
-};
-
-
-
-/**\ingroup etape_lineaire
- \brief Etape Lineaire : Integration du deplacement sur les interfaces : cf integration_depl()
- */
-struct integration_quantites {
-    template< class INTER>
-    void operator()(INTER &Inter,Param &process) const {
-        integration(Inter,process);
-    }
-};
-
-/**\ingroup etape_lineaire
- \brief Etape Lineaire : Dérivation du deplacement sur les interfaces : cf derivation()
- */
 struct derivation_quantites {
-    template< class INTER>
-    void operator()(INTER &Inter,Param &process) const {
-        derivation(Inter,process);
+    void operator()(Interface &Inter,Param &process) const {
+        for(unsigned j=0;j<Inter.side.size();j++) {
+            for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
+                Inter.side[j].t[pt].Wp = (Inter.side[j].t[pt].W - Inter.side[j].t[pt-1].W)/process.temps->dt ;
+        }
     }
 };
 
-/**\ingroup etape_lineaire
- \brief Etape Lineaire : Dérivation du deplacement sur les interfaces : cf derivation()
- */
-struct derivation_quantites_sst {
-template< class TV1,class TV2>
-void operator()(TV1 &S,TV2 &Inter,Param &process) const {
-  derivation(S,Inter,process);
- }
-};
 
 /** \ingroup  etape_lineaire
 \brief Calcul du second membre micro provenant des sous-structures (mais pas des cotes). Ex : thermique, endommagement ...
  
 */
 struct calcul_secmemb_micro_sst {
-    template<class SST>
-    void operator()(SST &S, Param &process, DataUser &data_user) const {
+    void operator()(Sst &S, Param &process, DataUser &data_user) const {
         //second membre prenant en compte le comportement thermique et la condition au pas de temps precedent ou les quantites chapeau:
         S.mesh.load();
         S.mesh->density=S.matprop.density;
@@ -226,8 +161,7 @@ struct calcul_secmemb_micro_sst {
 /** \ingroup etape_lineaire
 \brief Programme principal pour l'étape Linéaire
  */
-template<class TV1, class TV2, class GLOB>
-void etape_lineaire(TV1 &S, TV2 &Inter,Param &process,GLOB &Global) {
+void etape_lineaire(Vec<VecPointedValues<Sst > > &S, Vec<Interface > &Inter,Param &process,Glob &Global) {
     unsigned nb_threads=process.nb_threads;
     TicToc2 tic1,tic2;
     if (process.temps->pt==2)

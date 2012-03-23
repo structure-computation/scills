@@ -1,14 +1,15 @@
 #ifndef SST_H
 #define SST_H
 
+#include "Param.h"
 //definition automatique des formulations ancetres et filles pour chaque formulation et element donnes dans SConstruct
-#include "problem_pb_elast/problem.h"
+#include "../../build/problem_pb_elast/problem.h"
 // definition du maillage sur les bords de la sous-structure
-#include "meshcaracinter.h"
+#include "../MAILLAGE/meshcaracinter.h"
 #include "meshmulti.h"
-#include "definition_materials_property.h"
+#include "SstCarac_InterCarac.h"
 
-#include "util/solveLDL.h"
+#include "../../LMT/include/util/solveLDL.h"
 using namespace LMT;
 
 
@@ -24,11 +25,11 @@ Reel_ type de flottant.
 */
 struct Sst
 {
-    typedef  Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;  ///< type de maillage pour la sous-structure
-    typedef  Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;        ///< type de maillage pour le bord des sous-structures
-    typedef  Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;           ///< type de matrice sparse (pour le solveur CholMod)
-    typedef FormulationAncestor<TYPEREEL> TF;                      ///< formulation generique choisie par le type de materiau et le type de resolution etudiee
-    typedef Vec<TYPEREEL,DIM> Pvec;                               ///< Type des points
+    typedef  Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;   ///< type de maillage pour la sous-structure
+    typedef  Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;            ///< type de maillage pour le bord des sous-structures
+    typedef  Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;            ///< type de matrice sparse (pour le solveur CholMod)
+    typedef FormulationAncestor<TYPEREEL> TF;                       ///< formulation generique choisie par le type de materiau et le type de resolution etudiee
+    typedef Vec<TYPEREEL,DIM> Pvec;                                 ///< Type des points
     
     // donnees geometriques
     Pvec G;             ///< centre de gravite
@@ -112,13 +113,13 @@ struct Sst
     BasicVec< int > material;           ///< vecteur numéro des materiaux des sst pour la sortie hdf 
     Vec<int,4> nb_elements_with_type;   ///< utilisé pour connaitre le nombre d'elements d'un type donné pour une SST : Triangle, Quadrilateral, Tetrahedron, Hexahedron
     int nb_nodes_by_element_sst, nb_nodes_by_element_sst_skin, pattern_id;
-    String type_elements_sst, type_elements_sst_skin;
+    Sc2String type_elements_sst, type_elements_sst_skin;
   
     Sst() : pb(*mesh.m,true) {}     ///< constructeur de la formulation pour la sous-structure
     
-    ~Sst() { }
+    ~Sst() {free();}    ///destructeur de la SST
     
-    void free(){    ///destructeur de la SST
+    void free(){
         vois.free();
         edge.free();
         LE.free();
@@ -126,6 +127,99 @@ struct Sst
         fvol.free();
         t.free();
         t_post.free();
+    }
+    
+    /// Trouver une sst à partir de son id----------------------------------------------
+    static Sst* find_sst(Vec<Sst> &S,int id_) {
+        for (int i_group=0; i_group<S.size(); i_group++) {
+            if (S[i_group].id == id_) {
+                return &S[i_group];
+                break;
+            }
+        }
+    }
+    
+    /// Trouver l'index d'une sst à partir de son id -----------------------------------
+    static int find_index_sst(Vec<Sst> &S, int id_) {
+        for (int i_group=0; i_group<S.size(); i_group++) {
+            if (S[i_group].id == id_) {
+                return i_group;
+                break;
+            }
+        }
+    }
+    
+    void assign_material_on_element(DataUser &data_user){
+        //formulation isotrope 
+        if (mesh.type_formulation=="isotrope") {
+            mesh->elastic_modulus = matprop.elastic_modulus ; 
+            mesh->poisson_ratio   = matprop.poisson_ratio   ; 
+            mesh->deltaT          = matprop.deltaT          ; 
+            mesh->resolution      = matprop.resolution      ; 
+            mesh->alpha           = matprop.alpha           ; 
+            mesh->f_vol           = matprop.f_vol           ; 
+            mesh->density         = matprop.density         ; 
+            mesh.load_f_vol_e(matprop.f_vol_e,data_user);
+        }
+        //formulation orthotrope 
+        if (mesh.type_formulation=="orthotrope") {
+            mesh->elastic_modulus_1 = matprop.elastic_modulus_1;
+            mesh->elastic_modulus_2 = matprop.elastic_modulus_2;
+            mesh->elastic_modulus_3 = matprop.elastic_modulus_3;
+            mesh->poisson_ratio_12  = matprop.poisson_ratio_12 ;
+            mesh->poisson_ratio_13  = matprop.poisson_ratio_13 ;
+            mesh->poisson_ratio_23  = matprop.poisson_ratio_23 ;
+            mesh->shear_modulus_12  = matprop.shear_modulus_12 ;
+            mesh->shear_modulus_13  = matprop.shear_modulus_13 ;
+            mesh->shear_modulus_23  = matprop.shear_modulus_23 ;
+            mesh->v1                = matprop.v1               ;
+            mesh->v2                = matprop.v2               ;
+            mesh->deltaT            = matprop.deltaT           ;
+            mesh->resolution        = matprop.resolution       ;
+            mesh->alpha_1           = matprop.alpha_1          ;
+            mesh->alpha_2           = matprop.alpha_2          ;
+            mesh->alpha_3           = matprop.alpha_3          ;
+            mesh->f_vol             = matprop.f_vol            ;
+            mesh->density           = matprop.density          ;
+            mesh.load_f_vol_e(matprop.f_vol_e,data_user);
+        }
+        //formulation mesomodele 
+        if (mesh.type_formulation=="mesomodele") {
+            mesh->elastic_modulus_1 = matprop.elastic_modulus_1;
+            mesh->elastic_modulus_2 = matprop.elastic_modulus_2;
+            mesh->elastic_modulus_3 = matprop.elastic_modulus_3;
+            mesh->poisson_ratio_12  = matprop.poisson_ratio_12 ;
+            mesh->poisson_ratio_13  = matprop.poisson_ratio_13 ;
+            mesh->poisson_ratio_23  = matprop.poisson_ratio_23 ;
+            mesh->shear_modulus_12  = matprop.shear_modulus_12 ;
+            mesh->shear_modulus_13  = matprop.shear_modulus_13 ;
+            mesh->shear_modulus_23  = matprop.shear_modulus_23 ;
+            mesh->v1                = matprop.v1               ;
+            mesh->v2                = matprop.v2               ;
+            mesh->deltaT            = matprop.deltaT           ;
+            mesh->resolution        = matprop.resolution       ;
+            mesh->alpha_1           = matprop.alpha_1          ;
+            mesh->alpha_2           = matprop.alpha_2          ;
+            mesh->alpha_3           = matprop.alpha_3          ;
+            mesh->f_vol             = matprop.f_vol            ;
+            mesh->density           = matprop.density          ;
+            
+            mesh->k_p      = matprop.k_p;
+            mesh->m_p      = matprop.m_p;
+            mesh->R0       = matprop.R0;
+            mesh->couplage = matprop.coefvm_composite;
+            
+            mesh->Yo           = matprop.Yo;
+            mesh->Yc           = matprop.Yc;
+            mesh->Ycf          = matprop.Ycf;
+            mesh->dmax         = matprop.dmax;
+            mesh->b_c          = matprop.b_c;
+            mesh->effet_retard = matprop.effet_retard;
+            mesh->a            = matprop.a;
+            mesh->tau_c        = matprop.tau_c;
+            
+            mesh.load_f_vol_e(matprop.f_vol_e,data_user);
+        }
     }
 };
 
