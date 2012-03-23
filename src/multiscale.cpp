@@ -167,7 +167,7 @@ int main(int argc,char **argv) {
             S.resize(geometry_user.nb_group_elements);
             multiscale(data_user, geometry_user, matprops, S, Inter, process,  CL, Global);
 
-            }
+        }
     #ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Duree complete du programme : " ;

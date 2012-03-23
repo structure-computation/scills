@@ -25,11 +25,11 @@ Reel_ type de flottant.
 */
 struct Sst
 {
-    typedef  Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;  ///< type de maillage pour la sous-structure
-    typedef  Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;        ///< type de maillage pour le bord des sous-structures
-    typedef  Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;           ///< type de matrice sparse (pour le solveur CholMod)
-    typedef FormulationAncestor<TYPEREEL> TF;                      ///< formulation generique choisie par le type de materiau et le type de resolution etudiee
-    typedef Vec<TYPEREEL,DIM> Pvec;                               ///< Type des points
+    typedef  Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;       ///< type de maillage pour la sous-structure
+    typedef  Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;                ///< type de maillage pour le bord des sous-structures
+    typedef  Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;                ///< type de matrice sparse (pour le solveur CholMod)
+    typedef  FormulationAncestor<TYPEREEL> TF;                          ///< formulation generique choisie par le type de materiau et le type de resolution etudiee
+    typedef  Vec<TYPEREEL,DIM> Pvec;                                    ///< Type des points
     
     // donnees geometriques
     Pvec G;             ///< centre de gravite
