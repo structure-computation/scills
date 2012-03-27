@@ -1,4 +1,6 @@
 #include "../../../LMT/include/containers/matcholamd.h"
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
 
 //Fonctions utilisees a l'etape micro 2
 /** \ingroup etape_lineaire
@@ -14,7 +16,7 @@
  - Reconstruction de l'effort \f$ F_2 \f$ à partir de la direction de recherche : \f$ F_2 = Q_d - k*\frac{W_2}{\Delta t} \f$ en quasistatique ou \f$ F_2 = Q_d - k*W_2 \f$ en statique
  */
 struct semilinstage2 {
-    template<class SST, class TV2> void operator()(SST &S,TV2 &Inter,Param &process) const {
+    void operator()(Sst &S,Vec<Interface> &Inter,Process &process) const {
         unsigned pt=process.temps->pt;
         Vec<TYPEREEL> droitm,Qd,W2 ;
         droitm.resize(DIM*S.mesh.node_list_size);

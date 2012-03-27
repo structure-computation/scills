@@ -1,4 +1,4 @@
-#include "../../DEFINITIONS/TEMPS.h"
+#include "../../DEFINITIONS/TimeParameters.h"
 //fonctions utilisees pour le probleme macro
 
 /** \ingroup etape_lineaire
@@ -43,7 +43,7 @@ void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &i
  - Si l'interface est de type symétrie ou déplacement normal donné, on utilise la fonction add_bigF_CLsym().
  */
 struct macroassemble {
-    void operator()(Sst &S,Vec<Interface> &Inter,TEMPS &temps, Glob &Global) const {
+    void operator()(Sst &S,Vec<Interface> &Inter,TimeParameters &temps, MacroProblem &Global) const {
         int imic=temps.pt;   
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
@@ -109,7 +109,7 @@ void modif_WtildeM_CLsym(Interface &Inter,Vec<TYPEREEL> &bigW, unsigned &data,in
  
  */
 struct interextrmacro {
-    void operator()(Sst &S,Vec<Interface> &Inter,TEMPS &temps, Glob &Global) const {
+    void operator()(Sst &S,Vec<Interface> &Inter,TimeParameters &temps, MacroProblem &Global) const {
         int imic=temps.pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned data=S.edge[j].datanum;

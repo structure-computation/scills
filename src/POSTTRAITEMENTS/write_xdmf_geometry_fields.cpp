@@ -5,7 +5,7 @@ using namespace Metil;
 
 #include "write_xdmf.h"
 
-void write_xdmf_geometry_fields(std::ofstream &f, Param &process, Sc2String name_element, Sc2String name_node, Sc2String generic_grid_name, Sc2String grid_collection_name, bool with_time, BasicVec<Sc2String> &attributs){
+void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String name_element, Sc2String name_node, Sc2String generic_grid_name, Sc2String grid_collection_name, bool with_time, BasicVec<Sc2String> &attributs){
     Sc2String name_hdf5=process.affichage->name_hdf;
     Sc2String name_geometry=process.affichage->name_geometry;
     Sc2String name_fields=process.affichage->name_fields;
@@ -81,7 +81,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Param &process, Sc2String name
     }           
 }
 
-void write_nodes(std::ofstream &f, Param &process, Sc2String name_node){
+void write_nodes(std::ofstream &f, Process &process, Sc2String name_node){
     Sc2String name_hdf5=process.affichage->name_hdf;
     Sc2String name_nodes = process.affichage->name_geometry + "/" + name_node;
     
@@ -103,7 +103,7 @@ void write_nodes(std::ofstream &f, Param &process, Sc2String name_node){
     }
 }
 
-void write_xdmf_file_geometry(Param &process, DataUser &data_user){
+void write_xdmf_file_geometry(Process &process, DataUser &data_user){
 /*        process.affichage->name_xdmf_geometry << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry.xdmf";*/
 //         process.affichage->name_geometry = "/Level_0/Geometry";
 //         process.affichage->name_fields = "/Level_0/Fields";
@@ -140,7 +140,7 @@ void write_xdmf_file_geometry(Param &process, DataUser &data_user){
         }
 }
 
-void write_xdmf_file_compute(Param &process, DataUser &data_user){
+void write_xdmf_file_compute(Process &process, DataUser &data_user){
     //Ecriture du fichier contenant les donnees sur les sst
         Sc2String name_xdmf_file; 
         name_xdmf_file << data_user.name_directory.c_str() << "/calcul_" << data_user.id_calcul.c_str() << "/results/geometry_fields";

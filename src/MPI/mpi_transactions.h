@@ -16,7 +16,7 @@
 using namespace LMT;
 
 template <class TV>
-void SendbigF(Param &process,TV &bigF ) {
+void SendbigF(Process &process,TV &bigF ) {
     Vec<TYPEREEL> temp;
     temp.resize(bigF.size());
     if (process.rank==0)
@@ -29,7 +29,7 @@ void SendbigF(Param &process,TV &bigF ) {
 
 
 template <class T1, class T2>
-void RecvInter(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInter(T1 &MPIsource,T2 &Inter, Process &process) {
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
     int repere=0,num,side;
@@ -48,7 +48,7 @@ void RecvInter(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1, class T2>
-void SendInter(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInter(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
         int sizebefore=vectosend.size();
@@ -65,7 +65,7 @@ void SendInter(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &proc
 }
 
 template <class T1,class T2>
-void SendRecvInter(T1 &vecintertoexchangebypro, T2 &Inter, Param &process) {
+void SendRecvInter(T1 &vecintertoexchangebypro, T2 &Inter, Process &process) {
     Vec<Vec<TYPEREEL> > vectosend;
     vectosend.resize(vecintertoexchangebypro.size());
 

@@ -7,7 +7,7 @@
 using namespace Codegen;
 using namespace LMT;
 
-void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matprops, Vec<Sst> &S, Param &process, FieldStructureUser &field_structure_user){
+void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matprops, Vec<Sst> &S, Process &process, FieldStructureUser &field_structure_user){
     if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
     // lecture des proprietes materiau des ssts
     
@@ -20,7 +20,7 @@ void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matp
     field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
 }
 
-void read_matprop(Vec<SstCarac> &matprops, Param &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {
+void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {
     unsigned nbmat = data_user.behaviour_materials.size();
     //     PRINT(nbmat);
     matprops.resize(nbmat);

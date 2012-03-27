@@ -1,7 +1,7 @@
 #include "../UTILS/Sc2String.h"
 #include <algorithm>
 
-#include "MULTI_MPI.h"
+#include "MPIParameters.h"
 #include "mpi_lmt_functions.h"
 #include "fonctions_affichage_interactivite.h"
 
@@ -10,7 +10,7 @@ using namespace LMT;
 
 ///Update le param_comp->jeu pour les contact_jeu et les jeu_impose
 template<class TV2>
-void update_jeu(TV2 &Inter,Param &process){
+void update_jeu(TV2 &Inter,Process &process){
     std::vector<Ex> symbols;
     if (DIM==2) {
         symbols.push_back("x");
@@ -68,7 +68,7 @@ inline Vec<Sc2String> get_token(istream &is) {
 }
 
 /// Nom interactif de fonction
-typedef void (*parametre_fct)(Vec<Sc2String> &v,Param &process);
+typedef void (*parametre_fct)(Vec<Sc2String> &v,Process &process);
 
 /// Initialisation des mots cles dans la map
 inline void initialize_mots_cles(map<Sc2String, parametre_fct> &param_map) {
@@ -102,7 +102,7 @@ inline void initialize_mots_cles(map<Sc2String, parametre_fct> &param_map) {
  Pour accéder aux différents mots clés il suffit de taper help puis entrer.
  */
 template<class TV1, class TV2,class TV3, class TV4,class GLOB, class TV5, class TV6>
-void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB &Global, TV5 &CL, TV6 &n) {
+void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Process &process, GLOB &Global, TV5 &CL, TV6 &n) {
     Sc2String str;
     LMT::Vec<Sc2String> v;
 
@@ -137,7 +137,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Param &process, GLOB
         }
         if (process.size > 1) MPI_Bcast(str,0);
 
-        // rechercher la fonction associée à Param
+        // rechercher la fonction associée à Process
         v=tokenize(str,' ');
         //std::cout << process.rank << " : " << v << std::endl;
         if( v.size() > 0 and v[0] != "exit") {

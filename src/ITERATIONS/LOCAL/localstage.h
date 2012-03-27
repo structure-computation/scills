@@ -30,7 +30,7 @@ Selon le type d'interface on appelle la procédure correspondante :
 Il suffit donc de rajouter un comportement dans cette procédure et programmer la fonction correspondante pour ajouter un comportement d'interface.
 */
 struct etape_locale_inter {
-    void operator()(Interface &Inter,Param &process) const {
+    void operator()(Interface &Inter,Process &process) const {
 //         std::cout << Inter.type << std::endl;
 //         std::cout << Inter.comp << std::endl;
         if (Inter.type=="Ext") {
@@ -91,7 +91,7 @@ struct etape_locale_sst {
 /** \ingroup  etape_locale
 \brief Procédure principale pour l'étape locale
 */
-void etape_locale(Vec<VecPointedValues<Interface > > &Inter,Vec<VecPointedValues<Sst > > &S,Param &process) {
+void etape_locale(Vec<VecPointedValues<Interface > > &Inter,Vec<VecPointedValues<Sst > > &S,Process &process) {
     apply(Inter,etape_locale_inter(),process);
 //     apply(S,etape_locale_sst());
 };

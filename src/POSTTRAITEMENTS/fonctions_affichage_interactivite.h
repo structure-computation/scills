@@ -1,7 +1,7 @@
 
 using namespace LMT;
 
-inline void parametre_inconnu(Vec<Sc2String> &v,Param &process) {
+inline void parametre_inconnu(Vec<Sc2String> &v,Process &process) {
     if (process.rank==0)
         std::cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << std::endl;
 }
@@ -24,7 +24,7 @@ int findalain2(Vec<Vec<Sc2String> > &m, T2 &s) {
     return -1;
 }
 
-inline void help(Vec<Sc2String> &v, Param &process) {
+inline void help(Vec<Sc2String> &v, Process &process) {
     //    Mat<Sc2String> m(10,3);
     //    m(0,0)="help";m(0,1)="Affiche les commandes disponibles";m(0,2)="help";
     //    m(1,0)="evol";m(1,1)="Trace l'evolution d'un point";m(1,2)="evol coor1 coor2 (coor3)";
@@ -129,16 +129,16 @@ inline void help(Vec<Sc2String> &v, Param &process) {
 /** \ingroup  Post_Traitements
  \brief trace de l'evolution d'un point
  */
-inline void evol(Vec<Sc2String> &v,Param &process) {
+inline void evol(Vec<Sc2String> &v,Process &process) {
     //modification de la coordonnee du point
-    if (v.size()!=process.dim+1) {
+    if (v.size()!=DIM+1) {
         if (process.rank==0)
             std::cout << "Mauvais choix de point" << std::endl;
-        process.affichage->coor_point.resize(process.dim,0.);
+        process.affichage->coor_point.resize(DIM,0.);
         if (process.rank==0)
             std::cout << "On choisit par défaut : " << process.affichage->coor_point << std::endl;
     } else {
-        process.affichage->coor_point.resize(process.dim);
+        process.affichage->coor_point.resize(DIM);
         for(unsigned i=1;i<v.size();i++)
             process.affichage->coor_point[i-1]=atof(v[i].c_str()) ;
     }
@@ -148,7 +148,7 @@ inline void evol(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief trace de l'evolution d'un point
  */
-inline void evol_inter(Vec<Sc2String> &v,Param &process) {
+inline void evol_inter(Vec<Sc2String> &v,Process &process) {
 //modification de la coordonnee du point
     if (v.size()!=4) {
         if (process.rank==0)
@@ -166,8 +166,8 @@ inline void evol_inter(Vec<Sc2String> &v,Param &process) {
  /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les sous-structures
 */
-inline void trac_sst(Vec<Sc2String> &v,Param &process) {
-    if (process.dim == 2 ) process.affichage->type_affichage="Sinterieur";
+ inline void trac_sst(Vec<Sc2String> &v,Process &process) {
+    if (DIM == 2 ) process.affichage->type_affichage="Sinterieur";
     else process.affichage->type_affichage="Sbord";
     if (v.size()>1) {
         Vec<Sc2String> choixchamps;
@@ -182,8 +182,8 @@ inline void trac_sst(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les sous-structures pour tous les pas de temps
 */
-inline void trac_sst_temps(Vec<Sc2String> &v,Param &process) {
-    if (process.dim == 2 ) process.affichage->type_affichage="Sinterieur";
+inline void trac_sst_temps(Vec<Sc2String> &v,Process &process) {
+    if (DIM == 2 ) process.affichage->type_affichage="Sinterieur";
     else process.affichage->type_affichage="Sbord";
     if (v.size()>1) {
         Vec<Sc2String> choixchamps;
@@ -198,7 +198,7 @@ inline void trac_sst_temps(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les interfaces
 */
-inline void trac_inter(Vec<Sc2String> &v,Param &process) {
+inline void trac_inter(Vec<Sc2String> &v,Process &process) {
 
     process.affichage->affich_inter_data=1;
     process.affichage->type_affichage="Inter";
@@ -232,7 +232,7 @@ inline void trac_inter(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les interfaces pour tous les pas de temps
 */
-inline void trac_inter_temps(Vec<Sc2String> &v,Param &process) {
+inline void trac_inter_temps(Vec<Sc2String> &v,Process &process) {
     process.affichage->type_affichage="Inter";
     process.affichage->affich_resultat=1;
     process.affichage->save="save";
@@ -262,7 +262,7 @@ inline void trac_inter_temps(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des maillages des sous-structures
 */
-inline void trac_mesh_sst(Vec<Sc2String> &v,Param &process) {
+inline void trac_mesh_sst(Vec<Sc2String> &v,Process &process) {
     if (v.size()>1) {
         Vec<Sc2String> choixchamps;
         for(unsigned i=1;i<v.size();i++)
@@ -277,7 +277,7 @@ inline void trac_mesh_sst(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des maillages des interfaces
 */
-inline void trac_mesh_inter(Vec<Sc2String> &v,Param &process) {
+inline void trac_mesh_inter(Vec<Sc2String> &v,Process &process) {
     process.affichage->affich_mesh=1;
     process.affichage->type_affichage="Inter";
     process.affichage->save="display";
@@ -297,14 +297,14 @@ inline void trac_mesh_inter(Vec<Sc2String> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage de l'erreur latin
 */
-inline void trac_error(Vec<Sc2String> &v,Param &process) {
+inline void trac_error(Vec<Sc2String> &v,Process &process) {
     process.affichage->display_error=1;
 }
 
 /** \ingroup  Post_Traitements
  \brief Trace de l'energie de dissipation ou imposée pour les quantités chapeua ou quantités n au cours du temps
  */
-inline void trac_ener(Vec<Sc2String> &v,Param &process) {
+inline void trac_ener(Vec<Sc2String> &v,Process &process) {
     if (v.size()!=3) {
         if (process.rank==0)
             std::cout << "Parametres par defaut : dissip - Qchap" << std::endl;
@@ -333,12 +333,12 @@ inline void trac_ener(Vec<Sc2String> &v,Param &process) {
     }
 }
 
-inline void trac_cl(Vec<Sc2String> &v,Param &process) {
+inline void trac_cl(Vec<Sc2String> &v,Process &process) {
     //rien a faire
 }
 
 template <class TV1, class TI>
-void affichage_cl(TV1 &S, TI &Inter,Param &process) {
+void affichage_cl(TV1 &S, TI &Inter,Process &process) {
     for(unsigned i=0;i<S.size();i++)
         for( unsigned j=0;j<S[i].edge.size() ;j++ ) {
             unsigned internum=S[i].edge[j].internum;
@@ -346,11 +346,11 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
                 std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
                     std::cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
+                    if (DIM == 2) {
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,2,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,2,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
+                    if (DIM == 3) {
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(2,3,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
@@ -361,11 +361,11 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
                 std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
                     std::cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
+                    if (DIM == 2) {
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
+                    if (DIM == 3) {
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                         std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
@@ -376,11 +376,11 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
                 std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
                     std::cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
+                    if (DIM == 2) {
                       std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                       std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
+                    if (DIM == 3) {
                       std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                       std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
                       std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
@@ -397,7 +397,7 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void modif_param(Vec<Sc2String> &v,Param &process) {
+inline void modif_param(Vec<Sc2String> &v,Process &process) {
 
     if (v.size()==1) {
         if (process.rank==0)
@@ -482,7 +482,7 @@ inline void modif_param(Vec<Sc2String> &v,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void modif_param_inter(Vec<Sc2String> &v,Param &process) {
+inline void modif_param_inter(Vec<Sc2String> &v,Process &process) {
     process.reprise_calcul=2;
 }
 
@@ -491,7 +491,7 @@ inline void modif_param_inter(Vec<Sc2String> &v,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void calcul(Vec<Sc2String> &v,Param &process) {
+inline void calcul(Vec<Sc2String> &v,Process &process) {
     /*   if(v.size()!=2){std::cout << "Nouveau calcul en latin" << std::endl;}
        else{
           if(v[1]=="latin"){process.nom_calcul="latin";}

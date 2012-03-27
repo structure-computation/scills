@@ -3,11 +3,11 @@
 
 //fichiers de definition des variables
 #include "DEFINITIONS/definition_PARAM_COMP_INTER.h"
-#include "DEFINITIONS/Param.h"
-#include "DEFINITIONS/LATIN.h"
-#include "DEFINITIONS/MULTI.h"
-#include "DEFINITIONS/TEMPS.h"
-#include "DEFINITIONS/Glob.h"
+#include "DEFINITIONS/Process.h"
+#include "DEFINITIONS/LatinParameters.h"
+#include "DEFINITIONS/MultiScaleParameters.h"
+#include "DEFINITIONS/TimeParameters.h"
+#include "DEFINITIONS/MacroProblem.h"
 #include "DEFINITIONS/Sst.h"
 #include "DEFINITIONS/Interface.h"
 #include "DEFINITIONS/Boundary.h"
@@ -28,6 +28,7 @@
 #include "MATERIAUX/MATERIAUX_declarations.h"
 #include "OPERATEURS/multiscale_operateurs.h"
 #include "POSTTRAITEMENTS/save_read_data.h"
+#include "MAILLAGE/multiscale_geometry_mesh.h"
 
 //fcts MPI
 #include "MPI/mpi_lmt_functions.h"
@@ -61,8 +62,18 @@ using namespace LMT;
 /** \ingroup
 \brief Fonction principale pour un calcul sous-structuré. Cette routine est appelée plusieurs fois dans le cas d'une multirésolution
 */
-template<class Matprops, class TV1,class TV2,class TV5,class GLOB>
-void multiscale_calculation(DataUser &data_user, GeometryUser &geometry_user, Matprops& matprops, FieldStructureUser &field_structure_user, TV1 &S, TV2 &Inter, Param &process,  TV5 &CL, GLOB &Global, Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &SubS,  Vec<VecPointedValues<typename TV1::template SubType<0>::T> > &Stot,  Vec<VecPointedValues<typename TV2::template SubType<0>::T> > &SubI) {
+void multiscale_calculation(DataUser &data_user,
+                            GeometryUser &geometry_user,
+                            Vec<SstCarac> &matprops,
+                            FieldStructureUser &field_structure_user,
+                            Vec<Sst> &S,
+                            Vec<Interface> &Inter,
+                            Process &process,
+                            Vec<Boundary> &CL,
+                            MacroProblem &Global,
+                            Vec<VecPointedValues<Sst> > &SubS,
+                            Vec<VecPointedValues<Sst> > &Stot,
+                            Vec<VecPointedValues<Interface> > &SubI) {
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     TicTac tic1;
@@ -196,9 +207,9 @@ void multiscale(DataUser       &data_user,
                 Vec<SstCarac>  &matprops,
                 Vec<Sst>       &S,
                 Vec<Interface> &Inter,
-                Param          &process,
+                Process        &process,
                 Vec<Boundary>  &CL,
-                Glob           &Global) {
+                MacroProblem   &Global) {
 
     /// lecture des donnees de calcul
 #ifdef INFO_TIME
@@ -206,7 +217,6 @@ void multiscale(DataUser       &data_user,
     TicTac tic1;
     if (process.rank==0) {tic1.init();tic1.start();}
 #endif
-    // read_data_process(process,n);
     process.read_data_user(data_user);
     // donnees associees a la geometrie, maillage...
 #ifdef INFO_TIME

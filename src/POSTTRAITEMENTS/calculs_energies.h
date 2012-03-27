@@ -17,9 +17,8 @@
 #include <map>
 
 // fichiers de definition des variables
-#include "definition_PARAM_MICRO_INTER.h"
-#include "Param.h"
-#include "AFFICHAGE.h"
+#include "Process.h"
+#include "SaveParameters.h"
 #include "Sst.h"
 #include "Interface.h"
 
@@ -28,7 +27,7 @@
 Fonction permettant le calcul de l'énergie dissipée à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1,class TV2>
-void calcul_ener_dissi_chap(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_dissi_chap(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -68,7 +67,7 @@ void calcul_ener_dissi_chap(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &p
     }
 }
 template <class TV1,class TV2>
-        void calcul_ener_dissi_chap_petrus(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_dissi_chap_petrus(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Process &process) {
             dissipation.set(0.);
             Vec<double> dissi_inter;
             dissi_inter.resize(dissipation.size());
@@ -102,7 +101,7 @@ template <class TV1,class TV2>
         }
         
 template <class TV1,class TV2>
-void calcul_ener_dissi_chap2(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_dissi_chap2(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Process &process) {
     typedef typename TV2::template SubType<0>::T INTER;
     dissipation.set(0.);
     Vec<double> dissi_inter;
@@ -153,7 +152,7 @@ void calcul_ener_dissi_chap2(TV1 &S, TV2 &Inter,Vec<double> &dissipation,Param &
 Fonction permettant le calcul de l'énergie dissipée à partir de la structure Inter et du Temps avec les quantités n.
 */
 template <class TV1, class TI>
-void calcul_ener_dissi_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_dissi_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -186,7 +185,7 @@ void calcul_ener_dissi_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &pro
     }
 }
 template <class TV1, class TI>
-        void calcul_ener_dissi_lin2(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_dissi_lin2(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
             dissipation.set(0.);
             Vec<double> dissi_inter;
             dissi_inter.resize(dissipation.size());
@@ -227,7 +226,7 @@ template <class TV1, class TI>
 Fonction permettant le calcul de l'énergie imposée à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -258,7 +257,7 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proc
     }
 }
 // template <class TV1, class TI>
-//         void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+//         void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
 //             dissipation.set(0.);
 //             Vec<double> dissi_inter;
 //             dissi_inter.resize(dissipation.size());
@@ -295,7 +294,7 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proc
 Fonction permettant le calcul de l'énergie imposée à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -327,7 +326,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &proce
     }
 }
 /*template <class TV1, class TI>
-void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+ v oid calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process* &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -369,7 +368,7 @@ struct add_ener_elem{
 };
 
 template <class TV1, class TI>
-void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process, DataUser &data_user) {
+void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process, DataUser &data_user) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -398,7 +397,7 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &
 Fonction permettant le calcul de l'intégrale des efforts tangents au carré à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter,Ut,Un,tmp0,tmp1,Ft0,Ftj;
     dissi_inter.resize(dissipation.size());
@@ -507,7 +506,7 @@ void calcul_Ft2_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) 
 Fonction permettant le calcul de l'intégrale des efforts tangents au carré à partir de la structure Inter et du Temps avec les quantités n.
 */
 template <class TV1, class TI>
-void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter,Ut,Un,tmp0,tmp1,Ft0,Ftj;
     dissi_inter.resize(dissipation.size());
@@ -619,7 +618,7 @@ void calcul_Ft2_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 Fonction permettant le calcul de la moyenne des efforts normaux à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -671,7 +670,7 @@ void calcul_Fn_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 Fonction permettant le calcul de l'intégrale des efforts normaux à partir de la structure Inter et du Temps avec les quantités n.
 */
 template <class TV1, class TI>
-void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -729,7 +728,7 @@ void calcul_Fn_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 Fonction permettant le calcul de la moyenne du saut de déplacement normal à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -786,7 +785,7 @@ void calcul_Un_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 /**
 Fonction permettant le calcul de la moyenne du saut de déplacement normal à partir de la structure Inter et du Temps avec les quantités n*/
 template <class TV1, class TI>
-void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter;
     dissi_inter.resize(dissipation.size());
@@ -848,7 +847,7 @@ void calcul_Un_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 Fonction permettant le calcul de la moyenne du saut de déplacement tangent à partir de la structure Inter et du Temps avec les quantités chapeaux.
 */
 template <class TV1, class TI>
-void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter,surf;
     dissi_inter.resize(dissipation.size());
@@ -950,7 +949,7 @@ void calcul_Ut_chap(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
 /**
 Fonction permettant le calcul de la moyenne du saut de déplacement tangent à partir de la structure Inter et du Temps avec les quantités n*/
 template <class TV1, class TI>
-void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Param &process) {
+void calcul_Ut_lin(TV1 &S, TI &Inter,Vec<double> &dissipation,Process &process) {
     dissipation.set(0.);
     Vec<double> dissi_inter,surf;
     dissi_inter.resize(dissipation.size());

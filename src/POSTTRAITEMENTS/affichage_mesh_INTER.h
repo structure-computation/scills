@@ -60,7 +60,7 @@ On visualise ensuite le type d'interface par le champ "type" dans paraview.
 
 Le numéro de l'interface est aussi assigné au champ "num"
 */
-template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &process) {
+template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &process) {
     
     Sc2String typemail=process.affichage->type_affichage;    
     Sc2String nom_generique = process.affichage->repertoire_save +"results/Geometry_inter";
@@ -121,7 +121,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Param &proce
 };
 
 
-// template<class INTER> void affich_INTER_endommagement(Vec<INTER> &Inter, Param &process) {
+// template<class INTER> void affich_INTER_endommagement(Vec<INTER> &Inter, Process &process) {
 //    Sc2String save = process.affichage->save;
 //    for(unsigned q=0;q<Inter.size();++q){
 //       int type=0;

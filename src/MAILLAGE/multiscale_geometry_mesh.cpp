@@ -10,8 +10,8 @@
 
 //fichiers de definition des variables
 #include "Boundary.h"
-#include "Param.h"
-#include "STRUCTURE.h"
+#include "Process.h"
+#include "GeneralParameters.h"
 #include "Sst.h"
 #include "Interface.h"
 
@@ -37,7 +37,7 @@ void multiscale_geometry_mesh(DataUser                          &data_user,
                               GeometryUser                      &geometry_user,
                               Vec<Sst>                          &S,
                               Vec<Interface>                    &Inter, 
-                              Param                             &process, 
+                              Process                           &process, 
                               Vec<Boundary>                     &CL,
                               Vec<VecPointedValues<Sst> >       &Stot,
                               Vec<VecPointedValues<Sst> >       &SubS,

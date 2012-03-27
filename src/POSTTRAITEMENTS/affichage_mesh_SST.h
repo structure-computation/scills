@@ -62,7 +62,7 @@ struct Projection_num_num_proc_on_skin{
 On crée un fichier (tmp/paraview0.vtu) dans lequel il est possible de visualiser le maillage avec éclaté (qtrans) , numéro des sous-structures (numsst) et type de matériau (typmat)
 */
 template<class TV1>
-void affich_SST(TV1 &S,Param &process) {
+void affich_SST(TV1 &S,Process &process) {
 
     Sc2String typemail=process.affichage->type_affichage;    
     Sc2String nom_generique = process.affichage->repertoire_save +"results/Geometry_sst";

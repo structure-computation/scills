@@ -63,7 +63,7 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
  
  Pour le jeu, en utilisant codegen et les noeuds équivalents de l'interface, on crée le champ jeu qui sera par la suite utilisé dans l'étape locale. Si l'utilisateur renseigne une seule valeur, on considère que c'est un jeu selon la normale, sinon il faut renseigner les valeurs selon x, y (et z) du jeu. 
  */
-void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Param &process,const DataUser &data_user);
+void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &process,const DataUser &data_user);
 
 
 #endif //ASSIGNATION_MATERIAL_PROPERTIES_INTERFACE_H

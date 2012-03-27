@@ -1,8 +1,21 @@
 #ifndef ITERATION_DECLARATIONS_H
 #define ITERATION_DECLARATIONS_H
 
-#include "../all_declarations.h"
+
+#include "../../LMT/include/containers/vec.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+
+#include "../COMPUTE/FieldStructureUser.h"
+#include "../COMPUTE/DataUser.h"
+
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/Boundary.h"
+#include "../DEFINITIONS/MacroProblem.h"
+
 using namespace LMT;
+using namespace Metil;
 
 
 /** \defgroup Strategie_iterative Strategie Iterative
@@ -26,8 +39,8 @@ void multiscale_iterate_latin(Vec<Sst>                          &S,
                               Vec<VecPointedValues<Sst> >       &SubS, 
                               Vec<Interface>                    &Inter, 
                               Vec<VecPointedValues<Interface> > &SubI, 
-                              Param                             &process, 
-                              Glob                              &Global, 
+                              Process                           &process, 
+                              MacroProblem                      &Global, 
                               Vec<Boundary>                     &CL, 
                               DataUser                          &data_user);
 
@@ -45,13 +58,13 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                              Vec<VecPointedValues<Sst> >       &SubS, 
                              Vec<Interface>                    &Inter, 
                              Vec<VecPointedValues<Interface> > &SubI, 
-                             Param                             &process, 
-                             Glob                              &Global, 
+                             Process                           &process, 
+                             MacroProblem                      &Global, 
                              Vec<Boundary>                     &CL, 
                              DataUser                          &data_user, 
                              GeometryUser                      &geometry_user, 
                              FieldStructureUser                &field_structure_user);
 
-#include "allocate.h"
+#include "manipulate_quantities.h"
 
 #endif //ITERATION_DECLARATIONS_H

@@ -3,9 +3,9 @@
 
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
-#include "../DEFINITIONS/Glob.h"
+#include "../DEFINITIONS/MacroProblem.h"
 #include "../DEFINITIONS/Boundary.h"
-#include "../DEFINITIONS/Param.h"
+#include "../DEFINITIONS/Process.h"
 
 #include <fstream>
 #include <sstream>
@@ -20,12 +20,6 @@
 #include "../GEOMETRY/GeometryUser.h"
 #include "../COMPUTE/DataUser.h"
 using namespace Metil;
-// #include "definition_PARAM_AFFICHAGE.h"
-// #include "affichage_mesh_SST.h"
-
-//#include "mesh/ordering.h"
-//#include "containers/evaluate_nb_cycles.h"
-
 #include "mpi.h"
 
 extern "C" {
@@ -50,7 +44,7 @@ using namespace LMT;
 La structure data_user contient une liste de group_elements correspondant à chaque sst et une id_material. Cet id_material correspond à l'identificateur des matériaux donnés dans le fichier json.
 A cette etape, on spécifie la taille du vecteur de Sous-structures par l'intermédiaire geometry_user.nb_group_elements et on assigne le numéro du matériau pour chaque sous-structure.
 */
-void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Param &process);
+void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Process &process);
 
 
 /**\ingroup Maillage_geometrie_sst
@@ -102,7 +96,7 @@ struct ConvertMeshConnectivitiesSkin{
 void convert_mesh_skin_to_geometry_user(Sst &S, GeometryUser &geometry_user);
 
 
-void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Param &process);
+void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Process &process);
 
 
 /** \ingroup Maillage_geometrie_inter
@@ -114,14 +108,14 @@ Le maillage de l'interface est obtenu par la lecture de geometry_user issue de S
 
 void read_mesh_interface_geometry_user(Sst::TMESH::TM &mesh, GeometryUser &geometry_user, int num_inter) throw(std::runtime_error);
 
-void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param &process);
+void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Process &process);
 
 /** \ingroup Maillage_geometrie_inter
 \brief Création des interfaces contenues dans une condition aux limites donnée
  
 On recherche les Ssts ayant une intersection avec chacune des conditions aux limites (intersection de boites). On extrait alors du maillage de peau de chaque Ssts sélectionnée le maillage contenu dans une condition aux limites donnée. 
 */
-void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Param &process);
+void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Process &process);
 
 struct make_interface_inter {
     void operator()(Interface &SubI, GeometryUser &geometry_user) const;
@@ -160,7 +154,7 @@ void create_SST_INTER(DataUser                          &data_user,
                       Vec<Sst>                          &S,
                       Vec<Interface>                    &Inter, 
                       Vec<Boundary>                     &CL, 
-                      Param                             &process, 
+                      Process                           &process, 
                       Vec<VecPointedValues<Sst> >       &Stot,
                       Vec<VecPointedValues<Sst> >       &SubS,
                       Vec<VecPointedValues<Interface> > &SubI);

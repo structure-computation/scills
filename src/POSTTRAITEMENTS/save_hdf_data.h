@@ -1,18 +1,18 @@
-#include "mise_a_jour_quantites.h"
+#include "../ITERATIONS/manipulate_quantities.h"
 #include <boost/concept_check.hpp>
-#include "FieldStructureUser.h"
+#include "../COMPUTE/FieldStructureUser.h"
 
 
 //Assignation des champs de géométrie d'éléments sur la peau à partir des champs des éléments parents correspondant
 struct Projection_data_elements_0_on_skin_sst{
-  template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
-    const typename TM::EA *ea = mskin.get_parents_of(e)[0];
-    typedef typename TM::TElemList::template SubType<0>::T TypeParent;
-    const TypeParent &parent = static_cast<const TypeParent &>( *ea );
-    e.numsst_skin = parent.numsst;
-    e.num_proc_skin = parent.num_proc;
-    e.typmat_skin = parent.typmat;
-  }
+    template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
+        const typename TM::EA *ea = mskin.get_parents_of(e)[0];
+        typedef typename TM::TElemList::template SubType<0>::T TypeParent;
+        const TypeParent &parent = static_cast<const TypeParent &>( *ea );
+        e.numsst_skin = parent.numsst;
+        e.num_proc_skin = parent.num_proc;
+        e.typmat_skin = parent.typmat;
+    }
 };
 
 //Assignation des champs de résultat d'éléments sur la peau à partir des champs des éléments parents correspondant
@@ -47,7 +47,7 @@ void calcul_explode_displacements(SST &S){
 
 //Permet de calculer les champs sur la SST et sur sa peau pour un pas de temps donné
 template<class TSST>
-void calcul_fields_on_sst(TSST &S, Param &process, DataUser &data_user) {
+void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
     if(process.nom_calcul=="incr")
         assign_dep_cont_slave(S,S.t[1].q, data_user); 
@@ -108,7 +108,7 @@ struct Extract_fields_on_element_sst{
 };
 
 template<class TINTER, class TSST>
-void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &process , DataUser &data_user, FieldStructureUser &field_structure_user, GeometryUser &geometry_user) {
+void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Process &process , DataUser &data_user, FieldStructureUser &field_structure_user, GeometryUser &geometry_user) {
     //sauvegarde des coordonnées des noeuds en entier de la sst
     for(unsigned i_sst=0;i_sst<SubS.size();i_sst++){
         //extraction des champs à partir du resultat de calcul (LMTpp)
@@ -131,117 +131,49 @@ void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Param &proces
                 field_structure_user.find_group_elements(id_sst)->explode_displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->node_list[i].qtrans[d];
             }
         }
-//         for(int d=0;d<DIM;d++){
-//             for(unsigned i=0;i<field_structure_user.find_group_elements(id_sst)->nb_nodes_skin;i++){
-//                 field_structure_user.find_group_elements(id_sst)->displacement_local_nodes_skin[d][i]=SubS[i_sst].mesh->skin.node_list[i].dep[d];
-//             }
-//         }
 
         //conversion des donnees sur les elements
         //extraction sur la SST
         apply(SubS[i_sst].mesh->elem_list,Extract_fields_on_element_sst(), field_structure_user.find_group_elements(id_sst));
         //extraction sur la peau
         apply(SubS[i_sst].mesh->skin.elem_list,Extract_fields_on_element_sst_skin(), field_structure_user.find_group_elements(id_sst));
-
-//         for(unsigned j=0;j<SubS[i_sst].edge.size();++j) {
-//             unsigned q=SubS[i_sst].edge[j].internum;
-//             unsigned data=SubS[i_sst].edge[j].datanum;
-//             int i_inter=geometry_user.find_group_elements(id_sst)->id_adjacent_group_interfaces[j];
-//             int i_side=geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[j];
-//             std::cout << i_inter << " " << i_side << std::endl;
-//             //if(data==0){
-//                 int nbnodeseq=field_structure_user.group_interfaces[i_inter].nb_interfaces;
-//                 std::cout << field_structure_user.find_group_interfaces(i_inter)->id << " " << nbnodeseq << " " << I[q].side[data].t[1].F.size() << std::endl;
-//                 for(int d=0;d<DIM;d++){
-//                     for(int ne=0;ne<nbnodeseq;ne++){
-//                         field_structure_user.find_group_interfaces(i_inter)->F[i_side][d][ne]=I[q].side[data].t[1].F[ne*DIM+d];
-//                         field_structure_user.find_group_interfaces(i_inter)->W[i_side][d][ne]=I[q].side[data].t[1].W[ne*DIM+d];
-//                     }
-//                 }       
-//             //}
-//         }
     }
-    
 }
 
 
 struct Extract_connectivities_on_element_sst{
-   template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot) const{
-    for(unsigned i=0;i<e.nb_nodes;i++){
-        S.mesh_connectivities[i][e.number]=e.node(i)->number_in_original_mesh()+nb_nodes_tot;
+    template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot) const{
+        for(unsigned i=0;i<e.nb_nodes;i++){
+            S.mesh_connectivities[i][e.number]=e.node(i)->number_in_original_mesh()+nb_nodes_tot;
+        }
     }
-   }
-   template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot, map<int,int> &correspondance_number_in_original_mesh_local_mesh) const{
-      for(unsigned i=0;i<e.nb_nodes;i++){
-          S.mesh_connectivities[i][e.number]=correspondance_number_in_original_mesh_local_mesh[e.node(i)->number_in_original_mesh()]+nb_nodes_tot;
-      }
-      S.num_processor[e.number]=e.num_proc_skin;
-      S.num_group[e.number]=e.numsst_skin;
-      S.material[e.number]=e.typmat_skin;
-
-   }
+    template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot, map<int,int> &correspondance_number_in_original_mesh_local_mesh) const{
+        for(unsigned i=0;i<e.nb_nodes;i++){
+            S.mesh_connectivities[i][e.number]=correspondance_number_in_original_mesh_local_mesh[e.node(i)->number_in_original_mesh()]+nb_nodes_tot;
+        }
+        S.num_processor[e.number]=e.num_proc_skin;
+        S.num_group[e.number]=e.numsst_skin;
+        S.material[e.number]=e.typmat_skin;
+    }
 };
+
 
 struct Extract_connectivities_on_element_sst_skin{
-   template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot) const{
-      for(unsigned i=0;i<e.nb_nodes;i++){
-          S.mesh_connectivities_skin[i][e.number]=e.node(i)->number_in_original_mesh()+nb_nodes_tot;
-      }
-      S.num_processor[e.number]=e.num_proc_skin;
-      S.num_group[e.number]=e.numsst_skin;
-      S.material[e.number]=e.typmat_skin;
-   }
+    template<class TE, class TS> void operator()(TE &e, TS &S, int nb_nodes_tot) const{
+        for(unsigned i=0;i<e.nb_nodes;i++){
+            S.mesh_connectivities_skin[i][e.number]=e.node(i)->number_in_original_mesh()+nb_nodes_tot;
+        }
+        S.num_processor[e.number]=e.num_proc_skin;
+        S.num_group[e.number]=e.numsst_skin;
+        S.material[e.number]=e.typmat_skin;
+    }
 };
 
-// struct Extract_connectivities_on_element_inter{
-//    template<class TE, class TI> void operator()(TE &e, TI &I, int nb_nodes_tot) const{
-//       for(unsigned i=0;i<e.nb_nodes;i++){
-//           I.mesh_connectivities[i][e.number]=e.node(i)->number_in_original_mesh()+nb_nodes_tot;
-//       }
-//       I.number[e.number]=e.num;
-//       I.nature[e.number]=e.type;
-//    }
-// };
-// 
-
-
-
-// template<class TSST>
-// void create_hdf_geometry_data_SST(TSST &S, Param &process, int nb_previous_nodes ) {
-//     //sauvegarde des coordonnées des noeuds
-//     int nb_nodes=S.mesh->skin.node_list.size();
-//     for(int d=0;d<DIM;d++){
-//         S.nodes[d].resize(nb_nodes);
-//         for(unsigned i=0;i<nb_nodes;i++){
-//             S.nodes[d][i]=S.mesh->skin.node_list[i].pos[d];
-//         }
-//     }
-//     
-//     //creation map pour connaitre les noeuds locaux
-//     map<int,int> correspondance_number_in_original_mesh_local_mesh;
-//     for(unsigned i=0;i<nb_nodes;i++)
-//           correspondance_number_in_original_mesh_local_mesh[ S.mesh->skin.node_list[i].number_in_original_mesh()]=i;
-//     
-//     //sauvegarde des connectivites du maillage de peau
-//     //definition des tailles
-//     S.mesh_connectivities.resize(S.nb_nodes_by_element);
-//     for(int ne=0;ne<S.nb_nodes_by_element;ne++)
-//         S.mesh_connectivities[ne].resize(S.mesh->skin.elem_list.size());
-//     
-//     apply(S.mesh->skin.elem_list,Projection_data_elements_0_on_skin_sst(),S.mesh->skin, *S.mesh.m);
-//     S.material.resize(S.mesh->skin.elem_list.size());
-//     S.num_processor.resize(S.mesh->skin.elem_list.size());
-//     S.num_group.resize(S.mesh->skin.elem_list.size());
-//     //extraction
-//     apply(S.mesh->skin.elem_list,Extract_connectivities_on_element_sst(), S, nb_previous_nodes, correspondance_number_in_original_mesh_local_mesh);
-//     
-// 
-// }
 
 struct Extract_connectivities_on_element_sst_inter{
    template<class TE, class TI, class TV> void operator()(TE &e, TI &I, int nb_nodes_tot, TV &correspondance_ddl_edge_sst) const{
       for(unsigned i=0;i<e.nb_nodes;i++){
-          I.mesh_connectivities[i][e.number]=correspondance_ddl_edge_sst[e.node(i)->number_in_original_mesh()*TI::dim]/TI::dim+nb_nodes_tot;
+          I.mesh_connectivities[i][e.number]=correspondance_ddl_edge_sst[e.node(i)->number_in_original_mesh()*DIM]/DIM+nb_nodes_tot;
       }
       I.number[e.number]=I.num;
       int type=0;
@@ -257,6 +189,7 @@ struct Extract_connectivities_on_element_sst_inter{
       I.nature[e.number]=type;
    }
 };
+
 
 struct find_nb_elements_with_type{
    template<class TE> void operator()(TE &e, Vec<int,4> &nb_elements_with_type) const{
@@ -275,6 +208,7 @@ struct find_nb_elements_with_type{
     else {std::cerr << "Type d'element non implemente " << std::endl;}
    }
 };
+
 
 template<class TSST>
 void test_nb_elements_with_type(TSST &S) {
@@ -313,9 +247,8 @@ void test_nb_elements_with_type(TSST &S) {
 #include "correspondance_ddl_sst.h"
 
 
-
 template<class TSST,class TV2>
-void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Param &process, int nb_previous_nodes) {
+void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, int nb_previous_nodes) {
 
     //sauvegarde des coordonnées des noeuds en entier de la sst
     int nb_nodes=S.mesh->node_list.size();
@@ -371,55 +304,7 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Param &process, int
                 apply(Inter[q].side[data].mesh->elem_list,Extract_connectivities_on_element_sst_inter(),Inter[q], nb_previous_nodes, S.edge[j].repddledge);
             }
     }
-    
 }
-
-// template<class TINTER>
-// void create_hdf_geometry_data_INTER(TINTER &I, Param &process, int nb_previous_nodes ) {
-//     //sauvegarde des coordonnées des noeuds
-//     int nb_nodes=I.side[0].mesh->node_list.size();
-//     for(int d=0;d<DIM;d++){
-//         I.nodes[d].resize(nb_nodes);
-//         for(unsigned i=0;i<nb_nodes;i++){
-//             I.nodes[d][i]=I.side[0].mesh->node_list[i].pos[d];
-//         }
-//     }
-// 
-//     //sauvegarde des connectivites du maillage de peau
-//     //definition des tailles
-//     I.mesh_connectivities.resize(I.nb_nodes_by_element);
-//     for(int ne=0;ne<I.nb_nodes_by_element;ne++)
-//         I.mesh_connectivities[ne].resize(I.side[0].mesh->elem_list.size());
-//     
-//     I.nature.resize(I.side[0].mesh->elem_list.size());
-//     I.number.resize(I.side[0].mesh->elem_list.size());
-//     //extraction
-//     apply(I.side[0].mesh->elem_list,Extract_connectivities_on_element_inter(), I, nb_previous_nodes);
-//     
-// }
-
-// template<class TSST>
-// void create_hdf_fields_data(TSST &S, Param &process ) {
-//     //sauvegarde des deplacements des noeuds
-//     int nb_nodes=S.mesh->skin.node_list.size();
-//     for(int d=0;d<DIM;d++){
-//         S.dep_nodes[d].resize(nb_nodes);
-//         for(unsigned i=0;i<nb_nodes;i++){
-//             S.dep_nodes[d][i]=S.mesh->skin.node_list[i].dep[d];
-//         }
-//     }
-//     
-//     //sauvegarde des donnees sur les elements
-//     //definition des tailles
-//     int nb_comp=DIM*(DIM+1)/2;
-//     for(unsigned i_comp=0;i_comp<nb_comp;i_comp++){
-//         S.sigma[i_comp].resize(S.mesh->skin.elem_list.size());
-//         S.epsilon[i_comp].resize(S.mesh->skin.elem_list.size());
-//         S.sigma_mises.resize(S.mesh->skin.elem_list.size());
-//     }
-//     //extraction
-//     apply(S.mesh->skin.elem_list,Extract_fields_on_element(), S);
-// }
 
 
 ///Ecriture des champs créés lors de la géométrie sur les elements des SST
@@ -431,6 +316,8 @@ template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, Sc2S
     name_field = name_list + "/num_group";
     S.num_group.write_to(hdf_file,name_field);    
 }
+
+
 ///Ecriture des champs créés lors de la géométrie sur les elements des INTERFACES
 template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, Sc2String name_list){
     Sc2String name_field = name_list + "/number";
@@ -439,36 +326,10 @@ template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, Sc
     S.nature.write_to(hdf_file,name_field);        
 }
 
-/*
-///sauvegarde de la geometrie utilise pour l'affichage des champs
-template<class TSST>
-void save_elements_hdf_sst(TSST &S, Param &process, Hdf &hdf_file, Sc2String name_geometry, Sc2String name_elements) {
-    Sc2String name_list ;
-    name_list<< name_geometry << "/"<< name_elements <<"/list_" << S.num ;
-    for (unsigned i_connect=0;i_connect<S.nb_nodes_by_element;i_connect++) {
-        Sc2String name_connect;
-        name_connect << name_list << "/mesh_c"<<i_connect;
-        S.mesh_connectivities[i_connect].write_to( hdf_file, name_connect );
-    }
-    save_data_on_elements_SST(S, hdf_file, name_list);
-    
-    Sc2String type_elements;
-    int pattern_id=0;
-#if DIM == 2
-    type_elements="Bar";
-    pattern_id=0;
-#else
-    type_elements="Triangle";
-    pattern_id=1;
-#endif
-    hdf_file.add_tag(name_list,"base",type_elements.c_str());
-}
-*/
-
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST, class TI>
-void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, Sc2String name_geometry) {
+void save_elements_hdf_sst_inter(TSST &S, TI &I, Process &process, Hdf &hdf_file, Sc2String name_geometry) {
     Sc2String name_list ;
     Sc2String name_elements;
  
@@ -519,9 +380,10 @@ void save_elements_hdf_sst_inter(TSST &S, TI &I, Param &process, Hdf &hdf_file, 
     }
 }
 
+
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TI>
-void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, Sc2String name_geometry, Sc2String name_elements) {
+void save_elements_hdf_inter(TI &I, Process &process, Hdf &hdf_file, Sc2String name_geometry, Sc2String name_elements) {
     Sc2String name_list ;
     name_list<< name_geometry << "/"<< name_elements <<"/list_" << I.num ;
     for (unsigned i_connect=0;i_connect<I.nb_nodes_by_element;i_connect++) {
@@ -544,9 +406,8 @@ void save_elements_hdf_inter(TI &I, Param &process, Hdf &hdf_file, Sc2String nam
 }
 
 
-
 template<class TSST, class TINTER>
-void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Param &process ) {
+void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Process &process ) {
     //sauvegarde des deplacements des noeuds dans la SST
     int nb_nodes=S.mesh->node_list.size();
     for(int d=0;d<DIM;d++){
@@ -617,7 +478,7 @@ void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Param &process ) {
 
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST>
-void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , Sc2String name_group_fields) {
+void save_fields_hdf_SST(TSST &S, Process &process, Hdf &hdf , Sc2String name_group_fields) {
     Sc2String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
     Sc2String name_sigma, name_epsilon ;
     name_sigma<< name_fields << "/sigma/list_" << S.num ;
@@ -639,9 +500,10 @@ void save_fields_hdf_SST(TSST &S, Param &process, Hdf &hdf , Sc2String name_grou
     S.sigma_mises.write_to(hdf,name_sigma_mises.c_str());
 }
 
+
 ///sauvegarde de la geometrie utilise pour l'affichage des champs
 template<class TSST, class TINTER>
-void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Param &process, Hdf &hdf , Sc2String name_group_fields) {
+void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Process &process, Hdf &hdf , Sc2String name_group_fields) {
     Sc2String name_fields; name_fields << name_group_fields <<"/pt_"<< process.temps->pt_cur;
 #if DIM==2
     BasicVec<Sc2String> tensor_comp= BasicVec<Sc2String>("/xx","/yy","/xy");
@@ -681,32 +543,31 @@ void save_fields_hdf_SST_INTER(TSST &S, TINTER &I, Param &process, Hdf &hdf , Sc
     BasicVec<Sc2String> name_direction("x","y","z");
     BasicVec<Sc2String> list_name_field("F","W","Fchap","Wchap");
     for(unsigned j=0;j<S.edge.size();++j) {
-            unsigned q=S.edge[j].internum;
-            unsigned data=S.edge[j].datanum;
-            Sc2String name_F; name_F<< name_fields << "/elements_1/F/list_" << q ;
-            Sc2String name_W; name_W<< name_fields << "/elements_1/W/list_" << q ;
-            Sc2String name_Fchap; name_Fchap<< name_fields << "/elements_1/Fchap/list_" << q ;
-            Sc2String name_Wchap; name_Wchap<< name_fields << "/elements_1/Wchap/list_" << q ;
-            if(data==0){
-                for (unsigned d=0;d<DIM;d++) {
-                    Sc2String name_Fdim=name_F+"/"+name_direction[d]; 
-                    I[q].F[d].write_to(hdf,name_Fdim);
-                    Sc2String name_Wdim=name_W+"/"+name_direction[d]; 
-                    I[q].W[d].write_to(hdf,name_Wdim);
-                    Sc2String name_Fchapdim=name_Fchap+"/"+name_direction[d]; 
-                    I[q].Fchap[d].write_to(hdf,name_Fchapdim);
-                    Sc2String name_Wchapdim=name_Wchap+"/"+name_direction[d]; 
-                    I[q].Wchap[d].write_to(hdf,name_Wchapdim);
-                }
+        unsigned q=S.edge[j].internum;
+        unsigned data=S.edge[j].datanum;
+        Sc2String name_F; name_F<< name_fields << "/elements_1/F/list_" << q ;
+        Sc2String name_W; name_W<< name_fields << "/elements_1/W/list_" << q ;
+        Sc2String name_Fchap; name_Fchap<< name_fields << "/elements_1/Fchap/list_" << q ;
+        Sc2String name_Wchap; name_Wchap<< name_fields << "/elements_1/Wchap/list_" << q ;
+        if(data==0){
+            for (unsigned d=0;d<DIM;d++) {
+                Sc2String name_Fdim=name_F+"/"+name_direction[d]; 
+                I[q].F[d].write_to(hdf,name_Fdim);
+                Sc2String name_Wdim=name_W+"/"+name_direction[d]; 
+                I[q].W[d].write_to(hdf,name_Wdim);
+                Sc2String name_Fchapdim=name_Fchap+"/"+name_direction[d]; 
+                I[q].Fchap[d].write_to(hdf,name_Fchapdim);
+                Sc2String name_Wchapdim=name_Wchap+"/"+name_direction[d]; 
+                I[q].Wchap[d].write_to(hdf,name_Wchapdim);
             }
+        }
     }
-   
 }
 
 #include "utils_2.h"
 
 template<class TSST>
-void write_hdf_geometry_SST(TSST &SubS, Param &process ) {
+void write_hdf_geometry_SST(TSST &SubS, Process &process ) {
     
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
@@ -738,8 +599,9 @@ void write_hdf_geometry_SST(TSST &SubS, Param &process ) {
     }
 }
 
+
 template<class TINTER>
-void write_hdf_geometry_INTER(TINTER &SubI, Param &process ) {
+void write_hdf_geometry_INTER(TINTER &SubI, Process &process ) {
     
     //chaque processeur calcul stocke les noeuds de ces interfaces
     BasicVec<int> nb_previous_nodes;
@@ -769,9 +631,8 @@ void write_hdf_geometry_INTER(TINTER &SubI, Param &process ) {
 }
 
 
-
 template<class TINTER, class TSST>
-void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Param &process , GeometryUser &geometry_user) {
+void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Process &process , GeometryUser &geometry_user) {
     
     
     //chaque processeur calcul stocke les noeuds de ces sst
@@ -803,14 +664,10 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Param &process , Geomet
     for(unsigned i=0;i<SubS.size();i++) {
         save_elements_hdf_sst_inter(SubS[i], I, process, hdf_file, process.affichage->name_geometry);
     }
-    
-    
-
-
 }
 
 template<class TSST>
-void write_hdf_fields_SST(TSST &SubS, Param &process ) {
+void write_hdf_fields_SST(TSST &SubS, Process &process ) {
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
     nb_previous_nodes.push_back(0);
@@ -850,11 +707,10 @@ void write_hdf_fields_SST(TSST &SubS, Param &process ) {
     int i_pt=process.temps->time_step[i_step].pt_cur;
     TYPE val_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt ;
     hdf_file.write_tag(name_fields,"time",val_time);
-
 }
 
 template<class TSST, class TINTER>
-void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataUser &data_user) {
+void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Process &process , DataUser &data_user) {
     //chaque processeur calcul stocke les noeuds de ces sst
     BasicVec<int> nb_previous_nodes;
     nb_previous_nodes.push_back(0);
@@ -936,8 +792,6 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Param &process , DataU
             //PRINT(name_field);
             hdf_file.add_tag(name_field,"type","Elem");
             hdf_file.write_tag(name_field,"nb_comp",list_nb_comp[i][j]);
-            
         }
     }
- 
 }

@@ -1,4 +1,4 @@
-#include "mise_a_jour_quantites.h"
+#include "../ITERATIONS/manipulate_quantities.h"
 
 
 /** \ingroup  PostTraitements
@@ -7,7 +7,7 @@
 L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
 */
 template<class TV2, class TV1>
-void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<Sc2String> &fields_to_save) {
+void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
     
     //nom du fichier de sauvegarde
@@ -82,7 +82,7 @@ void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<Sc2String> &fields_t
 L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
 */
 template<class TV2>
-void read_data_inter(TV2 &Inter, Param &process) {
+void read_data_inter(TV2 &Inter, Process &process) {
     //typedef typename TV2::template SubType<0>::T T;
     typedef TYPEREEL T;
     
@@ -208,7 +208,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
  
 */
 template<class TV1>
-void save_data_sst(TV1 &S, Param &process, Vec<Sc2String> &fields_to_save) {
+void save_data_sst(TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
 
     //nom du fichier de sauvegarde
@@ -249,7 +249,7 @@ void save_data_sst(TV1 &S, Param &process, Vec<Sc2String> &fields_to_save) {
 \brief Lecture des quantites désirées pour les interfaces
  */
 template<class TV1>
-void read_data_sst(TV1 &S, Param &process) {
+void read_data_sst(TV1 &S, Process &process) {
     typedef TYPEREEL T;
     //nom du fichier de sauvegarde
     ifstream is;

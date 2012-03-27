@@ -8,7 +8,7 @@ using namespace LMT;
 
 //fcts MPI
 #include "../MPI/crout.h"
-#include "../DEFINITIONS/MULTI_MPI.h"
+#include "../DEFINITIONS/MPIParameters.h"
 #include "../MPI/mpi_transactions.h"
 #include "../../LMT/include/containers/evaluate_nb_cycles.h"
 
@@ -21,16 +21,16 @@ extern Crout crout;
 \ingroup Strategie_iterative
 \brief Procédure principale de la stratégie latin en quasistatique.
   
-On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LATIN::critere_erreur) ou pour un nombre maximal d'itérations (LATIN::nbitermax). Celle ci est décrite dans les modules suivants :
+  On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LatinParameters::critere_erreur) ou pour un nombre maximal d'itérations (LatinParameters::nbitermax). Celle ci est décrite dans les modules suivants :
 - \ref etape_lineaire pour chaque piquet de temps successivement
 - \ref relaxation_quantities pour chaque piquet de temps successivement
 - \ref etape_locale pour chaque piquet de temps successivement
 - \ref calcul_erreur_latin
  
-Pendant la boucle latin, on assigne une valeur différente au coefficient LATIN::mu pour la relaxation. A la première itération on lui assigne 1.0 sinon on lui affecte la valeur de LATIN::facteur_relaxation (donné par l'utilisateur). 
+ Pendant la boucle latin, on assigne une valeur différente au coefficient LatinParameters::mu pour la relaxation. A la première itération on lui assigne 1.0 sinon on lui affecte la valeur de LatinParameters::facteur_relaxation (donné par l'utilisateur). 
 Le paramètre LATIN::list_error permet de lister l'erreur latin au cours des itérations.
 */
-void iterate_latin(Param &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface > > &SubI, Glob &Global, DataUser &data_user) {
+void iterate_latin(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface > > &SubI, MacroProblem &Global, DataUser &data_user) {
     //phase iterative
     bool flag_convergence=0;
     bool save_depl_SST=process.latin->save_depl_SST;
@@ -177,17 +177,17 @@ void iterate_latin(Param &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface
 \brief Procédure principale de la stratégie incrémentale en quasistatique.
  
  
-Pour chaque piquet de temps, on effectue une résolution itérative. On assigne une valeur différente au coefficient LATIN::mu pour la relaxation. A la première itération on lui assigne 1.0 sinon on lui affecte la valeur de LATIN::facteur_relaxation (donné par l'utilisateur).
+ Pour chaque piquet de temps, on effectue une résolution itérative. On assigne une valeur différente au coefficient LatinParameters::mu pour la relaxation. A la première itération on lui assigne 1.0 sinon on lui affecte la valeur de LatinParameters::facteur_relaxation (donné par l'utilisateur).
  
-On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LATIN::critere_erreur) ou pour un nombre maximal d'itérations (LATIN::nbitermax). Celle ci est décrite dans les modules suivants :
+ On effectue la boucle latin tant que le critère d'erreur n'est pas atteint (LatinParameters::critere_erreur) ou pour un nombre maximal d'itérations (LatinParameters::nbitermax). Celle ci est décrite dans les modules suivants :
 - \ref etape_lineaire pour le piquet de temps 1
 - \ref relaxation_quantites pour le piquet de temps 1
 - \ref etape_locale pour le piquet de temps 1
 - \ref calcul_erreur_incr
  
-Le paramètre LATIN::list_error permet de lister l'erreur latin au cours des itérations.
+ Le paramètre LatinParameters::list_error permet de lister l'erreur latin au cours des itérations.
 */
-void iterate_incr(Param &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, Glob &Global) {
+void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, MacroProblem &Global) {
 
     //phase iterative
     process.temps->pt=1;

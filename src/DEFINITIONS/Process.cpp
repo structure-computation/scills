@@ -1,32 +1,31 @@
-#include "Param.h"
-#include "AFFICHAGE.h"
-#include "STRUCTURE.h"
-#include "MULTI.h"
-#include "LATIN.h"
-#include "TEMPS.h"
+#include "Process.h"
+#include "SaveParameters.h"
+#include "GeneralParameters.h"
+#include "MultiScaleParameters.h"
+#include "LatinParameters.h"
+#include "TimeParameters.h"
 #include "PROPERTY.h"
-#include "MULTI_MPI.h"
+#include "MPIParameters.h"
 
 
-Param::Param()
+Process::Process()
 {
     // initialisation des valeurs
     nb_threads=1;
     sousint=1;
     type_sousint="p";
-    dim=2;
     nom_calcul="latin";
     recopie_t_post=0;
     save_data=0;
     allocation_memoire();
 }
 
-Param::~Param(){
+Process::~Process(){
     desallocation_memoire();
 }
 
 
-void Param::read_data_user(DataUser &data_user) {
+void Process::read_data_user(DataUser &data_user) {
     sousint = false;
     type_sousint = "h";
     rbm.bloq = false;
@@ -59,26 +58,26 @@ void Param::read_data_user(DataUser &data_user) {
 };
 
 
-void Param::allocation_memoire(){
-    affichage  = new AFFICHAGE;
-    structure  = new STRUCTURE;
-    latin      = new LATIN;
-    multiscale = new MULTI;
-    temps      = new TEMPS;
+void Process::allocation_memoire(){
+    affichage  = new SaveParameters;
+    structure  = new GeneralParameters;
+    latin      = new LatinParameters;
+    multiscale = new MultiScaleParameters;
+    temps      = new TimeParameters;
     properties = new PROPERTY;
-    multi_mpi  = new MULTI_MPI;
+    multi_mpi  = new MPIParameters;
     #ifdef PRINT_ALLOC
-    total_allocated[ typeid(AFFICHAGE).name() ] += sizeof(AFFICHAGE);
-    total_allocated[ typeid(STRUCTURE).name() ] += sizeof(STRUCTURE);
-    total_allocated[ typeid(LATIN).name() ]     += sizeof(LATIN);
-    total_allocated[ typeid(MULTI).name() ]     += sizeof(MULTI);
-    total_allocated[ typeid(TEMPS).name() ]     += sizeof(TEMPS);
+    total_allocated[ typeid(SaveParameters).name() ] += sizeof(SaveParameters);
+    total_allocated[ typeid(GeneralParameters).name() ] += sizeof(GeneralParameters);
+    total_allocated[ typeid(LatinParameters).name() ]     += sizeof(LatinParameters);
+    total_allocated[ typeid(MultiScaleParameters).name() ]     += sizeof(MultiScaleParameters);
+    total_allocated[ typeid(TimeParameters).name() ]     += sizeof(TimeParameters);
     total_allocated[ typeid(PROPERTY).name() ]  += sizeof(PROPERTY);
-    total_allocated[ typeid(MULTI_MPI).name() ] += sizeof(MULTI_MPI);
+    total_allocated[ typeid(MPIParameters).name() ] += sizeof(MPIParameters);
     #endif
 }
 
-void Param::desallocation_memoire(){
+void Process::desallocation_memoire(){
     if (affichage  != NULL) delete affichage;
     if (structure  != NULL) delete structure;
     if (latin      != NULL) delete latin;

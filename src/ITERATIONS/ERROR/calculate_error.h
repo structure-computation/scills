@@ -2,15 +2,15 @@
 #define CALCUL_ERREUR
 using namespace LMT;
 #include "types_erreurs.h"
-#include "../assign_quantities_current_to_old.h"
+#include "../manipulate_quantities.h"
 
 /** \defgroup calcul_erreur Calcul de l'erreur
 \ingroup LATIN
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LATIN::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LATIN::type_error == "ddr") : calcerror_ddr
+- erreur en énergie : (LatinParameters::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinParameters::type_error == "ddr") : calcerror_ddr
 Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 
@@ -18,7 +18,7 @@ Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme 
 \brief Fonction principale pour le calcul de l'erreur
 */
 template<class TV1, class TV2,class GLOB>
-void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
+void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     TYPEREEL num=0.0,den=0.0,eps=1e-9;
     Vec<TYPEREEL> frac;frac.resize(2+Inter.size());frac.set(0.);
     Vec<TYPEREEL> fracfin;fracfin.resize(2+Inter.size());fracfin.set(0.);
@@ -92,8 +92,8 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LATIN::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LATIN::type_error == "ddr") : calcerror_ddr
+- erreur en énergie : (LatinParameters::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinParameters::type_error == "ddr") : calcerror_ddr
 Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 
@@ -101,7 +101,7 @@ Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme 
 \brief Fonction principale pour le calcul de l'erreur
 */
 template<class TV1, class TV2,class GLOB>
-void calcul_erreur_incr(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
+void calcul_erreur_incr(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     TYPEREEL num=0.0,den=0.0,eps=1e-9;
     Vec<TYPEREEL> frac;frac.resize(2+Inter.size());frac.set(0.);
     Vec<TYPEREEL> fracfin;fracfin.resize(2+Inter.size());fracfin.set(0.);

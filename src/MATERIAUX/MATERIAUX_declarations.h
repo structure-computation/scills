@@ -4,7 +4,7 @@
 #include "../COMPUTE/DataUser.h"
 #include "../COMPUTE/FieldStructureUser.h"
 
-#include "../DEFINITIONS/Param.h"
+#include "../DEFINITIONS/Process.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
 #include "../DEFINITIONS/SstCarac_InterCarac.h"
@@ -26,8 +26,8 @@ using namespace Metil;
  *     - modif_inter() : application des propriétés aux interfaces
  *
  */
-void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matprops, Vec<Sst> &S, Param &process, FieldStructureUser &field_structure_user);
-void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Param &process, FieldStructureUser &field_structure_user);
+void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matprops, Vec<Sst> &S, Process &process, FieldStructureUser &field_structure_user);
+void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Process &process, FieldStructureUser &field_structure_user);
 
 
 #endif //MATERIAUX_DECLARATIONS_H

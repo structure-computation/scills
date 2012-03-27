@@ -4,16 +4,16 @@
 #include "containers/vec_mt.h"
 
 //fichiers de definition des variables
-#include "Param.h"
-#include "LATIN.h"
+#include "Process.h"
+#include "LatinParameters.h"
 
 // fonctions speciales
 #include "utilitaires.h"
 
 // fonctions utilisees dans le programme
-#include "MULTI.h"
-#include "MULTI_MPI.h"
-#include "TEMPS.h"
+#include "MultiScaleParameters.h"
+#include "MPIParameters.h"
+#include "TimeParameters.h"
 #include "optimisation_direction.h"
 #include "op_SST.h"
 
@@ -43,7 +43,7 @@ using namespace LMT;
 \brief Procédure principale permettant la création des opérateurs par sous-structure.
  */
 template<class TV1, class TV2,class TV3, class TV4>
-void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Param &process, DataUser &data_user) {
+void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Process &process, DataUser &data_user) {
 
 /*#ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);

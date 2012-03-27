@@ -5,8 +5,8 @@
 #include "../../LMT/include/containers/vec.h"
 //#include "../../LMT/include/codegen/codegen.h"
 //#include "../../LMT/include/containers/basicops.h"
-//#include "Param.h"
-//#include "TEMPS.h"
+//#include "Process.h"
+//#include "TimeParameters.h"
 
 /** \defgroup Conditions_limites
 Classe relative aux conditions limites

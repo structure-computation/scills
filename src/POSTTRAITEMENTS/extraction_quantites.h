@@ -3,7 +3,7 @@
 /** \ingroup  Post_Traitements
 \brief Extraction de l'evolution du déplacement d'un point donné par ses coordonnées 
 */
-void extraction_depl_pt(Vec<VecPointedValues<Sst> > &S, Param &process) {
+void extraction_depl_pt(Vec<VecPointedValues<Sst> > &S, Process &process) {
 #if DIM == 2
     //recherche du point dans une sous-structure
     for(unsigned i=0;i<S.size();i++) {
@@ -90,9 +90,9 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst> > &S, Param &process) {
 \brief Extraction de l'evolution des champs sur une interface a partir de son numéro et de l'element souhaite
 */
 /*template<class TT>
-void affichage_var_inter(Vec<VecPointedValues<Sst<2,TT> > > &S,Vec<Interface<2,TT>, Param &process) {*/
+ void affichage_var_inter(Vec<VecPointedValues<Sst<2,TT> > > &S,Vec<Interface<2,TT>, Process* &process) {*/
 template<class TV1,class TV2>
-void affichage_var_inter(TV1 &S,TV2 &Inter, Param &process) {
+void affichage_var_inter(TV1 &S,TV2 &Inter, Process &process) {
     typedef typename TV2::template SubType<0>::T INTER;
     //recherche du point dans une sous-structure
     for(unsigned i=0;i<S.size();i++) {

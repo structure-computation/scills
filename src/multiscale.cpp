@@ -20,9 +20,9 @@
 #include "../LMT/include/containers/mat.h"
 
 // fichiers de definition des classes
-#include "DEFINITIONS/AFFICHAGE.h"
-#include "DEFINITIONS/Param.h"
-#include "DEFINITIONS/Glob.h"
+#include "DEFINITIONS/SaveParameters.h"
+#include "DEFINITIONS/Process.h"
+#include "DEFINITIONS/MacroProblem.h"
 #include "DEFINITIONS/Sst.h"
 #include "DEFINITIONS/Interface.h"
 #include "DEFINITIONS/Boundary.h"
@@ -73,7 +73,7 @@ int main(int argc,char **argv) {
         return 1;
     }
     try {
-        Param process;
+        Process process;
         /// on fait ce qu il y a faire quand on est en MPI
         if (argc == 4 and strcmp(argv[3], "mpi")==0 ) {
             definition_mpi_param(process,argc,argv);
@@ -135,7 +135,6 @@ int main(int argc,char **argv) {
 
             /// lecture des donnees de calcul
             // donnees associees au calcul
-            process.dim=DIM;
             process.affichage->name_data= argv[2];
             if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
@@ -143,12 +142,12 @@ int main(int argc,char **argv) {
             Vec<Sst> S;
             Vec<Interface> Inter;
             Vec<Boundary> CL;
-            Glob Global;
+            MacroProblem Global;
             
             S.resize(geometry_user.nb_group_elements);
             multiscale(data_user, geometry_user, matprops, S, Inter, process,  CL, Global);
 
-            }
+        }
     #ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Duree complete du programme : " ;
@@ -206,19 +205,19 @@ Les champs du fichier xml doivent être inclus dans  :
 \endcode
  
 \section Lecture_calcul Lecture des données liées au calcul.
-La lecture du xml permet d'assigner les différents champs de l'instance process de la class Param.
+La lecture du xml permet d'assigner les différents champs de l'instance process de la class Process.
 Les champs xml suivants sont lus (cliquer sur les liens pour voir le détail des sous-champs à remplir):
-- paramètres assignés à la classe MULTI et Param \ref parametres_xml    
+- paramètres assignés à la classe MultiScaleParameters et Process \ref parametres_xml    
 \code <parametres /> \endcode               
-- paramètres temporels assignés à la classe TEMPS. \ref parametres_temporels_xml
+- paramètres temporels assignés à la classe TimeParameters. \ref parametres_temporels_xml
 \code <parametres_temporels /> \endcode  
-- parametres d'affichage (classe AFFICHAGE). \ref parametres_affichage_xml
+- parametres d'affichage (classe SaveParameters). \ref parametres_affichage_xml
 \code <parametres_affichage /> \endcode  
-- paramètres pour les directions de recherche (classe MULTI). \ref parametres_recherche_xml 
+- paramètres pour les directions de recherche (classe MultiScaleParameters). \ref parametres_recherche_xml 
 \code <parametres_recherche /> \endcode  
  
 \section Lecture_structure Lecture des données associées à la géométrie et au maillage 
-On lit ensuite la ligne suivante correspondant aux maillages et nombre de maillages à lire que l'on assigne à l'instance de la classe STRUCTURE contenue dans Param :\ref mesh
+On lit ensuite la ligne suivante correspondant aux maillages et nombre de maillages à lire que l'on assigne à l'instance de la classe GeneralParameters contenue dans Process :\ref mesh
 \code 
     <mesh />
 \endcode

@@ -1,15 +1,11 @@
 
-template<class TV1, class TV2> void modification_sst_inter_behaviour(TV1 &S, TV2 &Inter, TEMPS &param_incr){
+void modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimeParameters &param_incr){
     double eps=1e-3;
     for(unsigned i=0;i<Inter.size();i++){
         if(Inter[i].comp=="Cohesive"){
             double mind=1;
             for(unsigned j=0;j<Inter[i].side[0].nodeeq.size();j++)
-                {mind=min(Inter[i].param_comp->t[1].d[j],mind);
-
- //                std::cout<< "Interface numero "   << i << endl;
-//                 std::cout<< "d[j] "   << Inter[i].parammicro->d[j] <<  " dmax " << //Inter[i].parammicro->dmax[j] <<  endl;
-                }
+                mind=min(Inter[i].param_comp->t[1].d[j],mind);
                 std::cout << Inter[i].param_comp->t[1].d << "  "  << Inter[i].param_comp->dmax <<" min " << mind<< endl;
 
             if(mind<1.-eps){
@@ -18,8 +14,7 @@ template<class TV1, class TV2> void modification_sst_inter_behaviour(TV1 &S, TV2
                 std::cout<< "Valeur d apres : " <<  Inter[i].param_comp->t[1].d <<  endl;
 
                 Inter[i].param_comp->t[1].Ymax=Inter[i].param_comp->t[1].Y;
-                }
-            else{
+            }else{
                 Inter[i].comp="Contact";
                 std::cout << "Interface " << i << " passe contact" << endl;
                 std::cout<< "Valeur dmax avant : " <<  Inter[i].param_comp->t[1].dmax <<  endl;
@@ -28,6 +23,5 @@ template<class TV1, class TV2> void modification_sst_inter_behaviour(TV1 &S, TV2
             }
         }
     }
-
 }
 

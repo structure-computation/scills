@@ -1,14 +1,16 @@
-#ifndef PARAM_MULTI_H
-#define PARAM_MULTI_H
-
-using namespace LMT;
+#ifndef MULTISCALEPARAMETERS_H
+#define MULTISCALEPARAMETERS_H
 
 #include "../COMPUTE/DataUser.h"
+
+#include "../../LMT/include/containers/vec.h"
+using namespace LMT;
 
 
 /** Parametres multiechelles
 */
-struct MULTI{
+struct MultiScaleParameters{
+    //attributs==============================================================================================
     int multiechelle;           /// multiechelle = 1, monoechelle 0
     unsigned type_base_macro;   /// type de fct macro : 1 : Resultantes, 2: Moments, 3: partie lineaire
     unsigned sizeM;             /// nombre d'inconnues macro total
@@ -18,21 +20,11 @@ struct MULTI{
     bool opti_multi;            ///< optimisation du calcul en stoppant le macro a partir d'une erreur  donnée
     double erreur_macro;        ///< niveau d'erreur sur la solution macro à partir de laquelle on passe en monoéchelle
     
-    MULTI(){
-        multiechelle=1;
-        type_base_macro=3;
-        sizeM=0;
-        erreur_macro=1e-8;
-        opti_multi=1;
-    }
-    
-    void read_data_user(DataUser &data_user) {
-        multiechelle = data_user.options.multiechelle;
-        type_base_macro = 3;
-        opti_multi = 0;
-        erreur_macro = 0.000001;
-    }
+    //methodes===============================================================================================
+    MultiScaleParameters();
+    void read_data_user(DataUser &data_user);
+    void display_all_data();
 };
 
-#endif //PARAM_MULTI_H
+#endif //MULTISCALEPARAMETERS_H
 

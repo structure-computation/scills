@@ -1,7 +1,7 @@
 #ifndef SST_H
 #define SST_H
 
-#include "Param.h"
+#include "Process.h"
 //definition automatique des formulations ancetres et filles pour chaque formulation et element donnes dans SConstruct
 #include "../../build/problem_pb_elast/problem.h"
 // definition du maillage sur les bords de la sous-structure
@@ -18,16 +18,12 @@ using namespace LMT;
 //*********************************
 /** \ingroup Sous_structures
 \brief Classe Sous-structure parametrable
-
-Paramètres de la classe :.
-dim_ dimension du probleme 2 ou 3d.
-Reel_ type de flottant.
 */
 struct Sst
 {
-    typedef  Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;   ///< type de maillage pour la sous-structure
-    typedef  Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;            ///< type de maillage pour le bord des sous-structures
-    typedef  Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;            ///< type de matrice sparse (pour le solveur CholMod)
+    typedef Meshmulti<Mesh_carac_pb_elast<TYPEREEL,DIM> > TMESH;    ///< type de maillage pour la sous-structure
+    typedef Mesh<Meshcaracinter<DIM,DIM-1> > TMESHedge;             ///< type de maillage pour le bord des sous-structures
+    typedef Mat<TYPEREEL, Sym<>, SparseCholMod > TMATS;             ///< type de matrice sparse (pour le solveur CholMod)
     typedef FormulationAncestor<TYPEREEL> TF;                       ///< formulation generique choisie par le type de materiau et le type de resolution etudiee
     typedef Vec<TYPEREEL,DIM> Pvec;                                 ///< Type des points
     
@@ -79,7 +75,7 @@ struct Sst
     /// Structure temporelle contenant differents vecteurs
     struct Time{
         Vec<TYPEREEL> q;   ///< vecteurs solution q
-        void allocations(unsigned nbnode,Param &process){
+        void allocations(unsigned nbnode,Process &process){
             if (process.rank>0 or process.size==1) q.resize(nbnode);
             if (process.rank>0 or process.size==1) q.set(0.0);
             
@@ -97,6 +93,7 @@ struct Sst
 #else
     static const   int nb_nodes_by_element=3; 
 #endif  
+
     BasicVec<BasicVec<TYPEREEL>,DIM> nodes;                           ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<TYPEREEL>,DIM > dep_nodes_skin;                 ///< deplacements aux noeuds de peau d'une sst
     BasicVec<BasicVec<TYPEREEL>,DIM > dep_nodes;                      ///< deplacements aux noeuds de peau d'une sst

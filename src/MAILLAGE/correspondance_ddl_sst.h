@@ -1,9 +1,9 @@
+#ifndef CALC_SST_CORRESP
+#define CALC_SST_CORRESP
+
 
 using namespace LMT;
 
-
-#ifndef CALC_SST_CORRESP
-#define CALC_SST_CORRESP
 
 //********************************************
 // calcul des correspondance ddlbord -> ddl
@@ -15,11 +15,8 @@ using namespace LMT;
  
  Connaissant les numéros des noeuds dans le maillage de la sous-structure, on détermine les ddls correspondant que l'on stocke dans Sst::Edge::repddledge.
  */
-// struct Calc_SST_Correspddl {
-/*    template<class SST>
-    void operator()(SST &S, Param &process) const {*/
 template<class SST>
-void Calc_SST_Correspddl(SST &S, Param &process) {
+void Calc_SST_Correspddl(SST &S, Process &process) {
     for(unsigned j=0;j<S.edge.size();++j) {
         S.edge[j].repddledge.resize(S.edge[j].mesh->node_list.size()*DIM);
         typename IntersectionCarac<typename SST::TMESHedge::TNodeList, typename SST::TMESH::TM::TNodeList >::T inter=
@@ -40,7 +37,6 @@ void Calc_SST_Correspddl(SST &S, Param &process) {
         for(unsigned i=0;i<repnode.size();++i)
             S.edge[j].repddledge[range(i*DIM,(i+1)*DIM)]=range(repnode[i]*DIM,(repnode[i]+1)*DIM);
     }
-//     S.mesh.unload();
 }
 
 #endif //CALC_SST_CORRESP

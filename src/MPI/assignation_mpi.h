@@ -11,7 +11,7 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "../DEFINITIONS/MULTI_MPI.h"
+#include "../DEFINITIONS/MPIParameters.h"
 #include "../MAILLAGE/calculate_measure_G_SST.h"
 #include "mpi_lmt_functions.h"
 #include <fstream>
@@ -157,7 +157,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
                         if (k1 == (unsigned)process.rank)
                             break;
                         else {
-                            MULTI_MPI::INTERTOEXCHANGE temp;
+                            MPIParameters::INTERTOEXCHANGE temp;
                             temp.num = num;
                             temp.sidetosend = side;
                             temp.to = k1;
@@ -168,14 +168,14 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
                 }
             }
             if (side==0) {
-                MULTI_MPI::INTERTOEXCHANGE temp;
+                MPIParameters::INTERTOEXCHANGE temp;
                 temp.num = num;
                 temp.sidetosend = side;
                 temp.to = 0;
                 process.multi_mpi->intertoexchangeformaster.push_back(temp);
             }
             if (side==1) {
-                MULTI_MPI::INTERTOEXCHANGE temp;
+                MPIParameters::INTERTOEXCHANGE temp;
                 temp.num = num;
                 temp.sidetosend = side;
                 temp.to = 0;
@@ -194,7 +194,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
             }
         }
         if (found==0) {
-            MULTI_MPI::INTERTOEXCHANGEBYPRO temp;
+            MPIParameters::INTERTOEXCHANGEBYPRO temp;
             temp.inter.push_back(process.multi_mpi->intertoexchange[i]);
             temp.to = process.multi_mpi->intertoexchange[i].to;
             process.multi_mpi->intertoexchangebypro.push_back(temp);
@@ -206,7 +206,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
         for(unsigned j=0 ;j< process.multi_mpi->intertoexchangebypro[i].inter.size();j++ ) {
             internum.push_back(process.multi_mpi->intertoexchangebypro[i].inter[j].num);
         }
-        Vec<MULTI_MPI::INTERTOEXCHANGE> temp;
+        Vec<MPIParameters::INTERTOEXCHANGE> temp;
         temp.resize(internum.size());
         temp=process.multi_mpi->intertoexchangebypro[i].inter[sort_with_index(internum)];
         process.multi_mpi->intertoexchangebypro[i].inter=temp;
@@ -377,7 +377,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
 
 
 template<class TV1,class TV2>
-void memory_free(TV1 &S,TV2 &Inter,Param &process) {
+void memory_free(TV1 &S,TV2 &Inter,Process &process) {
     std::cout << process.rank << " : " << process.multi_mpi->listsst.size() << endl;
     int nbedge=0,nbvois=0;
     for(unsigned i=0;i<S.size();i++)

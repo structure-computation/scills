@@ -60,8 +60,8 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
                            Vec<VecPointedValues<Sst> >       &SubS, 
                            Vec<Interface>                    &Inter, 
                            Vec<VecPointedValues<Interface> > &SubI, 
-                           Param                             &process, 
-                           Glob                              &Global, 
+                           Process                           &process, 
+                           MacroProblem                      &Global, 
                            DataUser                          &data_user) {
 
     TicToc2 tic;

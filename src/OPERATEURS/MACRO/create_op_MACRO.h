@@ -1,22 +1,23 @@
 //librairies Hugo
-#include "containers/mat.h"
+#include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/containers/vec.h"
+#include "../../../LMT/include/containers/vecpointedvalues.h"
 
 //#include "mesh/mesh.h"
 //#include "mesh/problem.h"
 //#include "mesh/displayparaview.h"
-#include <fstream>
-#include <map>
+#include <iostream>
 
-//#include "../entete.h"
 //fichiers de definition des variables
-#include "Param.h"
-#include "MULTI.h"
-#include "Glob.h"
-#include "Boundary.h"
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/MultiScaleParameters.h"
+#include "../../DEFINITIONS/MacroProblem.h"
+#include "../../DEFINITIONS/Boundary.h"
 
 
 // fonctions speciales math et autre
-#include "utilitaires.h"
+#include "../../UTILITAIRES/utilitaires.h"
 
 #include "op_macro.h"
 
@@ -43,56 +44,25 @@ using namespace LMT;
 //************************************
 // Procedure macro globale
 //************************************
-template<class TV1, class TV2, class GLOB >
-void create_op_MACRO(TV1 &S, TV2 &Inter, Param &process,  GLOB &Global) {
-
-    //reperage des ddls macro dans le probleme macro
-    if (process.rank == 0)
+void create_op_MACRO(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process,  MacroProblem &Global) {
+    //Seul le processeur 0 (master) s'occupe du probleme macro
+    if(process.rank == 0){
+        //reperage des ddls macro dans le probleme macro
         std::cout <<  "\t Reperage ddl macro" << endl;
-    Repere_ddl_Inter(S,Inter,process);
+        Repere_ddl_Inter(S,Inter,process);
 
-    Mat<TYPEREEL, Sym<>, SparseLine<> > bigK;
-    if (process.rank == 0)
+        Mat<TYPEREEL, Sym<>, SparseLine<> > bigK;
         std::cout <<  "\t Assemblage probleme macro" << endl;
-    if (process.rank == 0)
-        bigK=Assem_prob_macro(S,Inter,process);
-    if (process.rank == 0)
+        Assem_prob_macro(S,Inter,process,bigK);
         std::cout <<  "\t Blocage du probleme macro" << endl;
-    if (process.rank == 0)
-        Global.repddlMbloq=macro_CL(Inter,process);
-    //penalisation de la matrice macro
-    if (process.rank == 0)
+        macro_CL(Inter,process,Global.repddlMbloq);
+        //penalisation de la matrice macro
         std::cout <<  "\t Penalisation du probleme macro" << endl;
-    if (process.rank == 0)
         penalisation(bigK,Global.repddlMbloq,Global.coefpenalisation);
 
-    if (process.rank == 0)
         std::cout << "Taille du probleme macro : " << bigK.nb_rows() << endl;
-    //factorisation de la matrice macro
-    if (process.rank == 0)
+        //factorisation de la matrice macro
         std::cout <<  "\t Factorisation matrice macro" << endl;
-    //Global.bigL=inv(bigK);
-//    Ecrire la matrice macro dans un fichier
-/*    if (process.rank == 0) {
-       for(unsigned i=0;i<bigK.nb_rows();++i) {
-           if (bigK(i,i)==0){
-               bigK(i,i)=Global.coefpenalisation;
-               std::cout << "\t\tModification du terme " << i << endl;
-           }
-       }
+        Global.l.get_factorization( bigK, true, true );
     }
-    Sc2String name="Kmacro";
-   ofstream f(name.c_str());
-   for(unsigned i=0;i<bigK.data.size();++i) {
-       for(unsigned j=0;j<bigK.data[i].indices.size();j++){
-           f << (i+1) << " " << (bigK.data[i].indices[j]+1) << " " << bigK.data[i].data[j] << endl ;
-   }
-   }*/
-//    f << bigK << endl ;
-
-
-     if (process.rank == 0)
-       Global.l.get_factorization( bigK, true, true );
-
-
 };

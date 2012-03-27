@@ -18,7 +18,7 @@
  Pour la partie multiéchelle, on construit enfin le terme à ajouter au second membre macro \f$ \int_{\partial \Omega_E} \hat{F}_d \tilde{W}^* \f$ , provenant des différents cotés des interfaces. Ici, \f$ \hat{F}_d = F_1 \f$ et on effectue simplement l'intégrale et la multiplication par la base macro pour extraire les composantes macro à assembler.
  */
 struct semilinstage1 {
-    void operator()(Sst &S,Vec<Interface> &Inter,Param &process) const {
+    void operator()(Sst &S,Vec<Interface> &Inter,Process &process) const {
         unsigned pt=process.temps->pt;
         // assemblage du second membre : droitm
         Vec<TYPEREEL> droitm,Qd ;

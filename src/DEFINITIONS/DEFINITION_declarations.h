@@ -2,17 +2,17 @@
 #define DEFINITION_DECLARATIONS_H
 
 // SC_multi_2
-struct Param;     // container pour les structures de donnees suivantes:
-struct AFFICHAGE; // parametres d'affichage
-struct STRUCTURE; // parametres de maillages et geometries
-struct LATIN;     // parametres associes a la resolution LATIN
-struct MULTI;     // parametres multiechelles
-struct TEMPS;     // parametres temporels
+struct Process;     // container pour les structures de donnees suivantes:
+struct SaveParameters; // parametres d'affichage
+struct GeneralParameters; // parametres de maillages et geometries
+struct LatinParameters;     // parametres associes a la resolution LATIN
+struct MultiScaleParameters;     // parametres multiechelles
+struct TimeParameters;     // parametres temporels
 struct PROPERTY;  // parametres de proprietes materielles globales
-struct MULTI_MPI; // parametres de MPI
+struct MPIParameters; // parametres de MPI
 
 // Structures de donnees d'origine
-struct Glob;
+struct MacroProblem;
 struct Sst;
 struct SstCarac;
 struct Interface;

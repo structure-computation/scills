@@ -1,16 +1,17 @@
-#ifndef PARAM_LATIN_H
-#define PARAM_LATIN_H
+#ifndef PARAM_SC2LATIN_H
+#define PARAM_SC2LATIN_H
 
 
 #include "../UTILS/Sc2String.h"
 #include "../COMPUTE/DataUser.h"
-
+#include "../../LMT/include/containers/vec.h"
 using namespace LMT;
 
 /** \ingroup Parametres
 \brief Paramètres associés à la stratégie LATIN
 */
-struct LATIN{
+struct LatinParameters{
+    //attributs==============================================================================================
     int iter;               ///< numero de l'itération courante
     int nbitermax;          ///< nombre d'itérations max
     double mu;              ///< facteur de relaxation courant  (1 à la première itération puis égal au facteur de relaxation)
@@ -45,38 +46,10 @@ struct LATIN{
     */
     Sc2String ktype;
     
-    
-    ///Constructeur : valeurs par défaut pour les paramètres
-    LATIN(){
-        iter=0;
-        nbitermax=100;
-        mu=0.8;
-        ktype="scalaire_auto_CL";
-        kfact=200e3;
-        copydirection=1;
-        critere_erreur=1e-4;
-        facteur_relaxation=mu;
-        type_error="ddr";
-        list_error=0;
-        save_depl_SST=1;
-        alloc_quantites=1;
-    }
-    
-    void read_data_user(DataUser &data_user){
-        nbitermax = data_user.options.LATIN_nb_iter_max;
-        facteur_relaxation = 0.8;
-        critere_erreur = data_user.options.LATIN_crit_error;
-        critere_erreur_diss = 0;
-        critere_erreur_auto_stop = data_user.options.LATIN_crit_error_auto_stop;
-        type_error = "ddr";
-        if (type_error=="dissipation") critere_erreur_diss = 0;
-        
-        ktype = "scalaire_auto_CL";
-        kfact = 1;
-        copydirection = 0; 
-        list_error= 1;
-    }
+    //methodes===============================================================================================
+    LatinParameters(); ///< Constructeur : valeurs par défaut pour les parametres
+    void read_data_user(DataUser &data_user); ///< Charge les donnees depuis le DataUser
 };
 
-#endif //PARAM_LATIN_H
+#endif //SC2PARAM_LATIN_H
 

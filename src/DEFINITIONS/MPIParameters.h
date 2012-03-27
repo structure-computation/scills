@@ -1,5 +1,5 @@
-#ifndef PARAM_MULTI_MPI_H
-#define PARAM_MULTI_MPI_H
+#ifndef MPIPARAMETERS_H
+#define MPIPARAMETERS_H
 
 #include "../../LMT/include/containers/vec.h"
 using namespace LMT;
@@ -7,7 +7,8 @@ using namespace LMT;
 /** \ingroup Parametres
 \brief Parmamètres associés aux données MPI
 */
-struct MULTI_MPI{
+struct MPIParameters{
+    //attributs==============================================================================================
     Vec<Vec<int> > repartition_sst;
     Vec<unsigned> listsst;
     Vec<unsigned> listinter;
@@ -30,5 +31,5 @@ struct MULTI_MPI{
 
 };
 
-#endif //PARAM_MULTI_MPI_H
+#endif //MPIPARAMETERS_H
 

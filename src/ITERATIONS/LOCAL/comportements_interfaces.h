@@ -121,15 +121,6 @@ void compt_parfait (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Fchap[list1]=Fchap1;
     Inter.side[1].t[imic].Fchap[list2]=-1.0*Fchap1;
     
-    
-/*    cout << WW1 << endl;
-    cout << WW2 << endl;
-    cout << Wchap1 << endl;
-    cout << Q1 << endl;
-    cout << Q2 << endl;
-    cout << Fchap1 << endl;*/
-   
-    
 }
 
 //interface interieure de type jeu impose = idem interface parfaite avec prise en compte du jeu
@@ -138,7 +129,7 @@ void compt_parfait (Interface &Inter,int &imic) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type jeu imposé
 */
-void compt_jeu_impose (Interface &Inter,TEMPS &temps) {
+void compt_jeu_impose (Interface &Inter,TimeParameters &temps) {
     int imic = temps.pt;
     unsigned pt_cur=temps.pt_cur;
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
@@ -259,7 +250,7 @@ struct apply_type_elem{
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type contact avec frottement, avec jeu ou non
 */
-void compt_contact (Interface &Inter,TEMPS &temps) {
+void compt_contact (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -403,7 +394,7 @@ void compt_contact (Interface &Inter,TEMPS &temps) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type defaut de forme
 */
-void compt_contact_ep (Interface &Inter,TEMPS &temps) {
+void compt_contact_ep (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -532,7 +523,7 @@ void compt_contact_ep (Interface &Inter,TEMPS &temps) {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type parfait cassable
 */
-void compt_breakable (Interface &Inter,TEMPS &temps) {
+void compt_breakable (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;
@@ -694,7 +685,7 @@ struct assign_d_mesh {
 \relates etape_locale_inter
 \brief Procédure pour les interfaces intérieures de type cohésif
 */
-void compt_cohesif (Interface &Inter,TEMPS &temps) {
+void compt_cohesif (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
     double dt=temps.dt;

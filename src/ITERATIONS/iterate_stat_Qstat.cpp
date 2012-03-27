@@ -1,28 +1,20 @@
 //librairies Hugo
-#include "../../LMT/include/containers/mat.h"
-#include "../../LMT/include/containers/vecpointedvalues.h"
+
+#include "ITERATIONS_declarations.h"
 
 //fichiers de definition des variables
-#include "../DEFINITIONS/definition_PARAM_COMP_INTER.h"
-#include "../DEFINITIONS/Param.h"
-#include "../DEFINITIONS/LATIN.h"
-#include "../DEFINITIONS/MULTI.h"
-#include "../DEFINITIONS/TEMPS.h"
-#include "../DEFINITIONS/Glob.h"
-#include "../DEFINITIONS/Sst.h"
-#include "../DEFINITIONS/Interface.h"
-#include "../DEFINITIONS/Boundary.h"
-#include "../DEFINITIONS/AFFICHAGE.h"
+#include "../DEFINITIONS/LatinParameters.h"
+#include "../DEFINITIONS/TimeParameters.h"
+#include "../DEFINITIONS/SaveParameters.h"
 
 // fonctions speciales math
 #include "../UTILITAIRES/algebre.h"
 #include "../UTILITAIRES/utilitaires.h"
 
 // fonction utilisees pour la phase d'initialisation ou affectation des valeurs des CL puis phase iterative
-#include "allocate.h"
+#include "manipulate_quantities.h"
 #include "iterate.h"
 #include "prelocalstage.h"
-#include "assign_quantities_current_to_old.h"
 #include "ERROR/calculate_error.h"
 
 #include "modification_sst_inter_behaviour.h"
@@ -34,18 +26,17 @@
 #include "../POSTTRAITEMENTS/save_read_data.h"
 #include "../POSTTRAITEMENTS/save_hdf_data.h"
 
-#include "../COMPUTE/FieldStructureUser.h"
 
-using namespace LMT;
-using namespace Metil;
+//using namespace LMT;
+//using namespace Metil;
 
 
 void multiscale_iterate_latin(Vec<Sst>                          &S,
                               Vec<VecPointedValues<Sst> >       &SubS, 
                               Vec<Interface>                    &Inter, 
                               Vec<VecPointedValues<Interface> > &SubI, 
-                              Param                             &process, 
-                              Glob                              &Global, 
+                              Process                           &process, 
+                              MacroProblem                      &Global, 
                               Vec<Boundary>                     &CL, 
                               DataUser                          &data_user) {
     if(process.latin->alloc_quantites==1) {
@@ -85,14 +76,14 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                              Vec<VecPointedValues<Sst> >       &SubS, 
                              Vec<Interface>                    &Inter, 
                              Vec<VecPointedValues<Interface> > &SubI, 
-                             Param                             &process, 
-                             Glob                              &Global, 
+                             Process                           &process, 
+                             MacroProblem                      &Global, 
                              Vec<Boundary>                     &CL, 
                              DataUser                          &data_user, 
                              GeometryUser                      &geometry_user, 
                              FieldStructureUser                &field_structure_user) {
 
-    //Présence d'interface Breakable ?
+    ///Présence d'interface Breakable ?
     int nb_breakable=0;
     if (process.rank == 0)
         for(unsigned q=0; q <Inter.size();q++)
@@ -102,7 +93,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
         MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
     process.nb_breakable = nb_breakable ;
   
-    //1ere phase : allocations et initialisation des quantites
+    ///1ere phase : allocations et initialisation des quantites
     if (process.rank == 0)
         std::cout << " Allocations des quantites d'interfaces et SST" << endl;
     if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);
@@ -138,7 +129,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
     if (process.size>1)
         MPI_Barrier(MPI_COMM_WORLD);
 
-    // A mettre ici pour la thermique seulement
+    /// A mettre ici pour la thermique seulement
     apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process, data_user);
 
     if (process.rank == 0)
@@ -154,9 +145,6 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
         if (process.rank == 0)
             std::cout << "----Piquet de temps courant " << process.temps->current_time << std::endl;
 
-//         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-//         std::cout << process.rank<< " : barrier2 : " << endl;
-
         //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
         if (process.size == 1 or process.rank>0)
             assign_CL_values_space_time_incr(SubI, CL, process, data_user);
@@ -166,9 +154,6 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                 std::cout << "ft " << CL[ic].ft << std::endl;
 /*            std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
         }
-        
-/*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-        std::cout << process.rank<< " : barrier3 : " << endl;*/
         
         if(process.reprise_calcul>0)
             calcul_erreur_incr(SubS, Inter, process, Global);
@@ -201,7 +186,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
         } else {
             iterate_incr(process,SubS,Inter,SubI,Global);
         }
-        //assignation ptcur au ptold
+        ///assignation ptcur au ptold
         std::cout << "          assign_quantities_current_to_old : " << endl;
         assign_quantities_current_to_old(SubS,SubI,process);
         
@@ -215,16 +200,13 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                 field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields, process.temps->pt_cur, process.temps->current_time, process.rank);
             }
         
-        //modification de certaines interfaces ou sst (exemple endommagement)
-        //modification_sst_inter_behaviour(S,Inter,param_incr);
-        if (process.rank == 0)
-            std::cout << "---- fin piquet de temps " << process.temps->current_time << std::endl;
+        ///Modification du comportement des entites
+        //modification_sst_inter_behaviour(S,Inter,process.temps);
+        
+        if (process.rank == 0) std::cout << "---- fin piquet de temps " << process.temps->current_time << std::endl;
     }
-//     calcul_erreur_latin(SubS, Inter, process, Global);
-//     if (process.rank == 0)
-//         std::cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
 
-    //Affichage des energies
+    ///Affichage des energies
     if (process.affichage->trac_ener_imp == 1) {
         process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
         affichage_energie(SubS,Inter,process,data_user);

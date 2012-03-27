@@ -1,14 +1,13 @@
 #ifndef CREATE_FILE_PVD
 #define CREATE_FILE_PVD
 
-#include "AFFICHAGE.h"
-#include "TEMPS.h"
-#include "Param.h"
-#include "LATIN.h"
+#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/TimeParameters.h"
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/LatinParameters.h"
 
 
-inline void create_file_pvtu(Param &process, const Sc2String prefix="sst_", unsigned pt=0, unsigned pt1=0){
-  int dim=process.dim;
+inline void create_file_pvtu(Process &process, const Sc2String prefix="sst_", unsigned pt=0, unsigned pt1=0){
   Vec<Sc2String> display_fields;
   unsigned typepvtu=1; //defaut quand on sort les inter ou sst et contact
   if (prefix=="sst_" or prefix=="inter_" or prefix=="contact_") typepvtu=0;
@@ -60,7 +59,7 @@ inline void create_file_pvtu(Param &process, const Sc2String prefix="sst_", unsi
   os << "\t</PCellData>"<<endl;
  //type de point
   os << "\t<PPoints>"<<endl;
-  os << "\t\t<DataArray type=\"Float64\" NumberOfComponents=\""<<dim<<"\"/>"<<endl;
+  os << "\t\t<DataArray type=\"Float64\" NumberOfComponents=\""<<DIM<<"\"/>"<<endl;
   os << "\t</PPoints>"<<endl;
  //ajout des parties
   for(unsigned i=1;i<(unsigned)process.size;i++){
@@ -71,7 +70,7 @@ inline void create_file_pvtu(Param &process, const Sc2String prefix="sst_", unsi
 }
 
 
-inline void create_file_pvd(Param &process,const Sc2String prefix="sst_",unsigned pt=0){
+inline void create_file_pvd(Process &process,const Sc2String prefix="sst_",unsigned pt=0){
    unsigned nbfiles = process.temps->nbpastemps;
    Sc2String name_data = process.affichage->repertoire_save+prefix+process.affichage->name_data;
    if (prefix=="contact_") nbfiles=process.latin->iter+1;
@@ -109,7 +108,7 @@ inline void create_file_pvd(Param &process,const Sc2String prefix="sst_",unsigne
 }
 
 //creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
-inline void create_file_pvd(Param &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
+inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
    Sc2String save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
     
    //creation du nom et du fichier pvd
@@ -156,7 +155,7 @@ inline void create_file_pvd(Param &process, DataUser &data_user, const Sc2String
 }
 
 //creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
-inline void create_file_pvd_geometry(Param &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
+inline void create_file_pvd_geometry(Process &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
    Sc2String save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
     
    //creation du nom et du fichier pvd

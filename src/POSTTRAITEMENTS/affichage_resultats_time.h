@@ -26,7 +26,7 @@ struct Projection_sigma_epsilon_on_skin{
 };
 
 //procedure permettant de sortir les fichiers paraview pour le volume et la peau des sst en une seule passe.
-template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser &data_user) {
+template<class TV1> void write_paraview_results(TV1 &S,Process &process, DataUser &data_user) {
     
     //preparation des noms et des repertoires pour ecriture des resultats
     Sc2String name_multiresolution="";
@@ -92,7 +92,7 @@ template<class TV1> void write_paraview_results(TV1 &S,Param &process, DataUser 
  
  Pour un calcul quasistatique en latin, on a stocké dans le vecteur t la solution a convergence pour chaque pas de temps, c'est donc celle ci qui est affichée et pour laquelle on calcule contrainte déformation et autre quantité.
  */
-template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process, DataUser &data_user) {
+template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, DataUser &data_user) {
     Sc2String name_multiresolution="";
     if(data_user.options.Multiresolution_on==1)
         name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
@@ -427,7 +427,7 @@ template<class TV2> int find_inter_in_subi(TV2 &Inter, int &num){
     return -1;
 }
 
-template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Param &process){
+template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Process &process){
 
       unsigned pt=process.affichage->pt;
       unsigned data = process.affichage->side;// choix du cote
@@ -494,7 +494,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pa
 /**\ingroup Post_traitement 
  \brief Procedure permettant d'afficher les champs après calcul sur les interfaces pour chaque piquet de temps
  */
-template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param &process) {
+template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Process &process) {
    
    Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
    

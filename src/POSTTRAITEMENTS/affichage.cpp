@@ -1,32 +1,32 @@
 //librairie Hugo
-#include "containers/mat.h"
+#include "../../LMT/include/containers/mat.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../../LMT/include/mesh/mesh.h"
+#include "../../LMT/include/containers/gnuplot.h"
 
-#include "mesh/mesh.h"
 #include "displayparaview2.h"
+
 #include <fstream>
 #include <map>
-#include "containers/gnuplot.h"
 
 // fichiers de definition des variables
-#include "definition_PARAM_MICRO_INTER.h"
-#include "Param.h"
-#include "AFFICHAGE.h"
-#include "Sst.h"
-#include "Interface.h"
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/TimeParameters.h"
 
-#include "mise_a_jour_quantites.h"
+#include "../ITERATIONS/manipulate_quantities.h"
 
 #include "affichage_mesh_SST.h"
 #include "affichage_mesh_INTER.h"
 
-#include "TEMPS.h"
 #include "affichage_resultats_time.h"
 #include "create_file_pvd.h"
 
 #include "calculs_energies.h"
 #include "extraction_quantites.h"
 
-#include "containers/vecpointedvalues.h"
 #include "mpi.h"
 
 //#include "calcul_dep3d_defPG.h"
@@ -35,10 +35,8 @@ using namespace LMT;
 
 #include "affichage.h"
 void fake_affichage() {
-//     XmlNode n;
-    Param process;
+    Process process;
     DataUser data_user;
-//     Vec<Splitted<Sst<DIM,TYPEREEL> ,16> > S3;
     Vec<Sst> S3;
     Vec<VecPointedValues<Sst> > SP3;
     Vec<Interface> Inter3;
@@ -51,7 +49,7 @@ void fake_affichage() {
     affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process, data_user);
     affichage_energie(SP3,Inter3, process, data_user);
-
+    
 }
 
 
@@ -68,7 +66,7 @@ Plusieurs fonctions sont accessibles dans tous les fichiers, en incluant le fich
 /** \ingroup Post_Traitement
 \brief Creation d'un fichier pvd regroupant les differentes solutions pour chaque pas de temps et lancement de paraview avec ce fichier
 */
-void affichage_resultats_temps(Param &process) {
+void affichage_resultats_temps(Process &process) {
       create_file_pvd(process,"sst_");
       Sc2String namepvd = process.affichage->repertoire_save+"sst_"+process.affichage->name_data+".pvd";
       std::cout << "nom pvd : " << namepvd << endl;
@@ -82,7 +80,7 @@ void affichage_resultats_temps(Param &process) {
  
 Possibilité de choisir une interface donnée ou toutes les interfaces.
 */
-void affichage_inter_temps(Param &process) {
+void affichage_inter_temps(Process &process) {
     create_file_pvd(process,"inter_");
     Sc2String namepvd = process.affichage->repertoire_save+"inter_"+process.affichage->name_data+".pvd";
     std::cout << "nom pvd : " << namepvd << endl;
@@ -104,7 +102,7 @@ void affichage_inter_temps(Param &process) {
  - si le champ type_affichage est "Inter", on appelle affich_INTER()
  */
 template <class TV3,class TV4, class TV1> 
-void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process, DataUser &data_user){
+void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser &data_user){
     if (process.affichage->affich_mesh==1) {
       if (process.size==1 or process.rank>0){
           std::cout << "type " << process.affichage->type_affichage << std::endl;
@@ -134,7 +132,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process, DataUser &
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 template <class TV3> 
-void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
+void affichage_resultats(TV3 &S,  Process &process, DataUser &data_user) {
     if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) {
         write_paraview_results(S,process, data_user);
@@ -154,7 +152,7 @@ void affichage_resultats(TV3 &S,  Param &process, DataUser &data_user) {
  On appelle affich_resultats_inter() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 template <class TV1,class TV4> 
-void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process, DataUser &data_user) {
+void affichage_resultats_inter(TV4 &Inter, TV1 &S , Process &process, DataUser &data_user) {
   if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) {
         affich_INTER_resultat(Inter,S,process);
@@ -168,7 +166,7 @@ void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process, DataUser &da
 Possibilité de choisir une interface donnée ou toutes les interfaces.
 */
 template <class TV1,class TV2> 
-void affichage_inter_data(TV2 &Inter, TV1 &S, Param &process){
+void affichage_inter_data(TV2 &Inter, TV1 &S, Process &process){
     if (process.affichage->affich_inter_data==1) {
         affich_inter_data_time(Inter,S,process);
     }
@@ -179,14 +177,14 @@ void affichage_inter_data(TV2 &Inter, TV1 &S, Param &process){
 \brief Affichage de l'evolution du déplacement d'un point donné par ses coordonnées 
 */
 template <class TV3> 
-void affichage_depl_pt(TV3 &S, Param &process){
+void affichage_depl_pt(TV3 &S, Process &process){
     if(process.affichage->affich_depl_pt==1) extraction_depl_pt(S, process);
 }
 
 /** \ingroup Post_Traitement
 \brief Affichage de l'évolution de l'énergie dissipée ou de l'énergie imposée au cours du temps à partir des quantités chapeaux ou des quantités n de l'interface
  
-Selon les parametres du champ AFFICHAGE::param_ener, on sélectionne le type d'énergie et les quantités retenues.
+ Selon les parametres du champ SaveParameters::param_ener, on sélectionne le type d'énergie et les quantités retenues.
 0 - 0 : energie dissipee sur les quantites chapeau
 0 - 1 : energie dissipee sur les quantites n
 1 - 0 : energie imposee sur les quantites chapeau
@@ -195,7 +193,7 @@ Selon les parametres du champ AFFICHAGE::param_ener, on sélectionne le type d'én
 Faux en MPI pour certaine fonction qui necessite d avoir les W des deux cotes et ils sont pas transferes pour le posttraitement : est-ce utile de le faire ? non pour le moment
 */
 template <class TV3,class TV2> 
-void affichage_energie(TV3 &S,TV2 &Inter, Param &process, DataUser &data_user){
+void affichage_energie(TV3 &S,TV2 &Inter, Process &process, DataUser &data_user){
     Vec<double> energie,temp;
     energie.resize(process.temps->nbpastemps + 1);temp.resize(process.temps->nbpastemps + 1);energie.set(0.);temp.set(0.);
     if(process.affichage->param_ener[0]==0 and process.affichage->param_ener[1]==0) {

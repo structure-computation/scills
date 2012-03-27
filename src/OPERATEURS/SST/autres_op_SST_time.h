@@ -1,3 +1,6 @@
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/SstCarac_InterCarac.h"
+
 using namespace LMT;
 
 /** \ingroup Operateurs_sst_Qstat
@@ -6,7 +9,7 @@ using namespace LMT;
 Cet operateur() permet d'assigner la valeur dt (pas de temps) et theta (paramètre de la theta methode) au maillage des sous-structures pour que ceux ci soit accessible sans avoir à passer Param en argument.
  */
 struct assign_val_temporelle {
-   template<class SST> void operator() (SST &S, TEMPS &temps) const{
+    void operator() (Sst &S, TimeParameters &temps) const{
       S.matprop.dt = temps.dt;
       S.matprop.stat = 1;
       //S.mesh.theta = temps.theta;
@@ -19,7 +22,7 @@ struct assign_val_temporelle {
 
  */
 struct assign_bool_stat {
-   template<class SST> void operator() (SST &S) const{
+   void operator() (Sst &S) const{
       S.mesh.stat = 0;
       
       //S.mesh.theta = temps.theta;

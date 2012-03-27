@@ -1,9 +1,9 @@
 #include "create_SST_INTER.h"
-#include "../DEFINITIONS/STRUCTURE.h"
+#include "../DEFINITIONS/GeneralParameters.h"
 #include "../MPI/assignation_mpi.h"
-#include "../DEFINITIONS/AFFICHAGE.h"
+#include "../DEFINITIONS/SaveParameters.h"
 
-void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Param &process) {
+void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Process &process) {
     
     //initialisation de la taille des sst et de leur id == num   
     //S.resize(geometry_user.nb_group_elements);
@@ -36,7 +36,7 @@ void convert_mesh_skin_to_geometry_user(Sst &S, GeometryUser &geometry_user){
 }
 
 
-void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Param &process) {
+void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Process &process) {
     for(unsigned i=0;i<S.size();++i) {
         Sc2String namein = data_user.find_group_elements(S[i].num)->name;
         S[i].mesh.name=namein;
@@ -137,7 +137,7 @@ void read_mesh_interface_geometry_user(Interface::TMESH &mesh, GeometryUser &geo
 }
 
 
-void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Param &process) {  
+void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Process &process) {  
     // initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
@@ -188,7 +188,7 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
 }
 
 
-void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Param &process) {
+void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Process &process) {
     // initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
@@ -275,7 +275,7 @@ void create_SST_INTER(DataUser                          &data_user,
                       Vec<Sst>                          &S,
                       Vec<Interface>                    &Inter, 
                       Vec<Boundary>                     &CL, 
-                      Param                             &process, 
+                      Process                           &process, 
                       Vec<VecPointedValues<Sst> >       &Stot,
                       Vec<VecPointedValues<Sst> >       &SubS,
                       Vec<VecPointedValues<Interface> > &SubI) {

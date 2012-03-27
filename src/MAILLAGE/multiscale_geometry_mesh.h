@@ -7,7 +7,6 @@
  \ brief Génération des maillages et géométrie des sous-structures, inte*rfaces.
  
  La fonction principale est multiscale_geometry_mesh() : onction principale de création des maillages et géométries (voir ci-dessous). 
- La fonction fake_multiscale_geometry_mesh() permet de forcer le compilateur à compiler avec les types voulus la fonction multiscale_geometry_mesh()
  
  L'ordre des opérations est le suivant :
  - create_SST_INTER() : lecture et création des sst et interfaces
@@ -34,12 +33,12 @@
 /** \ingroup Maillage_geometrie
  \ brief Fonction principale de création des maillages et géométries    *
  
- - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class STRUCTURE (inclus dans Param) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
+ - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class GeneralParameters (inclus dans Process) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
  La creation des sous-structures et interfaces est effectuée de la facon indiquée dans la fonction create_SST_INTER() .
  
  On crée ensuite les données géométriques associées aux interfaces : calculate_measure_G_neq_INTER.
  
- - Dans un second temps, on modifie le maillage des sous-structures pour prendre en compte ou non (d'après le paramètre Param::sousint) la sous-integration (cf. surdiscretise_SST ).
+ - Dans un second temps, on modifie le maillage des sous-structures pour prendre en compte ou non (d'après le paramètre Process::sousint) la sous-integration (cf. surdiscretise_SST ).
  
  - Enfin on détermine certaines caractéristiques géométriques des Sst (Sst::G, Sst::measure, Sst::Edge::G).
  
@@ -50,7 +49,7 @@ void multiscale_geometry_mesh(DataUser                          &data_user,
                               GeometryUser                      &geometry_user,
                               Vec<Sst>                          &S,
                               Vec<Interface>                    &Inter, 
-                              Param                             &process, 
+                              Process                           &process, 
                               Vec<Boundary>                     &CL,
                               Vec<VecPointedValues<Sst> >       &Stot,
                               Vec<VecPointedValues<Sst> >       &SubS,

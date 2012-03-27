@@ -3,7 +3,7 @@
 #include "../../LMT/include/containers/basicops.h"
 
 
-void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Param &process, FieldStructureUser &field_structure_user){
+void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Process &process, FieldStructureUser &field_structure_user){
     if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
     Vec<InterCarac > propinter;
     BasicVec<BasicVec<TYPEREEL > > link_prop_temp;
@@ -90,7 +90,7 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
 }
 
 
-void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Param &process,const DataUser &data_user) {
+void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &process,const DataUser &data_user) {
     //allocation de la memoire pour les parametres de comportement d'interface
     for(unsigned q=0;q<Inter.size();++q) {
         #ifdef PRINT_ALLOC

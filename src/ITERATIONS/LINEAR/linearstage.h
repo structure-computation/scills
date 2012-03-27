@@ -1,6 +1,6 @@
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
-#include "../../DEFINITIONS/Glob.h"
+#include "../../DEFINITIONS/MacroProblem.h"
 
 using namespace LMT;
 
@@ -23,7 +23,7 @@ extern Crout crout;
    - étape linéaire 1 : \ref semilinstage1
    - étape macro (seulement en multiéchelle)
       - construction du second membre macro :  \ref macroassemble
-      - résolution du problème macro: Glob::resolmacro()
+      - résolution du problème macro: MacroProblem::resolmacro()
       - extraction des valeurs du multiplicateur macro et assignation aux interfaces : \ref interextrmacro
       - résolution du problème micro 2 : \ref semilinstage2
    - reconstruction des quantités à partir des deux étapes :\ref  reconstruction_quantites
@@ -43,7 +43,7 @@ De la même manière on reconstruit les efforts, déplacements et vitesses d'interf
 Il est possible ici d'extraire les efforts macro ou micro, en utilisant le projecteur adéquat (cf : Interface).
 */
 struct reconstruction_quantites {
-    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
         unsigned  pt=process.temps->pt;
         
         if(process.multiscale->multiechelle==1) {
@@ -68,7 +68,7 @@ struct reconstruction_quantites {
     \brief Etape Lineaire : Reconstruction de la vitesse
  */
 struct derivation_quantites_sst {
-    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
         unsigned  pt=process.temps->pt;
         
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -92,7 +92,7 @@ où oldq est le déplacement solution à l'itération précédente.
 On effectue de même avec les quantités d'interfaces, puis on met à jour les anciennes quantités.
 */
 struct relaxation_quantites {
-    void operator()(Sst &S,Vec<Interface > &Inter,Param &process) const {
+    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
         TYPEREEL mu = process.latin->mu;
         unsigned pt = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -117,7 +117,7 @@ struct relaxation_quantites {
 Connaissant la vitesse pour chaque pas de temps, il est possible de déterminer le déplacement à chaque piquet de temps en prenant en compte le déplacement initial (t=0) au départ.
 */
 struct integration_quantites {
-    void operator()(Interface &Inter,Param &process) const {
+    void operator()(Interface &Inter,Process &process) const {
         for(unsigned j=0;j<Inter.side.size();j++) {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
                 Inter.side[j].t[pt].W = Inter.side[j].t[pt-1].W + process.temps->dt *  Inter.side[j].t[pt].Wp;
@@ -131,7 +131,7 @@ struct integration_quantites {
 \brief Etape Lineaire : Derivation
 */
 struct derivation_quantites {
-    void operator()(Interface &Inter,Param &process) const {
+    void operator()(Interface &Inter,Process &process) const {
         for(unsigned j=0;j<Inter.side.size();j++) {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
                 Inter.side[j].t[pt].Wp = (Inter.side[j].t[pt].W - Inter.side[j].t[pt-1].W)/process.temps->dt ;
@@ -145,7 +145,7 @@ struct derivation_quantites {
  
 */
 struct calcul_secmemb_micro_sst {
-    void operator()(Sst &S, Param &process, DataUser &data_user) const {
+    void operator()(Sst &S, Process &process, DataUser &data_user) const {
         //second membre prenant en compte le comportement thermique et la condition au pas de temps precedent ou les quantites chapeau:
         S.mesh.load();
         S.mesh->density=S.matprop.density;
@@ -161,7 +161,7 @@ struct calcul_secmemb_micro_sst {
 /** \ingroup etape_lineaire
 \brief Programme principal pour l'étape Linéaire
  */
-void etape_lineaire(Vec<VecPointedValues<Sst > > &S, Vec<Interface > &Inter,Param &process,Glob &Global) {
+void etape_lineaire(Vec<VecPointedValues<Sst > > &S, Vec<Interface > &Inter,Process &process,MacroProblem &Global) {
     unsigned nb_threads=process.nb_threads;
     TicToc2 tic1,tic2;
     if (process.temps->pt==2)

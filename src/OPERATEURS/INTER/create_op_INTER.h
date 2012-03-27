@@ -1,10 +1,13 @@
 //librairies Hugo
 #include "../../../LMT/include/containers/mat.h"
-#include "../../../LMT/include/containers/vec_mt.h"
+#include "../../../LMT/include/containers/vec.h"
+#include "../../../LMT/include/containers/vecpointedvalues.h"
 
 //fichiers de definition des variables 
-#include "../../DEFINITIONS/Param.h"
-#include "../../DEFINITIONS/MULTI.h"
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
+#include "../../DEFINITIONS/MultiScaleParameters.h"
 
 // fonctions speciales math et autre
 #include "../../UTILITAIRES/algebre.h"
@@ -34,7 +37,7 @@ using namespace LMT;
 \brief Procédure principale permettant la création des opérateurs d'interface
  */
 // calcul des matrices de masse et de sousintegration pour chaque interface
-template<class TV1, class TV2, class TV3> void create_op_INTER(TV1 &S,TV2 &Inter,TV3 &SubI,Param &process)
+void create_op_INTER(Vec<VecPointedValues<Sst> > &S,Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI,Process &process)
 {
 
   // calcul des matrices de masse et de sousintegration pour chaque interface

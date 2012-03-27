@@ -1,6 +1,12 @@
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
+
+#include "../../COMPUTE/DataUser.h"
+
 using namespace LMT;
 
-#include "correspondance_ddl_sst.h"
+#include "../../MAILLAGE/correspondance_ddl_sst.h"
 
 //********************************************
 // calcul matrice de rigidite par SST
@@ -25,8 +31,7 @@ using namespace LMT;
 
 
 struct efface_mesh_edge{
-    template <class SST, class TV2>
-    void operator()(SST &S, TV2 &Inter) const {
+    void operator()(Sst &S, Vec<Interface> &Inter) const {
         for( unsigned i=0;i<S.edge.size() ;i++ ){
             if (S.edge[i].datanum == 0 or Inter[S.edge[i].internum].comp=="Contact_jeu_physique" or Inter[S.edge[i].internum].comp=="periodique") {
 #ifdef PRINT_ALLOC
@@ -59,12 +64,10 @@ struct efface_mesh_edge{
 //#include "assignation_materiaux_sst.h"
 
 struct Calc_SST_rigidite_K0_k {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter,Param &process, DataUser &data_user) const {
+    void operator()(Sst &S, Vec<Interface> &Inter,Process &process, DataUser &data_user) const {
         S.f->free_matrices();
         //reperage des ddl de bords (chargement du maillage + non effacement)
         Calc_SST_Correspddl(S,process);
-//         S.mesh.load();
         S.assign_material_on_element(data_user);
         S.f->set_mesh(S.mesh.m); 
         S.f->want_amd=false;
@@ -140,8 +143,7 @@ struct Calc_SST_rigidite_K0_k {
 On détermine le vecteur d'indice permettant de repérer le coté de la sous-structure (ou l'interface) dans l'opérateur homogénéisé selon le nombre de composante macro des interfaces entourant la sous-structure.
  */
 struct repere_ind_interface_LE {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter, Param &process) const {
+    void operator()(Sst &S, Vec<Interface> &Inter, Process &process) const {
         unsigned nbmacroS=0;
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
@@ -242,8 +244,7 @@ On résout donc ce problème pour en extraire les déplacements sur le bord de la s
  
 */
 struct Calc_SST_LE {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter, Param &process) const {
+    void operator()(Sst &S, Vec<Interface> &Inter, Process &process) const {
         typedef Mat<TYPEREEL, Gen<>, Dense<> > TMAT;
 
         unsigned nbincmacro=S.nb_macro;
@@ -301,7 +302,6 @@ struct Calc_SST_LE {
             repgj += nbmacro;
         }
         S.LE=LE;
-
     }
 };
 

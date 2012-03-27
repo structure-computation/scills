@@ -4,8 +4,8 @@
 #include "../COMPUTE/DataUser.h"
 #include "../GEOMETRY/GeometryUser.h"
 
-#include "../DEFINITIONS/Param.h"
-#include "../DEFINITIONS/Glob.h"
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/MacroProblem.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
 
@@ -46,8 +46,8 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
                            Vec<VecPointedValues<Sst> >       &SubS, 
                            Vec<Interface>                    &Inter, 
                            Vec<VecPointedValues<Interface> > &SubI, 
-                           Param                             &process, 
-                           Glob                              &Global, 
+                           Process                           &process, 
+                           MacroProblem                      &Global, 
                            DataUser                          &data_user);
 
 #endif //MULTISCALE_OPERATEURS_H

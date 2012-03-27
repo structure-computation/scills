@@ -1,29 +1,32 @@
-#ifndef INTER_H
-#define INTER_H
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
-#include "../UTILS/Sc2String.h"
-using namespace LMT;
 
 //definition du maillage des interfaces
 #include "../MAILLAGE/meshcaracinter.h"
+//#include <boost/concept_check.hpp>
+using namespace LMT;
+
+#include "../UTILS/Sc2String.h"
+#include "Process.h"
 
 //struct PARAM_COMP_INTER;
 #include "definition_PARAM_COMP_INTER.h"
+
 
 //***********************************
 // classe Interface parametrable
 //***********************************
 /** \ingroup Interfaces
-\brief Classe Interface parametrable 
+\brief Classe definissant les interfaces
 
-dim_ dimension du probleme (accessible tout le temps sans test)
-TT_ type des donnees pour les flottants de l'interface
+Classe de stockage des variables associees a une interface
 */
 struct Interface
 {
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMATS; ///< type de matrice sparseline
     typedef Mat <TYPEREEL , Gen<>, Dense<> > TMATF; ///< type de matrice pleine
-    typedef Mesh<Meshcaracinter<DIM,DIM-1> > TMESH; ///< type de maillage des interfaces
+    typedef Mesh<Meshcaracinter<DIM,DIM-1>,0 > TMESH; ///< type de maillage des interfaces
     typedef Vec<TYPEREEL,DIM> Pvec; ///< type des points
     typedef PARAM_COMP_INTER PARAM_COMP; ///< type des parametres supplementaires pour les comportements
    
@@ -106,7 +109,7 @@ struct Interface
         ///< Structure temporelle contenant les vecteurs nodaux
         struct Time{
             Vec<TYPEREEL> F,Wp,W,Fchap,Wpchap,Wchap,WtildeM,oldF,oldWp,oldW;
-            void allocations(unsigned sizenodeeq,Param &process){
+            void allocations(unsigned sizenodeeq,Process &process){
                 if (process.rank>0 or process.size==1) F.resize(sizenodeeq);
                 if (process.rank>0 or process.size==1) F.set(0.0);
                 if (process.rank>0 or process.size==1) Wp.resize(sizenodeeq);
@@ -157,15 +160,14 @@ struct Interface
 
         //les maillages sont les memes des 2 cotés...
         if (side.size() != 0){
-                if (side[0].mesh != NULL) delete side[0].mesh;
+            if (side[0].mesh != NULL) delete side[0].mesh;
             side[0].mesh=NULL;
-                side.free();
-                if (param_comp != NULL ) param_comp->free();
+            side.free();
+            if (param_comp != NULL ) param_comp->free();
             if (param_comp != NULL ) delete param_comp;
         }
     }
     
-    #include <boost/concept_check.hpp>
     void affiche(){
         std::cout << "------------------- interface ------------------------" << std::endl;
         PRINT(id);
@@ -180,11 +182,11 @@ struct Interface
         std::cout << "------------------- fin interface ------------------------" << std::endl;
     }
 
-    #if DIM==2
+#if DIM==2
     static const   int nb_nodes_by_element=2;
-    #else
+#else
     static const   int nb_nodes_by_element=3; 
-    #endif  
+#endif  
     BasicVec<BasicVec<TYPEREEL>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
     BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
@@ -196,4 +198,4 @@ struct Interface
 };
 
 
-#endif // INTER_H
+#endif // INTERFACE_H

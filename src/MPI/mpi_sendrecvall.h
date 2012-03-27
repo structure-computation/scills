@@ -17,7 +17,7 @@ using namespace LMT;
 
 
 template <class T1, class T2>
-void SendInterAll(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterAll(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -38,7 +38,7 @@ void SendInterAll(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &p
 }
 
 template <class T1, class T2>
-void RecvInterAll(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterAll(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -62,7 +62,7 @@ void RecvInterAll(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1, class T2>
-void SendInterAllPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterAllPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -83,7 +83,7 @@ void SendInterAllPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Para
 }
 
 template <class T1, class T2>
-void RecvInterAllPost(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterAllPost(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -108,7 +108,7 @@ void RecvInterAllPost(T1 &MPIsource,T2 &Inter, Param &process) {
 
 
 template <class T1,class T2>
-void SendRecvInterAll(T1 &vecintertoexchangebypro, T2 &Inter, Param &process) {
+void SendRecvInterAll(T1 &vecintertoexchangebypro, T2 &Inter, Process &process) {
     Vec<Vec<TYPEREEL> > vectosend;
     vectosend.resize(vecintertoexchangebypro.size());
 

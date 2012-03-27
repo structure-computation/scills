@@ -8,7 +8,7 @@
  */
 struct calcerror_ener {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         unsigned data,q;
         
@@ -35,7 +35,7 @@ struct calcerror_ener {
  */
 struct calcerror_residu_depl_post {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         unsigned data,q;
         
@@ -54,7 +54,7 @@ struct calcerror_residu_depl_post {
 };
 struct calcerror_residu_depl {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         unsigned data,q;
         
@@ -82,7 +82,7 @@ struct calcerror_residu_depl {
  */
 struct calcerror_ddr {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
@@ -129,7 +129,7 @@ struct calcerror_ddr {
  */
 struct calcerror_ddr_post {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         Vec<TYPEREEL,2> errF, errW;
         errF.set(0.0);
@@ -174,7 +174,7 @@ struct calcerror_ddr_post {
  */
 struct calcerror_dissi {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         unsigned data,q;
         
@@ -200,7 +200,7 @@ struct calcerror_dissi {
 
 struct calcerror_dissi_post {
     template<class SST, class TV2>
-    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Param &process) const {
+    void  operator()(SST &S, TV2 &Inter, Vec<TYPEREEL> &frac, Process &process) const {
         
         unsigned data,q;
         

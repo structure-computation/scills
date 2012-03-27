@@ -14,7 +14,7 @@
 #include "mpi_lmt_functions.h"
 
 template <class T1>
-void SendSST(T1 &SubS,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendSST(T1 &SubS,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     vectosend.resize(0);
     for( unsigned i=0;i<SubS.size() ;i++ ) {
       int sizebefore=vectosend.size();
@@ -33,7 +33,7 @@ void SendSST(T1 &SubS,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectos
     MPI_Isend(vectosend,0,request,204);
 }
 template <class T1>
-void RecvSST(T1 &S,int &MPIsource,Param &process) {
+void RecvSST(T1 &S,int &MPIsource,Process &process) {
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource,204);
     int repere=0;
@@ -54,7 +54,7 @@ void RecvSST(T1 &S,int &MPIsource,Param &process) {
 }
 
 template <class T1, class T2>
-void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -75,7 +75,7 @@ void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param
 }
 
 template <class T1, class T2>
-void RecvInterMaster(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterMaster(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -99,7 +99,7 @@ void RecvInterMaster(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1, class T2>
-void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -120,7 +120,7 @@ void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,P
 }
 
 template <class T1, class T2>
-void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -144,7 +144,7 @@ void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1,class T2,class T3,class T4>
-void SendRecvInterMaster(T1 &intertoexchangeformaster, T2 &Inter,T3 &S,T4 &SubS, Param &process) {
+void SendRecvInterMaster(T1 &intertoexchangeformaster, T2 &Inter,T3 &S,T4 &SubS, Process &process) {
     Vec<TYPEREEL> vectosend1,vectosend2,vectosend3,vectosend4;
     MPI_Request request,request2;
 

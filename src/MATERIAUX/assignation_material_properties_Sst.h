@@ -41,7 +41,7 @@ On aura donc les possibilités suivantes :
 <coefficients type="isotrope" resolution="contrainte_plane" identificateur="0"  elastic_modulus="200e3" poisson_ratio="0.3" unit="MPa" thickness="1" alpha="2e-6" viscosite="0.1" />
 \endcode
 */
-void read_matprop(Vec<SstCarac> &matprops, Param &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp);
+void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp);
 
 
 /** \ingroup Materiaux
