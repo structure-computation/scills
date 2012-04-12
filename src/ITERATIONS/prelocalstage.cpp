@@ -43,7 +43,7 @@ void calc_CL_time(Process &process,Vec<Boundary> &CL, DataUser &data_user ) {
                 var_temp2[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
         }
-        /// Evaluation des 
+        /// Evaluation des fonctions temporelles
         for( unsigned dir=0;dir<DIM ;dir++ ){
             CL[i_cl].ft[dir]=(TYPEREEL)expr.subs_numerical(var_temp);
         }
@@ -144,9 +144,10 @@ void assign_CL_spatial_temporel_normale(Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM> 
 
 void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, Vec<Boundary> &CL, Process &process, DataUser &data_user ){
     for(unsigned i_inter = 0; i_inter < Inter.size(); i_inter++){
-        /// Test si l'initialisation est inutile
+        /// Teste si l'initialisation est inutile
         if(Inter[i_inter].type != "Ext" or (Inter[i_inter].comp != "depl" and Inter[i_inter].comp != "depl_normal"))
-            continue;
+            continue;   /// Si oui, passer a l'interface suivante
+        const unsigned i_dir_max = (Inter[i_inter].comp == "depl_normal")? 1 : DIM;
         /// Creation des symbols
         Ex t = symbol("t");
         std::vector<Ex> symbols;
@@ -161,39 +162,39 @@ void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, V
         
         unsigned i_step=process.temps->step_cur;
         unsigned tpas=process.temps->time_step[i_step].pt_cur;
-        TYPEREEL ti=process.temps->current_time;
-        /// Recuperation de l'instant precedent (pour le calcul des derivees)
-        TYPEREEL told = ti - process.temps->time_step[i_step].dt;
+        TYPEREEL ti=process.temps->current_time;                    /// Instant courant
+        TYPEREEL told = ti - process.temps->time_step[i_step].dt;   /// Instant precedent (pour le calcul des derivees)
         /// Evaluation des CL
         for(unsigned i_cl=0;i_cl<CL.size();++i_cl) {
-            if(Inter[i_inter].type == "Ext" and (Inter[i_inter].comp == "depl" or Inter[i_inter].comp == "depl_normal")){
-                /// Recuperation des expression symboliques
-                Ex expr;
-                expr = read_ex(CL[i_cl].fcts_temporelles[i_step],symbols);
-                /// Construction de la table des (symbol, valeur)
-                Ex::MapExNum var_temp;
-                var_temp[symbols[0]]=ti;
-                if(data_user.options.Multiresolution_on==1){
-                    /// Evaluation des variables de multiresolution
-                    for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
-                        var_temp[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
-                }
-                /// Evaluation des fonctions temporelles
-                for( unsigned dir=0;dir<DIM ;dir++ ){
-                    CL[i_cl].ft[dir]=(TYPEREEL)expr.subs_numerical(var_temp);
-                }
+            /// Recuperation des expression symboliques
+            Ex expr;
+            std::cout << Inter[i_inter].comp << " : " << std::endl;
+            std::cout << CL[i_cl].fcts_temporelles[i_step] << std::endl;
+            expr = read_ex(CL[i_cl].fcts_temporelles[i_step],symbols);
+            
+            /// Construction de la table des (symbol, valeur)
+            Ex::MapExNum var_temp;
+            var_temp[symbols[0]]=ti;
+            if(data_user.options.Multiresolution_on==1){
+                /// Evaluation des variables de multiresolution
+                for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                    var_temp[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+            }
+            /// Evaluation des fonctions temporelles
+            for(unsigned i_dir=0;i_dir<i_dir_max ;i_dir++ ){
+                CL[i_cl].ft[i_dir]=(TYPEREEL)expr.subs_numerical(var_temp);
             }
         }
         
         std::vector<Ex> symbols2;
-        #if DIM==2
+#if DIM==2
         symbols2.push_back("x");
         symbols2.push_back("y");
-        #elif DIM==3
+#elif DIM==3
         symbols2.push_back("x");
         symbols2.push_back("y");
         symbols2.push_back("z");
-        #endif
+#endif
         if(data_user.options.Multiresolution_on==1){
             ///ajout des variables de multiresolution aux symboles
             for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
@@ -205,10 +206,8 @@ void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, V
         for(unsigned i=0;i<Inter[i_inter].side[0].nodeeq.size();++i) {
             Vec<TYPEREEL,DIM> data;
             Vec<TYPEREEL,DIM> neq;
-            unsigned i_dir_max = DIM;
             if(Inter[i_inter].comp == "depl_normal"){
                 neq = Inter[i_inter].side[0].neq[range(i*DIM,(i+1)*DIM)];
-                i_dir_max = 1;      ///une seule expression dans le cas d'un deplacement normal
             }
             
             Vec<Ex,DIM> expr;

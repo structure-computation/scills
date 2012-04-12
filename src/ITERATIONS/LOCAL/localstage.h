@@ -35,7 +35,7 @@ struct etape_locale_inter {
 //         std::cout << Inter.type << std::endl;
 //         std::cout << Inter.comp << std::endl;
         if (Inter.type=="Ext") {
-            if(Inter.comp=="vit" or Inter.comp=="depl") {
+            if(Inter.comp=="depl_nul" or Inter.comp=="depl" or Inter.comp=="vit_nulle" or Inter.comp=="vit") {
                 compt_CL_vit(Inter,process.temps->pt);
             } else if (Inter.comp=="effort" or Inter.comp=="effort_normal") {
                 compt_CL_eff(Inter,process.temps->pt);

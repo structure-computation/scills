@@ -177,7 +177,7 @@ struct Extract_connectivities_on_element_sst_inter{
       }
       I.number[e.number]=I.num;
       int type=0;
-      if (I.type=="Ext" and (I.comp=="depl" or I.comp=="vit")){type=0;}
+      if (I.type=="Ext" and (I.comp=="depl" or I.comp=="vit" or I.comp=="depl_nul" or I.comp=="vit_nulle")){type=0;}
       else if (I.type=="Ext" and I.comp=="effort"){type=1;}
       else if (I.type=="Ext" and ( I.comp=="sym" )){type=2;}
       else if (I.type=="Ext" and (I.comp=="depl_normal" or I.comp=="vit_normale")){type=3;}

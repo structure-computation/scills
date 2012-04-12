@@ -312,7 +312,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit")){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit" or Inter.comp=="depl_nul" or Inter.comp=="vit_nulle")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
    else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}
@@ -380,7 +380,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit")){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit" or Inter.comp=="depl_nul" or Inter.comp=="vit_nulle")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
    else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}

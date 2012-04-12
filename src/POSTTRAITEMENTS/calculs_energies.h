@@ -237,7 +237,7 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Process &
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normal"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
+            if ((Inter[i].comp=="depl_nul" or Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="vit_nulle" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normal"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -305,7 +305,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Process &p
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normale"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
+            if ((Inter[i].comp=="depl" or Inter[i].comp=="depl_normal" or Inter[i].comp=="depl_nul" or Inter[i].comp=="vit_nulle" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort"  or Inter[i].comp=="effort_normale"/*or Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
@@ -337,7 +337,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Process &p
         for(unsigned e=0;e<S[j].edge.size();++e) {
             unsigned i=S[j].edge[e].internum;
             unsigned data=S[j].edge[e].datanum;
-            if ((Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort" or Inter[i].comp=="Jeu_impose") and data == 0) {
+            if ((Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle" or Inter[i].comp=="vit" or Inter[i].comp=="vit_normale" or Inter[i].comp=="effort" or Inter[i].comp=="Jeu_impose") and data == 0) {
                 dissi_inter.set(0.);
                 if(process.nom_calcul=="incr") {
                     for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {

@@ -6,6 +6,11 @@
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "../../UTILS/utils_2.h"
+//#include <boost/bind/bind_template.hpp>
+
+
+TYPEREEL f_max = 0;
+TYPEREEL p_max = 0;
 
 
 /** Recuperation de la deformation plastique du "stock" vers la formulation
@@ -132,6 +137,8 @@ struct calcul_plasticite_elem {
         Vec<TYPEREEL> sigma = S.t[process.temps->pt_cur].sigma[i_elem] ;
         TYPEREEL R_p = S.t[process.temps->pt_cur].R[i_elem];
         seq = calcul_contrainte_equivalente(S,sigma);
+        //seq = std::pow(sigma[0],2) + std::pow(sigma[1],2) + std::pow(sigma[2],2) + std::pow(sigma[3],2) + std::pow(sigma[4],2) + std::pow(sigma[5],2) ;
+        //seq = std::sqrt(seq);
         f = seq - R_p - S.matprop.R0;
         
         //std::cout << "Seuil :" << f << "    ";
@@ -143,6 +150,8 @@ struct calcul_plasticite_elem {
             if (process.temps->pt_cur>1) {
                 sig_old = S.t[process.temps->pt_cur-1].sigma[i_elem] ;
                 seq_old = calcul_contrainte_equivalente(S,sig_old);
+                //seq_old = std::pow(sig_old[0],2) + std::pow(sig_old[1],2) + std::pow(sig_old[2],2) + std::pow(sig_old[3],2) + std::pow(sig_old[4],2) + std::pow(sig_old[5],2) ;
+                //seq_old = std::sqrt(seq_old);
                 seq_dot = (seq - seq_old)/process.temps->dt;
             }
             else {
@@ -156,7 +165,19 @@ struct calcul_plasticite_elem {
                 double zero = 0.0;
                 recherche_plasticite_cumulee(elem.p,K,process.temps->dt,zero,S.matprop.m_p);
             }
-            //std::cout << "Plastification :" << f << ", " << elem.p << std::endl;
+            //*
+            if(i_elem == 12415){
+                std::cout << "sigma : " << sigma << std::endl;
+                std::cout << "R0            : " << S.matprop.R0 << std::endl;
+                std::cout << "R_p           : " << R_p << std::endl;
+                std::cout << "f             : " << f << std::endl;
+                std::cout << "sigma eq. new : " << seq << std::endl;
+                std::cout << "sigma eq. old : " << seq_old << std::endl;
+                std::cout << "sigma eq. dot : " << seq_dot << std::endl;
+                std::cout << "p             : " << elem.p << std::endl;
+            }//*/
+            f_max = (f_max < f)? f : f_max ;
+            p_max = (p_max < elem.p)? elem.p : p_max;
         } else {
             if (process.temps->pt_cur>1) 
                 elem.p = S.t[process.temps->pt_cur-1].p[i_elem];
@@ -165,12 +186,19 @@ struct calcul_plasticite_elem {
         }
         
         /// Calcul des deformations plastiques (epsilon_p)
+        TYPEREEL sig_trace = (sigma[0]+sigma[1]+sigma[2])/3;
         for (int i = 0; i < DIM*(DIM+1)/2; i++) {
-            if (seq != 0) 
-                elem.epsilon_p[0][i] = elem.p*sigma[i]/seq ;
+            if (seq != 0)
+                elem.epsilon_p[0][i] = 3/2*elem.p*((i<3)? sigma[i]-sig_trace: sigma[i])/seq ;
             else 
                 elem.epsilon_p[0][i] = 0 ;
         }
+        //*
+        if(i_elem == 12415){
+            std::cout << "epsilon_p : " << elem.epsilon_p << std::endl;
+            std::cout << "f new     : " << seq-(S.matprop.k_p * std::pow( elem.p , S.matprop.m_p ) + S.matprop.R0) << std::endl;
+            std::cout << "sigma new : " << (sigma - 200000*elem.epsilon_p[0]) << std::endl;
+        }//*/
         i_elem++;    ///Sert d'index d'iteration
     }
 };
@@ -218,6 +246,7 @@ void calcul_plasticite(Sst &S, Process &process) {
         apply(S.mesh.elem_list,calcul_plasticite_couplee_elem(),S,process,i_elem);
     else*/ 
         apply(S.mesh->elem_list,calcul_plasticite_elem(),S,process,i_elem);
+    //std::cout << "max(f) : " << f_max << "        max(p) : " << p_max << std::endl;
     
     /// On stocke ensuite les deux variables de plasticite dans un coin
     /* PRISE EN COMPTE ERREUR_PLASTICITE NON IMPLEMENTEE

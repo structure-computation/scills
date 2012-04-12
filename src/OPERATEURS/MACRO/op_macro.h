@@ -184,7 +184,7 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
     //creation du vecteur contenant les ddls a bloquer
     bool bloq=0;
     for(unsigned q=0;q<Inter.size();++q){
-        if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit")){
+        if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle")){
             //ddl bloques
             repddlMbloq.append(Inter[q].repddl);
             bloq=1;

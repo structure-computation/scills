@@ -84,7 +84,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
    for(unsigned q=0;q<Inter.size();++q){
                  
          int type=0;
-              if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit")){type=0;}
+         if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle")){type=0;}
          else if (Inter[q].type=="Ext" and (Inter[q].comp=="effort")){type=1;}
          else if (Inter[q].type=="Ext" and (Inter[q].comp=="sym" )){type=2;}
          else if (Inter[q].type=="Ext" and (Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale")){type=3;}

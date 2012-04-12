@@ -206,7 +206,7 @@ void interactivite(TV1 &S,TV3 &SubS, TV2 &Inter, TV4 &SubI, Process &process, GL
                   if (v.size()> 1) {
                   if (find(range(Inter.size()),LMT::_1==(unsigned)atoi(v[1].c_str()))){
                     unsigned q=atoi(v[1].c_str());
-                    if (Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[q].comp=="vit" or Inter[q].comp=="vit_normale" or Inter[q].comp=="effort" or Inter[q].comp=="effort_normal"){
+                    if (Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle" or Inter[q].comp=="vit" or Inter[q].comp=="vit_normale" or Inter[q].comp=="effort" or Inter[q].comp=="effort_normal"){
                       if (process.rank==0) std::cout << "Interface de type " << Inter[q].comp << " donner la nouvelle fonction spatiale remplacant " << CL[Inter[q].refCL].fcts_spatiales << std::endl;
                       if (process.rank == 0) {
                         if (f) {

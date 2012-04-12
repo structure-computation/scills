@@ -26,11 +26,13 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
         CL[i].id = data_user.behaviour_bc[i].id;
         CL[i].comp = data_user.behaviour_bc[i].type;
         std::cout << "Interface " << data_user.behaviour_bc[i].id << " - Comportement : " << data_user.behaviour_bc[i].type << std::endl;
-        if (CL[i].comp=="vit_nulle") {
+        if /*(CL[i].comp=="vit_nulle") {
             CL[i].comp = "vit";
             data_user.behaviour_bc[i].type = "vit";
-        }
-        else if (CL[i].comp=="sym") {
+        } else if (CL[i].comp=="depl_nul") {
+            CL[i].comp = "depl";
+            data_user.behaviour_bc[i].type = "depl";
+        } else if*/ (CL[i].comp=="sym") {
             CL[i].fcts_spatiales.resize(nbStep);
             CL[i].fcts_temporelles.resize(nbStep);
             CL[i].intervalles_temps.resize(nbStep);
@@ -40,8 +42,7 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
                 CL[i].fcts_spatiales[i_step].resize(data_user.dim,"0");
                 CL[i].fcts_temporelles[i_step]="1";
             }
-        }
-        else{
+        } else{
             if(process.temps->type_de_calcul=="stat") {
                 CL[i].fcts_spatiales.resize(nbStep);
                 CL[i].fcts_temporelles.resize(nbStep);

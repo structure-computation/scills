@@ -50,7 +50,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
             hn = hn * facteur ;
             kt = kt / facteur ;
             ht = ht * facteur ;
-        } else if(Inter.comp=="sym" or Inter.comp=="vit_normale") {
+        } else if(Inter.comp=="sym" or Inter.comp=="depl_normal" or Inter.comp=="vit_normale") {
             kn = kn * facteur ;
             hn = hn / facteur ;
             kt = kt / facteur ;
@@ -58,7 +58,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
         } else if(Inter.comp=="periodique") {
             //ben on fait rien :)
         } else {
-            std::cout << "optimisation direction : Type de condition limite non pris en compte" << endl;
+            std::cout << "optimisation direction : Type de condition limite non pris en compte : " << Inter.comp << endl;
             assert(0);
         }
     } else if(Inter.type=="Int") {

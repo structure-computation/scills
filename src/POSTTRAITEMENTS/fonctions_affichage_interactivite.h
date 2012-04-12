@@ -357,7 +357,7 @@ void affichage_cl(TV1 &S, TI &Inter,Process &process) {
                     }
                 }
             }
-            if (Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[internum].comp=="vit" or Inter[internum].comp=="vit_normale") {
+            if (Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle" or Inter[internum].comp=="vit" or Inter[internum].comp=="vit_normale") {
                 std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
                     std::cout << "Pas de temps " << setw(3) << pt << " : " ;
