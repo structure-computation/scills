@@ -8,7 +8,6 @@ void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &I
     Vec<InterCarac > propinter;
     BasicVec<BasicVec<TYPEREEL > > link_prop_temp;
     read_propinter(propinter,data_user, link_prop_temp);
-    PRINT("lecture propriete interface ok");
 
     modif_inter(Inter,propinter,process,data_user);
     //idem pour les group_interfaces (pour GPU)
@@ -23,7 +22,6 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
     link_prop_temp.resize(nbliaisons);
     for(unsigned i=0;i<nbliaisons;++i) {
         propinter[i].id = data_user.behaviour_links[i].id;
-        //         PRINT(data_user.behaviour_links[i].type_num);
         if(data_user.behaviour_links[i].type_num == 0){   //parfaite
             propinter[i].type = "parfait";
             propinter[i].comp="Parfait";
@@ -85,7 +83,6 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
         propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   /// jeux ou epaisseur negative        
         propinter[i].Gcrit = link_prop_temp[i][7];                                      /// limite en rupture    
         propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];                   /// coeff frottement analytique
-        //PRINT(link_prop_temp[i]);
     }
 }
 

@@ -88,4 +88,4 @@ struct calculate_measure_G_neq_INTER {
    }
 };
 
-#endif CREATE_MESURE_G_NEQ_INTER
+#endif //CREATE_MESURE_G_NEQ_INTER

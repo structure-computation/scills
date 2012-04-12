@@ -1,7 +1,10 @@
-#include "mesh/calculate_measure.h"
-#include "util/symrcm.h"
 #ifndef UTILITAIRES_H
 #define UTILITAIRES_H
+#include "../MAILLAGE/meshcaracinter.h"
+#include "../../LMT/include/containers/mat.h"
+#include "../../LMT/include/containers/algo.h"
+#include "../../LMT/include/mesh/calculate_measure.h"
+#include "../../LMT/include/util/symrcm.h"
 
 using namespace LMT;
 

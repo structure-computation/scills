@@ -28,12 +28,12 @@ using namespace __gnu_cxx;
 
 ///application de flag indiquant le type de materiau et le numero de la sst pour chaque element (utile pour l'affichage)
 struct apply_mat_elem {
-  template<class TE>
-      void operator() ( TE &e, const int &typmat, const int &numsst,const int &num_proc) const {
-    e.typmat=typmat;
-    e.numsst=numsst;
-    e.num_proc=num_proc;
-      }
+    template<class TE>
+    void operator() ( TE &e, const int &typmat, const int &numsst,const int &num_proc) const {
+        e.typmat=typmat;
+        e.numsst=numsst;
+        e.num_proc=num_proc;
+    }
 };
 
 /** \ingroup  maillages 
@@ -227,7 +227,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
 */
 struct assigne_f_vol_e {
     template<class TE,class TM>
-    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, DataUser &data_user) const {
+    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
         Pvec G = center(e);
@@ -298,12 +298,6 @@ struct Meshmulti {
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
-    //Vec<double,Carac::dim> f_vol;//champs de force volumique
-    //Vec<Sc2String,Carac::dim> f_vol_e;//champs de force volumique par element
-    //double elastic_modulus,poisson_ratio,density,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,alpha_1,alpha_2,alpha_3,viscosite;
-    //double k_p,m_p,R0,couplage,Yo,Yc,Ycf,dmax,b_c,a,tau_c;
-    //bool effet_retard;
-    //Vec<double,Carac::dim> v1,v2;
     Sc2String type_formulation;
     
     //ajout pour les données venant de SC_create_2
@@ -355,7 +349,7 @@ struct Meshmulti {
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
     }
-    void load_f_vol_e(Vec<Sc2String,DIM>& f_vol_e,DataUser &data_user) {///application du chargement à chaque noeud
+    void load_f_vol_e(Vec<Sc2String,DIM>& f_vol_e,const DataUser &data_user) {///application du chargement à chaque noeud
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
     }
     //    

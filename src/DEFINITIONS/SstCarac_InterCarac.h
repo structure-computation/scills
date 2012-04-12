@@ -16,24 +16,93 @@ using namespace LMT;
 */
 struct SstCarac
 {
-    SstCarac(){dt=1.;resolution=1;}
+    SstCarac(){
+        dt=1.0;
+        resolution=1;
+        /// Initialisation des grandeurs a -1 pour detecter les erreurs de chargement
+        density = -1;
+        elastic_modulus = -1;
+        poisson_ratio = -1;
+        elastic_modulus_1 = -1;
+        elastic_modulus_2 = -1;
+        elastic_modulus_3 = -1;
+        poisson_ratio_12 = -1;
+        poisson_ratio_13 = -1;
+        poisson_ratio_23 = -1;
+        shear_modulus_12 = -1;
+        shear_modulus_13 = -1;
+        shear_modulus_23 = -1;
+        alpha = -1;
+        alpha_1 = -1;
+        alpha_2 = -1;
+        alpha_3 = -1;
+        deltaT = -1;
+        k_p = -1;
+        m_p = -1;
+        R0 = -1;
+        Yo = -1;
+        Yc = -1;
+        Ycf = -1;
+        dmax = -1;
+        b_c = -1;
+        a = -1;
+        tau_c = -1;
+        viscosite = -1;
+        
+        ///Initialisation des coefficients de la contrainte equivalente a Von Mises standart
+        for(int i = 0; i < DIM*(DIM+1)/2; i++)
+            coeff_seq[i].set(0.0);
+        if(DIM == 2){
+            ;
+        } else if(DIM == 3){
+            coeff_seq[0][0] = 1;
+            coeff_seq[1][1] = 1;
+            coeff_seq[2][2] = 1;
+            coeff_seq[0][1] = -1;
+            coeff_seq[0][2] = -1;
+            coeff_seq[1][2] = -1;
+            coeff_seq[3][3] = 3;
+            coeff_seq[4][4] = 3;
+            coeff_seq[5][5] = 3;
+        }
+    }
     
-    int id;             ///< identite du materiaux dans data_user
-    int type_num;       ///< numero d'identité du comportement materiaux : 0=isotrope elastique
-    Sc2String type;        ///< type de formulation : isotrope, orthotrope, orthotrope endommageable, mesomodele
-    Sc2String comp;        ///< type de comportement : elastique, endommageable, plastique...
-    bool resolution;    ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
-    Vec<TYPEREEL,DIM> v1,v2;    ///< direction pour les materiaux orthotropes
-    TYPEREEL density;      ///< densite du materiaux
-    TYPEREEL elastic_modulus,poisson_ratio, elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23;
-    TYPEREEL alpha, alpha_1,alpha_2,alpha_3, deltaT;    ///< Coefficients de la thermique
-    TYPEREEL k_p,m_p,R0,coefvm_composite;          ///< Coefficients de la plasticite
-    TYPEREEL Yo,Yc,Ycf,dmax,b_c,a,tau_c;           ///< Coefficients de l'endommagement
-    bool effet_retard;
-    Vec<TYPEREEL,DIM> f_vol;       ///< champs de force volumique constant
-    Vec<Sc2String,DIM> f_vol_e;    ///< champs de force volumique par element
-    TYPEREEL dt;           ///< pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
-    TYPEREEL viscosite;
+    /// Attributs communs
+    int id;                         ///< identite du materiaux dans data_user
+    int type_num;                   ///< numero d'identité du comportement materiaux : 0=isotrope elastique
+    Sc2String type;                 ///< type de formulation : isotrope, orthotrope, orthotrope endommageable
+    Sc2String comp;                 ///< type de comportement : elastique, endommageable, plastique, mesomodele...
+    bool resolution;                ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
+    Vec<TYPEREEL,DIM> v1,v2;        ///< direction pour les materiaux orthotropes
+    TYPEREEL density;               ///< densite du materiaux
+    Vec<TYPEREEL,DIM> f_vol;        ///< Champs de force volumique constant
+    Vec<Sc2String,DIM> f_vol_e;     ///< Champs de force volumique par element
+    TYPEREEL dt;                    ///< pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
+    
+    /// Comportement elastique
+    TYPEREEL elastic_modulus,poisson_ratio; /// Isotrope
+    TYPEREEL elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23; /// Anisotrope
+    
+    /// Comportement thermique
+    TYPEREEL alpha;                     ///< Isotrope
+    TYPEREEL alpha_1,alpha_2,alpha_3;   ///< Anisotrope
+    TYPEREEL deltaT;                    ///< Variable pour le stockage de la variation de temperature
+    
+    /// Compoprtement plastique
+    TYPEREEL R0;        ///< Contrainte limite d'elasticite
+    TYPEREEL k_p,m_p;   ///< Coefficients de la loi d'ecrouissage
+    TYPEREEL coefvm_composite;                                    ///< Coefficient de couplage pour la contrainte equivalente (cf mesomodele de composite)
+    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2>,DIM*(DIM+1)/2> coeff_seq;     ///< Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
+    
+    /// Comportement endommageable de type mesomodele de composite
+    TYPEREEL Yo,Yc,Ycf;     ///< Efforts limites de l'endommagement de la rupture
+    TYPEREEL dmax;          ///< Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
+    TYPEREEL b_c;           ///< Couplage entre micro-fissuration et decohesion fibres/matrice
+    bool effet_retard;      ///< Indique si un effet retard doit etre applique a l'endommagement
+    TYPEREEL a,tau_c;       ///< Coefficients de l'effet_retard de l'endommagement
+    
+    /// Comportement visqueux
+    TYPEREEL viscosite;     ///< Viscosite du materiau
     
     void affiche(){
         std::cout << std::endl << std::endl;
@@ -43,8 +112,7 @@ struct SstCarac
             std::cout << "elastic_modulus : " << elastic_modulus << std::endl;
             std::cout << "poisson_ratio : " << poisson_ratio << std::endl;
             std::cout << "alpha : " << alpha << std::endl;
-        }
-        if (type == "orthotrope" or type == "mesomodele"){
+        } else if (type == "orthotrope"){
             std::cout << "elastic_modulus_1 : " << elastic_modulus_1 << std::endl;
             std::cout << "elastic_modulus_2 : " << elastic_modulus_2 << std::endl;
             std::cout << "elastic_modulus_3 : " << elastic_modulus_3 << std::endl;
@@ -59,7 +127,7 @@ struct SstCarac
             std::cout << "alpha_3 : " << alpha_3 << std::endl;
         }
         std::cout << "deltaT  : " << deltaT << std::endl;
-        if (type == "mesomodele"){
+        if (comp == "mesomodele"){
             std::cout << "k_p      : " << k_p << std::endl;
             std::cout << "m_p      : " << m_p << std::endl;
             std::cout << "R0       : " << R0 << std::endl;

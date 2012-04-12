@@ -4,6 +4,7 @@
 
 //definition du maillage des interfaces
 #include "../MAILLAGE/meshcaracinter.h"
+#include "../../LMT/include/containers/mat.h"
 //#include <boost/concept_check.hpp>
 using namespace LMT;
 
@@ -74,8 +75,13 @@ struct Interface
         /// M masse, N operateur de sous_integration 
         /// eM matrice permettant de renvoyer les valeurs pour chaque noeuds à partir des quantites macro, MeM la meme avec multiplication par la matrice de masse :permet d'extraire les composantes macro d'une distribution donnee,
         /// kloc direction de recherche, cloc direction de recherche inverse (sous forme de matrice globale sur l'interface: pas utiliser pour l'instant)
-        TMATS M,N,Nt,hglo,kglo;
-        TMATF eM,MeM;
+        TMATS M;        ///< Operateur de masse (matrice)
+        TMATS N;        ///< Operateur de sous-integration (matrice)
+        TMATS Nt;       ///< 
+        TMATS hglo;     
+        TMATS kglo;     
+        TMATF eM;       ///< Projecteur sur la base macroscopique (matrice)
+        TMATF MeM;      ///< Matrice eM premultipliee par la matrice de masse
         /// fonction projecteur macro . La définition d'un projecteur macro et micro sous forme d'une fonction permet de ne pas construire et stocker de nouvel opérateur et prend autant de temps que l'utilisation d'une matrice.
         Vec<TYPEREEL,-1,void> PM(Vec<TYPEREEL> &f) {
             Vec<TYPEREEL,-1,void> fM; fM.resize(f.size()); fM.set(0.);
@@ -108,32 +114,43 @@ struct Interface
 
         ///< Structure temporelle contenant les vecteurs nodaux
         struct Time{
-            Vec<TYPEREEL> F,Wp,W,Fchap,Wpchap,Wchap,WtildeM,oldF,oldWp,oldW;
+            Vec<TYPEREEL> F;        ///< efforts sur la face
+            Vec<TYPEREEL> W;        ///< deplacements sur la face
+            Vec<TYPEREEL> Wp;       ///< vitesses sur la face
+            Vec<TYPEREEL> Fchap;    ///< 
+            Vec<TYPEREEL> Wchap;    ///<
+            Vec<TYPEREEL> Wpchap;   ///<
+            Vec<TYPEREEL> WtildeM;  ///< pseudo multiplicateur de
+            Vec<TYPEREEL> oldF;     ///< efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vec<TYPEREEL> oldW;     ///< deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vec<TYPEREEL> oldWp;    ///< vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
             void allocations(unsigned sizenodeeq,Process &process){
-                if (process.rank>0 or process.size==1) F.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) F.set(0.0);
-                if (process.rank>0 or process.size==1) Wp.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) Wp.set(0.0);
-                if (process.rank>0 or process.size==1) W.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) W.set(0.0);
-                if (process.rank>0 or process.size==1) oldW.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) oldW.set(0.0);
-                if (process.rank>0 or process.size==1) Fchap.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) Fchap.set(0.0);
-                if (process.rank>0 or process.size==1) Wchap.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) Wchap.set(0.0);
-                if (process.rank>0 or process.size==1) Wpchap.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) Wpchap.set(0.0);
-                if (process.rank>0 or process.size==1) WtildeM.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) WtildeM.set(0.0);
-                if (process.rank>0 or process.size==1) oldF.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) oldF.set(0.0);
-                if (process.rank>0 or process.size==1) oldWp.resize(sizenodeeq);
-                if (process.rank>0 or process.size==1) oldWp.set(0.0);
+                if (process.rank>0 or process.size==1) {
+                    F.resize(sizenodeeq);
+                    F.set(0.0);
+                    Wp.resize(sizenodeeq);
+                    Wp.set(0.0);
+                    W.resize(sizenodeeq);
+                    W.set(0.0);
+                    oldW.resize(sizenodeeq);
+                    oldW.set(0.0);
+                    Fchap.resize(sizenodeeq);
+                    Fchap.set(0.0);
+                    Wchap.resize(sizenodeeq);
+                    Wchap.set(0.0);
+                    Wpchap.resize(sizenodeeq);
+                    Wpchap.set(0.0);
+                    WtildeM.resize(sizenodeeq);
+                    WtildeM.set(0.0);
+                    oldF.resize(sizenodeeq);
+                    oldF.set(0.0);
+                    oldWp.resize(sizenodeeq);
+                    oldWp.set(0.0);
+                }
             }
         };
-        Vec<Time> t; ///< Vecteurs piquet de temps
-        Vec<Time> t_post; ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
+        Vec<Time> t;        ///< Vecteurs piquet de temps
+        Vec<Time> t_post;   ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
         
         BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
         BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact

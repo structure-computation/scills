@@ -39,12 +39,6 @@ void Process::read_data_user(DataUser &data_user) {
     reprise_calcul = 0;
     properties->deltaT = 0;
     
-    structure->read_data_user(data_user);
-    multiscale->read_data_user(data_user);
-    latin->read_data_user(data_user);
-    affichage->read_data_user(data_user);
-    temps->read_data_user(data_user);
-    
     if(data_user.options.Temp_statique == "statique"){
         if (rank==0) std::cout << "************************" << std::endl;
         if (rank==0) std::cout << "     STATIQUE           " << std::endl;
@@ -55,6 +49,12 @@ void Process::read_data_user(DataUser &data_user) {
         if (rank==0) std::cout << "************************" << std::endl;
     }
     nom_calcul = "incr";
+    
+    structure->read_data_user(data_user);
+    multiscale->read_data_user(data_user);
+    latin->read_data_user(data_user);
+    affichage->read_data_user(data_user);
+    temps->read_data_user(data_user);
 };
 
 

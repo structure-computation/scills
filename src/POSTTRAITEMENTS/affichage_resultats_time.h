@@ -1,4 +1,18 @@
-#include "mesh/remove_doubles.h"
+#ifndef AFFICHAGE_RESULTATS_TIME_H
+#define AFFICHAGE_RESULTATS_TIME_H
+
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../COMPUTE/DataUser.h"
+
+#include "affichage_mesh_SST.h"
+#include "../ITERATIONS/manipulate_quantities.h"
+#include "../UTILS/Sc2String.h"
+
+#include "../../LMT/include/containers/vec.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../../LMT/include/mesh/remove_doubles.h"
 
 using namespace LMT;
 
@@ -15,6 +29,7 @@ struct Projection_sigma_epsilon_on_skin{
         e.numsst_skin = parent.numsst;
         e.num_proc_skin = parent.num_proc;
         e.typmat_skin = parent.typmat;
+        
         //e.epsilon_skin[0] =parent.Yde[0];
         //e.epsilon_skin[1] =parent.Yde[1];
 
@@ -25,10 +40,10 @@ struct Projection_sigma_epsilon_on_skin{
    }
 };
 
-//procedure permettant de sortir les fichiers paraview pour le volume et la peau des sst en une seule passe.
-template<class TV1> void write_paraview_results(TV1 &S,Process &process, DataUser &data_user) {
+///procedure permettant de sortir les fichiers paraview pour le volume et la peau des sst en une seule passe.
+void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, DataUser &data_user) {
     
-    //preparation des noms et des repertoires pour ecriture des resultats
+    ///preparation des noms et des repertoires pour ecriture des resultats
     Sc2String name_multiresolution="";
     if(data_user.options.Multiresolution_on==1)
         name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
@@ -39,13 +54,13 @@ template<class TV1> void write_paraview_results(TV1 &S,Process &process, DataUse
         generic_names[i]=directory_names[i]+"/"+name_multiresolution.c_str()+ process.affichage->name_data; //nom generique du fichier vtu
     }
    
-   //eclatement de chaque sous-structure
-   double ecl=1;
-   eclat_SST(S,ecl);
-   
+    ///eclatement de chaque sous-structure
+    double ecl=1;
+    eclat_SST(S,ecl);
+    
     for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
-        //creation du maillage global
-        typename TV1::template SubType<0>::T::TMESH::TM meshglob;
+        ///creation du maillage global
+        Sst::TMESH::TM meshglob;
         for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
                 assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user);
@@ -55,18 +70,18 @@ template<class TV1> void write_paraview_results(TV1 &S,Process &process, DataUse
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
         }
-     
-        //extraction des quantites pour la peau
+    
+        ///extraction des quantites pour la peau
         meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
         meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-    /*         remove_doubles(meshglob,1e-8, true);*/
+        //remove_doubles(meshglob,1e-8, true);
         meshglob.update_skin();
         apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
 
-        //ecriture des fichiers vtu
+        ///ecriture des fichiers vtu
         for(unsigned i=0;i<2;i++){
             DisplayParaview dp;
-            //ecriture fichier paraview generique de tous les champs (volume ou peau)
+            ///ecriture fichier paraview generique de tous les champs (volume ou peau)
             ostringstream sp;
             sp<<"./tmp/paraview_"<<process.rank<<"_";
             Sc2String strp(sp.str());
@@ -75,14 +90,13 @@ template<class TV1> void write_paraview_results(TV1 &S,Process &process, DataUse
             else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
             
             if(process.affichage->save=="display") dp.exec();
-            //modification du nom et deplacement du fichier generique
+            ///modification du nom et deplacement du fichier generique
             ostringstream ss;
             ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
             Sc2String namefile(ss.str());
             int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
         }
-    } 
-   
+    }
 }
 
 
@@ -298,10 +312,10 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
-   else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
+   else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
    else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
@@ -366,10 +380,10 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
-   else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
+   else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
    else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
@@ -519,3 +533,6 @@ template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Proce
    }
 
 };
+
+#endif //AFFICHAGE_RESULTATS_TIME_H
+

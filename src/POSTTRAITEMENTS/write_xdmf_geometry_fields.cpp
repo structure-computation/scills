@@ -32,7 +32,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String na
         //write_nodes_datasets(f,input_hdf5, name_nodes,nb_nodes,i_proc);
     
         //ecriture des dataitems list d'elements connectivites
-        PRINT("dataset");
+        //PRINT("dataset");
         write_groups_datasets_2(f,input_hdf5, name_elements);
         
         //ecriture des dataitems attributs (noeuds et elements) pour chaque piquet de temps ou avant calcul
@@ -41,9 +41,9 @@ void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String na
             for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
                 for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
                     process.temps->pt_cur+=1;
-                    PRINT("nodes");
+                    //PRINT("nodes");
                     write_nodes_attributs_datasets(f,input_hdf5, nb_nodes,name_fields, attributs,process.temps->pt_cur, i_proc);
-                    PRINT("groups");
+                    //PRINT("groups");
                     write_groups_attributs_datasets(f,input_hdf5, name_elements, name_fields, attributs, process.temps->pt_cur);
                 }
             }
@@ -86,20 +86,23 @@ void write_nodes(std::ofstream &f, Process &process, Sc2String name_node){
     Sc2String name_nodes = process.affichage->name_geometry + "/" + name_node;
     
     int i_proc_ini=1;
-    if(process.size==1) i_proc_ini=0;        
-    std::cout << process.size << std::endl;
+    if(process.size==1) i_proc_ini=0;
     
     //lecture du fichier hdf5 créé par chaque processeur
     for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
         Sc2String input_hdf5; input_hdf5 << name_hdf5 <<"_"<<i_proc<<".h5";
-        Hdf hdf(input_hdf5.c_str());    
-
+        Hdf hdf(input_hdf5.c_str());
+        std::cout << "Test write_nodes 2 ************************************************************************************" << std::endl;
+        
         int nb_nodes;
         Sc2String data_node_x = name_nodes + "/x";
+        std::cout << "DATA_NODE_X" << data_node_x << std::endl << std::endl;
         hdf.read_size(data_node_x.c_str(),nb_nodes);
+        std::cout << "Test write_nodes 3 ************************************************************************************" << std::endl;
     
         //ecriture des dataitems noeuds
         write_nodes_datasets(f,input_hdf5, name_nodes,nb_nodes,i_proc);
+        std::cout << "Test write_nodes 4 ************************************************************************************" << std::endl;
     }
 }
 
@@ -118,25 +121,36 @@ void write_xdmf_file_geometry(Process &process, DataUser &data_user){
             
             //ecriture des noeuds (les mêmes pour tous les maillages)
             write_nodes(f, process, "local_nodes");
-        
+            
             if(xdmf_file_type[i]=="_elements_0.xdmf"){
                 //ecriture du maillage des sst
                 BasicVec<Sc2String> attributs("none");
+                std::cout << "Test 3a************************************************************************************************************************************************************************************************" << std::endl;
                 write_xdmf_geometry_fields(f, process,"elements_0", "local_nodes", "piece_volume" ,"Geometry_0",0, attributs);
+                std::cout << "Test 4a************************************************************************************************************************************************************************************************" << std::endl;
+                
             }
             else if(xdmf_file_type[i]=="_elements_0_skin.xdmf"){
                 //ecriture du maillage de peau des sst
                 BasicVec<Sc2String> attributs=BasicVec<Sc2String>("num_proc", "material", "num_group");
+                std::cout << "Test 3b************************************************************************************************************************************************************************************************" << std::endl;
                 write_xdmf_geometry_fields(f, process,"elements_0_skin", "local_nodes", "piece_peau" ,"Geometry_0_skin",0, attributs);
+                std::cout << "Test 4b************************************************************************************************************************************************************************************************" << std::endl;
+                
             }
             else if(xdmf_file_type[i]=="_elements_1.xdmf"){
                 //ecriture du maillage des interfaces
                 BasicVec<Sc2String> attributs=BasicVec<Sc2String>("number", "nature");
+                std::cout << "Test 3c************************************************************************************************************************************************************************************************" << std::endl;
                 write_xdmf_geometry_fields(f, process,"elements_1", "local_nodes", "interface" ,"Geometry_1",0, attributs);
+                std::cout << "Test 4c************************************************************************************************************************************************************************************************" << std::endl;
+                
             }
             f<<"    </Domain>"<< std::endl;
             f<<"</Xdmf>"<<std::endl;
-            f.close();     
+            f.close();
+            std::cout << "Test 5************************************************************************************************************************************************************************************************" << std::endl;
+            
         }
 }
 

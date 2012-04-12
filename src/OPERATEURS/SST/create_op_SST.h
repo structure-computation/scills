@@ -42,8 +42,7 @@ using namespace LMT;
 /** \ingroup  Operateurs_sst
 \brief Procédure principale permettant la création des opérateurs par sous-structure.
  */
-template<class TV1, class TV2,class TV3, class TV4>
-void create_op_SST(TV1 &S, TV2 &Inter,TV3 &SubS,TV4 &SubI,Process &process, DataUser &data_user) {
+void create_op_SST(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Sst> > &SubS,Vec<VecPointedValues<Interface> > &SubI,Process &process, DataUser &data_user) {
 
 /*#ifdef PRINT_ALLOC
     disp_alloc((to_string(process.rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);

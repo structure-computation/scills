@@ -1,12 +1,19 @@
+#ifndef OP_SST_H
+#define OP_SST_H
+
+#include "../../COMPUTE/DataUser.h"
+
 #include "../../DEFINITIONS/Process.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 
-#include "../../COMPUTE/DataUser.h"
+#include "../../MAILLAGE/correspondance_ddl_sst.h"
 
+#include "../../../LMT/include/containers/vec.h"
+#include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/util/solveLDL.h"
 using namespace LMT;
 
-#include "../../MAILLAGE/correspondance_ddl_sst.h"
 
 //********************************************
 // calcul matrice de rigidite par SST
@@ -21,7 +28,7 @@ using namespace LMT;
     void operator()(SST &S) const {
         S.mesh.load();
         S.f->set_mesh(S.mesh.m); 
-	S.f->want_amd=false;
+        S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
     }
@@ -60,8 +67,6 @@ struct efface_mesh_edge{
  \f$ K(repddlbord,repddlbord) + \frac{N^t M k N}{\Delta t} \f$
  car \f$ \int_{\partial \Omega_E} k W W* \f$ correspond à \f$ W*^t M k W \f$ et \f$ W = N U[repddlbord] \f$
  */
-#include "util/solveLDL.h"
-//#include "assignation_materiaux_sst.h"
 
 struct Calc_SST_rigidite_K0_k {
     void operator()(Sst &S, Vec<Interface> &Inter,Process &process, DataUser &data_user) const {
@@ -69,7 +74,7 @@ struct Calc_SST_rigidite_K0_k {
         //reperage des ddl de bords (chargement du maillage + non effacement)
         Calc_SST_Correspddl(S,process);
         S.assign_material_on_element(data_user);
-        S.f->set_mesh(S.mesh.m); 
+        S.f->set_mesh(S.mesh.m);
         S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
@@ -79,20 +84,20 @@ struct Calc_SST_rigidite_K0_k {
         Mat<TYPEREEL, Sym<>,SparseLine<> > &K = *Kl;
 #else
         S.f->get_mat( S.K );
-        typename SST::TMATS &K = *S.K;
+        Sst::TMATS &K = *S.K;
 #endif
-
+        
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
+        disp_alloc((to_string(process.rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
 #endif
 
-//    ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
-//    f << K.nb_cols() << endl;
-//    for(unsigned i=0;i<K.data.size();++i) {
-//        for(unsigned j=0;j<K.data[i].indices.size();j++){
-//            f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//        ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
+//        f << K.nb_cols() << endl;
+//        for(unsigned i=0;i<K.data.size();++i) {
+//            for(unsigned j=0;j<K.data[i].indices.size();j++){
+//                f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//            }
 //        }
-//    }
 
         // ajout des directions de recherche sur chaque cote
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -100,37 +105,37 @@ struct Calc_SST_rigidite_K0_k {
             unsigned data=S.edge[j].datanum;            
             K[S.edge[j].repddledge] += Inter[q].side[data].Nt*(Inter[q].side[data].M*(Inter[q].side[data].kglo*Inter[q].side[data].N))/process.temps->dt; // a optimiser
         }
+        
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
+        disp_alloc((to_string(process.rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
 #endif
 
-//    ofstream f2(("Kk0_"+to_string(S.num)).c_str());
-//    f2 << K.nb_cols() << endl;
-//    for(unsigned i=0;i<K.data.size();++i) {
-//    for(unsigned j=0;j<K.data[i].indices.size();j++){
-//      f2 << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
-//    }
-//    }
+//      ofstream f2(("Kk0_"+to_string(S.num)).c_str());
+//      f2 << K.nb_cols() << endl;
+//      for(unsigned i=0;i<K.data.size();++i) {
+//          for(unsigned j=0;j<K.data[i].indices.size();j++){
+//              f2 << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//          }
+//      }
 
-//    ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
-//    f << K.nb_cols() << endl;
-//    for(unsigned i=0;i<K.data.size();++i) {
-//        for(unsigned j=0;j<K.data[i].indices.size();j++){
-//            f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
-//        }
-//    }
+//      ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
+//      f << K.nb_cols() << endl;
+//      for(unsigned i=0;i<K.data.size();++i) {
+//          for(unsigned j=0;j<K.data[i].indices.size();j++){
+//              f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//          }
+//      }
+        
 #if LDL
         S.l.get_factorization( K, true, true );
 #else
-
         K.get_factorization();
 #endif
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
+        disp_alloc((to_string(process.rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
 #endif
-     S.mesh.unload();
-     
+        S.mesh.unload();
     }
 };
 
@@ -270,8 +275,24 @@ struct Calc_SST_LE {
                     unsigned data=S.edge[j].datanum;
                     Wd.resize(Inter[q].side[data].M.nb_cols());
                     if(j==jj) Wd=Inter[q].side[data].eM.col(k);
-                    else Wd.set(0);
-                    
+                    else Wd.set(0.0);
+                    /*
+                    std::cout << "********** CREATION LE **********" << std::endl;
+                    std::cout << "jj   : " << jj << std::endl;
+                    std::cout << "k    : " << k << std::endl;
+                    std::cout << "j    : " << j << std::endl;
+                    std::cout << "q    : " << q << std::endl;
+                    std::cout << "data : " << data << std::endl;
+                    std::cout << "kglo : " << Inter[q].side[data].kglo.nb_rows() << "," << Inter[q].side[data].kglo.nb_cols() << std::endl;
+                    std::cout << "Nt : " << Inter[q].side[data].Nt.nb_rows() << "," << Inter[q].side[data].Nt.nb_cols() << std::endl;
+                    //display(std::cout,Inter[q].side[data].Nt,0);
+                    std::cout << "M  : " << Inter[q].side[data].M.nb_rows()  << "," << Inter[q].side[data].M.nb_cols()  << std::endl;
+                    std::cout << "eM : " << Inter[q].side[data].eM.nb_rows() << "," << Inter[q].side[data].eM.nb_cols() << std::endl;
+                    //display(std::cout,Inter[q].side[data].M,0);
+                    std::cout << "Wd  : " << Wd.size() << std::endl;
+                    //for(int toto = 0; toto < Wd.size(); toto++)
+                    //    std::cout << "    " << toto << " : " << Wd[toto];
+                    //*/
                     droitm[S.edge[j].repddledge] += Inter[q].side[data].Nt * Inter[q].side[data].M * Inter[q].side[data].kglo * Wd;
                 }
                 // resolution
@@ -305,3 +326,4 @@ struct Calc_SST_LE {
     }
 };
 
+#endif //OP_SST_H

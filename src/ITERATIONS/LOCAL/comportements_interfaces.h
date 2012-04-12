@@ -6,7 +6,7 @@
 \relates etape_locale_inter
 \brief Procédure pour les interfaces extérieures à déplacement imposé (ou vitesse)
 */
-void compt_CL_depl (Interface &Inter,int &imic) {
+void compt_CL_vit (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + Inter.side[0].kglo*(Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp);
 }
 

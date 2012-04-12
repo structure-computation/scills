@@ -31,9 +31,9 @@ struct SaveParameters{
     Sc2String repertoire_save;  ///< repertoire de sauvegarde (ex : ./tmp/data/)
     Sc2String name_data;        ///< nom generique des fichiers de sauvegarde
     Sc2String command_file;     ///< nom du fichier de commande pour l interactivite
-    bool interactivite; ///< Booléen permettant de post traiter les resultats de maniere interactive sans relancer un calcul. Taper help pour connaitre les mots clés
-    bool affich_inter_data; ///< affichage des efforts et deplacements d'interface
-    Vec<int> num_inter_select; ///< numero des interfaces sélectionnées pour l'affichage des efforts et déplacement (-1 pour toutes les interfaces)
+    bool interactivite;         ///< Booléen permettant de post traiter les resultats de maniere interactive sans relancer un calcul. Taper help pour connaitre les mots clés
+    bool affich_inter_data;     ///< affichage des efforts et deplacements d'interface
+    Vec<int> num_inter_select;  ///< numero des interfaces sélectionnées pour l'affichage des efforts et déplacement (-1 pour toutes les interfaces)
     unsigned side;          ///< cote selectionne pour affichage des efforts et deplacement
     unsigned pt;            ///< pas de temps a afficher
     bool affich_depl_pt;    ///< affichage du deplacement d'un point sous gnuplot

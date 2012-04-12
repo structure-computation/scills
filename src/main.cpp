@@ -29,13 +29,13 @@ using namespace Metil;
 
 
 using namespace LMT;
-using namespace std;
 Crout crout;
 #ifdef PRINT_ALLOC
 namespace LMT {
     std::map<std::string,long long> total_allocated;
 };
 #endif
+
 
 //*********************************************************************
 // procedure multiechelle quasistatique ou statique (2 ou 3d)
@@ -61,20 +61,15 @@ int main(int argc,char **argv) {
             std::cout << "Mode de visualisation des bords" << std::endl;
             //on ne lit que les groupes d'interfaces
             structure.geometry_user.visualize_group_edges_within_geometry(structure.data_user);
-            std::cout << "fin lecture de la geometrie - CL uniquement" << std::endl;   
             //on ecrit le champ "select" sur les groupes d'interface
         }
         else{
-            std::cout << "fin lecture de la geometrie" << std::endl;
             structure.geometry_user.split_group_edges_within_geometry(structure.data_user);
-            std::cout << "fin lecture de la geometrie" << std::endl;
-            
             structure.chargement_donnees();
-            //lancement du calcul
             structure.multiscale();
-            
         }
         structure.finalisation_MPI();
+        std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
         
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;

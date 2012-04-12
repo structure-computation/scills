@@ -131,15 +131,12 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
  
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
-template <class TV3> 
-void affichage_resultats(TV3 &S,  Process &process, DataUser &data_user) {
+void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
     if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) {
         write_paraview_results(S,process, data_user);
         create_file_pvd(process,data_user,"sst_bulk");
         create_file_pvd(process,data_user,"sst_skin");
-        //process.affichage->type_affichage="Sinterieur"; //sortie paraview pour les SST en volume
-        //affich_SST_resultat_latin(S,process, data_user);
       }
       
 
@@ -151,8 +148,7 @@ void affichage_resultats(TV3 &S,  Process &process, DataUser &data_user) {
  
  On appelle affich_resultats_inter() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
-template <class TV1,class TV4> 
-void affichage_resultats_inter(TV4 &Inter, TV1 &S , Process &process, DataUser &data_user) {
+void affichage_resultats_inter(Vec<VecPointedValues<Interface> > &Inter, Vec<Sst> &S , Process &process, DataUser &data_user) {
   if (process.affichage->affich_resultat==1)
       if (process.size == 1 or process.rank > 0) {
         affich_INTER_resultat(Inter,S,process);
@@ -201,49 +197,49 @@ void affichage_energie(TV3 &S,TV2 &Inter, Process &process, DataUser &data_user)
         if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
         if (process.rank==0) std::cout << "Dissipation (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==0 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_ener_dissi_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Dissipation (n) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_ener_dissi_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Dissipation (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==1 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_ener_imp_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Energie imposee (c) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_ener_imp_chap(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Energie imposee (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==1 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_ener_imp_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Energie imposee (n) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_ener_imp_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Energie imposee (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==2 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Ft2_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Effort tangent carre (c) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Ft2_chap(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Effort tangent carre (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==2 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Ft2_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Effort tangent carre (n) faux en mpi : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Ft2_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Effort tangent carre (n) faux en mpi : " << energie << endl;
     } else if(process.affichage->param_ener[0]==3 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Fn_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Effort normal (c) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Fn_chap(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Effort normal (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==3 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Fn_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Effort normal (n) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Fn_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Effort normal (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==4 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Un_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Deplacement normal (c) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Un_chap(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Deplacement normal (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==4 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Un_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Deplacement normal (n) faux en mpi  : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Un_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Deplacement normal (n) faux en mpi  : " << energie << endl;
     } else if(process.affichage->param_ener[0]==5 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Ut_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Deplacement tangent (c) : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Ut_chap(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Deplacement tangent (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==5 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Ut_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) std::cout << "Deplacement tanget (n) faux en mpi  : " << energie << endl;
+        if (process.rank>0 or process.size==1) calcul_Ut_lin(S,Inter,energie,process);
+        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.rank==0) std::cout << "Deplacement tanget (n) faux en mpi  : " << energie << endl;
     }  else if(process.affichage->param_ener[0]==6) {
         if (process.rank>0 or process.size==1) calcul_energie_elastique(S,Inter,energie,process, data_user);
         if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
@@ -253,9 +249,9 @@ void affichage_energie(TV3 &S,TV2 &Inter, Process &process, DataUser &data_user)
         assert(0);
     }
     if (process.affichage->command_file=="" and process.rank==0){
-      GnuPlot gp;
-      gp.plot(energie);
-      gp.wait();
+        GnuPlot gp;
+        gp.plot(energie);
+        gp.wait();
     }
 }
 

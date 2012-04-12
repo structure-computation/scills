@@ -84,14 +84,14 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
    for(unsigned q=0;q<Inter.size();++q){
                  
          int type=0;
-         if (Inter[q].type=="Ext" and Inter[q].comp=="depl"){type=0;}
-         else if (Inter[q].type=="Ext" and Inter[q].comp=="effort"){type=1;}
-         else if (Inter[q].type=="Ext" and ( Inter[q].comp=="sym" )){type=2;}
-         else if (Inter[q].type=="Ext" and ( Inter[q].comp=="depl_normal")){type=3;}
-         else if (Inter[q].type=="Int" and Inter[q].comp=="Parfait"){type=4;}
+              if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit")){type=0;}
+         else if (Inter[q].type=="Ext" and (Inter[q].comp=="effort")){type=1;}
+         else if (Inter[q].type=="Ext" and (Inter[q].comp=="sym" )){type=2;}
+         else if (Inter[q].type=="Ext" and (Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale")){type=3;}
+         else if (Inter[q].type=="Int" and (Inter[q].comp=="Parfait")){type=4;}
          else if (Inter[q].type=="Int" and (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep") ){type=5;}
-         else if (Inter[q].type=="Int" and Inter[q].comp=="Jeu_impose"){type=6;}
-         else if (Inter[q].type=="Ext" and Inter[q].comp=="periodique"){type=7;}
+         else if (Inter[q].type=="Int" and (Inter[q].comp=="Jeu_impose")){type=6;}
+         else if (Inter[q].type=="Ext" and (Inter[q].comp=="periodique")){type=7;}
          else {type=8;}
          int num=Inter[q].num;
          int numelem=0;
@@ -125,7 +125,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 //    Sc2String save = process.affichage->save;
 //    for(unsigned q=0;q<Inter.size();++q){
 //       int type=0;
-//       if (Inter[q].type=="Ext" && Inter[q].comp=="depl"){type=0;}
+//       if (Inter[q].type=="Ext" && Inter[q].comp=="vit"){type=0;}
 //       else if (Inter[q].type=="Ext" && Inter[q].comp=="effort"){type=1;}
 //       else if (Inter[q].type=="Ext" && Inter[q].comp=="sym"){type=2;}
 //       else if (Inter[q].type=="Int" && Inter[q].comp=="Parfait"){type=3;}

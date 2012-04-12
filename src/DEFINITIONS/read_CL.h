@@ -10,9 +10,9 @@ using namespace LMT;
  
  champ parametres : contient box, comportement
  
- champ fct_spatiale : contient la fct spatiale appliquee sur cette zone : entrer une fct de x ou y en 2d et x,y ou x,z ou y,z ou x,y,z  en 3d
+ champ fcts_spatiales : contient la fct spatiale appliquee sur cette zone : entrer une fct de x ou y en 2d et x,y ou x,z ou y,z ou x,y,z  en 3d
  
- champ fct_temporelle : contient la fct temporelle appliquee sur l'intervalle de temps donne, rentrer une fonction de t
+ champ fcts_temporelles : contient la fct temporelle appliquee sur l'intervalle de temps donne, rentrer une fonction de t
  
  On multiplie dans prelocalstage.h la valeur de la fonction spatiale en un noeud equivalent par la fonction temporel (en statique comme en quasistatique)
 */
@@ -25,10 +25,10 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
     for(unsigned i=0;i<nbCL;++i) {
         CL[i].id = data_user.behaviour_bc[i].id;
         CL[i].comp = data_user.behaviour_bc[i].type;
-        std::cout << "data_user.behaviour_bc[i].type = " << data_user.behaviour_bc[i].type << std::endl;
-        if (CL[i].comp=="depl_nul") {
-            CL[i].comp = "depl";
-            data_user.behaviour_bc[i].type = "depl";
+        std::cout << "Interface " << data_user.behaviour_bc[i].id << " - Comportement : " << data_user.behaviour_bc[i].type << std::endl;
+        if (CL[i].comp=="vit_nulle") {
+            CL[i].comp = "vit";
+            data_user.behaviour_bc[i].type = "vit";
         }
         else if (CL[i].comp=="sym") {
             CL[i].fcts_spatiales.resize(nbStep);
@@ -60,7 +60,6 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
                 CL[i].fcts_temporelles.resize(nbStep);
                 CL[i].intervalles_temps.resize(nbStep);                 
                 for(unsigned i_step=0;i_step<nbStep;i_step++){
-                    PRINT(i_step);
                     CL[i].intervalles_temps[i_step][0]=process.temps->time_step[i_step].t_ini;
                     CL[i].intervalles_temps[i_step][1]=process.temps->time_step[i_step].t_fin;
                     CL[i].fcts_spatiales[i_step].resize(data_user.dim,"0");

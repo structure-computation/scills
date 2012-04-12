@@ -85,15 +85,15 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
         if (process.size>1)
             MPI_Barrier(MPI_COMM_WORLD);
         tic.start();
-    #ifdef PRINT_ALLOC
+#ifdef PRINT_ALLOC
         disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
-    #endif
-    #ifdef INFO_TIME
+#endif
+#ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Operateurs d interface : " ;
         if (process.rank==0) tic1.stop();;
         if (process.rank==0) tic1.start();
-    #endif
+#endif
     }
 
     if (process.rank == 0)

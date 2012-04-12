@@ -52,7 +52,7 @@ Selon le nom correspondant extrait du vecteur de propriétés matériaux, on dé
 Si certaines formulations ne veulent pas être inclus dans la base des formulations disponibles, il suffit de commenter chaque bloc if et d'enlever la formulation correspondante dans le fichier SConstruct.  
 */
 struct assignation_material_to_SST{
-    void operator()(Sst &S,Vec<SstCarac> &matprops) const;
+    void operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite) const;
 };
 
 

@@ -52,6 +52,7 @@ struct Process
     bool recopie_t_post;    ///< booleen pour recopier les quantites obtenues par un calcul incremental aux quantites pour un calcul latin
     bool save_data;         ///< booléen permettant de sauvegarder dans des fichiers textes les données aux interfaces et aux sst
     bool read_data;         ///< booléen permettant de lire dans des fichiers textes les données aux interfaces et aux sst
+    bool plasticite;        ///< indique si au moins un solide a une loi de comportement plastique
     int reprise_calcul;     ///< booleen permettant de dire si on initialise le calcul avec les donnees sauvegarder dans save_sst et save_inter
     int nb_breakable;       ///< nombre d'interfaces cassables
     
