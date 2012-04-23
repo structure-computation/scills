@@ -187,7 +187,6 @@ void iterate_latin(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfa
 void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, MacroProblem &Global,DataUser &data_user) {
 
     //phase iterative
-    process.temps->pt=1;
     bool flag_convergence=0;
     bool multiechelle=process.multiscale->multiechelle;
     process.latin->save_depl_SST=true;
@@ -228,7 +227,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         tic.start();
 
         ///Si on a converge, on le dit aux interfaces cassables pour qu'elles mettent à jour leur comportement
-        if (flag_convergence == 1 && process.nb_breakable > 0) {
+        if (flag_convergence == 1 and process.nb_breakable > 0) {
             if (process.size == 0 or process.rank > 0){
                 for(unsigned q=0; q < SubI.size();q++){
                     if (SubI[q].comp == "Breakable")
@@ -259,7 +258,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         }
         
         ///attention le paramètre est à déterminer (1e-4) pour etre optimal
-        if ( i_iter > 0 && (process.latin->error[i_iter-1]-process.latin->error[i_iter] < process.latin->critere_erreur_auto_stop) )
+        if ( i_iter > 0 and (process.latin->error[i_iter-1]-process.latin->error[i_iter] < process.latin->critere_erreur_auto_stop) )
             d_err++;
         else
             d_err=0;
@@ -267,7 +266,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         /// arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
         if (process.latin->error[i_iter]<=process.latin->critere_erreur) {
             if (process.latin->critere_erreur_diss != 0) {
-                assign_t_post(SubI, process);
+                assign_t_post(S,SubI, process);
                 Vec<double> frac;
                 frac.resize(2+Inter.size());
                 frac.set(0);

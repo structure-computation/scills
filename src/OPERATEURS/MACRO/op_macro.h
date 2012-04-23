@@ -200,7 +200,7 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
         }
     }
     
-    if (bloq==0 && process.rbm.bloq==0){ // blocage des mvts de corps rigide
+    if (bloq==0 and process.rbm.bloq==0){ // blocage des mvts de corps rigide
       for(unsigned q=0;q<Inter.size();++q){
           if (Inter[q].type=="Ext"){
               std::cout << "\t Blocage mvts corps rigide : interface " << q << endl;

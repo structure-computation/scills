@@ -125,12 +125,12 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 //    Sc2String save = process.affichage->save;
 //    for(unsigned q=0;q<Inter.size();++q){
 //       int type=0;
-//       if (Inter[q].type=="Ext" && Inter[q].comp=="vit"){type=0;}
-//       else if (Inter[q].type=="Ext" && Inter[q].comp=="effort"){type=1;}
-//       else if (Inter[q].type=="Ext" && Inter[q].comp=="sym"){type=2;}
-//       else if (Inter[q].type=="Int" && Inter[q].comp=="Parfait"){type=3;}
-//       else if (Inter[q].type=="Int" && Inter[q].comp=="Contact"){type=4;}
-//       else if (Inter[q].type=="Int" && Inter[q].comp=="Cohesif"){type=5;}
+//       if (Inter[q].type=="Ext" and Inter[q].comp=="vit"){type=0;}
+//       else if (Inter[q].type=="Ext" and Inter[q].comp=="effort"){type=1;}
+//       else if (Inter[q].type=="Ext" and Inter[q].comp=="sym"){type=2;}
+//       else if (Inter[q].type=="Int" and Inter[q].comp=="Parfait"){type=3;}
+//       else if (Inter[q].type=="Int" and Inter[q].comp=="Contact"){type=4;}
+//       else if (Inter[q].type=="Int" and Inter[q].comp=="Cohesif"){type=5;}
 //       unsigned cpt=0;
 //       apply(Inter[q].side[0].mesh.elem_list,apply_type_endommagement_elem_interface(),type,cpt,*Inter[q].parammicro);
 //    }

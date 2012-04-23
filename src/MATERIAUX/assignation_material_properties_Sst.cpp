@@ -125,7 +125,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
         }
         matprops[i].density = mat_prop_temp[i][3];
         
-        std::cout << (matprops[i].type) <<endl;
+        std::cout << "id : " << matprops[i].id << "    type : " << matprops[i].type << "    comp : " << matprops[i].comp << std::endl;
         if(matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement isotrope elastique
             matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
             matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
@@ -164,24 +164,25 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             matprops[i].alpha_2 = mat_prop_temp[i][24];      ///alpha_2
             matprops[i].alpha_3 = mat_prop_temp[i][25];      ///alpha_3
             matprops[i].deltaT  = 0;                         /// deltaT
-            
-            if (matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
-                //parametres de plasticite
-                matprops[i].k_p              = mat_prop_temp[i][26];     /// k_p
-                matprops[i].m_p              = mat_prop_temp[i][27];     /// m_p
-                matprops[i].R0               = mat_prop_temp[i][28];     /// R0
-                matprops[i].coefvm_composite = mat_prop_temp[i][29];     /// couplage
-                
-                //parametres d'endommagement
-                matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
-                matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
-                matprops[i].Ycf          = mat_prop_temp[i][32];     /// Ycf
-                matprops[i].dmax         = mat_prop_temp[i][33];     /// dmax
-                matprops[i].b_c          = mat_prop_temp[i][34];     /// b_c
-                matprops[i].effet_retard = mat_prop_temp[i][35];     /// effet_retard
-                matprops[i].a            = mat_prop_temp[i][36];     /// a
-                matprops[i].tau_c        = mat_prop_temp[i][37];     /// tau_c
-            }
+        }
+        
+        if (matprops[i].comp.find("plastique")<matprops[i].type.size() or matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
+            //parametres de plasticite
+            matprops[i].k_p              = mat_prop_temp[i][26];     /// k_p
+            matprops[i].m_p              = mat_prop_temp[i][27];     /// m_p
+            matprops[i].R0               = mat_prop_temp[i][28];     /// R0
+            matprops[i].coefvm_composite = mat_prop_temp[i][29];     /// couplage
+        }
+        if (matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
+            //parametres d'endommagement
+            matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
+            matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
+            matprops[i].Ycf          = mat_prop_temp[i][32];     /// Ycf
+            matprops[i].dmax         = mat_prop_temp[i][33];     /// dmax
+            matprops[i].b_c          = mat_prop_temp[i][34];     /// b_c
+            matprops[i].effet_retard = mat_prop_temp[i][35];     /// effet_retard
+            matprops[i].a            = mat_prop_temp[i][36];     /// a
+            matprops[i].tau_c        = mat_prop_temp[i][37];     /// tau_c
         }
     }
 };
@@ -189,15 +190,22 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
 void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite) const{ 
     S.matprop = matprops[S.typmat]; 
     //formulation isotrope 
-    if (matprops[S.typmat].type=="isotrope") {
+    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="elastique") {
         S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="isotrope"; 
     }
     //formulation orthotrope 
-    if (matprops[S.typmat].type=="orthotrope" && matprops[S.typmat].comp!="mesomodele") {
+    if (matprops[S.typmat].type=="orthotrope" and matprops[S.typmat].comp=="elastique") {
         S.f = S.pb.formulation_elasticity_orthotropy_stat_Qstat;
         S.mesh.type_formulation="orthotrope"; 
     }
+    /*//formulation plastique isotrope 
+    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="plastique") {
+        plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
+        S.plastique = true;
+        S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
+        S.mesh.type_formulation="plastique"; 
+    }//*/
     //formulation mesomodele 
     if (matprops[S.typmat].comp=="mesomodele") {
         plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable

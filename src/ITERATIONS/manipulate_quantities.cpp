@@ -1,6 +1,7 @@
 #include "../DEFINITIONS/TimeParameters.h"
 #include "../DEFINITIONS/LatinParameters.h"
 #include "manipulate_quantities.h"
+#include "LOCAL/plasticity_functions.h"
 
 using namespace LMT;
 
@@ -18,7 +19,7 @@ void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<I
         nbpastemps=1;
     else if (process.nom_calcul=="latin")
         nbpastemps=process.temps->nbpastemps;
-    else{std::cout << "Nom de clacul non implemente dans allocate.h" << endl;assert(0);}
+    else{std::cout << "Nom de calcul non implemente dans allocate.h" << endl;assert(0);}
     
     /// Allocation des quantites des Sst
     if (process.latin->save_depl_SST==1){
@@ -26,7 +27,7 @@ void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<I
             S[i].t.resize(nbpastemps+1);
             if(process.recopie_t_post==1)
                 S[i].t=S[i].t_post;
-            for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les initialisations
+            for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les CI
                 unsigned nbddl = S[i].mesh.node_list_size*DIM;
                 unsigned nbelem = S[i].mesh.elem_list_size;
                 S[i].t[pt].allocations(nbddl,nbelem,process,S[i].plastique);
@@ -135,8 +136,11 @@ void assign_quantities_current_to_old(Vec<VecPointedValues<Sst> > &S, Vec<VecPoi
 }
 
 
-void assign_t_post(Vec<VecPointedValues<Interface> > &Inter, Process &process){
+void assign_t_post(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interface> > &Inter, Process &process){
     
+    for(unsigned i=0;i<S.size();i++){
+        S[i].t_post[process.temps->pt_cur]=S[i].t[1];
+    }
     for(unsigned i=0;i<Inter.size();i++){
         for(unsigned j=0;j<Inter[i].side.size();j++)
             Inter[i].side[j].t_post[process.temps->pt_cur]=Inter[i].side[j].t[1];
@@ -168,12 +172,23 @@ void recopie_old_from_new_post(Vec<Interface> &Inter,Process &process) {
 }
 
 
-void assign_dep_cont_slave(Sst &S,Vec<TYPEREEL> &q, DataUser &data_user){
+/** Assigne les resultats stockes dans le Sst::Time dans la formulation et force le calcul sur les autres grandeurs
+ * Utilisee pour le stockage des resultats dans les fichiers
+ */
+void assign_dep_cont_slave(Sst &S,Sst::Time &t, DataUser &data_user){
     S.mesh.load();
     S.assign_material_on_element(data_user);
+    if(S.plastique){
+        unsigned i_elem = 0;
+        apply(S.mesh->elem_list,chargement_deformation_plastique(),t.epsilon_p,i_elem);
+    }
     S.f->set_mesh(S.mesh.m);
-    S.f->get_result()=q;
+    S.f->get_result()=t.q;
     S.f->update_variables();
     S.f->call_after_solve();
+    if(S.plastique){
+        unsigned i_elem = 0;
+        apply(S.mesh->elem_list,chargement_plasticite_cumulee(),t.p,i_elem);
+    }
 }
 

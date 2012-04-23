@@ -565,8 +565,8 @@ void compt_breakable (Interface &Inter,TimeParameters &temps) {
         // test contact normal
         TYPEREEL N = ( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
         
-        if (Inter.param_comp->convergence >= 0 && Inter.param_comp->comportement[i] == 0){//la convergence du calcul itératif est OK, on met à jour le comportement des éléments qui ne sont pas déja cassé
-            if (N>0.0 && std::abs(dot(n,F1)) > Inter.param_comp->Gcrit){ //David dit de mettre 10% de plus
+        if (Inter.param_comp->convergence >= 0 and Inter.param_comp->comportement[i] == 0){//la convergence du calcul itératif est OK, on met à jour le comportement des éléments qui ne sont pas déja cassé
+            if (N>0.0 and std::abs(dot(n,F1)) > Inter.param_comp->Gcrit){ //David dit de mettre 10% de plus
             Inter.param_comp->comportement[i] = 1;
             Inter.param_comp->convergence++;
             }

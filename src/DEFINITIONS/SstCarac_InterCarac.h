@@ -127,11 +127,13 @@ struct SstCarac
             std::cout << "alpha_3 : " << alpha_3 << std::endl;
         }
         std::cout << "deltaT  : " << deltaT << std::endl;
-        if (comp == "mesomodele"){
+        if (comp == "plastique" or comp == "mesomodele"){
             std::cout << "k_p      : " << k_p << std::endl;
             std::cout << "m_p      : " << m_p << std::endl;
             std::cout << "R0       : " << R0 << std::endl;
             std::cout << "couplage : " << coefvm_composite << std::endl;
+        }
+        if (comp == "mesomodele"){
             std::cout << "Yo           : " << Yo << std::endl;
             std::cout << "Yc           : " << Yc << std::endl;
             std::cout << "Ycf          : " << Ycf << std::endl;

@@ -127,7 +127,7 @@ struct Sst
     static int find_index_sst(Vec<Sst> &S, int id_);
     
     /// Assigne les proprietes materiau au maillage associe a la Sst
-    void assign_material_on_element(DataUser &data_user);
+    void assign_material_on_element(const DataUser &data_user);
 };
 
 #endif // SST_H

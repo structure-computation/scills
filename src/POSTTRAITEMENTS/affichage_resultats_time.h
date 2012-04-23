@@ -7,6 +7,7 @@
 #include "../COMPUTE/DataUser.h"
 
 #include "affichage_mesh_SST.h"
+#include "displayparaview2.h"
 #include "../ITERATIONS/manipulate_quantities.h"
 #include "../UTILS/Sc2String.h"
 
@@ -63,9 +64,9 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
         Sst::TMESH::TM meshglob;
         for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user);
+                assign_dep_cont_slave(S[i],S[i].t_post[imic], data_user);
             else if(process.nom_calcul=="latin")
-                assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
+                assign_dep_cont_slave(S[i],S[i].t[imic], data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();

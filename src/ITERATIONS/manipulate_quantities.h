@@ -28,7 +28,7 @@ void allocate_quantities_post(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedVal
 
 void assign_quantities_current_to_old(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interface> > &Inter, Process &process);
 
-void assign_t_post(Vec<VecPointedValues<Interface> > &Inter, Process &process);
+void assign_t_post(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interface> > &Inter, Process &process);
 
 /** \ingroup   Latin
  * \brief Pour la reprise d'un calcul, on recopie les donnees relues dans les quantités old
@@ -42,6 +42,6 @@ void recopie_old_from_new(Vec<Interface> &Inter,Process &process);
  */
 void recopie_old_from_new_post(Vec<Interface> &Inter,Process &process);
 
-void assign_dep_cont_slave(Sst &S,Vec<TYPEREEL> &q, DataUser &data_user);
+void assign_dep_cont_slave(Sst &S,Sst::Time &t, DataUser &data_user);
 
 #endif //MANIPULATE_QUANTITIES_H

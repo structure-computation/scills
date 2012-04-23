@@ -36,8 +36,8 @@ int Sst::find_index_sst(Vec<Sst> &S, int id_) {
     }
 }
 
-void Sst::assign_material_on_element(DataUser &data_user){
-    if (mesh.type_formulation=="isotrope") {
+void Sst::assign_material_on_element(const DataUser &data_user){
+    if (matprop.type=="isotrope") {
         ///formulation isotrope 
         mesh->elastic_modulus = matprop.elastic_modulus ; 
         mesh->poisson_ratio   = matprop.poisson_ratio   ; 
@@ -47,7 +47,7 @@ void Sst::assign_material_on_element(DataUser &data_user){
         mesh->f_vol           = matprop.f_vol           ; 
         mesh->density         = matprop.density         ; 
         mesh.load_f_vol_e(matprop.f_vol_e,data_user);
-    } else if (mesh.type_formulation=="orthotrope") {
+    } else if (matprop.type=="orthotrope") {
         ///formulation orthotrope 
         mesh->elastic_modulus_1 = matprop.elastic_modulus_1;
         mesh->elastic_modulus_2 = matprop.elastic_modulus_2;
@@ -67,26 +67,25 @@ void Sst::assign_material_on_element(DataUser &data_user){
         mesh->alpha_3           = matprop.alpha_3          ;
         mesh->f_vol             = matprop.f_vol            ;
         mesh->density           = matprop.density          ;
-        
-        if(matprop.comp == "mesomodele"){
-            mesh->k_p      = matprop.k_p;
-            mesh->m_p      = matprop.m_p;
-            mesh->R0       = matprop.R0;
-            mesh->couplage = matprop.coefvm_composite;
-        }
-        
-        if(matprop.comp == "mesomodele"){
-            mesh->Yo           = matprop.Yo;
-            mesh->Yc           = matprop.Yc;
-            mesh->Ycf          = matprop.Ycf;
-            mesh->dmax         = matprop.dmax;
-            mesh->b_c          = matprop.b_c;
-            mesh->effet_retard = matprop.effet_retard;
-            mesh->a            = matprop.a;
-            mesh->tau_c        = matprop.tau_c;
-        }
-        
         mesh.load_f_vol_e(matprop.f_vol_e,data_user);
+    }
+        
+    if(matprop.comp == "plastique"  or matprop.comp == "mesomodele"){
+        mesh->k_p      = matprop.k_p;
+        mesh->m_p      = matprop.m_p;
+        mesh->R0       = matprop.R0;
+        mesh->couplage = matprop.coefvm_composite;
+    }
+    
+    if(matprop.comp == "mesomodele"){
+        mesh->Yo           = matprop.Yo;
+        mesh->Yc           = matprop.Yc;
+        mesh->Ycf          = matprop.Ycf;
+        mesh->dmax         = matprop.dmax;
+        mesh->b_c          = matprop.b_c;
+        mesh->effet_retard = matprop.effet_retard;
+        mesh->a            = matprop.a;
+        mesh->tau_c        = matprop.tau_c;
     }
 }
 

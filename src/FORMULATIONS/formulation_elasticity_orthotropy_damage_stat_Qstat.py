@@ -109,7 +109,7 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   ener = e.integration( ener, 2 )/2
   
   sigmalocal = mul(P,sigma) 
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  epsilon_3d,sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
   sigma_von_mises=von_mises( sigma_3d )
   
   #TODO dans le cas ou l'on a plusieurs points de gauss.......

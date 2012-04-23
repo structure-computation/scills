@@ -6,10 +6,12 @@
     #if DIM == 2
         #pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_2_double_elasticity_orthotropy_stat_Qstat.cpp
+        //#pragma src_file formulation_2_double_plasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_2_double_mesomodele.cpp
     #else
         #pragma src_file formulation_3_double_elasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_3_double_elasticity_orthotropy_stat_Qstat.cpp
+        //#pragma src_file formulation_3_double_plasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_3_double_mesomodele.cpp
     #endif
     #pragma src_file iterate_stat_Qstat.cpp

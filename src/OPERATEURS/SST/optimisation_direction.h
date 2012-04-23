@@ -12,7 +12,7 @@ using namespace LMT;
 //Calcul les composantes normale et tangentielle du module d'elasticite
 void calcul_En_Et(Sst &S, TYPEREEL &En, TYPEREEL &Et){
     //formulation isotrope ou viscoelastique 
-    if (S.f->get_name()=="elasticity_isotropy_stat_Qstat" or S.f->get_name()=="elasticity_viscosity_Qstat"){
+    if (S.f->get_name()=="elasticity_isotropy_stat_Qstat" or S.f->get_name()=="elasticity_viscosity_Qstat" or S.f->get_name()=="plasticity_isotropy_stat_Qstat"){
         En = S.matprop.elastic_modulus;
         Et = En;
     }

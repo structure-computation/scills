@@ -85,6 +85,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                              GeometryUser                      &geometry_user, 
                              FieldStructureUser                &field_structure_user) {
 
+    process.temps->pt=1;        /// On reecrit toujours dans les memes Sst::Time et Interface::Edge::Time
     /// Présence d'interface Breakable ?
     int nb_breakable=0;
     if (process.rank == 0)

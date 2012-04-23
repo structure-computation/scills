@@ -151,17 +151,15 @@ struct derivation_quantites {
 struct Calcul_2nd_membre_micro1_sst {
     void operator()(Sst &S, const Process &process, const DataUser &data_user) const {
         S.mesh.load();
-        S.mesh->density=S.matprop.density;
-        S.mesh.load_f_vol_e(S.matprop.f_vol_e,data_user);
-        S.mesh->f_vol=S.matprop.f_vol;
+        S.assign_material_on_element(data_user);
         if(S.plastique){
-            unsigned i = 0;
-            apply(S.mesh->elem_list,recuperation_deformation_plastique(),S.t[process.temps->pt_cur].epsilon_p,i);
+            unsigned i_elem = 0;
+            apply(S.mesh->elem_list,chargement_deformation_plastique(),S.t[process.temps->pt].epsilon_p,i_elem);
         }
         S.f->set_mesh(S.mesh.m);
         S.f->assemble(false,true);
         S.fvol = S.f->get_sollicitation();
-        S.mesh.unload();
+        //S.mesh.unload();
     }
 };
 

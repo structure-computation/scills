@@ -378,20 +378,20 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Proce
     if (process.latin->save_depl_SST!=1){
        if(process.rank == 0) std::cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
     } else {
-     for(unsigned i=0;i<S.size();i++) {
-        dissi_inter.set(0.);
-        for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
-            if(process.nom_calcul=="incr")
-                assign_dep_cont_slave(S[i],S[i].t_post[j+1].q, data_user);
-            else if(process.nom_calcul=="latin")
-                assign_dep_cont_slave(S[i],S[i].t[j+1].q, data_user);
+        for(unsigned i=0;i<S.size();i++) {
+            dissi_inter.set(0.);
+            for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
+                if(process.nom_calcul=="incr")
+                    assign_dep_cont_slave(S[i],S[i].t_post[j+1], data_user);
+                else if(process.nom_calcul=="latin")
+                    assign_dep_cont_slave(S[i],S[i].t[j+1], data_user);
 
-            apply(S[i].mesh->elem_list,add_ener_elem(),dissi_inter[j+1]);
-            S[i].mesh.unload();
+                apply(S[i].mesh->elem_list,add_ener_elem(),dissi_inter[j+1]);
+                S[i].mesh.unload();
+            }
+            dissipation+=dissi_inter;
+            //std::cout << "Contribution SST " << S[i].num << " : " << dissi_inter <<  endl;
         }
-        dissipation+=dissi_inter;
-        //std::cout << "Contribution SST " << S[i].num << " : " << dissi_inter <<  endl;
-    }
     }
 }
 
