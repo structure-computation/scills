@@ -1,6 +1,7 @@
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "comportements_interfaces.h"
+#include "../LOCAL/plasticity_functions.h"
 
 /** \defgroup etape_locale Etape locale
 \ingroup LATIN
@@ -17,10 +18,10 @@ La procédure qui gère la boucle locale est écrite dans etape_locale().
 \brief Etape locale pour les interfaces
  
 Selon le type d'interface on appelle la procédure correspondante :
-- interface de type deplacement (Interface::comp == "depl") : compt_CL_depl()
+- interface de type vitesse (Interface::comp == "vit") : compt_CL_vit()
 - interface de type effort (Interface::comp == "effort") : compt_CL_eff()
 - interface de type symétrie (Interface::comp == "sym") : compt_CL_sym()
-- interface de type déplacement normal donné  (Interface::comp == "depl_normal") : compt_CL_sym()
+- interface de type vitesse normale donnée  (Interface::comp == "vit_normale") : compt_CL_sym()
 - interface de type parfait (Interface::comp == "Parfait") : compt_parfait()
 - interface de type contact avec ou sans frottement (Interface::comp == "Contact") : compt_contact()
 - interface de type jeu contact avec ou sans frottement (Interface::comp == "Contact_jeu" ou "Contact_physique") : compt_contact()
@@ -34,15 +35,15 @@ struct etape_locale_inter {
 //         std::cout << Inter.type << std::endl;
 //         std::cout << Inter.comp << std::endl;
         if (Inter.type=="Ext") {
-            if(Inter.comp=="depl") {
-                compt_CL_depl(Inter,process.temps->pt);
+            if(Inter.comp=="depl_nul" or Inter.comp=="depl" or Inter.comp=="vit_nulle" or Inter.comp=="vit") {
+                compt_CL_vit(Inter,process.temps->pt);
             } else if (Inter.comp=="effort" or Inter.comp=="effort_normal") {
                 compt_CL_eff(Inter,process.temps->pt);
 /*            } else if (Inter.comp=="effort_normal") {
                 compt_CL_eff_normal(Inter,process.temps->pt);*/
             } else if (Inter.comp=="sym") {
                 compt_CL_sym(Inter,process.temps->pt);
-            } else if (Inter.comp=="depl_normal") {
+            } else if (Inter.comp=="vit_normale" or Inter.comp == "depl_normal") {
                 compt_CL_sym(Inter,process.temps->pt);
             } else if (Inter.comp=="periodique") {
                 compt_parfait(Inter,process.temps->pt);
@@ -68,31 +69,25 @@ struct etape_locale_inter {
             std::cout<< "Erreur : comportement interface non reconnu" << endl;
             assert(0);
         }
-
     }
 };
 
-#include "comportements_sst.h"
+
 /** \ingroup   etape_locale
 \brief Etape locale pour les sous-structures.
 */
 struct etape_locale_sst {
-    void operator()(Sst &S) const {
-#ifdef FORMUENDO
-        if (S.f->get_name()=="elasticity_orthotropy_damage_stat_Qstat")
-            compt_sst_damage(S);
-#endif
-
+    void operator()(Sst &S,Process &process) const {
+        if (S.plastique) calcul_plasticite(S,process);
     }
 };
 
 
-#include "containers/evaluate_nb_cycles.h"
 /** \ingroup  etape_locale
 \brief Procédure principale pour l'étape locale
 */
 void etape_locale(Vec<VecPointedValues<Interface > > &Inter,Vec<VecPointedValues<Sst > > &S,Process &process) {
     apply(Inter,etape_locale_inter(),process);
-//     apply(S,etape_locale_sst());
+    apply(S,etape_locale_sst(),process);
 };
 

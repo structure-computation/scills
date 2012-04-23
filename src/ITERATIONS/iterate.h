@@ -38,90 +38,87 @@ void iterate_latin(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfa
     // A mettre ici pour la thermique seulement
     /*    if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);*/
-    apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process, data_user);
+    if(not process.plasticite) // On n'initialise qu'une seul fois les efforts volumiques si ils sont 
+        apply_mt(S,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
     bool multiechelle=process.multiscale->multiechelle;
     TicToc2 tic1;
-    for(unsigned i=0;i<(unsigned)process.latin->nbitermax+1;++i) {
+    for(unsigned i_iter=0;i_iter<(unsigned)process.latin->nbitermax+1;++i_iter) {
         if (process.rank ==0)
             tic1.start();
-        process.latin->iter=i;
+        process.latin->iter=i_iter;
 
         TicToc2 tic;
         tic.start();
 
-        for(unsigned pt=1;pt<process.temps->nbpastemps+1;pt++) {
-            process.temps->pt=pt;
-            process.temps->pt_cur=pt;
-            // A mettre ici dans le cas d'un comportement dependant du temps pour les sst
-            //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
-            etape_lineaire(S,Inter,process,Global);
+        /// Etape lineaire
+        for(unsigned i_pt=1;i_pt<process.temps->nbpastemps+1;i_pt++) {
+            process.temps->pt=i_pt;
+            process.temps->pt_cur=i_pt;
+            etape_lineaire(S,Inter,process,Global,data_user);
         }
         crout << process.rank<< " : etape lineaire : " ;
         tic.stop();
         tic.start();
 
-        //adaptation du facteur de relaxation
+        /// Relaxation
         if (process.latin->iter ==0 and process.reprise_calcul==0)
             process.latin->mu=1.0;
         else
             process.latin->mu=process.latin->facteur_relaxation;
-        for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-            process.temps->pt=pt;
-            process.temps->pt_cur=pt;
+        for(unsigned i_pt=1;i_pt<=process.temps->nbpastemps;i_pt++) {
+            process.temps->pt=i_pt;
+            process.temps->pt_cur=i_pt;
             apply_mt(S,process.nb_threads,relaxation_quantites(),Inter,process);
         }
         crout << process.rank<< " : relaxation : " ;
         tic.stop();
-        //std::cout << "\t Etape locale " << endl;
-        //         if (process.size > 1 )
+        
+        /// Echange des grandeurs macro calculees
         if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);
         tic.start();
-        //         if (process.rank>0)
         if (process.size > 1 )
             SendRecvInter(process.multi_mpi->intertoexchangebypro,Inter,process);
         crout << process.rank<< " : envoie des vecteurs d interface : ";
         tic.stop();
         tic.start();
 
+        /// Etape locale
         if (process.size==1 or process.rank>0)
-            for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-                process.temps->pt=pt;
-                process.temps->pt_cur=pt;
+            for(unsigned i_pt=1;i_pt<=process.temps->nbpastemps;i_pt++) {
+                process.temps->pt=i_pt;
+                process.temps->pt_cur=i_pt;
                 etape_locale(SubI,S,process);
             }
-
-
         crout << process.rank<< " : etape locale : ";
         tic.stop();
 
+        /// Calcul d'erreur
         if (process.size > 1 )
             MPI_Barrier(MPI_COMM_WORLD);
         tic.start();
-        //std::cout << "\t Calcul d'erreur " << endl;
-        //                 std::cout << process.rank<< " : temps mort synchro : " ; tic.stop();tic.start();
         calcul_erreur_latin(S,Inter,process,Global);
-
         crout << process.rank<< " : calcul erreur : ";
         tic.stop();
         tic.start();
 
         if (process.latin->list_error==1)
             if (process.rank == 0)
-                std::cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
+                std::cout << "Erreur - iteration - " << i_iter << " : " << process.latin->error[i_iter] << endl;
 
+        /// Test de convergence
         if(flag_convergence==1) {
             if (process.rank == 0)
-                std::cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
+                std::cout << "**** Sortie Critere atteint en "<< i_iter <<" iterations ****" <<  process.latin->error[i_iter] <<    endl;
             break;
         }
-        if(i==5 and min(process.latin->error)>=0.9999) {
+        if(i_iter==5 and min(process.latin->error)>=0.9999) {
             if (process.rank == 0)
                 std::cout << "**** Sortie car chargement nul impose ******" << endl;
         }
 
-        // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements)
-        if (process.latin->error[i]<=process.latin->critere_erreur) {
+        /// arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements)
+        if (process.latin->error[i_iter]<=process.latin->critere_erreur) {
             if (process.latin->critere_erreur_diss != 0) {
                 Vec<double> frac;
                 frac.resize(2+Inter.size());
@@ -187,57 +184,50 @@ void iterate_latin(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfa
  
  Le paramètre LatinParameters::list_error permet de lister l'erreur latin au cours des itérations.
 */
-void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, MacroProblem &Global) {
+void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI, MacroProblem &Global,DataUser &data_user) {
 
     //phase iterative
-    process.temps->pt=1;
     bool flag_convergence=0;
     bool multiechelle=process.multiscale->multiechelle;
+    process.latin->save_depl_SST=true;
     bool save_depl_SST=process.latin->save_depl_SST;
-    process.latin->save_depl_SST=0;
     unsigned d_err = 0;
     TicToc2 tic1;
-    for(unsigned i=0;i<(unsigned)process.latin->nbitermax+1;++i) {
-      if (process.rank ==0)
-        tic1.start();
+    if(not process.plasticite) // On n'initialise les seconds membres micro qu'une seul fois si ils ne dependent pas de l'etat de la Sst
+        apply_mt(S,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
+    for(unsigned i_iter=0;i_iter<(unsigned)process.latin->nbitermax+1;++i_iter) {
+        if (process.rank ==0)
+            tic1.start();
       
-        process.latin->iter=i;
-        
+        process.latin->iter=i_iter;
         TicToc2 tic;
         tic.start();
         
-//         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-//         std::cout << process.rank<< " : barrier1 : " << endl;
-
-        //std::cout << "\t Etape lineaire " << endl;
-        etape_lineaire(S,Inter,process,Global);
-        
-        
-/*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-        crout << process.rank<< " : etape lineaire : " ;*/
+        /// Etape lineaire
+        etape_lineaire(S,Inter,process,Global,data_user);
+        crout << process.rank<< " : etape lineaire : " ;
         tic.stop();
         tic.start();
 
-        //relaxation
-//        if (process.latin->iter ==0  and process.reprise_calcul==0)
+        /// Relaxation
         if (process.latin->iter ==0 )
             process.latin->mu=1.0;
         else
             process.latin->mu=process.latin->facteur_relaxation;
         apply_mt(S,process.nb_threads,relaxation_quantites(),Inter,process);
-
         crout << process.rank<< " : relaxation : " ;
         tic.stop();
         tic.start();
 
+        /// Echange des grandeurs macro calculees
         if (process.size > 1 )
             SendRecvInter(process.multi_mpi->intertoexchangebypro,Inter,process);
         crout << process.rank<< " : envoie des vecteurs d interface : ";
         tic.stop();
         tic.start();
 
-        //Si on a converge, on le dit aux interfaces cassables pour qu'elles mettent à jour leur comportement
-        if (flag_convergence == 1 && process.nb_breakable > 0) {
+        ///Si on a converge, on le dit aux interfaces cassables pour qu'elles mettent à jour leur comportement
+        if (flag_convergence == 1 and process.nb_breakable > 0) {
             if (process.size == 0 or process.rank > 0){
                 for(unsigned q=0; q < SubI.size();q++){
                     if (SubI[q].comp == "Breakable")
@@ -245,43 +235,38 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
                 }
             }
         }
-        //std::cout << "\t Etape locale " << endl;
-#include "../../../LMTpp/include/util/unit_test.h"
+        
+        /// Etape locale
         if (process.size==1 or process.rank>0)
             etape_locale(SubI,S,process);
-        //etape locale sur les sous-structures
-        //etape_locale(S);
         crout << process.rank<< " : etape locale : ";
         tic.stop();
         tic.start();
-//         std::cout << "Avant lineaire" << endl;
 
-        //std::cout << "\t Calcul d'erreur " << endl;
+        /// Calcul de l'erreur
         calcul_erreur_incr(S,Inter,process,Global);
-
         crout << process.rank<< " : calcul erreur : ";
         tic.stop();
         tic.start();
-
         if (process.latin->list_error==1)
           if (process.rank == 0 )
-                std::cout << "Erreur - iteration - " << i << " : " << process.latin->error[i] << endl;
+              std::cout << "Erreur - iteration - " << i_iter << " : " << process.latin->error[i_iter] << endl;
         if(flag_convergence==1) {
             if (process.rank == 0 )
-                std::cout << "**** Sortie Critere atteint en "<< i <<" iterations ****" <<  process.latin->error[i] <<    endl;
+                std::cout << "**** Sortie Critere atteint en "<< i_iter <<" iterations ****" <<  process.latin->error[i_iter] <<    endl;
             break;
         }
         
-        //attention le paramètre est à déterminer (1e-4) pour etre optimal
-        if ( i > 0 && (process.latin->error[i-1]-process.latin->error[i] < process.latin->critere_erreur_auto_stop) )
-	  d_err++;
-	else
-	  d_err=0;
+        ///attention le paramètre est à déterminer (1e-4) pour etre optimal
+        if ( i_iter > 0 and (process.latin->error[i_iter-1]-process.latin->error[i_iter] < process.latin->critere_erreur_auto_stop) )
+            d_err++;
+        else
+            d_err=0;
         
-        // arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
-        if (process.latin->error[i]<=process.latin->critere_erreur) {
+        /// arret du processus si critere atteint (1 iteration supplementaire pour sauvegarder les deplacements
+        if (process.latin->error[i_iter]<=process.latin->critere_erreur) {
             if (process.latin->critere_erreur_diss != 0) {
-                assign_t_post(SubI, process);
+                assign_t_post(S,SubI, process);
                 Vec<double> frac;
                 frac.resize(2+Inter.size());
                 frac.set(0);
@@ -290,17 +275,14 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
                 fracfin.set(0);
                 apply(S,calcerror_dissi_post(),Inter,frac,process);
                 if (process.size>1)
-                  MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+                    MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
                 else
                     fracfin=frac;
                 double den=fracfin[1];
                 double num=fracfin[0];
 
-                if (process.rank == 0) {
-                    std::cout << "\tErreur dissipation : " << std::abs(num-den)/std::abs(num) << endl;
-//                     std::cout << "\tParticipation des interfaces : " << std::abs(fracfin[range(2,(int)Inter.size()+2)])/sum(std::abs(fracfin[range(2,(int)Inter.size()+2)]))*100 << endl;
-                }
-                //if (process.rank == 0) std::cout << "\tnum " << num << " -- den " << den << endl;
+                if (process.rank == 0) std::cout << "\tErreur dissipation : " << std::abs(num-den)/std::abs(num) << endl;
+                
                 if ( std::abs(den)>1e-9 and std::abs(num-den)/std::abs(num) <= process.latin->critere_erreur_diss) {
                     flag_convergence=1;
                     process.latin->save_depl_SST=save_depl_SST;
@@ -309,13 +291,13 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
             }
-        // sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
-        } else if ( d_err == 5 ) {
-	      if (process.rank == 0) std::cout << "Arret par manque de convergence" << std::endl; 
+        /// sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
+        } else if ( d_err == 10 ) {
+            if (process.rank == 0) std::cout << "Arret par manque de convergence" << std::endl; 
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
-	}
-        // arret du processus nb d iteration max-1 atteint (1 iteration supplementaire pour sauvegarder les deplacements)
+        }
+        /// arret du processus nb d iteration max-1 atteint (1 iteration supplementaire pour sauvegarder les deplacements)
         if (process.latin->iter==process.latin->nbitermax-1) {
             flag_convergence=1;
             process.latin->save_depl_SST=save_depl_SST;

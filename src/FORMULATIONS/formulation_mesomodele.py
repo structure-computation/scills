@@ -181,8 +181,9 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   ener = e.integration( ener, 2 )/2.
   
   sigmalocal = mul(P,sigma) 
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
-  sigma_von_mises=von_mises( sigma_3d )
+  epsilon_3d,sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  sigma_von_mises=sqrt( 3.0/2.0 * trace_sym_col(dev(sigma),dev(sigma)))
+  R_p = R0.expr + k_p.expr*p.expr**m_p.expr
   
   #TODO dans le cas ou l'on a plusieurs points de gauss.......
   my_subs = unk_subs
@@ -193,6 +194,7 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   epsilon_e = epsilon_e.subs(EM(my_subs))
   sigmalocal = sigmalocal.subs(EM(my_subs))
   sigma_von_mises = sigma_von_mises.subs(EM(my_subs))
+  R_p = R_p.subs(EM(my_subs))
   
   cw = Write_code('T')
   for i in range(dim*(dim+1)/2):
@@ -201,8 +203,9 @@ def apply_on_elements_after_solve(unk_subs): # return a string
     #cw.add( epsilon[i], 'elem.epsilon[0]['+str(i)+']', Write_code.Set )
     cw.add( sigma[i], 'elem.sigma[0]['+str(i)+']', Write_code.Set )
     cw.add( sigmalocal[i], 'elem.sigma_local[0]['+str(i)+']', Write_code.Set )
-  cw.add( ener, 'elem.ener', Write_code.Set )  
-  cw.add( sigma_von_mises, 'elem.sigma_von_mises', Write_code.Set )  
+    cw.add( ener, 'elem.ener', Write_code.Set )  
+    cw.add( sigma_von_mises, 'elem.sigma_von_mises', Write_code.Set )  
+    cw.add( R_p, 'elem.R_p', Write_code.Set )  
   return cw.to_string()
 
 #calcul des deformations et contraintes uniquement
@@ -235,7 +238,7 @@ def apply_on_elements_after_solve_2(unk_subs): # return a string
   sigma = mul(K, ( epsilon_e - epsth*deltaT.expr) )
   
   sigmalocal = mul(P,sigma) 
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  epsilon_3d,sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
   sigma_von_mises=von_mises( sigma_3d )
   
   #TODO dans le cas ou l'on a plusieurs points de gauss.......

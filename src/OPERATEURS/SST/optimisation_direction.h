@@ -12,7 +12,7 @@ using namespace LMT;
 //Calcul les composantes normale et tangentielle du module d'elasticite
 void calcul_En_Et(Sst &S, TYPEREEL &En, TYPEREEL &Et){
     //formulation isotrope ou viscoelastique 
-    if (S.f->get_name()=="elasticity_isotropy_stat_Qstat" or S.f->get_name()=="elasticity_viscosity_Qstat"){
+    if (S.f->get_name()=="elasticity_isotropy_stat_Qstat" or S.f->get_name()=="elasticity_viscosity_Qstat" or S.f->get_name()=="plasticity_isotropy_stat_Qstat"){
         En = S.matprop.elastic_modulus;
         Et = En;
     }
@@ -40,7 +40,7 @@ void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> 
 void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYPEREEL &hn, TYPEREEL &ht) {
     TYPEREEL facteur = 1000.;
     if(Inter.type=="Ext") {
-        if(Inter.comp=="depl" or Inter.comp=="depl_nul") {
+        if(Inter.comp=="depl" or Inter.comp=="depl_nul" or Inter.comp=="vit" or Inter.comp=="vit_nulle") {
             kn = kn * facteur;
             hn = hn / facteur;
             kt = kt * facteur;
@@ -50,7 +50,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
             hn = hn * facteur ;
             kt = kt / facteur ;
             ht = ht * facteur ;
-        } else if(Inter.comp=="sym" or Inter.comp=="depl_normal") {
+        } else if(Inter.comp=="sym" or Inter.comp=="depl_normal" or Inter.comp=="vit_normale") {
             kn = kn * facteur ;
             hn = hn / facteur ;
             kt = kt / facteur ;
@@ -58,7 +58,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
         } else if(Inter.comp=="periodique") {
             //ben on fait rien :)
         } else {
-            std::cout << "optimisation direction : Type de condition limite non pris en compte" << endl;
+            std::cout << "optimisation direction : Type de condition limite non pris en compte : " << Inter.comp << endl;
             assert(0);
         }
     } else if(Inter.type=="Int") {

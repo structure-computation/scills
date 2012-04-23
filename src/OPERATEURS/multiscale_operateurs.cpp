@@ -4,7 +4,7 @@
 #include "containers/mat.h"
 #include "containers/vecpointedvalues.h"
 #include "containers/allocator.h"
-
+#include "../UTILS/SCtime.h"
 #ifndef INFO_TIME
 #define INFO_TIME
 #endif 
@@ -68,7 +68,7 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
     tic.start();
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    TicToc tic1;
+    TicTac tic1;
     if (process.rank==0) tic1.start();
 #endif
 
@@ -85,15 +85,16 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
         if (process.size>1)
             MPI_Barrier(MPI_COMM_WORLD);
         tic.start();
-    #ifdef PRINT_ALLOC
+#ifdef PRINT_ALLOC
         disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
-    #endif
-    #ifdef INFO_TIME
+#endif
+#ifdef INFO_TIME
         if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
         if (process.rank==0) std::cout << "Operateurs d interface : " ;
-        if (process.rank==0) tic1.stop();;
+        if (process.rank==0) tic1.stop();
+        if (process.rank==0) std::cout << std::endl;
         if (process.rank==0) tic1.start();
-    #endif
+#endif
     }
 
     if (process.rank == 0)
@@ -102,7 +103,8 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation OP SST : " ;
-    if (process.rank==0) tic1.stop();;
+    if (process.rank==0) tic1.stop();
+    if (process.rank==0) std::cout << std::endl;
     if (process.rank==0) tic1.start();
 #endif
 
@@ -124,7 +126,8 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation OP MACRO : " ;
-    if (process.rank==0) tic1.stop();;
+    if (process.rank==0) tic1.stop();
+    if (process.rank==0) std::cout << std::endl;
     if (process.rank==0) tic1.start();
 #endif
     }

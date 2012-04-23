@@ -411,7 +411,7 @@ void MPI_Recv(Mat<TN> &mat,int rank,int tag=201) {
 /** \ingroup MPI_Recv
 \brief Recevoir une matrice sparse de la classe LMT - support du tag
 
-Il suffit de lancer la commande MPI_Recv(matrice, rank) pour recevoir la matrice envoyée dans matrice par la machine rank. Il est nécessaire de connaitre le type à recevoir. La matrice sera resizé automatiquement.
+Il suffit de lancer la commande MPI_Recv(matrice, rank) pour recevoir la matrice envoyee dans matrice par la machine rank. Il est necessaire de connaitre le type à recevoir. La matrice sera resize automatiquement.
 */
 template<class TN, class TO>
 void MPI_Recv(Mat<TN,TO,SparseLine<Col> > &mat,int rank,int tag=201) {

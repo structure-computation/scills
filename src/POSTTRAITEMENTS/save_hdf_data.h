@@ -50,7 +50,7 @@ template<class TSST>
 void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
     if(process.nom_calcul=="incr")
-        assign_dep_cont_slave(S,S.t[1].q, data_user); 
+        assign_dep_cont_slave(S,S.t[1], data_user); 
     else if(process.nom_calcul=="latin"){
         std::cout << "calcul_fields_on_sst non defini pour strategie latin pure " << std::endl; assert(0);
         //assign_dep_cont_slave(S,S.t[1].q);
@@ -177,10 +177,10 @@ struct Extract_connectivities_on_element_sst_inter{
       }
       I.number[e.number]=I.num;
       int type=0;
-      if (I.type=="Ext" and I.comp=="depl"){type=0;}
+      if (I.type=="Ext" and (I.comp=="depl" or I.comp=="vit" or I.comp=="depl_nul" or I.comp=="vit_nulle")){type=0;}
       else if (I.type=="Ext" and I.comp=="effort"){type=1;}
       else if (I.type=="Ext" and ( I.comp=="sym" )){type=2;}
-      else if (I.type=="Ext" and ( I.comp=="depl_normal")){type=3;}
+      else if (I.type=="Ext" and (I.comp=="depl_normal" or I.comp=="vit_normale")){type=3;}
       else if (I.type=="Int" and I.comp=="Parfait"){type=4;}
       else if (I.type=="Int" and (I.comp=="Contact" or I.comp=="Contact_jeu" or I.comp=="Contact_jeu_physique" or I.comp=="Contact_ep") ){type=5;}
       else if (I.type=="Int" and I.comp=="Jeu_impose"){type=6;}

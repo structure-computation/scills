@@ -14,7 +14,7 @@ void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matp
     BasicVec<BasicVec<TYPEREEL > > mat_prop_temp;
     read_matprop(matprops,process,data_user, mat_prop_temp); 
     //assignation des proprietes aux SST
-    apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprops);        
+    apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprops,process.plasticite);      
     //assignation des proprietes aux group_elements (pour GPU)
     field_structure_user.assign_material_id_to_group_elements(data_user);
     field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
@@ -22,7 +22,6 @@ void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matp
 
 void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {
     unsigned nbmat = data_user.behaviour_materials.size();
-    //     PRINT(nbmat);
     matprops.resize(nbmat);
     mat_prop_temp.resize(nbmat);
     for(unsigned i=0;i<nbmat;++i) {
@@ -68,8 +67,6 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
         Vec<Sc2String> vstr;
         vstr.resize(data_user.dim, "0");
         
-        //  std::cout << "data_user.behaviour_bc_volume[1].select = " << data_user.behaviour_bc_volume[1].select << std::endl;
-        //  std::cout << "data_user.behaviour_bc_volume[0].select = " << data_user.behaviour_bc_volume[0].select << std::endl;
         for(int i_fvol=0; i_fvol<data_user.behaviour_bc_volume.size(); i_fvol++){
             if(data_user.behaviour_bc_volume[i_fvol].select){
                 for(int d=0; d<data_user.dim; d++){
@@ -107,7 +104,6 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
         
         
         mat_prop_temp[i].resize(data_user.behaviour_materials[i].mat_prop.size());
-        //         PRINT(mat_prop_temp.size());
         for(int i_prop=0; i_prop<data_user.behaviour_materials[i].mat_prop.size(); i_prop++){
             if(data_user.behaviour_materials[i].mat_prop[i_prop] == ""){
                 data_user.behaviour_materials[i].mat_prop[i_prop] = "0";
@@ -126,28 +122,22 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             var_temp[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
             
             mat_prop_temp[i][i_prop] = (TYPEREEL) expr_temp.subs_numerical(var_temp);
-            /*            std::cout << "Pour la propriete  " << i_prop << " : " << data << std::endl;*/
         }
-        /*        std::cout << "Pour le materiau  " << data_user.behaviour_materials[i].id << " : " << data << std::endl;*/
         matprops[i].density = mat_prop_temp[i][3];
         
-        std::cout << (matprops[i].type) <<endl;
+        std::cout << "id : " << matprops[i].id << "    type : " << matprops[i].type << "    comp : " << matprops[i].comp << std::endl;
         if(matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement isotrope elastique
-//            PRINT("comportement isotrope elastique");
             matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
             matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
             matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
-matprops[i].deltaT          = 0;                     /// deltaT
+            matprops[i].deltaT          = 0;                     /// deltaT
         } else if (matprops[i].comp.find("visqueux")<matprops[i].comp.size() and matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement isotrope elastique visqueux
-//             PRINT("comportement isotrope visqueux");
             matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
             matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
             matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
             matprops[i].deltaT          = 0;                     /// deltaT
             matprops[i].viscosite       = mat_prop_temp[i][4];   /// viscosite
-        } else if (matprops[i].type.find("orthotrope")<matprops[i].type.size() or
-            matprops[i].type.find("mesomodele")<matprops[i].type.size()) {/// orthotrope
-            PRINT("comportement orthotrope");
+        } else if (matprops[i].type.find("orthotrope")<matprops[i].type.size()) { /// orthotrope
             matprops[i].elastic_modulus_1 = mat_prop_temp[i][14];   /// E1
             matprops[i].elastic_modulus_2 = mat_prop_temp[i][15];   /// E2
             matprops[i].elastic_modulus_3 = mat_prop_temp[i][16];   /// E3
@@ -165,7 +155,6 @@ matprops[i].deltaT          = 0;                     /// deltaT
                 matprops[i].v2[d]=mat_prop_temp[i][d+8];
             }
             
-            std::cout << "assignation_materials_sst.h " << matprops[i].v1 << " v1 et v2 " << matprops[i].v2 << std::endl;
             //normalisation des directions d'orthotropie
             matprops[i].v1=matprops[i].v1/norm_2(matprops[i].v1);
             matprops[i].v2=matprops[i].v2/norm_2(matprops[i].v2);
@@ -175,15 +164,16 @@ matprops[i].deltaT          = 0;                     /// deltaT
             matprops[i].alpha_2 = mat_prop_temp[i][24];      ///alpha_2
             matprops[i].alpha_3 = mat_prop_temp[i][25];      ///alpha_3
             matprops[i].deltaT  = 0;                         /// deltaT
-            
-            PRINT("comportement plastique");
+        }
+        
+        if (matprops[i].comp.find("plastique")<matprops[i].type.size() or matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
             //parametres de plasticite
             matprops[i].k_p              = mat_prop_temp[i][26];     /// k_p
             matprops[i].m_p              = mat_prop_temp[i][27];     /// m_p
             matprops[i].R0               = mat_prop_temp[i][28];     /// R0
             matprops[i].coefvm_composite = mat_prop_temp[i][29];     /// couplage
-            
-            PRINT("comportement endommageable");
+        }
+        if (matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
             //parametres d'endommagement
             matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
             matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
@@ -197,20 +187,29 @@ matprops[i].deltaT          = 0;                     /// deltaT
     }
 };
 
-void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops) const{ 
+void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite) const{ 
     S.matprop = matprops[S.typmat]; 
     //formulation isotrope 
-    if (matprops[S.typmat].type=="isotrope") {
+    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="elastique") {
         S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="isotrope"; 
     }
     //formulation orthotrope 
-    if (matprops[S.typmat].type=="orthotrope") {
+    if (matprops[S.typmat].type=="orthotrope" and matprops[S.typmat].comp=="elastique") {
         S.f = S.pb.formulation_elasticity_orthotropy_stat_Qstat;
         S.mesh.type_formulation="orthotrope"; 
     }
+    /*//formulation plastique isotrope 
+    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="plastique") {
+        plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
+        S.plastique = true;
+        S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
+        S.mesh.type_formulation="plastique"; 
+    }//*/
     //formulation mesomodele 
-    if (matprops[S.typmat].type=="mesomodele") {
+    if (matprops[S.typmat].comp=="mesomodele") {
+        plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
+        S.plastique = true;
         S.f = S.pb.formulation_mesomodele;
         S.mesh.type_formulation="mesomodele"; 
     }

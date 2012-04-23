@@ -181,65 +181,41 @@ On repère les interfaces à déplacement imposés pour lesquels tous les ddls macro
 Si aucun ddl macro n'est bloqué, on repère les 6 ddls d'une interface permettant de bloquer les modes de corps rigides de la structure entière, de façon automatique. Enfin pour bloquer seulement quelques modes de corps rigides, l'utilisateur doit spécifier les translations et rotations à bloquer (Tx, Ty, Tz, Rx, Ry et Rz) et la fonction bloqrbm() détecte automatiquement les ddls macro à bloquer.
 */
 void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq){
-#if DIM == 2
     //creation du vecteur contenant les ddls a bloquer
     bool bloq=0;
     for(unsigned q=0;q<Inter.size();++q){
-        if (Inter[q].type=="Ext" and Inter[q].comp=="depl"){
+        if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle")){
             //ddl bloques
             repddlMbloq.append(Inter[q].repddl);
             bloq=1;
         }
-        else if(Inter[q].type=="Ext" and (Inter[q].comp=="sym" or Inter[q].comp=="depl_normal") ){
+        else if(Inter[q].type=="Ext" and (Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale") ){
+#if DIM == 2
             Vec<unsigned,2> repimp(1,2);
+#elif DIM == 3
+            Vec<unsigned,3> repimp(2,3,4);
+#endif
             repddlMbloq.append(Inter[q].repddl[repimp]);
             bloq=1;
         }
     }
     
-    if (bloq==0 && process.rbm.bloq==0){ // blocage des mvts de corps rigide
+    if (bloq==0 and process.rbm.bloq==0){ // blocage des mvts de corps rigide
       for(unsigned q=0;q<Inter.size();++q){
           if (Inter[q].type=="Ext"){
               std::cout << "\t Blocage mvts corps rigide : interface " << q << endl;
+#if DIM == 2
               repddlMbloq.append(Inter[q].repddl[range(3)]);
+#elif DIM == 3
+              repddlMbloq.append(Inter[q].repddl[range(6)]);
+#endif
               break;
           }
       }
-      
     }
     else if (process.rbm.bloq==1){
         std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
         bloqrbm(Inter, process,repddlMbloq);
     }
-#elif DIM == 3
-   //creation du vecteur contenant les ddls a bloquer
-   bool bloq=0;
-   for(unsigned q=0;q<Inter.size();++q){
-      if (Inter[q].type=="Ext" and Inter[q].comp=="depl"){
-         //ddl bloques
-         repddlMbloq.append(Inter[q].repddl);
-         bloq=1;
-      }
-      else if(Inter[q].type=="Ext" and ( Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" )){
-         Vec<unsigned,3> repimp(2,3,4);
-         repddlMbloq.append(Inter[q].repddl[repimp]);
-         bloq=1;
-      }
-   }
-   
-   if (bloq==0){ // blocage des mvts de corps rigide
-      for(unsigned q=0;q<Inter.size();++q){
-         if (Inter[q].type=="Ext"){
-            std::cout << "Blocage mvts corps rigide : interface " << q << endl;
-            repddlMbloq.append(Inter[q].repddl[range(6)]);
-            break;
-         }
-      }
-   }
-   else if (process.rbm.bloq==1){
-      std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
-      bloqrbm(Inter, process,repddlMbloq);
-   }
-#endif
 }
 

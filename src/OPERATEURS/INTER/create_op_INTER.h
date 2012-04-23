@@ -59,6 +59,5 @@ void create_op_INTER(Vec<VecPointedValues<Sst> > &S,Vec<Interface> &Inter,Vec<Ve
       if (process.rank == 0) std::cout << "\t Calcul des projecteurs macro " << std::endl;
       apply_mt(SubI,process.nb_threads,CreateProjMacro(),process);
    }
-   if (process.rank == 0) std::cout << std::endl;
 };
 
