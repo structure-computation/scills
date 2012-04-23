@@ -258,7 +258,7 @@ void Structure::multiscale() {
     process.affichage->name_fields = "/Level_0/Fields";
     if (process.size == 1 or process.rank>0) {
         if(process.save_data==1){
-            write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+            //write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
             Sc2String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
             geometry_user.write_hdf5_in_parallel(file_output_hdf,process.rank);
         }
