@@ -84,7 +84,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                              DataUser                          &data_user, 
                              GeometryUser                      &geometry_user, 
                              FieldStructureUser                &field_structure_user) {
-
+    
     process.temps->pt=1;        /// On reecrit toujours dans les memes Sst::Time et Interface::Edge::Time
     /// Présence d'interface Breakable ?
     int nb_breakable=0;
@@ -95,7 +95,7 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
     if (process.size>1)
         MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
     process.nb_breakable = nb_breakable ;
-  
+    
     /// Allocations et initialisation des quantites
     if (process.rank == 0) std::cout << "Allocations des vecteurs de stockage des resultats" << endl;
     //if (process.reprise_calcul!=2) //REPRISE CALCUL NE SEMBLE PLUS UTILISE
@@ -129,14 +129,14 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
     //*/
     if (process.size>1)
         MPI_Barrier(MPI_COMM_WORLD);
-
+    
     /// Reactualisation du 2nd membre de micro1 pour le calcul de l'erreur
     apply_mt(SubS,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
     
     /// Initialisation des grandeurs initiales
-    std::cout << "Initialisation des grandeurs" << std::endl;
+    if(process.rank == 0) std::cout << "Initialisation des grandeurs" << std::endl;
     initialise_CL_values_space_time(SubI, CL, process, data_user);
-
+    
     /// Boucle sur les pas de temps
     unsigned i_step=process.temps->step_cur;
     for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
@@ -164,7 +164,6 @@ void multiscale_iterate_incr(Vec<Sst>                          &S,
                 std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
         }
         //*/
-        
         /// Calcul sur le pas de temps
         if (nb_breakable>0) {
             int nb_change = 0;

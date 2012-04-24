@@ -121,6 +121,7 @@ void assign_quantities_current_to_old(Vec<VecPointedValues<Sst> > &S, Vec<VecPoi
     
     for(unsigned i=0;i<S.size();i++){
         S[i].t_post[process.temps->pt_cur]=S[i].t[1];
+        S[i].t[0]=S[i].t[1];
     }
     for(unsigned i=0;i<Inter.size();i++){
         for(unsigned j=0;j<Inter[i].side.size();j++){
@@ -140,6 +141,7 @@ void assign_t_post(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interfac
     
     for(unsigned i=0;i<S.size();i++){
         S[i].t_post[process.temps->pt_cur]=S[i].t[1];
+        S[i].t[0]=S[i].t[1];
     }
     for(unsigned i=0;i<Inter.size();i++){
         for(unsigned j=0;j<Inter[i].side.size();j++)

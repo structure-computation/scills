@@ -69,8 +69,6 @@ TYPEREEL von_mises(const Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma){
     return std::sqrt(1.5*produit_scalaire_voigt(dev,dev));
 }
 
-TYPEREEL R_max = 0;
-
 void calcul_plasticite(Sst &S, Process &process) {
     /// Reconstruction et stockage de sigma sur les Sst
     if (S.plastique) // or S.endommageable) ENDOMMAGEMENT NON IMPLEMENTE
@@ -91,7 +89,7 @@ void calcul_plasticite(Sst &S, Process &process) {
         apply(S.mesh->elem_list,stockage_sigma(),t_cur.sigma,i_elem);
         /// Recuperation de sigma von mises
         i_elem = 0;
-        apply(S.mesh->elem_list,compare_vm(),S,t_cur.sigma,i_elem);
+        //apply(S.mesh->elem_list,compare_vm(),S,t_cur.sigma,i_elem);
         for(unsigned i_elem = 0; i_elem < S.mesh->elem_list.size();i_elem++){
             /// Calcul et stockage de l'ecrouissage R sur les Sst
             t_cur.R[i_elem] = fonction_ecrouissage(S,t_old.p[i_elem]);
@@ -99,10 +97,10 @@ void calcul_plasticite(Sst &S, Process &process) {
             /// Calcul de p et epsilon_p
             TYPEREEL sigma_eq = calcul_contrainte_equivalente(S,t_cur.sigma[i_elem]);
             TYPEREEL f = sigma_eq - t_cur.R[i_elem];
+            TYPEREEL p_old = t_old.p[i_elem];
             
             if(f>0){
                 /// Grandeurs utiles
-                TYPEREEL p_old = t_old.p[i_elem];
                 TYPEREEL R_p = t_cur.R[i_elem];
                 TYPEREEL mu = S.matprop.elastic_modulus_1/(2.*(1.+S.matprop.poisson_ratio_12));      /// Second coefficient de Lame
                 const Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma_elas = t_cur.sigma[i_elem];
@@ -113,8 +111,7 @@ void calcul_plasticite(Sst &S, Process &process) {
                 while(erreur > 1e-6){
                     dp = dp + R_p*erreur/(3*mu+derivee_fonction_ecrouissage(S,p_old+dp)); /// Attention au signe
                     erreur = (sigma_eq - 3*mu*dp - fonction_ecrouissage(S,p_old+dp))/R_p;
-                }//*/
-                //dp = f/(3*mu+derivee_fonction_ecrouissage(S,p_old));
+                }
                 t_cur.p[i_elem] = p_old + dp;
                 
                 /// Calcul de la variation de epsilon_p
@@ -123,9 +120,8 @@ void calcul_plasticite(Sst &S, Process &process) {
                 Vec<TYPEREEL,DIM*(DIM+1)/2> depsilon_p = 1.5*dp*sigma_dev/sigma_eq;
                 t_cur.epsilon_p[i_elem] = t_old.epsilon_p[i_elem] + depsilon_p;
                 
-                //*   TEST
+                /*   TEST
                 Vec<TYPEREEL,DIM*(DIM+1)/2> sigma_new = sigma_elas - 2*mu*depsilon_p;
-                R_max = (R_max>fonction_ecrouissage(S,t_cur.p[i_elem]))? R_max : fonction_ecrouissage(S,t_cur.p[i_elem]);
                 if(S.id == 0 and i_elem == 281){
                     //std::cout << "Numero de l'element : " << i_elem << std::endl;
                     std::cout << "f old         : " << f << std::endl;
@@ -135,24 +131,16 @@ void calcul_plasticite(Sst &S, Process &process) {
                     std::cout << "old R(p)      : " << R_p << std::endl;
                     std::cout << "new R(p)      : " << fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
                     std::cout << "f new         : " << calcul_contrainte_equivalente(S,sigma_new)-fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
-                    //std::cout << "sigma dev : " << sigma_dev << std::endl;
-                    //std::cout << "dEpsPn    : " << dEpsPn << std::endl;
-                    //std::cout << "epsilon_p : " << elem.epsilon_p << std::endl;
                     std::cout << "epsilon_p old : " << t_old.epsilon_p[i_elem] << std::endl;
                     std::cout << "epsilon_p new : " << t_cur.epsilon_p[i_elem] << std::endl;
                     std::cout << "sigma old : " << sigma_elas << std::endl;
                     std::cout << "sigma new : " << sigma_new << std::endl;
-                    std::cout << "Test0 : " << std::endl 
-                              << "    trace eps_p:" << trace(depsilon_p) << std::endl
-                              << "    R_new      :" << fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl 
-                              << "    sigma_eq_1 :" << sigma_eq - 3*mu*dp << std::endl 
-                              << "    sigma_eq_2 :" << calcul_contrainte_equivalente(S,sigma_new) << std::endl
-                              << "    sigma_eq_3 :" << von_mises(sigma_new) << std::endl;
-                    //assert(0);
                 }
                 //*/
+            } else {
+                t_cur.p[i_elem] = p_old;
+                t_cur.epsilon_p[i_elem] = t_old.epsilon_p[i_elem];
             }
         }
     }
-    std::cout << "************************************************************************************ R_max : " << R_max << std::endl;
 }

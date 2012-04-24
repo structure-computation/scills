@@ -52,12 +52,20 @@ void renumerotation_interfaces(Vec<VecPointedValues<Sst> > &S, Vec<unsigned > &r
  Rq : La renumérotation des interfaces est non nécessaire car une renumérotation efficace est directement effectuée lors de la factorisation.
  */
 void Repere_ddl_Inter(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process){
-   unsigned sizeM=0;
-   for(unsigned q=0;q<Inter.size();++q){
-      Inter[q].repddl=range(sizeM,sizeM+Inter[q].nb_macro_espace);
-      sizeM+=Inter[q].nb_macro_espace; 
-      }
-   process.multiscale->sizeM=sizeM;  
+    unsigned sizeM=0;
+    std::cout << "***********************************************************************************************************************************************"
+              << "***********************************************************************************************************************************************" << std::endl;
+    for(unsigned q=0;q<Inter.size();++q){
+        std::cout << "sizeM : " << sizeM << std::endl;
+        std::cout << "Inter(" << Inter[q].id << ").nb_macro_espace = " << Inter[q].nb_macro_espace << std::endl;
+        Inter[q].repddl=range(sizeM,sizeM+Inter[q].nb_macro_espace);
+        std::cout << "Inter(" << Inter[q].id << ").repddl = " << Inter[q].repddl << std::endl;
+        sizeM+=Inter[q].nb_macro_espace; 
+    }
+    std::cout << "sizeM : " << sizeM << std::endl;
+    std::cout << "***********************************************************************************************************************************************"
+              << "***********************************************************************************************************************************************" << std::endl;
+    process.multiscale->sizeM=sizeM;  
 }
 
 //*******************************************************

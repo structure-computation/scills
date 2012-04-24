@@ -175,7 +175,7 @@ void etape_lineaire(Vec<VecPointedValues<Sst > > &S, Vec<Interface > &Inter,Proc
     /// Reactualisation du 2nd membre du probleme micro1
     if(process.plasticite)  // Uniquement si le 2nd membre de micro1 depend de l'etat du materiau
         apply_mt(S,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process,data_user);
-
+    
     /// Resolution du probleme micro1
     if (process.size == 1 or process.rank > 0)
         apply_mt(S,nb_threads,semilinstage1(),Inter,process);

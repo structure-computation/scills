@@ -36,8 +36,8 @@ void iterate_latin(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfa
     bool save_depl_SST=process.latin->save_depl_SST;
     process.latin->save_depl_SST=0;
     // A mettre ici pour la thermique seulement
-    /*    if (process.size > 1 )
-            MPI_Barrier(MPI_COMM_WORLD);*/
+    /*if (process.size > 1 )
+        M PI_Barrier(MPI_COMM_WORLD);*/
     if(not process.plasticite) // On n'initialise qu'une seul fois les efforts volumiques si ils sont 
         apply_mt(S,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
     bool multiechelle=process.multiscale->multiechelle;
@@ -208,7 +208,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         crout << process.rank<< " : etape lineaire : " ;
         tic.stop();
         tic.start();
-
+        
         /// Relaxation
         if (process.latin->iter ==0 )
             process.latin->mu=1.0;
@@ -218,14 +218,14 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         crout << process.rank<< " : relaxation : " ;
         tic.stop();
         tic.start();
-
+        
         /// Echange des grandeurs macro calculees
         if (process.size > 1 )
             SendRecvInter(process.multi_mpi->intertoexchangebypro,Inter,process);
         crout << process.rank<< " : envoie des vecteurs d interface : ";
         tic.stop();
         tic.start();
-
+        
         ///Si on a converge, on le dit aux interfaces cassables pour qu'elles mettent à jour leur comportement
         if (flag_convergence == 1 and process.nb_breakable > 0) {
             if (process.size == 0 or process.rank > 0){
@@ -242,7 +242,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
         crout << process.rank<< " : etape locale : ";
         tic.stop();
         tic.start();
-
+        
         /// Calcul de l'erreur
         calcul_erreur_incr(S,Inter,process,Global);
         crout << process.rank<< " : calcul erreur : ";
@@ -291,7 +291,7 @@ void iterate_incr(Process &process, Vec<VecPointedValues<Sst> > &S, Vec<Interfac
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
             }
-        /// sinon si 5 itérations de suite le delta d'erreur n'est pas assez grand on s'arrete
+        /// sinon si sur plusieurs itérations de suite le delta d'erreur n'est pas assez grand ou negatif on s'arrete
         } else if ( d_err == 10 ) {
             if (process.rank == 0) std::cout << "Arret par manque de convergence" << std::endl; 
                 flag_convergence=1;

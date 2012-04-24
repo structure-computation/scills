@@ -278,8 +278,9 @@ void assign_CL_values_space_time_latin(Vec<VecPointedValues<Interface> > &Inter,
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration incrementale)
 //*
 void assign_CL_values_space_time_incr(Vec<VecPointedValues<Interface> > &Inter, Vec<Boundary> &CL, Process &process, DataUser &data_user ) {
+    std::cout << "Mise a jour des Conditions aux Limites : " << std::endl;
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
-        std::cout << "id : " << Inter[i_inter].id << "    comportement : " << Inter[i_inter].comp << std::endl;
+        std::cout << "    id : " << Inter[i_inter].id  << "    type : " << Inter[i_inter].type << "    comportement : " << Inter[i_inter].comp << std::endl;
         if (Inter[i_inter].type=="Ext" and Inter[i_inter].comp != "periodique") {
             calc_CL_time(process,CL,data_user);
             if (Inter[i_inter].comp=="effort") {

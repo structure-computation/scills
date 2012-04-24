@@ -123,6 +123,7 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
             create_op_MACRO(Stot,Inter,process,Global);
         else
             create_op_MACRO(SubS,Inter,process,Global);//juste pour faire repddl pour savoir où on balance le macro dans bigF...
+        
 #ifdef INFO_TIME
     if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
     if (process.rank==0) std::cout << "Creation OP MACRO : " ;
