@@ -74,14 +74,15 @@ struct Sst
 
     /// Structure temporelle contenant differents vecteurs
     struct Time{
-        Vec<TYPEREEL> q;                ///< vecteur des deplacements aux noeuds
-        Vec<TYPEREEL> p;                ///< vecteur de la plasticite cumulee aux points de Gauss
-        Vec<TYPEREEL> R;                ///< vecteur de l'ecrouissage aux points de Gauss
-        Vec<Vec<TYPEREEL> > epsilon_p;  ///< vecteur des deformations plastiques aux points de Gauss
-        Vec<Vec<TYPEREEL> > sigma;      ///< vecteur des contraintes aux points de Gauss
+        Vec<TYPEREEL> q;                              ///< vecteur des deplacements aux noeuds
+        Vec<TYPEREEL> p;                              ///< vecteur de la plasticite cumulee aux points de Gauss
+        Vec<TYPEREEL> R_p;                            ///< vecteur de l'ecrouissage aux points de Gauss
+        Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > epsilon_p;  ///< vecteur des deformations plastiques aux points de Gauss
+        Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > sigma;      ///< vecteur des contraintes aux points de Gauss
+        Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > X_p;        ///< vecteur des centres du domaine elastique de chaque elements
         //Vec<TYPEREEL,2> erreur_plasticite;  ///< vecteur des erreurs en plasticite cumulee calculees aux points de Gauss PRISE EN COMPTE ERREUR_PLASTICITE NON IMPLEMENTEE
         
-        void allocations(unsigned nbddl,unsigned nbelem,const Process &process,bool plastique);   ///< Alloue les vecteurs de Time
+        void allocations(unsigned nbddl,unsigned nbelem,const Process &process, Sst &S);   ///< Alloue les vecteurs de Time
         void display_all_data();
     };
     

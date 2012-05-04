@@ -6,12 +6,12 @@
     #if DIM == 2
         #pragma src_file formulation_2_double_elasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_2_double_elasticity_orthotropy_stat_Qstat.cpp
-        //#pragma src_file formulation_2_double_plasticity_isotropy_stat_Qstat.cpp
+        #pragma src_file formulation_2_double_plasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_2_double_mesomodele.cpp
     #else
         #pragma src_file formulation_3_double_elasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_3_double_elasticity_orthotropy_stat_Qstat.cpp
-        //#pragma src_file formulation_3_double_plasticity_isotropy_stat_Qstat.cpp
+        #pragma src_file formulation_3_double_plasticity_isotropy_stat_Qstat.cpp
         #pragma src_file formulation_3_double_mesomodele.cpp
     #endif
     #pragma src_file iterate_stat_Qstat.cpp
@@ -60,7 +60,7 @@ int main(int argc,char **argv) {
         
         
         if(structure.data_user.options.mode=="visu_CL"){
-            std::cout << "Mode de visualisation des bords" << std::endl;
+            if(structure.process.rank == 0) std::cout << "Mode de visualisation des bords" << std::endl;
             //on ne lit que les groupes d'interfaces
             structure.geometry_user.visualize_group_edges_within_geometry(structure.data_user);
             //on ecrit le champ "select" sur les groupes d'interface
@@ -71,7 +71,7 @@ int main(int argc,char **argv) {
             structure.multiscale();
         }
         structure.finalisation_MPI();
-        std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
+        if(structure.process.rank == 0) std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
         
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;

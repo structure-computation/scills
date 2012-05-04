@@ -34,7 +34,7 @@ using namespace LMT;
  - repérage des ddls des interfaces dans le problème macro : Repere_ddl_Inter()
  - Assemblage du problème macro : Assem_prob_macro()
  - prise en compte des conditions aux limites : macro_CL()
- - pénalisation puis factorisation de la matrice macro : penalisation() get_factorization()
+ - pénalisation puis factorisation de la matrice macro : penalisation(), get_factorization()
  
 */
 
@@ -45,23 +45,28 @@ using namespace LMT;
 // Procedure macro globale
 //************************************
 void create_op_MACRO(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process,  MacroProblem &Global) {
-    //Seul le processeur 0 (master) s'occupe du probleme macro
+    ///Reperage des ddls macro dans le probleme macro pour tous le monde
+    if(process.rank == 0) std::cout <<  "\t Reperage ddl macro" << endl;
+    Repere_ddl_Inter(S,Inter,process);
+    
+    /// Puis seul le master (processeur 0) se charge du pb macro
     if(process.rank == 0){
-        //reperage des ddls macro dans le probleme macro
-        std::cout <<  "\t Reperage ddl macro" << endl;
-        Repere_ddl_Inter(S,Inter,process);
-
+        /// Creation de la matrice de raideur macroscopique
         Mat<TYPEREEL, Sym<>, SparseLine<> > bigK;
         std::cout <<  "\t Assemblage probleme macro" << endl;
         Assem_prob_macro(S,Inter,process,bigK);
+        
+        /// Blocage des ddls imposes du probleme macro
         std::cout <<  "\t Blocage du probleme macro" << endl;
         macro_CL(Inter,process,Global.repddlMbloq);
-        //penalisation de la matrice macro
+        
+        /// Penalisation de la matrice macro
         std::cout <<  "\t Penalisation du probleme macro" << endl;
         penalisation(bigK,Global.repddlMbloq,Global.coefpenalisation);
 
         std::cout << "Taille du probleme macro : " << bigK.nb_rows() << endl;
-        //factorisation de la matrice macro
+        
+        /// Factorisation de la matrice macro
         std::cout <<  "\t Factorisation matrice macro" << endl;
         Global.l.get_factorization( bigK, true, true );
     }

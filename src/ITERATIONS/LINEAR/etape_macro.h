@@ -1,3 +1,6 @@
+#ifndef ETAPE_MACRO_H
+#define ETAPE_MACRO_H
+
 #include "../../DEFINITIONS/TimeParameters.h"
 //fonctions utilisees pour le probleme macro
 
@@ -12,18 +15,21 @@ void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &i
     Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
     Vec<unsigned> repnimp;
 #if DIM == 2
-   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
-   //repnimp = {0,3}
+    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+    if(find(rep,LMT::_1==(unsigned)3)){repnimp.push_back(3);}
+    //repnimp = {0,3}
 #elif DIM == 3
-   if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
-   if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
-   for(unsigned i=5;i<inter.side[data].MeM.nb_cols();i++)
+    if(find(rep,LMT::_1==(unsigned)0)){repnimp.push_back(0);}
+    if(find(rep,LMT::_1==(unsigned)1)){repnimp.push_back(1);}
+    for(unsigned i=5;i<inter.side[data].MeM.nb_cols();i++)
          if(find(rep,LMT::_1==i)){repnimp.push_back(i);}
-   //repnimp = {0,1,5,6,7,8}
+    //repnimp = {0,1,5,6,7,8}
 #endif
-   Vec<unsigned> repF=inter.repddl[repnimp];
-   bigF[repF] += trans(inter.side[data].MeM(range(inter.side[data].MeM.nb_rows()),repnimp) ) * inter.side[data].t[imic].Fchap;
+    //{std::cout << "id : " << inter.id << std::endl;}
+    //{std::cout << "repnimp : " << repnimp << std::endl;}
+    //{std::cout << "inter.repddl : " << inter.repddl << std::endl;}
+    Vec<unsigned> repF=inter.repddl[repnimp];
+    bigF[repF] += trans(inter.side[data].MeM(range(inter.side[data].MeM.nb_rows()),repnimp) ) * inter.side[data].t[imic].Fchap;
 }
 
 
@@ -43,12 +49,12 @@ struct macroassemble {
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
             unsigned data=S.edge[j].datanum;
-            //reperage de l'interface dans bigF
+            ///reperage de l'interface dans bigF
             Vec<unsigned> repF=Inter[q].repddl,repFadd=S.edge[j].repLE;
             if (Inter[q].type!="Ext" or (Inter[q].comp!="vit" and Inter[q].comp!="depl")) {
-                // participation des efforts de l'etape micro 1
+                /// participation des efforts de l'etape micro 1
                 Global.bigF[repF] -= S.Fadd[repFadd];
-                // participation des efforts imposes
+                /// participation des efforts imposes
                 if ( Inter[q].comp=="effort" or Inter[q].comp=="effort_normal") {
                     Global.bigF[repF] += trans(Inter[q].side[data].MeM)*Inter[q].side[data].t[imic].Fchap;
                 } else if ( Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale" ) {
@@ -115,3 +121,4 @@ struct interextrmacro {
     }
 };
 
+#endif //ETAPE_MACRO_H

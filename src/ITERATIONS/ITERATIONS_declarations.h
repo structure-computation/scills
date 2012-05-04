@@ -1,12 +1,9 @@
 #ifndef ITERATION_DECLARATIONS_H
 #define ITERATION_DECLARATIONS_H
 
-
-#include "../../LMT/include/containers/vec.h"
-#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../all_declarations.h"
 
 #include "../COMPUTE/FieldStructureUser.h"
-#include "../COMPUTE/DataUser.h"
 
 #include "../DEFINITIONS/Process.h"
 #include "../DEFINITIONS/Sst.h"
@@ -35,14 +32,14 @@ Cette procedure est constituee des fonctions suivantes :
 - assign_CL_values_space_time() : on assigne les valeurs des quantites chapeau sur le bord a partir des conditions aux limites pour chaque piquet de temps.
 - iterate_latin() : on applique la strategie iterative latin : \ref LATIN*
 */
-void multiscale_iterate_latin(Vec<Sst>                          &S,
-                              Vec<VecPointedValues<Sst> >       &SubS, 
-                              Vec<Interface>                    &Inter, 
-                              Vec<VecPointedValues<Interface> > &SubI, 
-                              Process                           &process, 
-                              MacroProblem                      &Global, 
-                              Vec<Boundary>                     &CL, 
-                              DataUser                          &data_user);
+void multiscale_iterate_latin(ScSstVec     &S,
+                              ScSstRef     &SubS, 
+                              ScInterVec   &Inter, 
+                              ScInterRef   &SubI, 
+                              Process      &process, 
+                              MacroProblem &Global, 
+                              ScCLVec      &CL, 
+                              DataUser     &data_user);
 
 /** \ingroup   Incrementale
 \brief Procedure principale iterative pour la resolution du probleme de maniere incre*mentale
@@ -54,16 +51,16 @@ Cette procedure est constituee des etapes suivantes :
 - iterate_incr() : on effectue une boucle iterative \ref Incrementale
 - assign_quantities_current_to_old() : on met a jour les valeurs 0 a partir des valeurs 1
 */
-void multiscale_iterate_incr(Vec<Sst>                          &S,
-                             Vec<VecPointedValues<Sst> >       &SubS, 
-                             Vec<Interface>                    &Inter, 
-                             Vec<VecPointedValues<Interface> > &SubI, 
-                             Process                           &process, 
-                             MacroProblem                      &Global, 
-                             Vec<Boundary>                     &CL, 
-                             DataUser                          &data_user, 
-                             GeometryUser                      &geometry_user, 
-                             FieldStructureUser                &field_structure_user);
+void multiscale_iterate_incr(ScSstVec           &S,
+                             ScSstRef           &SubS, 
+                             ScInterVec         &Inter, 
+                             ScInterRef         &SubI, 
+                             Process            &process, 
+                             MacroProblem       &Global, 
+                             ScCLVec            &CL, 
+                             DataUser           &data_user, 
+                             GeometryUser       &geometry_user, 
+                             FieldStructureUser &field_structure_user);
 
 #include "manipulate_quantities.h"
 

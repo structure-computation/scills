@@ -1,131 +1,91 @@
 #include "plasticity_functions.h"
 
-/*
-void calcul_sigma_sst(Sst &S, Process &process) {
-    if (S.plastique) // or S.endommageable) ENDOMMAGEMENT NON IMPLEMENTE
-    {
-        unsigned elem;
-        S.f->get_result() = S.t[process.temps->pt].q;
-        elem=0 ;
-        apply(S.mesh->elem_list,recuperation_deformation_plastique(),S.t[process.temps->pt].epsilon_p,elem) ;
-        S.f->set_mesh(S.mesh.m);
-        S.f->update_variables();
-        S.f->call_after_solve();
-        S.t[process.temps->pt].sigma.resize(0);
-        elem = 0 ;
-        apply(S.mesh->elem_list,stockage_sigma(),S.t[process.temps->pt].sigma,elem);
-        elem = 0 ;
-        apply(S.mesh->elem_list,stockage_sigma_vm(),S.t[process.temps->pt].sigma,elem);
-    }
-}
-*/
 
-TYPEREEL fonction_ecrouissage(Sst &S, TYPEREEL p) {
-    return S.matprop.k_p * std::pow( p , S.matprop.m_p ) + S.matprop.R0;
+/// Retourne l'ecrouissage associee a une plasticite cumulee 'p' sur la sous-structure 'S'
+inline TYPEREEL fonction_ecrouissage(Sst &S, TYPEREEL p) {
+    return S.matprop.plast_ecrouissage_mult * std::pow( p , S.matprop.plast_ecrouissage_expo ) + S.matprop.plast_ecrouissage_mult;
 }
-TYPEREEL derivee_fonction_ecrouissage(Sst &S, TYPEREEL p) {
-    return S.matprop.k_p * S.matprop.m_p * std::pow( p , S.matprop.m_p - 1 );
+
+/// Retourne la derivee de la fonction d'ecrouissage sur 'S' en 'p'
+inline TYPEREEL derivee_fonction_ecrouissage(Sst &S, TYPEREEL p) {
+    return S.matprop.plast_ecrouissage_mult * S.matprop.plast_ecrouissage_expo * std::pow( p , S.matprop.plast_ecrouissage_expo - 1 );
 }
 
 
-TYPEREEL calcul_contrainte_equivalente(const Sst &S,const Vec<TYPEREEL> &sigma){
-    TYPEREEL seq = 0.0;
-    TYPEREEL trace_sigma = 0.0;
-    for(unsigned i = 0; i < DIM; i++)
-        trace_sigma += sigma[i];
-    for(unsigned i = 0; i < DIM; i++)  /// Boucle sur les termes diagonaux
-        seq += (sigma[i] - trace_sigma/3.0)*(sigma[i] - trace_sigma/3.0);
-    for(unsigned i = DIM; i < DIM*(DIM+1)/2; i++)    /// Boucle sur les termes hors diagonale
-        seq += 2.0*sigma[i]*sigma[i];
-    return std::sqrt(1.5*seq);
+/// Retourne la contrainte equivalente du vecteur 'sigma' dans le solide 'S'
+inline TYPEREEL contrainte_equivalente(const Sst &S,const Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma){
+    return std::sqrt(sigma[0]*sigma[0]-sigma[0]*sigma[1]
+                    +sigma[1]*sigma[1]-sigma[1]*sigma[2]
+                    +sigma[2]*sigma[2]-sigma[2]*sigma[0]
+                    +3*sigma[3]*sigma[3]
+                    +3*sigma[4]*sigma[4]
+                    +3*sigma[5]*sigma[5]);
 }
 
-TYPEREEL trace(Vec<TYPEREEL,DIM*(DIM+1)/2> voigt){
-    return voigt[0]+voigt[1]+voigt[2];
+/// Retourne la derivee (tensorielle) de la fonction de contrainte equivalente sur 'S' en 'sigma'
+inline Vec<TYPEREEL,DIM*(DIM+1)/2> &derivee_contrainte_equivalente(const Sst &S,Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma){
+    Vec<TYPEREEL,DIM*(DIM+1)/2> *df_dsigma = new Vec<TYPEREEL,DIM*(DIM+1)/2>;
+    (*df_dsigma) = sigma;
+    TYPEREEL spher_sigma = (sigma[0]+sigma[1]+sigma[2])/3;  /// Pression hydrostatique
+    TYPEREEL sigma_eq = contrainte_equivalente(S,sigma);    /// Contrainte equivalente
+    (*df_dsigma)[0] -= spher_sigma;
+    (*df_dsigma)[1] -= spher_sigma;
+    (*df_dsigma)[2] -= spher_sigma;    /// 'sigma' est devenu sa partie deviatorique
+    (*df_dsigma) *= 1.5/sigma_eq;      /// 'sigma' est devenu df/dsigma
+    return (*df_dsigma);
 }
 
-void deviatorique(const Vec<TYPEREEL,DIM*(DIM+1)/2> &voigt,Vec<TYPEREEL,DIM*(DIM+1)/2> &dev){
-    TYPEREEL _trace = trace(voigt);
-    dev[0] = voigt[0]-_trace/3;
-    dev[1] = voigt[1]-_trace/3;
-    dev[2] = voigt[2]-_trace/3;
-    dev[3] = voigt[3];
-    dev[4] = voigt[4];
-    dev[5] = voigt[5];
-}
 
-TYPEREEL produit_scalaire_voigt(const Vec<TYPEREEL,DIM*(DIM+1)/2> &voigt1,const Vec<TYPEREEL,DIM*(DIM+1)/2> &voigt2){
-    TYPEREEL res = 0;
-    for(int i = 0; i < 3; i++)
-        res += voigt1[i]*voigt2[i];
-    for(int i = 3; i < 6; i++)
-        res += 2*voigt1[i]*voigt2[i];
-    return res;
-}
-
-TYPEREEL von_mises(const Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma){
-    Vec<TYPEREEL,DIM*(DIM+1)/2> dev;
-    deviatorique(sigma,dev);
-    return std::sqrt(1.5*produit_scalaire_voigt(dev,dev));
-}
-
-TYPEREEL R_max = 0;
-
+/// Calcul l'eventuelle plastification de la sous-structure 'S'
 void calcul_plasticite(Sst &S, Process &process) {
     /// Reconstruction et stockage de sigma sur les Sst
     if (S.plastique) // or S.endommageable) ENDOMMAGEMENT NON IMPLEMENTE
     {
         Sst::Time &t_old = S.t[process.temps->pt-1];
         Sst::Time &t_cur = S.t[process.temps->pt];
-        /// Chargememt de q (dep) sur les elements
-        S.f->set_mesh(S.mesh.m);
-        S.f->get_result() = t_cur.q;
-        /// Chargement de epsilon_p sur les elements
-        unsigned i_elem = 0;
-        apply(S.mesh->elem_list,chargement_deformation_plastique(),t_old.epsilon_p,i_elem);
+        bool cinematique = (S.matprop.type_plast.find("cinematique") < S.matprop.type_plast.size());
         /// Reactualisation de la formulation
+        S.f->set_mesh(S.mesh.m);
+        upload_q(S,t_cur.q);
+        upload_p(S,t_cur.p);
+        upload_epsilon_p(S,t_old);
         S.f->update_variables();
         S.f->call_after_solve();
-        /// Recuperation de sigma
-        i_elem = 0;
-        apply(S.mesh->elem_list,stockage_sigma(),t_cur.sigma,i_elem);
-        /// Recuperation de sigma von mises
-        i_elem = 0;
-        apply(S.mesh->elem_list,compare_vm(),S,t_cur.sigma,i_elem);
-        for(unsigned i_elem = 0; i_elem < S.mesh->elem_list.size();i_elem++){
-            /// Calcul et stockage de l'ecrouissage R sur les Sst
-            t_cur.R[i_elem] = fonction_ecrouissage(S,t_old.p[i_elem]);
+        /// Recuperation des contraintes a corriger
+        download_sigma(S,t_cur);
+        /// Application de l'algorithme de retour radial
+        for(unsigned i_elem = 0; i_elem < S.mesh.elem_list_size;i_elem++){
         
-            /// Calcul de p et epsilon_p
-            TYPEREEL sigma_eq = calcul_contrainte_equivalente(S,t_cur.sigma[i_elem]);
-            TYPEREEL f = sigma_eq - t_cur.R[i_elem];
+            /// Calcul du predicateur alpha_dev et de la fonction seuil f
+            TYPEREEL p_old = t_old.p[i_elem];
+            TYPEREEL R_p = t_cur.R_p[i_elem] = fonction_ecrouissage(S,p_old);
+            Vec<TYPEREEL,DIM*(DIM+1)/2> alpha_elas;
+            if(cinematique) {alpha_elas -= t_old.X_p[i_elem];}
+            TYPEREEL alpha_eq = contrainte_equivalente(S,alpha_elas);
+            TYPEREEL f = alpha_eq - R_p;
             
-            if(f>0){
+            if(f>0){ /// Correction necessaire
                 /// Grandeurs utiles
-                TYPEREEL p_old = t_old.p[i_elem];
-                TYPEREEL R_p = t_cur.R[i_elem];
-                TYPEREEL mu = S.matprop.elastic_modulus_1/(2.*(1.+S.matprop.poisson_ratio_12));      /// Second coefficient de Lame
-                const Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma_elas = t_cur.sigma[i_elem];
+                TYPEREEL mu = S.matprop.elastic_modulus/(2.*(1.+S.matprop.poisson_ratio));      /// Second coefficient de Lame
                 
                 /// Calcul de la variation de p (Methode de Newton)
                 TYPEREEL dp = 0;//*
                 TYPEREEL erreur = f/R_p;   /// On adimensionne par la limite d'elasticite actuelle
                 while(erreur > 1e-6){
                     dp = dp + R_p*erreur/(3*mu+derivee_fonction_ecrouissage(S,p_old+dp)); /// Attention au signe
-                    erreur = (sigma_eq - 3*mu*dp - fonction_ecrouissage(S,p_old+dp))/R_p;
-                }//*/
-                //dp = f/(3*mu+derivee_fonction_ecrouissage(S,p_old));
+                    erreur = (alpha_eq - 3*mu*dp - fonction_ecrouissage(S,p_old+dp))/R_p;
+                }
                 t_cur.p[i_elem] = p_old + dp;
                 
                 /// Calcul de la variation de epsilon_p
-                Vec<TYPEREEL,DIM*(DIM+1)/2> sigma_dev;  /// Partie deviatorique de sigma_elas
-                deviatorique(sigma_elas,sigma_dev);
-                Vec<TYPEREEL,DIM*(DIM+1)/2> depsilon_p = 1.5*dp*sigma_dev/sigma_eq;
+                Vec<TYPEREEL,DIM*(DIM+1)/2> depsilon_p = dp*derivee_contrainte_equivalente(S,alpha_elas);
                 t_cur.epsilon_p[i_elem] = t_old.epsilon_p[i_elem] + depsilon_p;
                 
-                //*   TEST
+                /// Calcul de la variation de X_p
+                if(cinematique) {t_cur.X_p[i_elem] = t_old.X_p[i_elem] + S.matprop.plast_cinematique_coef * depsilon_p;}
+                
+                /*   TEST
                 Vec<TYPEREEL,DIM*(DIM+1)/2> sigma_new = sigma_elas - 2*mu*depsilon_p;
-                R_max = (R_max>fonction_ecrouissage(S,t_cur.p[i_elem]))? R_max : fonction_ecrouissage(S,t_cur.p[i_elem]);
                 if(S.id == 0 and i_elem == 281){
                     //std::cout << "Numero de l'element : " << i_elem << std::endl;
                     std::cout << "f old         : " << f << std::endl;
@@ -135,24 +95,17 @@ void calcul_plasticite(Sst &S, Process &process) {
                     std::cout << "old R(p)      : " << R_p << std::endl;
                     std::cout << "new R(p)      : " << fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
                     std::cout << "f new         : " << calcul_contrainte_equivalente(S,sigma_new)-fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
-                    //std::cout << "sigma dev : " << sigma_dev << std::endl;
-                    //std::cout << "dEpsPn    : " << dEpsPn << std::endl;
-                    //std::cout << "epsilon_p : " << elem.epsilon_p << std::endl;
                     std::cout << "epsilon_p old : " << t_old.epsilon_p[i_elem] << std::endl;
                     std::cout << "epsilon_p new : " << t_cur.epsilon_p[i_elem] << std::endl;
                     std::cout << "sigma old : " << sigma_elas << std::endl;
                     std::cout << "sigma new : " << sigma_new << std::endl;
-                    std::cout << "Test0 : " << std::endl 
-                              << "    trace eps_p:" << trace(depsilon_p) << std::endl
-                              << "    R_new      :" << fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl 
-                              << "    sigma_eq_1 :" << sigma_eq - 3*mu*dp << std::endl 
-                              << "    sigma_eq_2 :" << calcul_contrainte_equivalente(S,sigma_new) << std::endl
-                              << "    sigma_eq_3 :" << von_mises(sigma_new) << std::endl;
-                    //assert(0);
                 }
                 //*/
+            } else { /// Pas de plastification
+                t_cur.p[i_elem] = p_old;
+                t_cur.epsilon_p[i_elem] = t_old.epsilon_p[i_elem];
+                if(cinematique) {t_cur.X_p[i_elem] = t_old.X_p[i_elem];}
             }
         }
     }
-    std::cout << "************************************************************************************ R_max : " << R_max << std::endl;
 }

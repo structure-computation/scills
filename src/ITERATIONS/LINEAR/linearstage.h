@@ -1,3 +1,5 @@
+#include "../../all_declarations.h"
+
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "../../DEFINITIONS/MacroProblem.h"
@@ -11,8 +13,6 @@
 
 //fcts MPI
 #include "../../MPI/mpi_transactions.h"
-#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
-#include "../../../LMT/include/containers/vec_mt.h"
 using namespace LMT;
 extern Crout crout;
 
@@ -45,7 +45,7 @@ De la même manière on reconstruit les efforts, déplacements et vitesses d'interf
 Il est possible ici d'extraire les efforts macro ou micro, en utilisant le projecteur adéquat (cf : Interface).
 */
 struct reconstruction_quantites {
-    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
+    void operator()(Sst &S,ScInterVec &Inter,Process &process) const {
         unsigned  pt=process.temps->pt;
         
         if(process.multiscale->multiechelle==1) {
@@ -70,7 +70,7 @@ struct reconstruction_quantites {
     \brief Etape Lineaire : Reconstruction de la vitesse
  */
 struct derivation_quantites_sst {
-    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
+    void operator()(Sst &S,ScInterVec &Inter,Process &process) const{
         unsigned  pt=process.temps->pt;
         
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -94,7 +94,7 @@ où oldq est le déplacement solution à l'itération précédente.
 On effectue de même avec les quantités d'interfaces, puis on met à jour les anciennes quantités.
 */
 struct relaxation_quantites {
-    void operator()(Sst &S,Vec<Interface > &Inter,Process &process) const {
+    void operator()(Sst &S,ScInterVec &Inter,Process &process) const{
         TYPEREEL mu = process.latin->mu;
         unsigned pt = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -119,7 +119,7 @@ struct relaxation_quantites {
 Connaissant la vitesse pour chaque pas de temps, il est possible de déterminer le déplacement à chaque piquet de temps en prenant en compte le déplacement initial (t=0) au départ.
 */
 struct integration_quantites {
-    void operator()(Interface &Inter,Process &process) const {
+    void operator()(Interface &Inter,Process &process) const{
         for(unsigned j=0;j<Inter.side.size();j++) {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
                 Inter.side[j].t[pt].W = Inter.side[j].t[pt-1].W + process.temps->dt *  Inter.side[j].t[pt].Wp;
@@ -133,7 +133,7 @@ struct integration_quantites {
 \brief Etape Lineaire : Derivation
 */
 struct derivation_quantites {
-    void operator()(Interface &Inter,Process &process) const {
+    void operator()(Interface &Inter,Process &process) const{
         for(unsigned j=0;j<Inter.side.size();j++) {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++)
                 Inter.side[j].t[pt].Wp = (Inter.side[j].t[pt].W - Inter.side[j].t[pt-1].W)/process.temps->dt ;
@@ -149,12 +149,11 @@ struct derivation_quantites {
  * Prend en compte les efforts volumiques definis par l'utilisateur, ainsi que ceux definis dans la formulation. Ex : thermique, endommagement ...
  */
 struct Calcul_2nd_membre_micro1_sst {
-    void operator()(Sst &S, const Process &process, const DataUser &data_user) const {
+    void operator()(Sst &S, const Process &process, const DataUser &data_user) const{
         S.mesh.load();
         S.assign_material_on_element(data_user);
         if(S.plastique){
-            unsigned i_elem = 0;
-            apply(S.mesh->elem_list,chargement_deformation_plastique(),S.t[process.temps->pt].epsilon_p,i_elem);
+            upload_epsilon_p(S,process.temps->pt);
         }
         S.f->set_mesh(S.mesh.m);
         S.f->assemble(false,true);
@@ -166,71 +165,59 @@ struct Calcul_2nd_membre_micro1_sst {
 /** \ingroup etape_lineaire
 \brief Programme principal pour l'étape Linéaire
  */
-void etape_lineaire(Vec<VecPointedValues<Sst > > &S, Vec<Interface > &Inter,Process &process,MacroProblem &Global,DataUser &data_user) {
+void etape_lineaire(ScSstRef &S, ScInterVec &Inter,Process &process,MacroProblem &Global,DataUser &data_user){
+    /// Faut-il chronometrer les operations?
+    bool get_durations = (process.temps->pt==2);
+    /// Ce CPU est-il le master?
+    bool is_Macro_cpu = (process.rank == 0);
+    /// Ce CPU doit calculer des problemes paralleles?
+    bool is_micro_cpu = (process.size == 1 or process.rank > 0);
     unsigned nb_threads=process.nb_threads;
     TicToc2 tic1,tic2;
-    if (process.temps->pt==2)
-        {tic1.start();tic2.start();}
+    if (get_durations) {tic1.start();tic2.start();}
     
     /// Reactualisation du 2nd membre du probleme micro1
     if(process.plasticite)  // Uniquement si le 2nd membre de micro1 depend de l'etat du materiau
         apply_mt(S,process.nb_threads,Calcul_2nd_membre_micro1_sst(),process,data_user);
-
+    
     /// Resolution du probleme micro1
-    if (process.size == 1 or process.rank > 0)
-        apply_mt(S,nb_threads,semilinstage1(),Inter,process);
-    if (process.temps->pt==2) 
-        {crout << process.rank<<" : lineaire1 :"; tic1.stop();tic1.start();}
-    
-    if (process.multiscale->multiechelle ==1) {
-        /// Assemblage du probleme macro
-        Global.bigF.set(0.0);
-        if (process.size == 1 or process.rank > 0)
-            apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
-        if (process.temps->pt==2) 
-            {crout << process.rank<<" : macroassemble :"; tic1.stop();}
-        if (process.size > 1)
-            MPI_Barrier( MPI_COMM_WORLD );
-        /// Deploiement de bigF sur le master
-        if (process.temps->pt==2)
-            {tic1.start();}
-        if (process.size > 1)
-            SendbigF(process,Global.bigF);
-        if (process.temps->pt==2)
-            {crout << process.rank<<" : send bidF :"; tic1.stop();tic1.start();}
-        /// Resolution du probleme macro
-        if (process.rank==0)
-            Global.resolmacro();
-        if (process.temps->pt==2)
-            {crout << process.rank<<" : resolmacro :"; tic1.stop();}
-        /// Deploiement de bigW sur toutes les machines
-        if (process.temps->pt==2)
-            {tic1.start();}
-        if (process.size > 1) 
-            MPI_Bcast(Global.bigW.ptr(),Global.bigW.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        if (process.temps->pt==2) {crout << process.rank<<" : bcast bigW :"; tic1.stop();tic1.start();}
-        if(process.multiscale->opti_multi==1 and (norm_2(Global.bigW)/Global.bigW.size()<=process.multiscale->erreur_macro) and process.latin->iter != 0)
-            process.multiscale->multiechelle=0;
-        /// Assemblage du multiplicateur WtildeM
-        if (process.size == 1 or process.rank > 0) 
-            apply_mt(S,nb_threads,interextrmacro(),Inter,*process.temps,Global);
-        if (process.temps->pt==2)
-            {crout << process.rank<<" : interextrmacro :"; tic1.stop();tic1.start();}
-        /// Resolution du probleme micro2
-        if (process.size == 1 or process.rank > 0)
-            apply_mt(S,nb_threads,semilinstage2(),Inter,process);
-        if (process.temps->pt==2)
-            {crout << process.rank<<" : lineaire2 :"; tic1.stop();tic1.start();}
-    }
-    
-    /// Reconstruction de la vitesse aux interfaces
-    if (process.size == 1 or process.rank > 0)
-        apply_mt(S,nb_threads,derivation_quantites_sst(),Inter,process);
-
-    if (process.temps->pt==2){
-        crout << process.rank<<" : reconstruction :"; 
-        tic1.stop();
-        crout << process.rank<<" : cout d une etape lineaire par pas de temps : ";
-        tic2.stop();}
-};
-
+        if (is_micro_cpu) apply_mt(S,nb_threads,semilinstage1(),Inter,process);
+        if (get_durations) {crout << process.rank<<" : lineaire1 :"; tic1.stop();tic1.start();}
+        
+        if (process.multiscale->multiechelle ==1) {
+            /// Assemblage du probleme macro
+            Global.bigF.set(0.0);
+            if (is_micro_cpu) apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
+            if (get_durations) {crout << process.rank<<" : macroassemble :"; tic1.stop();}
+            if (process.size > 1) MPI_Barrier( MPI_COMM_WORLD );
+            /// Deploiement de bigF sur le master
+            if (get_durations) {tic1.start();}
+            if (process.size > 1) SendbigF(process,Global.bigF);
+            if (get_durations) {crout << process.rank<<" : send bidF :"; tic1.stop();tic1.start();}
+            /// Resolution du probleme macro
+            if (is_Macro_cpu) Global.resolmacro();
+            if (get_durations) {crout << process.rank<<" : resolmacro :"; tic1.stop();}
+            /// Deploiement de bigW sur toutes les machines
+            if (get_durations) {tic1.start();}
+            if (process.size > 1) MPI_Bcast(Global.bigW.ptr(),Global.bigW.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            if (get_durations) {crout << process.rank<<" : bcast bigW :"; tic1.stop();tic1.start();}
+            if(process.multiscale->opti_multi==1 and (norm_2(Global.bigW)/Global.bigW.size()<=process.multiscale->erreur_macro) and process.latin->iter != 0)
+                process.multiscale->multiechelle=0;
+            /// Assemblage du multiplicateur WtildeM
+                if (is_micro_cpu) apply_mt(S,nb_threads,interextrmacro(),Inter,*process.temps,Global);
+                if (get_durations) {crout << process.rank<<" : interextrmacro :"; tic1.stop();tic1.start();}
+                /// Resolution du probleme micro2
+                if (is_micro_cpu) apply_mt(S,nb_threads,semilinstage2(),Inter,process);
+                if (get_durations) {crout << process.rank<<" : lineaire2 :"; tic1.stop();tic1.start();}
+        }
+        
+        /// Reconstruction de la vitesse aux interfaces
+        if (is_micro_cpu) apply_mt(S,nb_threads,derivation_quantites_sst(),Inter,process);
+        
+        if (get_durations){
+            crout << process.rank<<" : reconstruction :"; 
+            tic1.stop();
+            crout << process.rank<<" : cout d une etape lineaire par pas de temps : ";
+            tic2.stop();
+        }
+}

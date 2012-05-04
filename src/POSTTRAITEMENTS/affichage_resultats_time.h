@@ -64,9 +64,9 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
         Sst::TMESH::TM meshglob;
         for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                assign_dep_cont_slave(S[i],S[i].t_post[imic], data_user);
+                rebuild_state(S[i],S[i].t_post[imic], data_user);
             else if(process.nom_calcul=="latin")
-                assign_dep_cont_slave(S[i],S[i].t[imic], data_user);
+                rebuild_state(S[i],S[i].t[imic], data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -165,9 +165,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          typename TV1::template SubType<0>::T::TMESH::TM meshglob;
          for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user);
+                rebuild_state(S[i],S[i].t_post[imic].q, data_user);
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -197,9 +197,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          for(unsigned i=0;i<S.size();++i)
          {
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q, data_user); 
+                rebuild_state(S[i],S[i].t_post[imic].q, data_user); 
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, data_user);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);

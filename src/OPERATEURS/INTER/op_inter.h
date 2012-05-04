@@ -1,12 +1,13 @@
-
+#include "../../../LMT/include/containers/vec.h"
+#include "../../../LMT/include/containers/mat.h"
 using namespace LMT;
 
 //***********************************************************
 // Calcul des matrices de masse M et sous-integration N
 //***********************************************************
 #include "createMN.h"
-#include "mesh/remove_doubles.h"
-#include "containers/evaluate_nb_cycles.h"
+#include "../../../LMT/include/mesh/remove_doubles.h"
+#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
 
 
 //********************************************
