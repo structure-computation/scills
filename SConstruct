@@ -27,8 +27,9 @@ list_repertoires_cppflags = map( lambda x: os.getcwd()+'/'+x, list_repertoires)
 
 #choix des formulations a compiler
 formuortho = 1
-formuiso = 1
-formumeso = 1
+formuiso   = 1
+formuisop  = 1
+formumeso  = 1
 
 #pour avoir les cout dans un ficher ...
 crout=1
@@ -37,7 +38,7 @@ crout=1
 dim2 = 0
 dim3 = 1
 
-mes_formulations =  ['elasticity_isotropy_stat_Qstat']*formuiso +  ['elasticity_orthotropy_stat_Qstat']*formuortho + ['mesomodele']*formumeso
+mes_formulations =  ['elasticity_isotropy_stat_Qstat']*formuiso +  ['elasticity_orthotropy_stat_Qstat']*formuortho + ['plasticity_isotropy_stat_Qstat']*formuisop + ['mesomodele']*formumeso
 
 #pour utiliser la p-surdiscretisation mettre le flag a 1 (on compile alors avec les elements indiques + les elements de degre 2)         
 sur_discretisation=0

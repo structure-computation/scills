@@ -35,7 +35,7 @@ void SaveParameters::read_data_user(DataUser &data_user){
     display_error= 0; 
     save= "save";
 
-    display_fields_sst_bulk.resize(11);
+    display_fields_sst_bulk.resize(12);
     display_fields_sst_bulk[0]= "dep";
     display_fields_sst_bulk[1]= "qtrans";
     display_fields_sst_bulk[2]= "sigma";
@@ -46,7 +46,8 @@ void SaveParameters::read_data_user(DataUser &data_user){
     display_fields_sst_bulk[7]= "f_vol_e";
     display_fields_sst_bulk[8]= "num_proc";
     display_fields_sst_bulk[9]= "p";
-    display_fields_sst_bulk[10]= "epsilon_p";
+    display_fields_sst_bulk[10]= "R_p";
+    display_fields_sst_bulk[11]= "epsilon_p";
 
     display_fields_sst_skin.resize(8);
     display_fields_sst_skin[0]= "dep";

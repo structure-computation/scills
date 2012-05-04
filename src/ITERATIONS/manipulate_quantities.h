@@ -42,6 +42,6 @@ void recopie_old_from_new(Vec<Interface> &Inter,Process &process);
  */
 void recopie_old_from_new_post(Vec<Interface> &Inter,Process &process);
 
-void assign_dep_cont_slave(Sst &S,Sst::Time &t, DataUser &data_user);
+void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user);
 
 #endif //MANIPULATE_QUANTITIES_H

@@ -1,3 +1,6 @@
+#ifndef ETAPE_MACRO_H
+#define ETAPE_MACRO_H
+
 #include "../../DEFINITIONS/TimeParameters.h"
 //fonctions utilisees pour le probleme macro
 
@@ -118,3 +121,4 @@ struct interextrmacro {
     }
 };
 
+#endif //ETAPE_MACRO_H

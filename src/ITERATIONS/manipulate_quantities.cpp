@@ -30,7 +30,7 @@ void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<I
             for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les CI
                 unsigned nbddl = S[i].mesh.node_list_size*DIM;
                 unsigned nbelem = S[i].mesh.elem_list_size;
-                S[i].t[pt].allocations(nbddl,nbelem,process,S[i].plastique);
+                S[i].t[pt].allocations(nbddl,nbelem,process,S[i]);
             }
         }
     }
@@ -82,13 +82,13 @@ void allocate_quantities_post(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedVal
                 for(unsigned pt=1;pt<(nbpastemps+1);pt++){
                     unsigned nbddl = S[i].mesh.node_list_size*DIM;
                     unsigned nbelem = S[i].mesh.elem_list_size;
-                    S[i].t[pt].allocations(nbddl,nbelem,process,S[i].plastique);
+                    S[i].t[pt].allocations(nbddl,nbelem,process,S[i]);
                 }
                 if (process.nom_calcul=="incr")
                     for(unsigned pt=1;pt<(process.temps->nbpastemps+1);pt++){
                         unsigned nbddl = S[i].mesh.node_list_size*DIM;
                         unsigned nbelem = S[i].mesh.elem_list_size;
-                        S[i].t_post[pt].allocations(nbddl,nbelem,process,S[i].plastique);
+                        S[i].t_post[pt].allocations(nbddl,nbelem,process,S[i]);
                     }
                     
         }
@@ -177,20 +177,16 @@ void recopie_old_from_new_post(Vec<Interface> &Inter,Process &process) {
 /** Assigne les resultats stockes dans le Sst::Time dans la formulation et force le calcul sur les autres grandeurs
  * Utilisee pour le stockage des resultats dans les fichiers
  */
-void assign_dep_cont_slave(Sst &S,Sst::Time &t, DataUser &data_user){
+void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user){
     S.mesh.load();
     S.assign_material_on_element(data_user);
-    if(S.plastique){
-        unsigned i_elem = 0;
-        apply(S.mesh->elem_list,chargement_deformation_plastique(),t.epsilon_p,i_elem);
-    }
     S.f->set_mesh(S.mesh.m);
-    S.f->get_result()=t.q;
+    if(S.plastique){
+        upload_epsilon_p(S,t);  /// pour obtenir sigma
+        upload_p(S,t);          /// pour obtenir R_p
+    }
+    upload_q(S,t);
     S.f->update_variables();
     S.f->call_after_solve();
-    if(S.plastique){
-        unsigned i_elem = 0;
-        apply(S.mesh->elem_list,chargement_plasticite_cumulee(),t.p,i_elem);
-    }
 }
 

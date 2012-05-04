@@ -37,9 +37,10 @@ struct SstCarac
         alpha_2 = -1;
         alpha_3 = -1;
         deltaT = -1;
-        k_p = -1;
-        m_p = -1;
-        R0 = -1;
+        plast_ecrouissage_init = -1;
+        plast_ecrouissage_mult = -1;
+        plast_ecrouissage_expo = -1;
+        plast_cinematique_coef = -1;
         Yo = -1;
         Yc = -1;
         Ycf = -1;
@@ -89,12 +90,16 @@ struct SstCarac
     TYPEREEL deltaT;                    ///< Variable pour le stockage de la variation de temperature
     
     /// Compoprtement plastique
-    TYPEREEL R0;        ///< Contrainte limite d'elasticite
-    TYPEREEL k_p,m_p;   ///< Coefficients de la loi d'ecrouissage
-    TYPEREEL coefvm_composite;                                    ///< Coefficient de couplage pour la contrainte equivalente (cf mesomodele de composite)
+    Sc2String type_plast;   ///< Options decrivant l'evolution du domaine elastique (parfaite, isotrope, cinematique) et la contrainte equivalente (von_mises)
+    ///< Coefficients de la loi d'ecrouissage : R(p) = R0 + k_p * p ^ m_p
+    TYPEREEL plast_ecrouissage_init;    ///< Limite d'elasticite initiale
+    TYPEREEL plast_ecrouissage_mult;    ///< Coefficient multiplicateur de la loi d'ecrouissage
+    TYPEREEL plast_ecrouissage_expo;    ///< Exposant de la loi d'ecrouissage
+    TYPEREEL plast_cinematique_coef;    ///< Coefficient multiplicateur du modele cinematique : dX = C*depsilon_p
     Vec<Vec<TYPEREEL,DIM*(DIM+1)/2>,DIM*(DIM+1)/2> coeff_seq;     ///< Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
     
-    /// Comportement endommageable de type mesomodele de composite
+    /// Comportement endommageable de type mesomodele de composite SEULE LA LECTURE DES DONNEES EST IMPLEMENTEE
+    Sc2String type_endo;    ///< Options decrivant l'endommagement A SPECIFIER!!!
     TYPEREEL Yo,Yc,Ycf;     ///< Efforts limites de l'endommagement de la rupture
     TYPEREEL dmax;          ///< Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
     TYPEREEL b_c;           ///< Couplage entre micro-fissuration et decohesion fibres/matrice
@@ -128,10 +133,10 @@ struct SstCarac
         }
         std::cout << "deltaT  : " << deltaT << std::endl;
         if (comp == "plastique" or comp == "mesomodele"){
-            std::cout << "k_p      : " << k_p << std::endl;
-            std::cout << "m_p      : " << m_p << std::endl;
-            std::cout << "R0       : " << R0 << std::endl;
-            std::cout << "couplage : " << coefvm_composite << std::endl;
+            std::cout << "plast_ecrouissage_init : " << plast_ecrouissage_init << std::endl;
+            std::cout << "plast_ecrouissage_mult : " << plast_ecrouissage_mult << std::endl;
+            std::cout << "plast_ecrouissage_expo : " << plast_ecrouissage_expo << std::endl;
+            std::cout << "plast_cinematique_coef : " << plast_cinematique_coef << std::endl;
         }
         if (comp == "mesomodele"){
             std::cout << "Yo           : " << Yo << std::endl;

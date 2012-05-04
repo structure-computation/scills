@@ -37,7 +37,7 @@ int Sst::find_index_sst(Vec<Sst> &S, int id_) {
 }
 
 void Sst::assign_material_on_element(const DataUser &data_user){
-    if (matprop.type=="isotrope") {
+    if (matprop.type.find("isotrope")<matprop.type.size()) {
         ///formulation isotrope 
         mesh->elastic_modulus = matprop.elastic_modulus ; 
         mesh->poisson_ratio   = matprop.poisson_ratio   ; 
@@ -47,7 +47,7 @@ void Sst::assign_material_on_element(const DataUser &data_user){
         mesh->f_vol           = matprop.f_vol           ; 
         mesh->density         = matprop.density         ; 
         mesh.load_f_vol_e(matprop.f_vol_e,data_user);
-    } else if (matprop.type=="orthotrope") {
+    } else if (matprop.type.find("orthotrope")<matprop.type.size()) {
         ///formulation orthotrope 
         mesh->elastic_modulus_1 = matprop.elastic_modulus_1;
         mesh->elastic_modulus_2 = matprop.elastic_modulus_2;
@@ -70,14 +70,14 @@ void Sst::assign_material_on_element(const DataUser &data_user){
         mesh.load_f_vol_e(matprop.f_vol_e,data_user);
     }
         
-    if(matprop.comp == "plastique"  or matprop.comp == "mesomodele"){
-        mesh->k_p      = matprop.k_p;
-        mesh->m_p      = matprop.m_p;
-        mesh->R0       = matprop.R0;
-        mesh->couplage = matprop.coefvm_composite;
+    if(matprop.comp.find("plastique")<matprop.comp.size() or matprop.comp.find("mesomodele")<matprop.comp.size()){
+        mesh->plast_ecrouissage_init = matprop.plast_ecrouissage_init;
+        mesh->plast_ecrouissage_mult = matprop.plast_ecrouissage_mult;
+        mesh->plast_ecrouissage_expo = matprop.plast_ecrouissage_expo;
+        mesh->plast_cinematique_coef = matprop.plast_cinematique_coef;
     }
     
-    if(matprop.comp == "mesomodele"){
+    if(matprop.comp.find("mesomodele")<matprop.comp.size()){
         mesh->Yo           = matprop.Yo;
         mesh->Yc           = matprop.Yc;
         mesh->Ycf          = matprop.Ycf;
@@ -90,30 +90,35 @@ void Sst::assign_material_on_element(const DataUser &data_user){
 }
 
 
-void Sst::Time::allocations(unsigned nbddl,unsigned nbelem,const Process &process,bool plastique){
+void Sst::Time::allocations(unsigned nbddl,unsigned nbelem,const Process &process,Sst &S){
     if (process.rank>0 or process.size==1){
         /// Deplacements
         q.resize(nbddl);
         q.set(0.0);
         /// Comportement plastique
-        if(plastique){
+        if(S.plastique){
             /// Plasticite cumulee
             p.resize(nbelem);
             p.set(0.0);
             /// Ecrouissage isotrope
-            R.resize(nbelem);
-            R.set(0.0);
+            R_p.resize(nbelem);
+            R_p.set(0.0);
             /// Deformations plastiques
             epsilon_p.resize(nbelem);
             for( unsigned i = 0; i < nbelem; ++i ) {
-                epsilon_p[i].resize( DIM*(DIM+1)/2);
                 epsilon_p[i].set(0.0);
             }
             /// Contraintes
             sigma.resize(nbelem);
             for( unsigned i = 0; i < nbelem; ++i ) {
-                sigma[i].resize( DIM*(DIM+1)/2);
                 sigma[i].set(0.0);
+            }
+            /// Origines des domaines elastiques
+            if(S.matprop.type_plast.find("cinematique") < S.matprop.type_plast.size()){
+                X_p.resize(nbelem);
+                for( unsigned i = 0; i < nbelem; ++i ) {
+                    X_p[i].set(0.0);
+                }
             }
         }
         /* Debug
@@ -139,7 +144,7 @@ void Sst::Time::display_all_data(){
     std::cout << "*************************************************************" << std::endl;
     std::cout << "q         : " << q.size()         << std::endl;
     std::cout << "p         : " << p.size()         << std::endl;
-    std::cout << "R         : " << R.size()         << std::endl;
+    std::cout << "R_p       : " << R_p.size()       << std::endl;
     std::cout << "epsilon_p : " << epsilon_p.size() << std::endl;
     std::cout << "sigma     : " << sigma.size()     << std::endl;
     std::cout << "*************************************************************" << std::endl;

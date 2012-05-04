@@ -32,14 +32,14 @@
 //using namespace Metil;
 
 
-void multiscale_iterate_latin(Vec<Sst>                          &S,
-                              Vec<VecPointedValues<Sst> >       &SubS, 
-                              Vec<Interface>                    &Inter, 
-                              Vec<VecPointedValues<Interface> > &SubI, 
-                              Process                           &process, 
-                              MacroProblem                      &Global, 
-                              Vec<Boundary>                     &CL, 
-                              DataUser                          &data_user) {
+void multiscale_iterate_latin(ScSstVec     &S,
+                              ScSstRef     &SubS, 
+                              ScInterVec   &Inter, 
+                              ScInterRef   &SubI, 
+                              Process      &process, 
+                              MacroProblem &Global, 
+                              ScCLVec      &CL, 
+                              DataUser     &data_user) {
     if(process.latin->alloc_quantites==1) {
         ///1ere phase : allocations et initialisation des quantites
         if (process.rank == 0) std::cout << " Allocations des quantites d'interfaces et SST" << endl;
@@ -74,18 +74,17 @@ void multiscale_iterate_latin(Vec<Sst>                          &S,
 };
 
 
-void multiscale_iterate_incr(Vec<Sst>                          &S,
-                             Vec<VecPointedValues<Sst> >       &SubS, 
-                             Vec<Interface>                    &Inter, 
-                             Vec<VecPointedValues<Interface> > &SubI, 
-                             Process                           &process, 
-                             MacroProblem                      &Global, 
-                             Vec<Boundary>                     &CL, 
-                             DataUser                          &data_user, 
-                             GeometryUser                      &geometry_user, 
-                             FieldStructureUser                &field_structure_user) {
-    
-    process.temps->pt=1;        /// On reecrit toujours dans les memes Sst::Time et Interface::Edge::Time
+void multiscale_iterate_incr(ScSstVec           &S,
+                             ScSstRef           &SubS, 
+                             ScInterVec         &Inter, 
+                             ScInterRef         &SubI, 
+                             Process            &process, 
+                             MacroProblem       &Global, 
+                             ScCLVec            &CL, 
+                             DataUser           &data_user, 
+                             GeometryUser       &geometry_user, 
+                             FieldStructureUser &field_structure_user) {
+    process.temps->pt=1;        /// On reecrit toujours dans les memes Sst::Time et Interface::Edge::Time en incremental
     /// Présence d'interface Breakable ?
     int nb_breakable=0;
     if (process.rank == 0)

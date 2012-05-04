@@ -1,5 +1,9 @@
 #include "prelocalstage.h"
+#include "../COMPUTE/DataUser.h"
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/Boundary.h"
 #include "../UTILITAIRES/utilitaires.h"
 #include "../../LMT/include/codegen/codegen.h"
 #include "../../LMT/include/containers/basicops.h"
@@ -8,7 +12,7 @@ using namespace Codegen;
 
 
 /// Calcul des valeurs numeriques des fonctions temporelles des CL au pas de temps courant
-void calc_CL_time(Process &process,Vec<Boundary> &CL, DataUser &data_user ) {
+void calc_CL_time(Process &process, ScCLVec &CL, DataUser &data_user ) {
     /// Creation des symbols
     Ex t = symbol("t");
     std::vector<Ex> symbols;
@@ -60,7 +64,7 @@ void calc_CL_time(Process &process,Vec<Boundary> &CL, DataUser &data_user ) {
 
 
 /// Calcul des valeurs numeriques des fonctions spatiales de la CL et assignation du produit par les fonctions temporelles dans le vecteur V associe au chargement defini (Fchap ou Wpchap)
-void assign_CL_spatial_temporel(Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM> > &nodeeq, Boundary &CL, int i_step, DataUser &data_user) {
+void assign_CL_spatial_temporel(Vec<TYPEREEL> &V, Vec<ScPoint > &nodeeq, Boundary &CL, int i_step, DataUser &data_user) {
     std::vector<Ex> symbols;
     
 #if DIM==2
@@ -102,7 +106,7 @@ void assign_CL_spatial_temporel(Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM> > &nodee
 
 
 /// Calcul des valeurs numeriques des fonctions spatiales de la CL en deplacement normal et assignation du produit par les fonctions temporelles dans le vecteur V associe (Wpchap)
-void assign_CL_spatial_temporel_normale(Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM> > &nodeeq, Vec<TYPEREEL> &neqs, Boundary &CL, int i_step, DataUser &data_user) {
+void assign_CL_spatial_temporel_normale(Vec<TYPEREEL> &V, Vec<ScPoint > &nodeeq, Vec<TYPEREEL> &neqs, Boundary &CL, int i_step, DataUser &data_user) {
     std::vector<Ex> symbols;
     
 #if DIM==2
@@ -142,7 +146,7 @@ void assign_CL_spatial_temporel_normale(Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM> 
 }
 
 
-void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, Vec<Boundary> &CL, Process &process, DataUser &data_user ){
+void initialise_CL_values_space_time(ScInterRef &Inter, ScCLVec &CL, Process &process, DataUser &data_user ){
     for(unsigned i_inter = 0; i_inter < Inter.size(); i_inter++){
         /// Teste si l'initialisation est inutile
         if(Inter[i_inter].type != "Ext" or (Inter[i_inter].comp != "depl" and Inter[i_inter].comp != "depl_normal"))
@@ -168,8 +172,6 @@ void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, V
         for(unsigned i_cl=0;i_cl<CL.size();++i_cl) {
             /// Recuperation des expression symboliques
             Ex expr;
-            std::cout << Inter[i_inter].comp << " : " << std::endl;
-            std::cout << CL[i_cl].fcts_temporelles[i_step] << std::endl;
             expr = read_ex(CL[i_cl].fcts_temporelles[i_step],symbols);
             
             /// Construction de la table des (symbol, valeur)
@@ -181,8 +183,10 @@ void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, V
                     var_temp[symbols[1+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
             }
             /// Evaluation des fonctions temporelles
+            std::cout << Inter[i_inter].comp << " : " << std::endl;
             for(unsigned i_dir=0;i_dir<i_dir_max ;i_dir++ ){
                 CL[i_cl].ft[i_dir]=(TYPEREEL)expr.subs_numerical(var_temp);
+                std::cout << "    " << CL[i_cl].ft[i_dir] << "*(" << CL[i_cl].fcts_spatiales[i_step][i_dir] << ")" << std::endl;
             }
         }
         
@@ -238,7 +242,7 @@ void initialise_CL_values_space_time(Vec<VecPointedValues<Interface> > &Inter, V
 
 
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration LATIN)
-void assign_CL_values_space_time_latin(Vec<VecPointedValues<Interface> > &Inter, Vec<Boundary> &CL, Process &process, DataUser &data_user) {
+void assign_CL_values_space_time_latin(ScInterRef &Inter, ScCLVec &CL, Process &process, DataUser &data_user) {
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
         if (Inter[i_inter].type=="Ext" and Inter[i_inter].comp != "periodique") {
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
@@ -277,8 +281,8 @@ void assign_CL_values_space_time_latin(Vec<VecPointedValues<Interface> > &Inter,
 
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration incrementale)
 //*
-void assign_CL_values_space_time_incr(Vec<VecPointedValues<Interface> > &Inter, Vec<Boundary> &CL, Process &process, DataUser &data_user ) {
-    std::cout << "Mise a jour des Conditions aux Limites : " << std::endl;
+void assign_CL_values_space_time_incr(ScInterRef &Inter, ScCLVec &CL, Process &process, DataUser &data_user ) {
+    std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.rank << " : " << std::endl;
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
         std::cout << "    id : " << Inter[i_inter].id  << "    type : " << Inter[i_inter].type << "    comportement : " << Inter[i_inter].comp << std::endl;
         if (Inter[i_inter].type=="Ext" and Inter[i_inter].comp != "periodique") {

@@ -34,7 +34,7 @@ using namespace LMT;
  - repérage des ddls des interfaces dans le problème macro : Repere_ddl_Inter()
  - Assemblage du problème macro : Assem_prob_macro()
  - prise en compte des conditions aux limites : macro_CL()
- - pénalisation puis factorisation de la matrice macro : penalisation() get_factorization()
+ - pénalisation puis factorisation de la matrice macro : penalisation(), get_factorization()
  
 */
 
