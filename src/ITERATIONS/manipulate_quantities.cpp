@@ -181,11 +181,11 @@ void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user){
     S.mesh.load();
     S.assign_material_on_element(data_user);
     S.f->set_mesh(S.mesh.m);
+    upload_q(S,t);
     if(S.plastique){
         upload_epsilon_p(S,t);  /// pour obtenir sigma
         upload_p(S,t);          /// pour obtenir R_p
     }
-    upload_q(S,t);
     S.f->update_variables();
     S.f->call_after_solve();
 }

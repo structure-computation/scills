@@ -60,10 +60,11 @@ struct Structure{
     void lecture_fichiers(Sc2String id_model, Sc2String id_calcul);
     void chargement_donnees();
     
-    void multiscale();
-    void multiscale_calculation();
+    void boucle_multi_resolution();
+    void boucle_steps_client();
+    void synchronize();
     void synchronize_and_print_duration(TicTac& tic, const char* msg);
-    
+    void display(const char* msg);
 };
 
 

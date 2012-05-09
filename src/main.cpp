@@ -68,7 +68,7 @@ int main(int argc,char **argv) {
         else{
             structure.geometry_user.split_group_edges_within_geometry(structure.data_user);
             structure.chargement_donnees();
-            structure.multiscale();
+            structure.boucle_multi_resolution();
         }
         structure.finalisation_MPI();
         if(structure.process.rank == 0) std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;

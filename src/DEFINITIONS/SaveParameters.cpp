@@ -45,8 +45,8 @@ void SaveParameters::read_data_user(DataUser &data_user){
     display_fields_sst_bulk[6]= "numsst";
     display_fields_sst_bulk[7]= "f_vol_e";
     display_fields_sst_bulk[8]= "num_proc";
-    display_fields_sst_bulk[9]= "p";
-    display_fields_sst_bulk[10]= "R_p";
+    display_fields_sst_bulk[9]= "plast_cumulee";
+    display_fields_sst_bulk[10]= "plast_ecrouissage";
     display_fields_sst_bulk[11]= "epsilon_p";
 
     display_fields_sst_skin.resize(8);

@@ -3,7 +3,7 @@
 
 /// Retourne l'ecrouissage associee a une plasticite cumulee 'p' sur la sous-structure 'S'
 inline TYPEREEL fonction_ecrouissage(Sst &S, TYPEREEL p) {
-    return S.matprop.plast_ecrouissage_mult * std::pow( p , S.matprop.plast_ecrouissage_expo ) + S.matprop.plast_ecrouissage_mult;
+    return S.matprop.plast_ecrouissage_mult * std::pow( p , S.matprop.plast_ecrouissage_expo ) + S.matprop.plast_ecrouissage_init;
 }
 
 /// Retourne la derivee de la fonction d'ecrouissage sur 'S' en 'p'
@@ -48,25 +48,26 @@ void calcul_plasticite(Sst &S, Process &process) {
         S.f->set_mesh(S.mesh.m);
         upload_q(S,t_cur.q);
         upload_p(S,t_cur.p);
-        upload_epsilon_p(S,t_old);
+        upload_epsilon_p(S,t_old.epsilon_p);
         S.f->update_variables();
         S.f->call_after_solve();
         /// Recuperation des contraintes a corriger
-        download_sigma(S,t_cur);
+        download_sigma(S,t_cur.sigma);
+        /// Grandeurs utiles
+        TYPEREEL mu = S.matprop.elastic_modulus/(2.*(1.+S.matprop.poisson_ratio));      /// Second coefficient de Lame
+        if(S.mesh.type_formulation == "mesomodele") mu = (S.matprop.shear_modulus_12+S.matprop.shear_modulus_13+S.matprop.shear_modulus_23)/3;    // LE TEMPS D'IMPLEMENTER LA VERSION POUR LES MATERIAUX ORTHOTROPES
         /// Application de l'algorithme de retour radial
         for(unsigned i_elem = 0; i_elem < S.mesh.elem_list_size;i_elem++){
         
             /// Calcul du predicateur alpha_dev et de la fonction seuil f
             TYPEREEL p_old = t_old.p[i_elem];
             TYPEREEL R_p = t_cur.R_p[i_elem] = fonction_ecrouissage(S,p_old);
-            Vec<TYPEREEL,DIM*(DIM+1)/2> alpha_elas;
+            Vec<TYPEREEL,DIM*(DIM+1)/2> alpha_elas = t_cur.sigma[i_elem];
             if(cinematique) {alpha_elas -= t_old.X_p[i_elem];}
             TYPEREEL alpha_eq = contrainte_equivalente(S,alpha_elas);
             TYPEREEL f = alpha_eq - R_p;
             
             if(f>0){ /// Correction necessaire
-                /// Grandeurs utiles
-                TYPEREEL mu = S.matprop.elastic_modulus/(2.*(1.+S.matprop.poisson_ratio));      /// Second coefficient de Lame
                 
                 /// Calcul de la variation de p (Methode de Newton)
                 TYPEREEL dp = 0;//*
@@ -84,28 +85,21 @@ void calcul_plasticite(Sst &S, Process &process) {
                 /// Calcul de la variation de X_p
                 if(cinematique) {t_cur.X_p[i_elem] = t_old.X_p[i_elem] + S.matprop.plast_cinematique_coef * depsilon_p;}
                 
-                /*   TEST
-                Vec<TYPEREEL,DIM*(DIM+1)/2> sigma_new = sigma_elas - 2*mu*depsilon_p;
-                if(S.id == 0 and i_elem == 281){
-                    //std::cout << "Numero de l'element : " << i_elem << std::endl;
-                    std::cout << "f old         : " << f << std::endl;
-                    std::cout << "dp            : " << dp << std::endl;
-                    std::cout << "p_old         : " << t_old.p[i_elem] << std::endl;
-                    std::cout << "p_new         : " << t_cur.p[i_elem] << std::endl;
-                    std::cout << "old R(p)      : " << R_p << std::endl;
-                    std::cout << "new R(p)      : " << fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
-                    std::cout << "f new         : " << calcul_contrainte_equivalente(S,sigma_new)-fonction_ecrouissage(S,t_cur.p[i_elem]) << std::endl;
-                    std::cout << "epsilon_p old : " << t_old.epsilon_p[i_elem] << std::endl;
-                    std::cout << "epsilon_p new : " << t_cur.epsilon_p[i_elem] << std::endl;
-                    std::cout << "sigma old : " << sigma_elas << std::endl;
-                    std::cout << "sigma new : " << sigma_new << std::endl;
-                }
-                //*/
             } else { /// Pas de plastification
                 t_cur.p[i_elem] = p_old;
                 t_cur.epsilon_p[i_elem] = t_old.epsilon_p[i_elem];
                 if(cinematique) {t_cur.X_p[i_elem] = t_old.X_p[i_elem];}
             }
+            /*  AFFICHAGE
+            //if(i_elem == 281) std::cout << "R_0      : " << S.matprop.plast_ecrouissage_init << endl;
+            //if(i_elem == 281) std::cout << "k_p      : " << S.matprop.plast_ecrouissage_mult << endl;
+            //if(i_elem == 281) std::cout << "m_p      : " << S.matprop.plast_ecrouissage_expo << endl;
+            if(i_elem == 281) std::cout << "p_old    : " << p_old << std::endl << "epsilon_p_old : " << t_old.epsilon_p[i_elem] << std::endl;
+            if(i_elem == 281) std::cout << "R_p      : " << R_p << std::endl;
+            if(i_elem == 281) std::cout << "alpha_eq : " << alpha_eq << std::endl;
+            if(i_elem == 281) std::cout << "f        : " << f << std::endl;
+            if(i_elem == 281) std::cout << "p : " << t_cur.p[i_elem] << std::endl << "epsilon_p : " << t_cur.epsilon_p[i_elem] << std::endl;
+            //*/
         }
     }
 }
