@@ -137,12 +137,6 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
             matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
             matprops[i].deltaT          = 0;                     /// deltaT
-        } else if (matprops[i].comp.find("visqueux")<matprops[i].comp.size() and matprops[i].type.find("isotrope")<matprops[i].type.size()) {/// comportement thermo-visco-elastique isotrope
-            matprops[i].elastic_modulus = mat_prop_temp[i][0];   /// E
-            matprops[i].poisson_ratio   = mat_prop_temp[i][1];   /// nu
-            matprops[i].alpha           = mat_prop_temp[i][2];   /// alpha
-            matprops[i].deltaT          = 0;                     /// deltaT
-            matprops[i].viscosite       = mat_prop_temp[i][4];   /// viscosite
         } else if (matprops[i].type.find("orthotrope")<matprops[i].type.size()) {/// comportement thermo-elastique orthotrope
             /// coefficients d'elasticite
             matprops[i].elastic_modulus_1 = mat_prop_temp[i][14];   /// E1
@@ -172,14 +166,17 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             matprops[i].deltaT  = 0;                         /// deltaT
         }
         
-        if (matprops[i].comp.find("plastique")<matprops[i].type.size() or matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
+        if(matprops[i].comp.find("visqueux")<matprops[i].comp.size()){/// Comportement visqueux
+            matprops[i].viscosite       = mat_prop_temp[i][4];   /// viscosite
+        }
+        if (matprops[i].comp.find("plastique")<matprops[i].comp.size() or matprops[i].comp.find("mesomodele")<matprops[i].comp.size()) {
             /// parametres de plasticite
             matprops[i].plast_ecrouissage_init = mat_prop_temp[i][26];     /// R0
             matprops[i].plast_ecrouissage_mult = mat_prop_temp[i][27];     /// k_p
             matprops[i].plast_ecrouissage_expo = mat_prop_temp[i][28];     /// m_p
             matprops[i].plast_cinematique_coef = mat_prop_temp[i][29];     /// couplage
         }
-        if (matprops[i].comp.find("mesomodele")<matprops[i].type.size()) {
+        if (matprops[i].comp.find("mesomodele")<matprops[i].comp.size()) {
             /// parametres d'endommagement
             matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
             matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
@@ -206,14 +203,14 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         S.mesh.type_formulation="orthotrope"; 
     } else
     //*//formulation plastique isotrope 
-    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="plastique") {
+    if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size()) {
         plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
         S.plastique = true;
         S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="plastique"; 
     }//*/
     //formulation mesomodele 
-    if (matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size()) {
+    if ((matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size()  and matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size()) or matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size()) {
         plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
         S.plastique = true;
         S.f = S.pb.formulation_mesomodele;  // TODO creer une formulation_plasticity_isotropy_stat_Qstat
