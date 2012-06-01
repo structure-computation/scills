@@ -9,8 +9,8 @@ struct PROPERTY{
      deltaT=0.; 
      //epshorsplan.set(0.);
   }
-  double deltaT; /// variation de temperature
-  //Vec<double,3> epshorsplan; // parametre pour les def planes generalisees
+  TYPEREEL deltaT; /// variation de temperature
+  //Vec<TYPEREEL,DIM> epshorsplan; // parametre pour les def planes generalisees
 
 };
 

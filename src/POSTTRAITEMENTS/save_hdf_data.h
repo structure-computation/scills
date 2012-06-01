@@ -3,7 +3,7 @@
 #include "../COMPUTE/FieldStructureUser.h"
 
 
-//Assignation des champs de géométrie d'éléments sur la peau à partir des champs des éléments parents correspondant
+//Assignation des champs de geometrie d'elements sur la peau à partir des champs des elements parents correspondant
 struct Projection_data_elements_0_on_skin_sst{
     template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
         const typename TM::EA *ea = mskin.get_parents_of(e)[0];
@@ -15,7 +15,7 @@ struct Projection_data_elements_0_on_skin_sst{
     }
 };
 
-//Assignation des champs de résultat d'éléments sur la peau à partir des champs des éléments parents correspondant
+//Assignation des champs de resultat d'elements sur la peau à partir des champs des elements parents correspondant
 struct Projection_fields_on_skin_sst{
    template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
       const typename TM::EA *ea = mskin.get_parents_of(e)[0];
@@ -35,7 +35,7 @@ struct Projection_fields_on_skin_sst{
    }
 };
 
-//calcul du champ permettant de réaliser un éclaté de la structure (champ qtrans)
+//calcul du champ permettant de realiser un eclate de la structure (champ qtrans)
 template<class SST>
 void calcul_explode_displacements(SST &S){
     typedef Vec<TYPEREEL,DIM> TV;
@@ -45,7 +45,7 @@ void calcul_explode_displacements(SST &S){
     }
 }
 
-//Permet de calculer les champs sur la SST et sur sa peau pour un pas de temps donné
+//Permet de calculer les champs sur la SST et sur sa peau pour un pas de temps donne
 template<class TSST>
 void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
@@ -64,7 +64,7 @@ void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
     apply(S.mesh->skin.elem_list,Projection_fields_on_skin_sst(),S.mesh->skin,*S.mesh.m);
 }
 
-//Conversion des champs d'éléments de peau à la structure de donnée de type BasicVec
+//Conversion des champs d'elements de peau à la structure de donnee de type BasicVec
 struct Extract_fields_on_element_sst_skin{
    template<class TE, class TS> void operator()(TE &e, TS &S ) const{
         int nb_comp=DIM*(DIM+1)/2;
@@ -109,7 +109,7 @@ struct Extract_fields_on_element_sst{
 
 template<class TINTER, class TSST>
 void convert_fields_to_field_structure_user(TSST &SubS, TINTER &I, Process &process , DataUser &data_user, FieldStructureUser &field_structure_user, GeometryUser &geometry_user) {
-    //sauvegarde des coordonnées des noeuds en entier de la sst
+    //sauvegarde des coordonnees des noeuds en entier de la sst
     for(unsigned i_sst=0;i_sst<SubS.size();i_sst++){
         //extraction des champs à partir du resultat de calcul (LMTpp)
         calcul_fields_on_sst(SubS[i_sst],process, data_user);
@@ -250,7 +250,7 @@ void test_nb_elements_with_type(TSST &S) {
 template<class TSST,class TV2>
 void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, int nb_previous_nodes) {
 
-    //sauvegarde des coordonnées des noeuds en entier de la sst
+    //sauvegarde des coordonnees des noeuds en entier de la sst
     int nb_nodes=S.mesh->node_list.size();
     for(int d=0;d<DIM;d++){
         S.nodes[d].resize(nb_nodes);
@@ -307,7 +307,7 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, i
 }
 
 
-///Ecriture des champs créés lors de la géométrie sur les elements des SST
+///Ecriture des champs crees lors de la geometrie sur les elements des SST
 template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, Sc2String name_list){
     Sc2String name_field = name_list + "/num_proc";
     S.num_processor.write_to(hdf_file,name_field);
@@ -318,7 +318,7 @@ template<class TSST> void save_data_on_elements_SST(TSST &S, Hdf &hdf_file, Sc2S
 }
 
 
-///Ecriture des champs créés lors de la géométrie sur les elements des INTERFACES
+///Ecriture des champs crees lors de la geometrie sur les elements des INTERFACES
 template<class TSST> void save_data_on_elements_INTER(TSST &S, Hdf &hdf_file, Sc2String name_list){
     Sc2String name_field = name_list + "/number";
     S.number.write_to(hdf_file,name_field);
@@ -578,7 +578,7 @@ void write_hdf_geometry_SST(TSST &SubS, Process &process ) {
     }
     //creation des donnees hdf et sauvegarde d'un fichier pour chaque processeur
     for(unsigned i=0;i<SubS.size();i++) create_hdf_geometry_data_SST(SubS[i],process,nb_previous_nodes[i]);
-    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
     if(FileExists(name_hdf.c_str())){ Sc2String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
@@ -592,7 +592,7 @@ void write_hdf_geometry_SST(TSST &SubS, Process &process ) {
         Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_0/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
-    //ecriture des elements et des champs aux elements créés lors de la géométrie
+    //ecriture des elements et des champs aux elements crees lors de la geometrie
     for(unsigned i=0;i<SubS.size();i++) {
         SubS[i].mesh->update_skin();
         save_elements_hdf_sst(SubS[i], process, hdf_file, process.affichage->name_geometry, "elements_0_skin");
@@ -611,7 +611,7 @@ void write_hdf_geometry_INTER(TINTER &SubI, Process &process ) {
     }
     //creation des donnees hdf et sauvegarde d'un fichier pour chaque processeur
     for(unsigned i=0;i<SubI.size();i++) create_hdf_geometry_data_INTER(SubI[i],process,nb_previous_nodes[i]);
-    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
     BasicVec<BasicVec<TYPE>,DIM> nodes;
@@ -624,7 +624,7 @@ void write_hdf_geometry_INTER(TINTER &SubI, Process &process ) {
         Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/local_nodes_1/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
-    //ecriture des elements et des champs aux elements créés lors de la géométrie
+    //ecriture des elements et des champs aux elements crees lors de la geometrie
     for(unsigned i=0;i<SubI.size();i++) {
         save_elements_hdf_inter(SubI[i], process, hdf_file, process.affichage->name_geometry, "elements_1");
     }
@@ -645,7 +645,7 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Process &process , Geom
     for(unsigned i=0;i<SubS.size();i++) {
         create_hdf_geometry_data_SST_INTER(SubS[i],I, process,nb_previous_nodes[i]);
     }
-    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
     if(FileExists(name_hdf.c_str())){ Sc2String command = "rm -rf "+name_hdf; int syst_rm=system(command.c_str());}
     Hdf hdf_file( name_hdf.c_str() );
     //ecriture des noeuds (concatenation en attendant la possibilite d'ecrire à la suite en hdf)
@@ -659,7 +659,7 @@ void write_hdf_geometry_SST_INTER(TSST &SubS, TINTER &I, Process &process , Geom
         Sc2String name_dim;  name_dim << process.affichage->name_geometry << "/nodes/" << name_direction[d];
         nodes[d].write_to(hdf_file,name_dim);
     }
-    //ecriture des elements et des champs aux elements créés lors de la géométrie
+    //ecriture des elements et des champs aux elements crees lors de la geometrie
     
     for(unsigned i=0;i<SubS.size();i++) {
         save_elements_hdf_sst_inter(SubS[i], I, process, hdf_file, process.affichage->name_geometry);
@@ -676,9 +676,9 @@ void write_hdf_fields_SST(TSST &SubS, Process &process ) {
         nb_previous_nodes.push_back(SubS[i].mesh->skin.node_list.size()+nb_previous_nodes[i]);
     }
     //ouverture d'un fichier pour chaque processeur
-    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
-    //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
+    //calcul des champs sur le maillage a partir de la solution et ecriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
         calcul_fields_on_sst(SubS[i],process);
         create_hdf_fields_data(SubS[i],process);
@@ -719,9 +719,9 @@ void write_hdf_fields_SST_INTER(TSST &SubS, TINTER &Inter,Process &process , Dat
         nb_previous_nodes.push_back(SubS[i].mesh->node_list.size()+nb_previous_nodes[i]);
     }
     //ouverture d'un fichier pour chaque processeur
-    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.rank<<".h5";
+    Sc2String name_hdf ; name_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
     Hdf hdf_file( name_hdf.c_str() );
-    //calcul des champs sur le maillage a partir de la solution et écriture des champs hdf
+    //calcul des champs sur le maillage a partir de la solution et ecriture des champs hdf
     for(unsigned i=0;i<SubS.size();i++){
         calcul_fields_on_sst(SubS[i],process, data_user);
         create_hdf_fields_data_SST(SubS[i],Inter, process);

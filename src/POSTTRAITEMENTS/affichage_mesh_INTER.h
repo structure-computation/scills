@@ -69,7 +69,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 
     //ecriture fichier paraview generique 
     ostringstream sp;
-    sp<<"./tmp/paraview_"<<process.rank<<"_";
+    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
     Sc2String strp(sp.str());
     
     
@@ -104,7 +104,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
    DisplayParaview dp;
    typename TV2::template SubType<0>::T::TMESH meshglob;
     for(unsigned i=0;i<Inter.size();++i) {
-        if (S[Inter[i].vois[data*2]].num_proc==process.rank){
+        if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
                 meshglob.append(*Inter[i].side[data].mesh);
                 if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp=="periodique")
                    meshglob.append(*Inter[i].side[1-data].mesh);
@@ -114,7 +114,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
     if(process.affichage->save=="display") dp.exec();
     //modification du nom et deplacement du fichier generique
     ostringstream ss;
-    ss<<nom_generique << "_proc_"<<process.rank<<".vtu";
+    ss<<nom_generique << "_proc_"<<process.parallelisation->rank<<".vtu";
     Sc2String namefile(ss.str());
     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 

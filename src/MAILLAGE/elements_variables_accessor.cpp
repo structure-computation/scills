@@ -16,7 +16,7 @@ void upload_q(Sst &S,unsigned pt){
 
 
 
-
+//*
 ///---------------------------- SIGMA ----------------------------------
 /// Recuperation depuis le maillage
 void download_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto){
@@ -24,32 +24,12 @@ void download_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto){
     apply(S.mesh->elem_list,__Download_sigma(),sto,i_elem);
 }
 
-void download_sigma(Sst &S,Sst::Time &t){
-    unsigned i_elem = 0;
-    apply(S.mesh->elem_list,__Download_sigma(),t.sigma,i_elem);
-}
-
-void download_sigma(Sst &S,unsigned pt){
-    unsigned i_elem = 0;
-    apply(S.mesh->elem_list,__Download_sigma(),S.t[pt].sigma,i_elem);
-}
-
 /// Envoi vers le maillage
 void upload_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto){
     unsigned i_elem = 0;
     apply(S.mesh->elem_list,__Upload_sigma(),sto,i_elem);
 }
-
-void upload_sigma(Sst &S,Sst::Time &t){
-    unsigned i_elem = 0;
-    apply(S.mesh->elem_list,__Upload_sigma(),t.sigma,i_elem);
-}
-
-void upload_sigma(Sst &S,unsigned pt){
-    unsigned i_elem = 0;
-    apply(S.mesh->elem_list,__Upload_sigma(),S.t[pt].sigma,i_elem);
-}
-
+//*/
 /*
 ///---------------------------- SIGMA VON MISES ----------------------------
 /// Recuperation depuis le maillage
@@ -64,12 +44,12 @@ void upload_sigma_von_mises(Sst &S,Vec<TYPEREEL> &sto){
     apply(S.mesh->elem_list,__Upload_sigma_von_mises(),sto,i_elem);
 }
 //*/
-/*
+//*
 ///---------------------------- EPSILON ---------------------------------
 /// Recuperation depuis le maillage
 void download_epsilon(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto){
     unsigned i_elem = 0;
-    apply(S.mesh->elem_list,__Download_epsilon(),sto);
+    apply(S.mesh->elem_list,__Download_epsilon(),sto,i_elem);
 }
 
 /// Envoi vers le maillage
@@ -192,5 +172,141 @@ void upload_R_p(Sst &S,Sst::Time &t){
 void upload_R_p(Sst &S,unsigned pt){
     unsigned i_elem = 0;
     apply(S.mesh->elem_list,__Upload_R_p(),S.t[pt].R_p,i_elem);
+}
+//*/
+//*
+///-------------------------------   d1   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_d1(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d1(),sto,i_elem);
+}
+
+void download_d1(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d1(),t.d1,i_elem);
+}
+
+void download_d1(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d1(),S.t[pt].d1,i_elem);
+}
+
+/// Envoi vers le maillage
+void upload_d1(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d1(),sto,i_elem);
+}
+
+void upload_d1(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d1(),t.d1,i_elem);
+}
+
+void upload_d1(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d1(),S.t[pt].d1,i_elem);
+}
+//*/
+//*
+///-------------------------------   d2   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_d2(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d2(),sto,i_elem);
+}
+
+void download_d2(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d2(),t.d1,i_elem);
+}
+
+void download_d2(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_d2(),S.t[pt].d1,i_elem);
+}
+
+/// Envoi vers le maillage
+void upload_d2(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d2(),sto,i_elem);
+}
+
+void upload_d2(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d2(),t.d1,i_elem);
+}
+
+void upload_d2(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_d2(),S.t[pt].d1,i_elem);
+}
+//*/
+//*
+///-------------------------------   df   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_df(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_df(),sto,i_elem);
+}
+
+void download_df(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_df(),t.d1,i_elem);
+}
+
+void download_df(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_df(),S.t[pt].d1,i_elem);
+}
+
+/// Envoi vers le maillage
+void upload_df(Sst &S,Vec<TYPEREEL> &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_df(),sto,i_elem);
+}
+
+void upload_df(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_df(),t.d1,i_elem);
+}
+
+void upload_df(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_df(),S.t[pt].d1,i_elem);
+}
+//*/
+//*
+///-------------------------------   Yd   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_Yd(Sst &S,Vec<Vec<TYPEREEL> > &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_Yd(),sto,i_elem);
+}
+
+void download_Yd(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_Yd(),t.Yd,i_elem);
+}
+
+void download_Yd(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Download_Yd(),S.t[pt].Yd,i_elem);
+}
+
+/// Envoi vers le maillage
+void upload_Yd(Sst &S,Vec<Vec<TYPEREEL> > &sto){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_Yd(),sto,i_elem);
+}
+
+void upload_Yd(Sst &S,Sst::Time &t){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_Yd(),t.Yd,i_elem);
+}
+
+void upload_Yd(Sst &S,unsigned pt){
+    unsigned i_elem = 0;
+    apply(S.mesh->elem_list,__Upload_Yd(),S.t[pt].Yd,i_elem);
 }
 //*/

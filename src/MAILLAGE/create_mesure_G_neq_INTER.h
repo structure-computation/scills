@@ -23,7 +23,7 @@ struct CalcMeasure_G {
 //*************************************************
 struct Calculate_Normales {
    template<class TE, class TM,class TV, class SIDE> void operator() (TE &e, TM &m, TV &box, SIDE &side) const {
-      double eps=1e-6;
+      TYPEREEL eps=1e-6;
       //verification si l'element est dans la boite
       typedef typename TM::TNode::Pvec Pvec;
       Pvec Gs = center(e);

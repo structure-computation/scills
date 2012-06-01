@@ -35,7 +35,7 @@ void SaveParameters::read_data_user(DataUser &data_user){
     display_error= 0; 
     save= "save";
 
-    display_fields_sst_bulk.resize(12);
+    display_fields_sst_bulk.resize(15);
     display_fields_sst_bulk[0]= "dep";
     display_fields_sst_bulk[1]= "qtrans";
     display_fields_sst_bulk[2]= "sigma";
@@ -48,6 +48,9 @@ void SaveParameters::read_data_user(DataUser &data_user){
     display_fields_sst_bulk[9]= "plast_cumulee";
     display_fields_sst_bulk[10]= "plast_ecrouissage";
     display_fields_sst_bulk[11]= "epsilon_p";
+    display_fields_sst_bulk[12]= "d1";
+    display_fields_sst_bulk[13]= "d2";
+    display_fields_sst_bulk[14]= "df";
 
     display_fields_sst_skin.resize(8);
     display_fields_sst_skin[0]= "dep";
@@ -95,7 +98,7 @@ void SaveParameters::display_all_data(){
     debug("unsigned side            ",side);
     debug("unsigned pt              ",pt);
     debug("bool affich_depl_pt      ",affich_depl_pt);
-    debug("Vec<double> coor_point   ",coor_point);
+    debug("Vec<TYPEREEL> coor_point   ",coor_point);
     debug("bool fichiers_paraview_sst_crees  ",fichiers_paraview_sst_crees);
     debug("bool fichiers_paraview_inter_crees",fichiers_paraview_inter_crees);
     debug("Vec<int,3> param_ener",param_ener);

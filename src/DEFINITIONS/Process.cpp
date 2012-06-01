@@ -5,13 +5,12 @@
 #include "LatinParameters.h"
 #include "TimeParameters.h"
 #include "PROPERTY.h"
-#include "MPIParameters.h"
+#include "ParallelisationParameters.h"
 
 
 Process::Process()
 {
     // initialisation des valeurs
-    nb_threads=1;
     sousint=1;
     type_sousint="p";
     nom_calcul="latin";
@@ -33,21 +32,17 @@ void Process::read_data_user(DataUser &data_user) {
     rbm.mvts_bloques[0]= "Ty";
     rbm.mvts_bloques[1]= "Tx";
     rbm.mvts_bloques[2]= "Rz";
-    nb_threads = 1;
     save_data = true;
     read_data = false;
     reprise_calcul = 0;
     properties->deltaT = 0;
     
-    if(data_user.options.Temp_statique == "statique"){
-        if (rank==0) std::cout << "************************" << std::endl;
-        if (rank==0) std::cout << "     STATIQUE           " << std::endl;
-        if (rank==0) std::cout << "************************" << std::endl;
-    }else if(data_user.options.Temp_statique == "quasistatique"){
-        if (rank==0) std::cout << "************************" << std::endl;
-        if (rank==0) std::cout << "     QUASISTATIQUE      " << std::endl;
-        if (rank==0) std::cout << "************************" << std::endl;
-    }
+    if (parallelisation->is_master_cpu())
+        if(data_user.options.Temp_statique == "statique"){
+            std::cout << "Type de cacul : STATIQUE" << std::endl;
+        }else if(data_user.options.Temp_statique == "quasistatique"){
+            std::cout << "Type de cacul : QUASISTATIQUE" << std::endl;
+        }
     nom_calcul = "incr";
     
     structure->read_data_user(data_user);
@@ -59,13 +54,13 @@ void Process::read_data_user(DataUser &data_user) {
 
 
 void Process::allocation_memoire(){
-    affichage  = new SaveParameters;
-    structure  = new GeneralParameters;
-    latin      = new LatinParameters;
-    multiscale = new MultiScaleParameters;
-    temps      = new TimeParameters;
-    properties = new PROPERTY;
-    multi_mpi  = new MPIParameters;
+    affichage        = new SaveParameters;
+    structure        = new GeneralParameters;
+    latin            = new LatinParameters;
+    multiscale       = new MultiScaleParameters;
+    temps            = new TimeParameters;
+    properties       = new PROPERTY;
+    parallelisation  = new ParallelisationParameters;
     #ifdef PRINT_ALLOC
     total_allocated[ typeid(SaveParameters).name() ] += sizeof(SaveParameters);
     total_allocated[ typeid(GeneralParameters).name() ] += sizeof(GeneralParameters);
@@ -73,16 +68,16 @@ void Process::allocation_memoire(){
     total_allocated[ typeid(MultiScaleParameters).name() ]     += sizeof(MultiScaleParameters);
     total_allocated[ typeid(TimeParameters).name() ]     += sizeof(TimeParameters);
     total_allocated[ typeid(PROPERTY).name() ]  += sizeof(PROPERTY);
-    total_allocated[ typeid(MPIParameters).name() ] += sizeof(MPIParameters);
+    total_allocated[ typeid(ParallelisationParameters).name() ] += sizeof(ParallelisationParameters);
     #endif
 }
 
 void Process::desallocation_memoire(){
-    if (affichage  != NULL) delete affichage;
-    if (structure  != NULL) delete structure;
-    if (latin      != NULL) delete latin;
-    if (multiscale != NULL) delete multiscale;
-    if (temps      != NULL) delete temps;
-    if (properties != NULL) delete properties;
-    if (multi_mpi  != NULL) delete multi_mpi;
+    if (affichage       != NULL) delete affichage;
+    if (structure       != NULL) delete structure;
+    if (latin           != NULL) delete latin;
+    if (multiscale      != NULL) delete multiscale;
+    if (temps           != NULL) delete temps;
+    if (properties      != NULL) delete properties;
+    if (parallelisation != NULL) delete parallelisation;
 }

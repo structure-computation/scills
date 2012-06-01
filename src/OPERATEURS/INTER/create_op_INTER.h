@@ -39,25 +39,24 @@ using namespace LMT;
 // calcul des matrices de masse et de sousintegration pour chaque interface
 void create_op_INTER(Vec<VecPointedValues<Sst> > &S,Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI,Process &process)
 {
+    // calcul des matrices de masse et de sousintegration pour chaque interface
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Matrice de masse et sous-integration " << std::endl;
+    apply_mt(SubI,process.parallelisation->nb_threads,CalcMN(),S);
 
-  // calcul des matrices de masse et de sousintegration pour chaque interface
-   if (process.rank == 0) std::cout << "\t Matrice de masse et sous-integration " << std::endl;
-   apply_mt(SubI,process.nb_threads,CalcMN(),S);
-  
-   if (process.rank == 0) std::cout << "\t Correspondance ddl de chaque cote de l'interface" << std::endl;       
-   apply_mt(SubI,process.nb_threads,Corresp_ddlinter());
-   
-   if (process.rank == 0) std::cout << "\t Centre de gravite des interfaces" << std::endl;
-  
-   if (process.multiscale->multiechelle==1){  
-      if (process.rank == 0) std::cout << "\t Calcul des BPI" << std::endl;
-     // calcul Base Principale d'Inertie
-      apply_mt(SubI,process.nb_threads,CalcBPI());
-     // Application du nombre de fct de base macro par interface 
-      apply_mt(SubI,process.nb_threads,Apply_nb_macro(),process);
-     // creation des projecteurs macro et micro
-      if (process.rank == 0) std::cout << "\t Calcul des projecteurs macro " << std::endl;
-      apply_mt(SubI,process.nb_threads,CreateProjMacro(),process);
-   }
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Correspondance ddl de chaque cote de l'interface" << std::endl;       
+    apply_mt(SubI,process.parallelisation->nb_threads,Corresp_ddlinter());
+
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Centre de gravite des interfaces" << std::endl;
+
+    if (process.multiscale->multiechelle==1){  
+        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des BPI" << std::endl;
+        // calcul Base Principale d'Inertie
+        apply_mt(SubI,process.parallelisation->nb_threads,CalcBPI());
+        // Application du nombre de fct de base macro par interface 
+        apply_mt(SubI,process.parallelisation->nb_threads,Apply_nb_macro(),process);
+        // creation des projecteurs macro et micro
+        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des projecteurs macro " << std::endl;
+        apply_mt(SubI,process.parallelisation->nb_threads,CreateProjMacro(),process);
+    }
 };
 

@@ -1,5 +1,5 @@
-#ifndef PLASTICITY_FUNCTIONS_H
-#define PLASTICITY_FUNCTIONS_H
+#ifndef PLASTICITE_H
+#define PLASTICITE_H
 
 #include "../../MAILLAGE/elements_variables_accessor.h"
 #include "../../DEFINITIONS/Process.h"
@@ -10,4 +10,4 @@
 
 void calcul_plasticite(Sst &S, Process &process);
 
-#endif //PLASTICITY_FUNCTIONS_H
+#endif //PLASTICITE_H

@@ -8,13 +8,13 @@ using namespace LMT;
 #include "generate_Ne.h"
 
 /** \ingroup  Operateurs_inter 
- * \brief Calcul de la matrice élémentaire Ne de sous integration et assemblage
+ * \brief Calcul de la matrice elementaire Ne de sous integration et assemblage
  * 
- * Cette procédure est écrite pour chaque type d'élément possible de l'interface (à savoir Bar, Triangle ou Quad). Pour l'élément considéré, on sélectionne le(s) élément(s) du maillage de bord de la sst dont le(s) numéro(s) dans la liste (elem_list) est donné par le champ e.elem. 
+ * Cette procedure est ecrite pour chaque type d'element possible de l'interface (à savoir Bar, Triangle ou Quad). Pour l'element considere, on selectionne le(s) element(s) du maillage de bord de la sst dont le(s) numero(s) dans la liste (elem_list) est donne par le champ e.elem. 
  * 
- * Après sélection du repérage dans la matrice N globale de la matrice élémentaire, on appelle la procédure add_elem_Ne() générée en à partir du script python et spécifique à chaque type d'élément du maillage de bord de la sst. Celle ci renvoit la matrice Ne.
+ * Après selection du reperage dans la matrice N globale de la matrice elementaire, on appelle la procedure add_elem_Ne() generee en à partir du script python et specifique à chaque type d'element du maillage de bord de la sst. Celle ci renvoit la matrice Ne.
  * 
- * On procède enfin à l'assemblage de cette matrice élémentaire.
+ * On procède enfin à l'assemblage de cette matrice elementaire.
  */
 struct add_elem_N{
     template<typename Te> void operator()(Te &e,Sst::TMESHedge &m, Interface::TMATS &N, unsigned &incr) const {
@@ -49,9 +49,9 @@ struct add_elem_N{
 
 
 /** \ingroup  Operateurs_inter
- * \brief Calcul de la matrice de sous-intégration pour l'interface.
+ * \brief Calcul de la matrice de sous-integration pour l'interface.
  * 
- * Cette procédure crée la matrice N (1 de chaque cote de l'interface) pour chaque discretisation possible et chaque type d'élément de la sous-structure. La discrétisation de l'interface est nécessairement P0. La matrice N est donc de la taille dim*(nbre de noeuds sur le cote de la sst) x dim*(nombre d'éléments de l'interface). On appelle ici pour chaque élément d'interface la procédure add_elem_N.
+ * Cette procedure cree la matrice N (1 de chaque cote de l'interface) pour chaque discretisation possible et chaque type d'element de la sous-structure. La discretisation de l'interface est necessairement P0. La matrice N est donc de la taille dim*(nbre de noeuds sur le cote de la sst) x dim*(nombre d'elements de l'interface). On appelle ici pour chaque element d'interface la procedure add_elem_N.
  */
 void calcN(Interface::TMESH &minter, Sst::TMESHedge &medge, Interface::TMATS &N){
     N.resize(minter.elem_list.size()*DIM,medge.node_list.size()*DIM);
@@ -74,7 +74,7 @@ struct add_elem_M{
 /** \ingroup  Operateurs_inter
  * \brief Calcul de la matrice de masse pour l'interface.
  * 
- * Cette procédure n'est adaptée que pour le cas d'une discrétisation P0 pour l'interface. La matrice de masse est donc diagonale et est constituée de la mesure des éléments sur chaque terme de la diagonale. On appelle pour chaque élément d'interface la procédure add_elem_M.
+ * Cette procedure n'est adaptee que pour le cas d'une discretisation P0 pour l'interface. La matrice de masse est donc diagonale et est constituee de la mesure des elements sur chaque terme de la diagonale. On appelle pour chaque element d'interface la procedure add_elem_M.
  */
 void calcM(Interface::TMESH &m, Interface::TMATS &M){
     M.resize(m.elem_list.size()*DIM,m.elem_list.size()*DIM);

@@ -26,7 +26,7 @@ inline void create_file_pvtu(Process &process, const Sc2String prefix="sst_", un
     os << "\t<PPointData Vectors=\"vit\">"<<std::endl;
     
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<((typepvtu==0)? prefix+process.affichage->name_data:process.affichage->type_affichage)<<"_"<<((pt1!=0)?process.rank:1)<<"_"<<((pt1!=0)? to_string(pt1)+"_":"")<<((typepvtu==0)?"1":"0")<<".vtu";
+    ss1<<process.affichage->repertoire_save<<((typepvtu==0)? prefix+process.affichage->name_data:process.affichage->type_affichage)<<"_"<<((pt1!=0)?process.parallelisation->rank:1)<<"_"<<((pt1!=0)? to_string(pt1)+"_":"")<<((typepvtu==0)?"1":"0")<<".vtu";
     Sc2String nomvtu(ss1.str());
     ifstream is(nomvtu.c_str());
     unsigned nbdatapoint=1;
@@ -65,7 +65,7 @@ inline void create_file_pvtu(Process &process, const Sc2String prefix="sst_", un
     os << "\t</PPoints>"<<std::endl;
     
     //ajout des parties
-    for(unsigned i=1;i<(unsigned)process.size;i++){
+    for(unsigned i=1;i<(unsigned)process.parallelisation->size;i++){
         os<<"<Piece Source=\""<<((typepvtu==0)? prefix+process.affichage->name_data:process.affichage->type_affichage)<<"_"<<i<<"_"<<((pt1!=0)? to_string(pt1)+"_":"")<<((typepvtu==0)?to_string(pt):"0")<<".vtu\"/>"<<std::endl;
     }
     
@@ -91,21 +91,27 @@ inline void create_file_pvd(Process &process,const Sc2String prefix="sst_",unsig
    
    //ecriture des lignes correspondant aux fichier a lire
    for(unsigned i=1;i<=nbfiles;++i){
-     if (process.size>1 and prefix!="contact_") create_file_pvtu(process,prefix,i);
-      std::ostringstream ss;
-      if (pt == 0) {
-      if (process.size > 1 ) ss << prefix << process.affichage->name_data << "_" << i <<  ".pvtu";
-      else ss << prefix << process.affichage->name_data << "_" << i <<  ".vtu";
-      } else {
-        if (process.size > 1 ) ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".pvtu";
-        else ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".vtu";
-      }
-      Sc2String nom1( ss.str() );
-      std::ostringstream ss2;
-      if (pt == 0) ss2 << " <DataSet timestep=\" " << i << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
-      else ss2 << " <DataSet timestep=\" " << i-1 << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
-      Sc2String ligne1(ss2.str());
-      file_pvd << ligne1;
+        if (process.parallelisation->is_multi_cpu() and prefix!="contact_") create_file_pvtu(process,prefix,i);
+        std::ostringstream ss;
+        if (pt == 0) {
+            if (process.parallelisation->is_multi_cpu())
+                ss << prefix << process.affichage->name_data << "_" << i <<  ".pvtu";
+            else
+                ss << prefix << process.affichage->name_data << "_" << i <<  ".vtu";
+        } else {
+            if (process.parallelisation->is_multi_cpu())
+                ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".pvtu";
+            else
+                ss << prefix << process.affichage->name_data << "_" << pt << "_" << i-1 <<  ".vtu";
+        }
+        Sc2String nom1( ss.str() );
+        std::ostringstream ss2;
+        if (pt == 0)
+            ss2 << " <DataSet timestep=\" " << i << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+        else
+            ss2 << " <DataSet timestep=\" " << i-1 << "\" group=\"\" part=\"0\"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+        Sc2String ligne1(ss2.str());
+        file_pvd << ligne1;
    }
    //fin du fichier pvd
    file_pvd << " </Collection> \n </VTKFile>";
@@ -130,8 +136,10 @@ inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2Stri
     file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
     
     unsigned ini_proc=1;
-    if(process.size==1) ini_proc=0;
-    else ini_proc=1;
+    if(not process.parallelisation->is_multi_cpu())
+        ini_proc=0;
+    else
+        ini_proc=1;
     //ecriture des lignes correspondant aux fichier a lire
     //boucle sur le nb de processeur, les step et les piquets de temps
     process.temps->pt_cur=0;
@@ -141,7 +149,7 @@ inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2Stri
             process.temps->time_step[i_step].pt_cur=i_pt;
             process.temps->pt_cur+=1;
             process.temps->current_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
-            for(unsigned i_proc=ini_proc;i_proc<process.size;++i_proc){
+            for(unsigned i_proc=ini_proc;i_proc<process.parallelisation->size;++i_proc){
                 //nom du fichier a lire pour le piquet de temps et le processeur considere
                 std::ostringstream ss;
                 ss << save_directory << name_multiresolution.c_str()<<process.affichage->name_data << "_proc_"<<i_proc<<"_time_"<<process.temps->pt_cur <<  ".vtu";
@@ -175,10 +183,12 @@ inline void create_file_pvd_geometry(Process &process, DataUser &data_user, cons
    file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
    
    unsigned ini_proc=1;
-   if(process.size==1) ini_proc=0;
-   else ini_proc=1;
+   if(not process.parallelisation->is_multi_cpu())
+       ini_proc=0;
+   else
+       ini_proc=1;
    //ecriture des lignes correspondant aux fichier a lire
-    for(unsigned i_proc=ini_proc;i_proc<process.size;++i_proc){
+    for(unsigned i_proc=ini_proc;i_proc<process.parallelisation->size;++i_proc){
         //nom du fichier a lire pour le piquet de temps et le processeur considere
         std::ostringstream ss;
         ss << process.affichage->repertoire_save<<"results/"<<prefix<< "_proc_"<<i_proc <<  ".vtu";

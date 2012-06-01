@@ -6,9 +6,9 @@
 
 /** \ingroup etape_lineaire
  \relates macroassemble
- \brief Création du second membre macro pour les interfaces de type symétrie ou déplacement normal imposé.
+ \brief Creation du second membre macro pour les interfaces de type symetrie ou deplacement normal impose.
  
-Deux procédures sont écrites pour le 2d et pour le 3d (en changeant l'argument Interface<>). On sélectionne les composantes macro différentes de la résultante et moment selon la normale des efforts Fchap pour le pas de temps donné.
+Deux procedures sont ecrites pour le 2d et pour le 3d (en changeant l'argument Interface<>). On selectionne les composantes macro differentes de la resultante et moment selon la normale des efforts Fchap pour le pas de temps donne.
 */
 // Ajout des conditions aux limites pour le cas de CL symetriques dans le probleme macro
 void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &imic) {
@@ -37,11 +37,11 @@ void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &i
  \relates macroassemble
  \brief Assemblage du second membre du probleme macro 
  
- En bouclant sur les interfaces voisines de la sous-structure considérée, on ajoute des quantités uniquement pour les interfaces autres qu'à déplacement imposé.
- Ayant repéré les ddls macro de l'interface considérée,
- - On ajoute dans tous les cas le terme provenant de l'étape micro 1 (Sst::Time::Fadd).
- - Si l'interface est de type effort, on ajoute les efforts donnés (partie macro).
- - Si l'interface est de type symétrie ou déplacement normal donné, on utilise la fonction add_bigF_CLsym().
+ En bouclant sur les interfaces voisines de la sous-structure consideree, on ajoute des quantites uniquement pour les interfaces autres qu'à deplacement impose.
+ Ayant repere les ddls macro de l'interface consideree,
+ - On ajoute dans tous les cas le terme provenant de l'etape micro 1 (Sst::Time::Fadd).
+ - Si l'interface est de type effort, on ajoute les efforts donnes (partie macro).
+ - Si l'interface est de type symetrie ou deplacement normal donne, on utilise la fonction add_bigF_CLsym().
  */
 struct macroassemble {
     void operator()(Sst &S,Vec<Interface> &Inter,TimeParameters &temps, MacroProblem &Global) const {
@@ -69,9 +69,9 @@ struct macroassemble {
 
 /** \ingroup etape_lineaire
 \relates interextr
-\brief Extraction de WtildeM pour les interfaces de type symétrie ou déplacement normal
+\brief Extraction de WtildeM pour les interfaces de type symetrie ou deplacement normal
  
-Deux procédures sont écrites pour le 2d et pour le 3d. \f$ \tilde{W}^M \f$ pour le pas de temps donné est imposé égal à 0 puis on sélectionne les composantes macro différentes de la translation et rotation autour de la normale à l'interface.
+Deux procedures sont ecrites pour le 2d et pour le 3d. \f$ \tilde{W}^M \f$ pour le pas de temps donne est impose egal à 0 puis on selectionne les composantes macro differentes de la translation et rotation autour de la normale à l'interface.
 */
 // Modification des multiplicateurs pour le cas de CL symetriques a la sortie du probleme macro
 void modif_WtildeM_CLsym(Interface &Inter,Vec<TYPEREEL> &bigW, unsigned &data,int &imic) {
@@ -98,10 +98,10 @@ void modif_WtildeM_CLsym(Interface &Inter,Vec<TYPEREEL> &bigW, unsigned &data,in
 \relates interextrmacro
  \brief Extraction des multiplicateurs a partir du vecteur obtenu dans le probleme macro
  
- En bouclant sur les sous-structures puis sur les bords de celles ci, on repère le coté des interfaces concernées et on extrait du vecteur Glob::bigW le multiplicateur selon le type d'interface :
- - Pour les interfaces à déplacement imposé, \f$ \tilde{W}^M \f$ est imposé égal à 0.
- - Pour les interfaces de type symétrie, on applique la procédure modif_WtildeM_CLsym()
- - Pour les autres interfaces on extrait les composantes macro concernées à partir de Interface::repddl et on en déduit la répartition macro sur l'interface (par Interface::Side::eM)
+ En bouclant sur les sous-structures puis sur les bords de celles ci, on repère le cote des interfaces concernees et on extrait du vecteur Glob::bigW le multiplicateur selon le type d'interface :
+ - Pour les interfaces à deplacement impose, \f$ \tilde{W}^M \f$ est impose egal à 0.
+ - Pour les interfaces de type symetrie, on applique la procedure modif_WtildeM_CLsym()
+ - Pour les autres interfaces on extrait les composantes macro concernees à partir de Interface::repddl et on en deduit la repartition macro sur l'interface (par Interface::Side::eM)
  
  */
 struct interextrmacro {

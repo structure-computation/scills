@@ -11,9 +11,9 @@ using namespace LMT;
 /**\ingroup Operateurs_sst
  *  \brief Fonction permettant de retrouver la correspondance entre les ddl de bord des SST et les ddl de la SST
  
- En faisant l'intersection du maillage de bord correspondant au maillage d'interface du coté correspondant avec le maillage de la sous-structure, on détermine la correspondance entre les noeuds. On vérifie si l'intersection trouvée est de la taille du maillage de bord. Si tel n'est pas le cas, une erreur est envoyée (arrive souvent quand on oublie de donner les fichiers de maillages). 
+ En faisant l'intersection du maillage de bord correspondant au maillage d'interface du cote correspondant avec le maillage de la sous-structure, on determine la correspondance entre les noeuds. On verifie si l'intersection trouvee est de la taille du maillage de bord. Si tel n'est pas le cas, une erreur est envoyee (arrive souvent quand on oublie de donner les fichiers de maillages). 
  
- Connaissant les numéros des noeuds dans le maillage de la sous-structure, on détermine les ddls correspondant que l'on stocke dans Sst::Edge::repddledge.
+ Connaissant les numeros des noeuds dans le maillage de la sous-structure, on determine les ddls correspondant que l'on stocke dans Sst::Edge::repddledge.
  */
 template<class SST>
 void Calc_SST_Correspddl(SST &S, Process &process) {

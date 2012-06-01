@@ -2,13 +2,13 @@
 #include "../UTILS/utils_2.h"
 
 TimeParameters::TimeParameters(){
-    pt=0;
-    pt_cur=0;
-    dt=1;
     theta = 1;
     nbpastemps=1;
     type_de_calcul="stat";
     nb_step=1;
+    pt=0;
+    pt_cur=0;
+    dt=1;
     current_time=0;
 }
 
@@ -55,13 +55,44 @@ void TimeParameters::display_all_data(){
     debug("int pt                   ",pt);
     debug("int pt_cur               ",pt_cur);
     debug("int step_cur             ",step_cur);
-    debug("double current_time      ",current_time);
-    debug("double dt                ",dt);
-    debug("double theta             ",theta);
+    debug("TYPEREEL current_time    ",current_time);
+    debug("TYPEREEL dt              ",dt);
+    debug("TYPEREEL theta           ",theta);
     debug("unsigned nbpastemps      ",nbpastemps);
     debug("Sc2String type_de_calcul ",type_de_calcul);
     debug("int nb_step              ",nb_step);
     //debug("Vec<STEP> time_step",);
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
+}
+
+void TimeParameters::init(){
+    step_cur = 0;
+    pt = 0;
+    pt_cur = 0;
+    current_time = time_step[0].t_ini;
+    dt = time_step[0].dt;
+}
+
+void TimeParameters::next(){
+    pt_cur ++;
+    time_step[step_cur].pt_cur ++;
+    /// En cas de changement de step
+    if(time_step[step_cur].pt_cur >= time_step[step_cur].nb_time_step){
+        step_cur ++;
+        time_step[step_cur].pt_cur = 0;
+        dt = time_step[step_cur].dt;
+        __step_changed = true;
+    }
+    current_time = time_step[step_cur].t_ini + (time_step[step_cur].pt_cur+1) *dt;
+}
+
+bool TimeParameters::has_next(){
+    return (pt_cur <= nbpastemps);
+}
+
+bool TimeParameters::step_changed(){
+    bool b = __step_changed;
+    __step_changed = false;
+    return b;
 }

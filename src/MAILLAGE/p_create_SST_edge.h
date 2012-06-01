@@ -84,7 +84,7 @@ template<class TM> void create_new_mesh_p_2D(TM &m, TM &m2){
 struct copy_num_elem_verif{
   template<class TE, class TM> void operator()(TE &e,unsigned &incr, TM &m) const{
     //verification si l'element correspondant au numero donne par incr du maillage m a la meme cdg que l'element e
-    double eps=1e-8;
+    TYPEREEL eps=1e-8;
     if( length(center(e)-center(*m.elem_list[incr]))<=eps ) {
       e.elem.resize(1);
       e.elem[0]=incr;

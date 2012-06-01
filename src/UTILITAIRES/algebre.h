@@ -5,7 +5,7 @@ using namespace LMT;
 
 template<class TT> int sign(TT a){
     int res;
-    double eps=1e-16;
+    TYPEREEL eps=1e-16;
     if((fabs(a)-a)<=eps){
         res=1;
     }

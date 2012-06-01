@@ -71,7 +71,7 @@ void affich_SST(TV1 &S,Process &process) {
 
     //ecriture fichier paraview generique 
     ostringstream sp;
-    sp<<"./tmp/paraview_"<<process.rank<<"_";
+    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
     Sc2String strp(sp.str());
 
     //eclate des ssts

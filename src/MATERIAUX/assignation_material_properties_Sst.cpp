@@ -8,13 +8,13 @@ using namespace Codegen;
 using namespace LMT;
 
 void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matprops, Vec<Sst> &S, Process &process, FieldStructureUser &field_structure_user){
-    if (process.rank == 0) std::cout << "\t Assignation du materiau aux SST" << std::endl;
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Assignation du materiau aux SST" << std::endl;
     // lecture des proprietes materiau des ssts
     
     BasicVec<BasicVec<TYPEREEL > > mat_prop_temp;
     read_matprop(matprops,process,data_user, mat_prop_temp); 
     //assignation des proprietes aux SST
-    apply_mt(S,process.nb_threads,assignation_material_to_SST(),matprops,process.plasticite);      
+    apply_mt(S,process.parallelisation->nb_threads,assignation_material_to_SST(),matprops,process.plasticite,process.endommagement);      
     //assignation des proprietes aux group_elements (pour GPU)
     field_structure_user.assign_material_id_to_group_elements(data_user);
     field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
@@ -76,7 +76,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
                 }
             }
         }
-        if(process.rank == 0){
+        if(process.parallelisation->is_master_cpu()){
             std::cout << "force volumique 0 = " << vstr[0] << std::endl;
             std::cout << "force volumique 1 = " << vstr[1] << std::endl;
 #if DIM == 3
@@ -90,7 +90,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             expr[d2] = read_ex(vstr[d2],symbols);
         }
         
-        Vec<double,DIM> data;
+        Vec<TYPEREEL,DIM> data;
         Ex::MapExNum var;
         for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= 0.;
@@ -103,7 +103,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
         var[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
         
         for(unsigned d2=0;d2<DIM;++d2)//boucle sur les inconnues possibles (dimension des vecteurs)
-            data[d2] = (double)expr[d2].subs_numerical(var);
+            data[d2] = (TYPEREEL)expr[d2].subs_numerical(var);
         
         matprops[i].f_vol_e=vstr;
         matprops[i].f_vol=data;
@@ -176,8 +176,14 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             matprops[i].plast_ecrouissage_expo = mat_prop_temp[i][28];     /// m_p
             matprops[i].plast_cinematique_coef = mat_prop_temp[i][29];     /// couplage
         }
-        if (matprops[i].comp.find("mesomodele")<matprops[i].comp.size()) {
+        if (matprops[i].comp.find("endommageable")<matprops[i].comp.size()){
             /// parametres d'endommagement
+            matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo (limite initiale d'endommagement)
+            matprops[i].dmax         = mat_prop_temp[i][33];     /// dmax (valeur maximale de l'endommagement - pour eviter les divisions par 0)
+            matprops[i].b_c          = mat_prop_temp[i][34];     /// b_c (voir endommagement.cpp::calcul_endommagement)
+        }
+        if (matprops[i].comp.find("mesomodele")<matprops[i].comp.size()) {
+            /// parametres du mesomodele
             matprops[i].Yo           = mat_prop_temp[i][30];     /// Yo
             matprops[i].Yc           = mat_prop_temp[i][31];     /// Yc
             matprops[i].Ycf          = mat_prop_temp[i][32];     /// Ycf
@@ -190,30 +196,52 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
     }
 };
 
-void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite) const{ 
-    S.matprop = matprops[S.typmat]; 
-    //formulation isotrope 
-    if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite,bool &endommagement) const{ 
+    S.matprop = matprops[S.typmat];
+    /// Type du materiau
+    bool isotrope = matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size();
+    bool orthotrope = matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size();
+    if(not (isotrope or orthotrope)){
+        std::cerr << "Type de materiau incorrecte : " << matprops[S.typmat].type;
+        assert(0);
+    }
+    /// Comportement du materiau
+    bool elastique = matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size() ;
+    bool plastique = matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size() ;
+    bool endommageable = matprops[S.typmat].comp.find("endommageable")<matprops[S.typmat].comp.size();
+    bool mesomodele = matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size();
+    /// Assignation de la formulation
+    ///formulation elastique isotrope 
+    if (isotrope and elastique) {
         S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="isotrope"; 
-    } else
-    //formulation orthotrope 
-    if (matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+    }
+    ///formulation elastique orthotrope
+    if (orthotrope and elastique) {
         S.f = S.pb.formulation_elasticity_orthotropy_stat_Qstat;
         S.mesh.type_formulation="orthotrope"; 
-    } else
-    //*//formulation plastique isotrope 
-    if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size()) {
-        plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
+    }
+    ///formulation elasto-plastique isotrope 
+    if (isotrope and elastique and plastique) {
+        plasticite = true;      /// Informe le Process qu'au moins un des materiaux est plastifiable
         S.plastique = true;
         S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="plastique"; 
-    }//*/
-    //formulation mesomodele 
-    if ((matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size()  and matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size()) or matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size()) {
-        plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
+    }
+    ///formulation elastique endommageable isotrope 
+    if (isotrope and elastique and endommageable) {
+        endommagement = true;   /// Informe le Process qu'au moins un des materiaux est endommeageable
+        S.endommageable = true;
+        S.f = S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat;
+        S.mesh.type_formulation="endommageable"; 
+    }
+    ///formulation mesomodele 
+    if ((orthotrope  and elastique and plastique) or mesomodele) { //TODO formulation plastique orthotrope
+        plasticite = true;      /// Informe le Process qu'au moins un des materiaux est plastifiable
+        endommagement = true;   /// Informe le Process qu'au moins un des materiaux est endommeageable
         S.plastique = true;
-        S.f = S.pb.formulation_mesomodele;  // TODO creer une formulation_plasticity_isotropy_stat_Qstat
+        S.endommageable = true;
+        S.f = S.pb.formulation_mesomodele;
         S.mesh.type_formulation="mesomodele"; 
     }
     if(not S.f){

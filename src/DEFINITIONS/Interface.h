@@ -25,36 +25,36 @@ Classe de stockage des variables associees a une interface
 */
 struct Interface
 {
-    typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMATS; ///< type de matrice sparseline
-    typedef Mat <TYPEREEL , Gen<>, Dense<> > TMATF; ///< type de matrice pleine
-    typedef Mesh<Meshcaracinter<DIM,DIM-1>,0 > TMESH; ///< type de maillage des interfaces
-    typedef Vec<TYPEREEL,DIM> Pvec; ///< type des points
-    typedef PARAM_COMP_INTER PARAM_COMP; ///< type des parametres supplementaires pour les comportements
+    typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMATS; /// type de matrice sparseline
+    typedef Mat <TYPEREEL , Gen<>, Dense<> > TMATF;      /// type de matrice pleine
+    typedef Mesh<Meshcaracinter<DIM,DIM-1>,0 > TMESH;    /// type de maillage des interfaces
+    typedef Vec<TYPEREEL,DIM> Pvec;                      /// type des points
+    typedef PARAM_COMP_INTER PARAM_COMP;                 /// type des parametres supplementaires pour les comportements
    
-    //Geometrie
-    int id;     ///< id du group d'interface de geometry_user
-    int num;     ///< numero de l'interface 
+    /// Geometrie
+    int id;     /// id du group d'interface de geometry_user
+    int num;    /// numero de l'interface 
     
-    Pvec G;  ///< centre de gravite
-    Vec<Pvec, DIM> BPI; ///< Base principale d'inertie de l'interface
-    Vec<TYPEREEL,DIM> Moments_inertie; ///< Moments d'inertie pour savoir si l'interface est plane ou non
-    Vec<int> vois; ///< sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
-    Vec<Pvec,2> box; ///< boite contenant l'interface
-    TYPEREEL measure; ///< mesure de l'interface (aire ou longueur)
+    Pvec G;  /// centre de gravite
+    Vec<Pvec, DIM> BPI; /// Base principale d'inertie de l'interface
+    Vec<TYPEREEL,DIM> Moments_inertie; /// Moments d'inertie pour savoir si l'interface est plane ou non
+    Vec<int> vois; /// sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
+    Vec<Pvec,2> box; /// boite contenant l'interface
+    TYPEREEL measure; /// mesure de l'interface (aire ou longueur)
 
-    //comportement de l'interface
-    Sc2String type; ///< type d'interface (exterieure : Ext ou interieure : Int )
-    Sc2String comp; ///< comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, vontact epais : Contact_ep
-    int refCL;   ///< numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
-    int edge_id;   ///< identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
-    int id_link;   ///< identite du behaviour_links dans le data_user issu du json
-    int id_bc;     ///< identite du behaviour_bc dans le data_user issu du json
+    /// comportement de l'interface
+    Sc2String type; /// type d'interface (exterieure : Ext ou interieure : Int )
+    Sc2String comp; /// comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, vontact epais : Contact_ep
+    int refCL;      /// numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
+    int edge_id;    /// identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
+    int id_link;    /// identite du behaviour_links dans le data_user issu du json
+    int id_bc;      /// identite du behaviour_bc dans le data_user issu du json
     
     
-    // donnees liees au macro
-    Vec<int> repddl; ///< reperage des ddls dans le probleme macro
-    int nb_macro_total; ///< nombre de fct macro total
-    int nb_macro_espace; ///< nombre de fct de base macro en espace
+    /// donnees liees au pb macro
+    Vec<int> repddl;        /// reperage des ddls dans le probleme macro
+    int nb_macro_total;     /// nombre de fct macro total
+    int nb_macro_espace;    /// nombre de fct de base macro en espace
 
 
 
@@ -65,23 +65,23 @@ struct Interface
             t.resize(1);
             mesh=NULL;
         }
-        // maillage et caracteristiques
-        TMESH *mesh; ///< maillage d'interface par cote
-        Vec< Pvec > nodeeq; ///< noeuds equivalents sur l'interface
-        Vec< TYPEREEL > neq;   ///< normales equivalentes (par element) (nx1,ny1,nx2,ny2...)
-        Vec<int,2> vois;      ///< sous-structure voisine et cote correspondant
+        /// maillage et caracteristiques
+        TMESH *mesh;            /// maillage d'interface par cote
+        Vec< Pvec > nodeeq;     /// noeuds equivalents sur l'interface
+        Vec< TYPEREEL > neq;    /// normales equivalentes (par element) (nx1,ny1,nx2,ny2...)
+        Vec<int,2> vois;        /// sous-structure voisine et cote correspondant
 
         /// operateurs
         /// M masse, N operateur de sous_integration 
         /// eM matrice permettant de renvoyer les valeurs pour chaque noeuds à partir des quantites macro, MeM la meme avec multiplication par la matrice de masse :permet d'extraire les composantes macro d'une distribution donnee,
         /// kloc direction de recherche, cloc direction de recherche inverse (sous forme de matrice globale sur l'interface: pas utiliser pour l'instant)
-        TMATS M;        ///< Operateur de masse (matrice)
-        TMATS N;        ///< Operateur de sous-integration (matrice)
-        TMATS Nt;       ///< 
+        TMATS M;        /// Operateur de masse
+        TMATS N;        /// Operateur de sous-integration
+        TMATS Nt;       /// 
         TMATS hglo;     
         TMATS kglo;     
-        TMATF eM;       ///< Projecteur sur la base macroscopique (matrice)
-        TMATF MeM;      ///< Matrice eM premultipliee par la matrice de masse
+        TMATF eM;       /// Projecteur sur la base macroscopique
+        TMATF MeM;      /// Matrice eM premultipliee par la matrice de masse
         /// fonction projecteur macro . La définition d'un projecteur macro et micro sous forme d'une fonction permet de ne pas construire et stocker de nouvel opérateur et prend autant de temps que l'utilisation d'une matrice.
         Vec<TYPEREEL,-1,void> PM(Vec<TYPEREEL> &f) {
             Vec<TYPEREEL,-1,void> fM; fM.resize(f.size()); fM.set(0.);
@@ -110,22 +110,22 @@ struct Interface
         /// scalaire pour direction de recherche normale tangentielle, ou direction unique
         TYPEREEL kn,kt,hn,ht,h,k;
 
-        Vec<unsigned> ddlcorresp; ///< correspondance des ddls des deux cotes de l'interface (pas encore bien teste)
+        Vec<unsigned> ddlcorresp; /// correspondance des ddls des deux cotes de l'interface (pas encore bien teste)
 
-        ///< Structure temporelle contenant les vecteurs nodaux
+        /// Structure temporelle contenant les vecteurs nodaux
         struct Time{
-            Vec<TYPEREEL> F;        ///< efforts sur la face
-            Vec<TYPEREEL> W;        ///< deplacements sur la face
-            Vec<TYPEREEL> Wp;       ///< vitesses sur la face
-            Vec<TYPEREEL> Fchap;    ///< 
-            Vec<TYPEREEL> Wchap;    ///<
-            Vec<TYPEREEL> Wpchap;   ///<
-            Vec<TYPEREEL> WtildeM;  ///< pseudo multiplicateur de
-            Vec<TYPEREEL> oldF;     ///< efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vec<TYPEREEL> oldW;     ///< deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vec<TYPEREEL> oldWp;    ///< vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vec<TYPEREEL> F;        /// efforts sur la face
+            Vec<TYPEREEL> W;        /// deplacements sur la face
+            Vec<TYPEREEL> Wp;       /// vitesses sur la face
+            Vec<TYPEREEL> Fchap;    /// 
+            Vec<TYPEREEL> Wchap;    ///
+            Vec<TYPEREEL> Wpchap;   ///
+            Vec<TYPEREEL> WtildeM;  /// pseudo multiplicateur de
+            Vec<TYPEREEL> oldF;     /// efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vec<TYPEREEL> oldW;     /// deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vec<TYPEREEL> oldWp;    /// vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
             void allocations(unsigned sizenodeeq,Process &process){
-                if (process.rank>0 or process.size==1) {
+                if (process.parallelisation->is_local_cpu()) {
                     F.resize(sizenodeeq);
                     F.set(0.0);
                     Wp.resize(sizenodeeq);
@@ -149,13 +149,13 @@ struct Interface
                 }
             }
         };
-        Vec<Time> t;        ///< Vecteurs piquet de temps
-        Vec<Time> t_post;   ///< Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
+        Vec<Time> t;        /// Vecteurs piquet de temps
+        Vec<Time> t_post;   /// Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
         
-        BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
-        BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
-        BasicVec<int> number; ///< numéro de l'interface
-        BasicVec< BasicVec<TYPEREEL>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
+        BasicVec<BasicVec<int> > mesh_connectivities; /// connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
+        BasicVec<int> nature; /// type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
+        BasicVec<int> number; /// numéro de l'interface
+        BasicVec< BasicVec<TYPEREEL>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; /// champs de déplacement et contrainte
         
     };
     Vec<Side> side; ///< cotes de l'interface

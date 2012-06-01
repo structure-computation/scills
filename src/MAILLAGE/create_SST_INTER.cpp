@@ -148,7 +148,7 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
         }
     }
     
-    // assignation des id d'interfaces et des reférence vers un comportement
+    // assignation des id d'interfaces et des reference vers un comportement
     Inter.resize(nb_inter);
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
         Inter[i_inter].num = rep_id_inter[i_inter];
@@ -201,7 +201,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<
     const int nb_inter_actuel =  Inter.size();
     const int nb_inter_total =  nb_inter_actuel + nb_inter;
     Inter.resize(nb_inter_total);
-    // assignation des id d'interfaces et des reférence vers un comportement
+    // assignation des id d'interfaces et des reference vers un comportement
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
         
         int num_inter = nb_inter_actuel + i_inter;
@@ -279,77 +279,63 @@ void create_SST_INTER(DataUser                          &data_user,
                       Vec<VecPointedValues<Sst> >       &Stot,
                       Vec<VecPointedValues<Sst> >       &SubS,
                       Vec<VecPointedValues<Interface> > &SubI) {
+    /// Timer pour le chronometrage
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    TicToc tic1;
-    if (process.rank==0) tic1.start();
+    process.parallelisation->synchronisation();
+    TicTac tic1;
+    if (process.parallelisation->is_master_cpu()) tic1.start();
     #endif
     
-    if (process.rank == 0) std::cout << "Creation de la geometrie des SST" <<std::endl;
+    /// Assignation des id de materiaux des SST
+    process.print(" - Assignation des id de materiaux des SST : ... ",true);
     create_SST_typmat(data_user, geometry_user,S,process);      // to be TEST
-    
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "create_SST_typmat : " <<std::endl;
-    if (process.rank==0) tic1.stop();;
-    if (process.rank==0) tic1.start();
+    process.print_duration(tic1);
     #endif
     
-    
-    if (process.rank == 0) std::cout << "\t Lecture maillages des SST" <<std::endl;
+    /// Creation des maillages des SST
+    process.print(" - Creation des maillages des SST : ... ",true);
     create_maillage_SST(data_user, geometry_user,S,process);    // to be TEST
-    
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation maillage : " ;
-    if (process.rank==0) tic1.stop();;
-    if (process.rank==0) tic1.start();
+    process.print_duration(tic1);
     #endif
     
-    
-    if (process.rank == 0) std::cout << "Creation des Interfaces" <<std::endl;
-    if (process.rank == 0) std::cout << "\tParfaites" << std::endl;
+    /// Creation des maillages des interfaces ...
+    process.print(" - Creation des Interfaces : ");
+    /// ... interieures ...
+    process.print("     - Interieures parfaites : ... ",true);
     create_perfect_interfaces(data_user, geometry_user, S, Inter, process);     // to be TEST
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation interfaces parfaites : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) tic1.start();
+    process.print_duration(tic1);
     #endif
-    
     //create_other_interfaces(structure,S,Inter);
-    if (process.rank == 0) std::cout << "\tConditions aux limites" << std::endl;
+    /// ... et exterieures
+    process.print("     - Exterieures avec CL : ... ",true);
     create_interfaces_CL(data_user, geometry_user, S,Inter,CL, process);        // to be TEST
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation interfaces conditions limites : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) tic1.start();
+    process.print_duration(tic1);
     #endif
     
+    /// Repartition MPI
     //make subs et subi
     //assignation_mpi...
-    //process.multi_mpi->repartition_sst.free();  // un bug memoire se produit sinon
+    //process.parallelisation->repartition_sst.free();  // un bug memoire se produit sinon
+    process.print(" - Repartition MPI : ...",true);
     mpi_repartition(S, Inter,process,Stot,SubS,SubI, geometry_user);                            // to be TEST
-    
     #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "MPI Repartition : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) tic1.start();
+    process.print_duration(tic1);
     #endif
     
     apply(SubI,make_interface_inter(), geometry_user );                              // to be TEST
     apply(SubI,make_interface_CL(), geometry_user);                                  // to be TEST
     apply(S,mesh_unload());
         
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "\t Assignation des numeros aux interfaces " << std::endl;
+    process.parallelisation->synchronisation();
+    process.print(" - Assignation des numeros aux interfaces ",true);
     //assignation du numero de l'interface
     for(unsigned i=0;i<Inter.size();i++){
         Inter[i].num=i;
     }
-    
     //copie des "id" et "side" des interfaces adjacentes aux groupes d'elements
     for(unsigned i_sst=0;i_sst<S.size();i_sst++){
         int id_sst=S[i_sst].id;

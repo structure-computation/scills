@@ -18,7 +18,7 @@ struct MultiScaleParameters{
     Vec<unsigned> inter_correspondantes;    ///< interfaces dont le nombre de fcts macro est different du nombre par defaut
     bool nbmacro_identique;     ///< booleen indiquant si le nombre de fonctions de base macro est identique par interface
     bool opti_multi;            ///< optimisation du calcul en stoppant le macro a partir d'une erreur  donnée
-    double erreur_macro;        ///< niveau d'erreur sur la solution macro à partir de laquelle on passe en monoéchelle
+    TYPEREEL erreur_macro;      ///< niveau d'erreur sur la solution macro à partir de laquelle on passe en monoéchelle
     
     //methodes===============================================================================================
     MultiScaleParameters();

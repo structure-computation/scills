@@ -6,30 +6,30 @@ using namespace LMT;
 
 struct PARAM_DAMAGE_INTER{
     PARAM_DAMAGE_INTER(){Yc=0.01; Yo=0.; n=0.5; alpha=1.5; gamma=0.3; kn=10000; knc=10000; kt=10000;}
-    double kn, kt,knc;
-    double gamma,alpha, Yc, Yo, n;
+    TYPEREEL kn, kt,knc;
+    TYPEREEL gamma,alpha, Yc, Yo, n;
 };
  
 struct PARAM_COMP_INTER{
-    double coeffrottement;
-    Vec<double> f_coeffrottement;
-    Vec<double> jeu;
+    TYPEREEL coeffrottement;
+    Vec<TYPEREEL> f_coeffrottement;
+    Vec<TYPEREEL> jeu;
     Sc2String fcts_spatiales;
-    double Gcrit;
+    TYPEREEL Gcrit;
     bool degradable;
-    Vec<double> dmax,d;
-    Vec<double> Y,Ymax;
+    Vec<TYPEREEL> d;//,dmax;
+    //Vec<TYPEREEL> Y;//,Ymax;
     unsigned nbpastempsimpos;
     Vec<bool> comportement;
     int convergence; ///< =-1 si le calcul du pas de temps n'est pas convergence, >=0 sinon
-                     ///< =0 après l'étape locale si aucun comportement d'élément est mis à jour, >0 sinon
+                     ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
 
     PARAM_COMP_INTER(unsigned nbnodeeq){
         jeu.resize(nbnodeeq,0.); 
-        Ymax.resize(nbnodeeq,0.);
-        Y.resize(nbnodeeq,0.);
+        //Ymax.resize(nbnodeeq,0.);
+        //Y.resize(nbnodeeq,0.);
         d.resize(nbnodeeq,0.);
-        dmax.resize(nbnodeeq,0.);
+        //dmax.resize(nbnodeeq,0.);
         f_coeffrottement.resize(nbnodeeq,0.);
         comportement.resize(nbnodeeq,0);
         convergence = -1;
@@ -37,22 +37,22 @@ struct PARAM_COMP_INTER{
     
     void free(){
         jeu.free();
-        dmax.free();
+        //dmax.free();
         d.free();
-        Y.free();
-        Ymax.free();
+        //Y.free();
+        //Ymax.free();
         t.free();
         comportement.free();
     }
 
     struct Time{
-        Vec<double> dmax,d,Y,Ymax;
+        Vec<TYPEREEL> d;//,Y;//,dmax,Ymax;
         void allocate(unsigned nbnodeeq)
         {
-            Ymax.resize(nbnodeeq,0.);
-            Y.resize(nbnodeeq,0.);
+            //Ymax.resize(nbnodeeq,0.);
+            //Y.resize(nbnodeeq,0.);
             d.resize(nbnodeeq,0.);
-            dmax.resize(nbnodeeq,0.);
+            //dmax.resize(nbnodeeq,0.);
         }
     };
     Vec<Time> t;

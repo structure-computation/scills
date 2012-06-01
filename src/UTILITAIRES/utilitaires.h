@@ -43,7 +43,7 @@ bool ComparVec(TV &V1, TV &V2) {
     return res;
 }
 
-template<class TV> bool inCL(Vec<TV,2> &box1, Vec<TV,2> &box2, const double &eps=1e-6) {
+template<class TV> bool inCL(Vec<TV,2> &box1, Vec<TV,2> &box2, const TYPEREEL &eps=1e-6) {
     TV P1=box1[0], P2=box1[1];
     TV Q1=box2[0], Q2=box2[1];
 

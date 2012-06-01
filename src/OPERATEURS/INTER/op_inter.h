@@ -129,7 +129,7 @@ struct  Corresp_ddlinter {
 };
 
 
-unsigned nb_moment_inertie_inf_eps(Vec<TYPEREEL,DIM> moments,double eps){
+unsigned nb_moment_inertie_inf_eps(Vec<TYPEREEL,DIM> moments,TYPEREEL eps){
     unsigned zob=0;
     for(unsigned i=0;i<moments.size();i++)
         if (std::abs(moments[i])< eps)
@@ -145,7 +145,7 @@ unsigned nb_moment_inertie_inf_eps(Vec<TYPEREEL,DIM> moments,double eps){
 Selon le champ  process.multiscale->type_base_macro différentes bases macro sont utilisees. Ce champ peut prendre la valeur 1 (resultante) et le nombre de fcts de base est alors de 2 en 2d et 3 en 3d. Lorsque le champ vaut 2 (resultantes et moments), on a 3 fcts de base en 2d et 6 en 3d. Quand le champ vaut 4 (resultante moment et partie lineaire), plusieurs cas sont considérés selon la forme de l'interface. En 2d, si l'interface est droite on a au total 4 fcts de base, si celle ci est de forme quelconque on utilise 6 fcts. Pour le 3d, pour des interfaces planes on utilise 9 fcts de base et 12 pour des interfaces quelconques.
 */
 struct Apply_nb_macro {
-    static const double eps=1e-6;
+    static const TYPEREEL eps=1e-6;
     //cas 3d
     void operator()(Interface &Inter, Process &process) const {
 #if DIM == 2
@@ -245,7 +245,7 @@ On détermine à nouveau le vecteur position GM et en utilisant la base principale
 Par défaut, 4 fonctions de base macro sont construites en 2D (résultantes, moment extension) et 9 en 3D. Procédure à modifier pour prendre en compte d'autre fonctions de base macro (+ Repere_ddl_Inter() pour le répérage des ddls macro)
 */
 struct CreateProjMacro {
-    static const double eps=1e-6;
+    static const TYPEREEL eps=1e-6;
     void operator()(Interface &inter, Process &process) const {
         for(unsigned q=0;q<inter.side.size();++q) {
             /// Nombre de noeuds sur l'interface

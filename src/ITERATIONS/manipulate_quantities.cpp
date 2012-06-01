@@ -1,16 +1,16 @@
 #include "../DEFINITIONS/TimeParameters.h"
 #include "../DEFINITIONS/LatinParameters.h"
 #include "manipulate_quantities.h"
-#include "LOCAL/plasticity_functions.h"
+#include "LOCAL/plasticite.h"
 
 using namespace LMT;
 
 
 //allocation des differentes quantites
 /** \ingroup   Strategie_iterative
- * \brief Allocation de mémoire pour les sous-structures, interfaces et vecteurs macro. 
+ * \brief Allocation de memoire pour les sous-structures, interfaces et vecteurs macro. 
  * 
- * Pour chaque pas de temps les différents vecteurs sont initialisés à 0. On n'alloue pas la mémoire pour les différents vecteurs en chaque pas de temps des ssts car ils ne sont stockés qu'à convergence.
+ * Pour chaque pas de temps les differents vecteurs sont initialises à 0. On n'alloue pas la memoire pour les differents vecteurs en chaque pas de temps des ssts car ils ne sont stockes qu'à convergence.
  */
 void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<Interface > > &Inter,Process &process,MacroProblem &Global){
     /// Recuperation du nombre de pas de temps
@@ -27,7 +27,7 @@ void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<I
             S[i].t.resize(nbpastemps+1);
             if(process.recopie_t_post==1)
                 S[i].t=S[i].t_post;
-            for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les CI
+            for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les CInit
                 unsigned nbddl = S[i].mesh.node_list_size*DIM;
                 unsigned nbelem = S[i].mesh.elem_list_size;
                 S[i].t[pt].allocations(nbddl,nbelem,process,S[i]);
@@ -36,7 +36,7 @@ void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<I
     }
     
     /// Allocation des quantites des Interface
-    if (process.rank>0 or process.size==1){
+    if (process.parallelisation->is_local_cpu()){
         for(unsigned i=0;i<Inter.size();++i){
             for(unsigned j=0;j<Inter[i].side.size();++j){
                 Inter[i].side[j].t.resize(nbpastemps+1);
@@ -92,7 +92,7 @@ void allocate_quantities_post(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedVal
                     }
                     
         }
-        if (process.rank>0 or process.size==1)
+        if (process.parallelisation->is_local_cpu())
             for(unsigned i=0;i<Inter.size();++i){
                 for(unsigned j=0;j<Inter[i].side.size();++j){
                     Inter[i].side[j].t.resize(nbpastemps+1);
@@ -182,9 +182,16 @@ void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user){
     S.assign_material_on_element(data_user);
     S.f->set_mesh(S.mesh.m);
     upload_q(S,t);
-    if(S.plastique){
+    if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){
         upload_epsilon_p(S,t);  /// pour obtenir sigma
         upload_p(S,t);          /// pour obtenir R_p
+    }
+    if(S.f == S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat or S.f == S.pb.formulation_mesomodele){
+        upload_d1(S,t);
+    }
+    if(S.f == S.pb.formulation_mesomodele){
+        upload_d2(S,t);
+        upload_df(S,t);
     }
     S.f->update_variables();
     S.f->call_after_solve();

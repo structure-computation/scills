@@ -70,7 +70,6 @@ void Repere_ddl_Inter(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Pro
  */
 void Assem_prob_macro(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process,Mat<TYPEREEL, Sym<>, SparseLine<> > &bigK){
    bigK.resize(process.multiscale->sizeM);
-//    std::cout << bigK.size() << endl;
    for(unsigned i=0;i<S.size();++i){
       Vec<unsigned> LErep,Krep;
       for(unsigned j=0;j<S[i].edge.size();++j){

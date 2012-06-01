@@ -84,9 +84,9 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
             DisplayParaview dp;
             ///ecriture fichier paraview generique de tous les champs (volume ou peau)
             ostringstream sp;
-            sp<<"./tmp/paraview_"<<process.rank<<"_";
+            sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
             Sc2String strp(sp.str());
-            if(process.size > 1) process.affichage->save="save";
+            if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
             if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
             else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
             
@@ -150,7 +150,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
    //eclatement de chaque sous-structure
    double ecl=1;
    eclat_SST(S,ecl);
-   if (process.rank == 0 or process.rank == 1) std::cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<std::endl;
+   if (process.parallelisation->is_local_cpu()) std::cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<std::endl;
    
 /*   for(unsigned i=0;i<S.size();++i){
       //mise a zeros des quantites sigma_old et epsilon_old (visco uniquement)
@@ -174,15 +174,15 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          }
              
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
          else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
          Sc2String namefile(ss.str());
          
          ostringstream sp;
-         sp<<"./tmp/paraview_"<<process.rank<<"_";
+         sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
          Sc2String strp(sp.str());
          //ecriture fichier paraview
-         if(process.size > 1) process.affichage->save="save";
+         if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
          dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
          int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
@@ -211,15 +211,15 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
          
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
          else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
          Sc2String namefile(ss.str());
          
          ostringstream sp;
-         sp<<"./tmp/paraview_"<<process.rank<<"_";
+         sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
          Sc2String strp(sp.str());
          //ecriture fichier paraview
-         if(process.size > 1) process.affichage->save="save";
+         if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
          dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
          int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
@@ -444,65 +444,61 @@ template<class TV2> int find_inter_in_subi(TV2 &Inter, int &num){
 
 template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Process &process){
 
-      unsigned pt=process.affichage->pt;
-      unsigned data = process.affichage->side;// choix du cote
-      DisplayParaview dp;
-      typename TV2::template SubType<0>::T::TMESH meshglob;
-      if(find(process.affichage->num_inter_select,LMT::_1==-1)==1){
-         for(unsigned q=0;q<Inter.size();q++){
-            unsigned side;
-            if(Inter[q].type=="Ext") side=0;
-            else side=data;
-            if (S[Inter[q].vois[data*2]].num_proc==process.rank){
-            if(process.nom_calcul=="incr")
-                assignation_INTER_F_W_incr(Inter[q],S,side,pt,process.temps->dt);
-            else if(process.nom_calcul=="latin")
-                assignation_INTER_F_W_latin(Inter[q],S,side,pt,process.temps->dt);
-               
-            meshglob.append(*Inter[q].side[side].mesh);
-            if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="periodique") {
+    unsigned pt=process.affichage->pt;
+    unsigned data = process.affichage->side;// choix du cote
+    DisplayParaview dp;
+    typename TV2::template SubType<0>::T::TMESH meshglob;
+    if(find(process.affichage->num_inter_select,LMT::_1==-1)==1){
+        for(unsigned q=0;q<Inter.size();q++){
+            unsigned side = (Inter[q].type=="Ext")? 0 : data;
+            if (S[Inter[q].vois[data*2]].num_proc==process.parallelisation->rank){
                 if(process.nom_calcul=="incr")
-                    assignation_INTER_F_W_incr(Inter[q],S,1-side,pt,process.temps->dt);
+                    assignation_INTER_F_W_incr(Inter[q],S,side,pt,process.temps->dt);
                 else if(process.nom_calcul=="latin")
-                    assignation_INTER_F_W_latin(Inter[q],S,1-side,pt,process.temps->dt); 
-                meshglob.append(*Inter[q].side[1-side].mesh);
+                    assignation_INTER_F_W_latin(Inter[q],S,side,pt,process.temps->dt);
+                    
+                meshglob.append(*Inter[q].side[side].mesh);
+                if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="periodique") {
+                    if(process.nom_calcul=="incr")
+                        assignation_INTER_F_W_incr(Inter[q],S,1-side,pt,process.temps->dt);
+                    else if(process.nom_calcul=="latin")
+                        assignation_INTER_F_W_latin(Inter[q],S,1-side,pt,process.temps->dt); 
+                    meshglob.append(*Inter[q].side[1-side].mesh);
+                }
             }
-            }
-         }
-      }
-      else {
-         for(unsigned q=0;q<process.affichage->num_inter_select.size();q++){
+        }
+    } else {
+        for(unsigned q=0;q<process.affichage->num_inter_select.size();q++){
             int testinter = find_inter_in_subi(Inter, process.affichage->num_inter_select[q]);
             if (testinter != -1) {
-            unsigned qs = testinter;
-            std::cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << std::endl;
-            unsigned side;
-            if(Inter[qs].type=="Ext") side=0;
-            else side=data;
-            if (S[Inter[qs].vois[data*2]].num_proc==process.rank){
-              if(process.nom_calcul=="incr")
-                  assignation_INTER_F_W_incr(Inter[qs],S,side,pt,process.temps->dt);
-            else if(process.nom_calcul=="latin")
-                assignation_INTER_F_W_latin(Inter[qs],S,side,pt,process.temps->dt); 
-            meshglob.append(*Inter[qs].side[side].mesh);
-            if ( Inter[qs].comp=="Contact_jeu_physique" or Inter[qs].comp=="periodique") {
-                if(process.nom_calcul=="incr")
-                    assignation_INTER_F_W_incr(Inter[qs],S,1-side,pt,process.temps->dt);
-                else if(process.nom_calcul=="latin")
-                    assignation_INTER_F_W_latin(Inter[qs],S,1-side,pt,process.temps->dt); 
-                meshglob.append(*Inter[qs].side[1-side].mesh);
+                unsigned qs = testinter;
+                std::cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << std::endl;
+                unsigned side = (Inter[qs].type=="Ext")? 0 : data;
+                if (S[Inter[qs].vois[data*2]].num_proc==process.parallelisation->rank){
+                    if(process.nom_calcul=="incr")
+                        assignation_INTER_F_W_incr(Inter[qs],S,side,pt,process.temps->dt);
+                    else if(process.nom_calcul=="latin")
+                        assignation_INTER_F_W_latin(Inter[qs],S,side,pt,process.temps->dt); 
+                    meshglob.append(*Inter[qs].side[side].mesh);
+                    if ( Inter[qs].comp=="Contact_jeu_physique" or Inter[qs].comp=="periodique") {
+                        if(process.nom_calcul=="incr")
+                            assignation_INTER_F_W_incr(Inter[qs],S,1-side,pt,process.temps->dt);
+                        else if(process.nom_calcul=="latin")
+                            assignation_INTER_F_W_latin(Inter[qs],S,1-side,pt,process.temps->dt); 
+                        meshglob.append(*Inter[qs].side[1-side].mesh);
+                    }
+                }
             }
-            }
-            }
-         }
-      }
+        }
+    }
 
-      ostringstream sp;
-      sp<<"./tmp/paraview_"<<process.rank<<"_";
-      Sc2String strp(sp.str());
-      //dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
-      dp.add_mesh(meshglob,strp.c_str(),Vec<Sc2String>("num","type","qtrans","F","W"));
-      if(process.affichage->save=="display") dp.exec();
+    ostringstream sp;
+    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+    Sc2String strp(sp.str());
+    //dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
+    dp.add_mesh(meshglob,strp.c_str(),Vec<Sc2String>("num","type","qtrans","F","W","d"));
+    if(process.affichage->save=="display")
+        dp.exec();
 
 }
 
@@ -511,27 +507,27 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
  */
 template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Process &process) {
    
-   Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
-   
-   int tmp=system(("mkdir -p "+save_directory).c_str());
-   
-   if(process.size > 1) process.affichage->save="save";
+    Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
 
-   for(unsigned i=1;i<process.temps->nbpastemps+1;i++){
-      process.temps->pt=i;
-      process.affichage->pt=i;
-      affich_inter_data_time(Inter, S, process);
-      Sc2String nom_generique = save_directory + process.affichage->name_data;
-      ostringstream sp;
-      sp<<"./tmp/paraview_"<<process.rank<<"_";
-      Sc2String strp(sp.str());
-      ostringstream ss;
-      /*if (process.size == 1) ss<<nom_generique << "_time_"<<i<<".vtu";
-      else */
-      ss<<nom_generique << "_proc_"<<process.rank<<"_time_"<<i<<".vtu";
-      Sc2String namefile(ss.str());
-      int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
-   }
+    int tmp=system(("mkdir -p "+save_directory).c_str());
+
+    if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
+
+    for(unsigned i=1;i<process.temps->nbpastemps+1;i++){
+        process.temps->pt=i;
+        process.affichage->pt=i;
+        affich_inter_data_time(Inter, S, process);
+        Sc2String nom_generique = save_directory + process.affichage->name_data;
+        ostringstream sp;
+        sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+        Sc2String strp(sp.str());
+        ostringstream ss;
+        /*if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<i<<".vtu";
+        else */
+        ss<<nom_generique << "_proc_"<<process.parallelisation->rank<<"_time_"<<i<<".vtu";
+        Sc2String namefile(ss.str());
+        int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+    }
 
 };
 

@@ -77,22 +77,24 @@ int main(int argc,char **argv) {
         /// on fait ce qu il y a faire quand on est en MPI
         if (argc == 4 and strcmp(argv[3], "mpi")==0 ) {
             definition_mpi_param(process,argc,argv);
-            if (process.rank == 0) std::cout << "Calcul MPI" << std::endl;
+            if (process.parallelisation->is_master_cpu()) std::cout << "Calcul MPI" << std::endl;
         } else {
-            process.rank=0;
-            process.size=1;
+            process.parallelisation->rank=0;
+            process.parallelisation->size=1;
         }
-        crout.open(process.rank);
+        crout.open(process.parallelisation->rank);
 #ifdef INFO_TIME
-        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+        process.parallelisation->synchronisation();
         TicTac tic1;
-        if (process.rank==0) {tic1.init();tic1.start();}
+        if (process.parallelisation->is_master_cpu()) {tic1.init();tic1.start();}
 #endif
         
-        if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
-        if (process.rank == 0 ) std::cout << "* Lecture des données venant de SC-create_2 *" << std::endl;
-        if (process.rank == 0 ) std::cout << "*********************************************" << std::endl;
-        if (process.rank == 0 ) std::cout << std::endl;
+        if (process.parallelisation->is_master_cpu()){
+            std::cout << "*********************************************" << std::endl;
+            std::cout << "* Lecture des données venant de SC-create_2 *" << std::endl;
+            std::cout << "*********************************************" << std::endl;
+            std::cout << std::endl;
+        }
     
         Sc2String id_model = argv[ 1 ];
         Sc2String id_calcul = argv[ 2 ];
@@ -120,23 +122,27 @@ int main(int argc,char **argv) {
             std::cout << "fin lecture de la geometrie" << std::endl;
         
     
-            if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
-            if (process.rank == 0 ) std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
-            if (process.rank == 0 ) std::cout << "*****************************" << std::endl;
-            if (process.rank == 0 ) std::cout << std::endl;
+            if (process.parallelisation->is_master_cpu()){
+                std::cout << "*****************************" << std::endl;
+                std::cout << "* DECOMPOSITION DE DOMAINES *" << std::endl;
+                std::cout << "*****************************" << std::endl;
+                std::cout << std::endl;
+            }
 
 
             //Creation du dossier tmp
             int temp=system("mkdir -p tmp");
 
-            if (process.rank == 0 ) std::cout << "****************************" << std::endl;
-            if (process.rank == 0 ) std::cout << " Lecture des donnees " << std::endl;
-            if (process.rank == 0 ) std::cout << "****************************" << std::endl;
+            if (process.parallelisation->is_master_cpu()){
+                std::cout << "****************************" << std::endl;
+                std::cout << " Lecture des donnees " << std::endl;
+                std::cout << "****************************" << std::endl;
+            }
 
             /// lecture des donnees de calcul
             // donnees associees au calcul
             process.affichage->name_data= argv[2];
-            if (process.rank == 0 ) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
+            if (process.parallelisation->is_master_cpu()) std::cout << "\tFichier lu : " << process.affichage->name_data << std::endl;
 
             Vec<SstCarac> matprops;
             Vec<Sst> S;
@@ -149,17 +155,18 @@ int main(int argc,char **argv) {
 
         }
     #ifdef INFO_TIME
-        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-        if (process.rank==0) std::cout << "Duree complete du programme : " ;
-        if (process.rank==0) tic1.stop();
-        if (process.rank==0) std::cout << std::endl;
+        process.parallelisation->synchronisation();
+        if (process.parallelisation->is_master_cpu()){
+            std::cout << "Duree complete du programme : " ;
+            tic1.stop();
+            std::cout << std::endl;
+        }
     #endif
 
-        
-            if (process.size>1) {
-                MPI_Barrier(MPI_COMM_WORLD);
-                MPI_Finalize();
-            }
+        if (process.parallelisation->is_multi_cpu()) {
+            MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Finalize();
+        }
 
     } catch ( const IoException &e ) {
         std::cout << e.what() << std::endl;

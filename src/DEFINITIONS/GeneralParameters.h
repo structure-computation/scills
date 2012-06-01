@@ -10,22 +10,22 @@ using namespace LMT;
 
 
 /** \ingroup Parametres
-\brief Paramètres lies à la structure étudiée : nom des répertoires contenant les maillages et autres ...
+\brief Paramètres lies à la structure etudiee : nom des repertoires contenant les maillages et autres ...
 */
 struct GeneralParameters{
     //attributs==============================================================================================
-    double scale;       /// parametre d'homothetie des differentes quantites (pas utilisé) 
-    Sc2String nom_fichier_qualification_materiaux;  /// nom du fichier contenant le numero du matériau associé à chaque sst
-    Sc2String repertoire_des_maillages;             /// répertoire contenant les maillages
+    //TYPEREEL scale;       /// parametre d'homothetie des differentes quantites (pas utilise) 
+    Sc2String nom_fichier_qualification_materiaux;  /// nom du fichier contenant le numero du materiau associe à chaque sst
+    Sc2String repertoire_des_maillages;             /// repertoire contenant les maillages
     unsigned nb_maillages;          /// nombre de maillages lus (nbre de ssts)
-    Sc2String nom_des_maillages;    /// nom générique pour les différents maillages (ex : S pour S1, S2 ...)
-    Sc2String extension;            /// extension des fichiers à lire (.avs par défaut)
+    Sc2String nom_des_maillages;    /// nom generique pour les differents maillages (ex : S pour S1, S2 ...)
+    Sc2String extension;            /// extension des fichiers à lire (.avs par defaut)
     
     unsigned jeu_physique; /// flag indiquant si l'on doit lire des maillages pour des jeux physiques
     Sc2String nom_maillages_jeu; /// nom generique pour les maillages d'interface avec jeu physique
-    Vec< Vec<int> > inter_jeu;/// vecteur contenant une paire de numéros de sous-structures voisines des interfaces avec jeu physique
+    Vec< Vec<int> > inter_jeu;/// vecteur contenant une paire de numeros de sous-structures voisines des interfaces avec jeu physique
 
-    double volumetot; /// mesure totale de la structure etudiee
+    TYPEREEL volumetot; /// mesure totale de la structure etudiee
    
    
     //methodes===============================================================================================

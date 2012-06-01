@@ -1,7 +1,9 @@
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "comportements_interfaces.h"
-#include "../LOCAL/plasticity_functions.h"
+#include "plasticite.h"
+#include "endommagement.h"
+#include "mesomodele.h"
 
 /** \defgroup etape_locale Etape locale
 \ingroup LATIN
@@ -78,7 +80,9 @@ struct etape_locale_inter {
 */
 struct etape_locale_sst {
     void operator()(Sst &S,Process &process) const {
-        if (S.plastique) calcul_plasticite(S,process);
+        if      (S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat) calcul_plasticite(S,process);
+        else if (S.f == S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat) calcul_endommagement(S,process);
+        else if (S.f == S.pb.formulation_mesomodele) calcul_mesomodele(S,process);
     }
 };
 

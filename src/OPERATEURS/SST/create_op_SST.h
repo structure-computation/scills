@@ -1,19 +1,19 @@
 //librairies Hugo
-#include "containers/mat.h"
-#include "containers/evaluate_nb_cycles.h"
-#include "containers/vec_mt.h"
+#include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
+#include "../../../LMT/include/containers/vec_mt.h"
 
 //fichiers de definition des variables
-#include "Process.h"
-#include "LatinParameters.h"
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/LatinParameters.h"
+#include "../../DEFINITIONS/MultiScaleParameters.h"
+#include "../../DEFINITIONS/ParallelisationParameters.h"
+#include "../../DEFINITIONS/TimeParameters.h"
 
 // fonctions speciales
-#include "utilitaires.h"
+#include "../../UTILITAIRES/utilitaires.h"
 
 // fonctions utilisees dans le programme
-#include "MultiScaleParameters.h"
-#include "MPIParameters.h"
-#include "TimeParameters.h"
 #include "optimisation_direction.h"
 #include "op_SST.h"
 
@@ -45,78 +45,77 @@ using namespace LMT;
 void create_op_SST(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Sst> > &SubS,Vec<VecPointedValues<Interface> > &SubI,Process &process, DataUser &data_user) {
 
 /*#ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);
 #endif
 
-    if (process.rank == 0)
+    if (process.parallelisation->is_master_cpu())
         std::cout << "\t Reperage des ddls de bord" << endl;
-    apply_mt(SubS,process.nb_threads,Calc_SST_Correspddl(), process);
+    apply_mt(SubS,process.parallelisation->nb_threads,Calc_SST_Correspddl(), process);
 */
     
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant optimise_direction : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant optimise_direction : ").c_str(),1);
 #endif
 
-    if (process.rank == 0)
+    if (process.parallelisation->is_master_cpu())
         std::cout << "\t Optimisation des directions de recherche" << endl;
-    apply_mt(SubI,process.nb_threads,optimise_direction(),S,*process.latin);
+    apply_mt(SubI,process.parallelisation->nb_threads,optimise_direction(),S,*process.latin);
 
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant Calc_SST_rigidite_K0_k : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant Calc_SST_rigidite_K0_k : ").c_str(),1);
 #endif
 
-    if (process.rank == 0)
+    if (process.parallelisation->is_master_cpu())
         std::cout << "\t Rigidite totale par SST" << endl;
-    if (process.size == 1 or process.rank>0)
-        apply_mt(SubS,process.nb_threads,Calc_SST_rigidite_K0_k(), Inter,process, data_user);
+    if (process.parallelisation->is_local_cpu())
+        apply_mt(SubS,process.parallelisation->nb_threads,Calc_SST_rigidite_K0_k(), Inter,process, data_user);
 
-    if (process.sousint == 1) apply_mt(S,process.nb_threads,efface_mesh_edge(),Inter);
-    if (process.size > 1 )
-        MPI_Barrier(MPI_COMM_WORLD);//a virer
+    if (process.sousint == 1) apply_mt(S,process.parallelisation->nb_threads,efface_mesh_edge(),Inter);
+    process.parallelisation->synchronisation();//a virer
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant LE : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant LE : ").c_str(),1);
 #endif
 
-    if (process.multiscale->multiechelle ==1) {//cas multiechelle
-    if (process.size>1) {
-        for( unsigned i=0;i<S.size() ;i++ ) {
-            for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
-                if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
-                for( unsigned jj=0;jj<S[i].edge.size() ;jj++ ){
-                    if (S[i].edge[jj].datanum == 0){
-                        MPI_Bcast(&Inter[S[i].edge[jj].internum].nb_macro_espace,1,MPI_INT, k1 ,MPI_COMM_WORLD);
-                    }
-                }
-
-                break;
-                }
-        }
-    }
-    if (process.rank == 0)
-            std::cout << "\t Operateurs homogeneises" << endl;
-        if (process.size > 1 and process.rank==0 ) {
-            apply_mt(S,process.nb_threads,repere_ind_interface_LE(), Inter, process);
-        } else {
-            apply_mt(SubS,process.nb_threads,repere_ind_interface_LE(), Inter, process);
-            apply_mt(SubS,process.nb_threads,Calc_SST_LE(), Inter, process);
-        }
-        if (process.size > 1 )
-            MPI_Barrier(MPI_COMM_WORLD);//a virer
-
-        if (process.size>1) {
+    if (process.multiscale->multiechelle ==1) {///cas multiechelle
+        if (process.parallelisation->is_multi_cpu()) {
             for( unsigned i=0;i<S.size() ;i++ ) {
-                for( unsigned k1=0;k1 <process.multi_mpi->repartition_sst.size()  ;k1++ )
-                        if (find(process.multi_mpi->repartition_sst[k1],LMT::_1==(int)i)) {
-                        if (process.rank == (int)k1 ) MPI_Send(&S[i].nb_macro,1,MPI_INT, 0 ,201,MPI_COMM_WORLD);
-                        if (process.rank == 0 ) {MPI_Status status;MPI_Recv(&S[i].nb_macro,1,MPI_INT, k1 ,201,MPI_COMM_WORLD,&status);}
-                        if (process.rank == 0 ) S[i].LE.resize(S[i].nb_macro);
-                        if (process.rank == (int)k1 ) MPI_Send(S[i].LE.data.ptr(),S[i].LE.data.size(),MPI_DOUBLE, 0 ,201,MPI_COMM_WORLD);
-                        if (process.rank == 0 ) {MPI_Status status;MPI_Recv(S[i].LE.data.ptr(),S[i].LE.data.size(),MPI_DOUBLE, k1 ,201,MPI_COMM_WORLD,&status);}
-                        if (process.rank == (int)k1 ) S[i].LE.free();
+                for( unsigned k1=0;k1 <process.parallelisation->repartition_sst.size()  ;k1++ )
+                    if (find(process.parallelisation->repartition_sst[k1],LMT::_1==(int)i)) {
+                    for( unsigned jj=0;jj<S[i].edge.size() ;jj++ ){
+                        if (S[i].edge[jj].datanum == 0){
+                            MPI_Bcast(&Inter[S[i].edge[jj].internum].nb_macro_espace,1,MPI_INT, k1 ,MPI_COMM_WORLD);
+                        }
+                    }
+
+                    break;
+                    }
+            }
+        }
+        if (process.parallelisation->is_master_cpu())
+                std::cout << "\t Operateurs homogeneises" << endl;
+        if (process.parallelisation->is_multi_cpu() and process.parallelisation->is_master_cpu()) {
+            apply_mt(S,process.parallelisation->nb_threads,repere_ind_interface_LE(), Inter, process);
+        } else {
+            apply_mt(SubS,process.parallelisation->nb_threads,repere_ind_interface_LE(), Inter, process);
+            apply_mt(SubS,process.parallelisation->nb_threads,Calc_SST_LE(), Inter, process);
+        }
+        process.parallelisation->synchronisation();//a virer
+
+        if (process.parallelisation->is_multi_cpu()) {
+            for( unsigned i=0;i<S.size() ;i++ ) {
+                for( unsigned k1=0;k1 <process.parallelisation->repartition_sst.size()  ;k1++ ){
+                    if (find(process.parallelisation->repartition_sst[k1],LMT::_1==(int)i)) {
+                        if (process.parallelisation->rank == (int)k1) MPI_Send(&S[i].nb_macro,1,MPI_INT, 0 ,201,MPI_COMM_WORLD);
+                        if (process.parallelisation->is_master_cpu()) {MPI_Status status;MPI_Recv(&S[i].nb_macro,1,MPI_INT, k1 ,201,MPI_COMM_WORLD,&status);}
+                        if (process.parallelisation->is_master_cpu()) S[i].LE.resize(S[i].nb_macro);
+                        if (process.parallelisation->rank == (int)k1) MPI_Send(S[i].LE.data.ptr(),S[i].LE.data.size(),MPI_DOUBLE, 0 ,201,MPI_COMM_WORLD);
+                        if (process.parallelisation->is_master_cpu()) {MPI_Status status;MPI_Recv(S[i].LE.data.ptr(),S[i].LE.data.size(),MPI_DOUBLE, k1 ,201,MPI_COMM_WORLD,&status);}
+                        if (process.parallelisation->rank == (int)k1) S[i].LE.free();
                         break;
                     }
+                }
             }
         }
     }

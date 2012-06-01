@@ -52,7 +52,7 @@ struct MyHash {
 struct NodesEq {
     template<class TV>
     bool operator()(const TV &n1, const TV &n2) const {
-        double eps=1e-6;
+        TYPEREEL eps=1e-6;
         return (length(n1.pos-n2.pos)<=eps);
     }
 };
@@ -256,7 +256,7 @@ struct assigne_f_vol_e {
             expr[d2] = read_ex(force_volumique[d2],symbols);
         }
         
-        Vec<double,DIM> data;
+        Vec<TYPEREEL,DIM> data;
         Ex::MapExNum var;
         for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
             var[symbols[d2]]= G[d2];
@@ -268,7 +268,7 @@ struct assigne_f_vol_e {
         }
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
-            e.f_vol_e[d2] = m.density * (double)expr[d2].subs_numerical(var);
+            e.f_vol_e[d2] = m.density * (TYPEREEL)expr[d2].subs_numerical(var);
         }
     }
 };
