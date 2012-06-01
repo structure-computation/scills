@@ -29,7 +29,7 @@ void MultiScaleParameters::display_all_data(){
     debug("Vec<unsigned> inter_correspondantes ",inter_correspondantes);
     debug("bool nbmacro_identique ",nbmacro_identique);
     debug("bool opti_multi        ",opti_multi);
-    debug("double erreur_macro    ",erreur_macro);
+    debug("TYPEREEL erreur_macro    ",erreur_macro);
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
 }

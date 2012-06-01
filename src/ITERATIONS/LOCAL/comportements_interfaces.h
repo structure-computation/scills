@@ -4,7 +4,7 @@
 //interface exterieure de type deplacement impose pour tous les ddls
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces extérieures à déplacement imposé (ou vitesse)
+\brief Procedure pour les interfaces exterieures à deplacement impose (ou vitesse)
 */
 void compt_CL_vit (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + Inter.side[0].kglo*(Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp);
@@ -13,7 +13,7 @@ void compt_CL_vit (Interface &Inter,int &imic) {
 //interface exterieure de type effort impose pour tous les ddls
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces extérieures à effort imposé
+\brief Procedure pour les interfaces exterieures à effort impose
 */
 void compt_CL_eff (Interface &Inter,int &imic) {
     Inter.side[0].t[imic].Wpchap=Inter.side[0].t[imic].Wp+Inter.side[0].hglo*(Inter.side[0].t[imic].Fchap - Inter.side[0].t[imic].F);
@@ -22,7 +22,7 @@ void compt_CL_eff (Interface &Inter,int &imic) {
 //interface exterieure de type : deplacement normal a l'interface plane impose + effort tangentiel nul
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces extérieures de type symétrie ou ayant seulement le déplacement normal donné (ou vitesse)
+\brief Procedure pour les interfaces exterieures de type symetrie ou ayant seulement le deplacement normal donne (ou vitesse)
 */
 void compt_CL_sym (Interface &Inter,int &imic) {
     Vec<TYPEREEL> &WWchap1=Inter.side[0].t[imic].Wpchap;
@@ -56,7 +56,7 @@ void compt_CL_sym (Interface &Inter,int &imic) {
 }
 
 
-//structure permettant de définir l'operateur de direction de recherche local a partir de direction normale et tangentielle
+//structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
 // s'utilise ensuite comme une matrice
 struct Kloc{
    TYPEREEL kn,kt;
@@ -69,7 +69,7 @@ struct Kloc{
 //interface interieure de type parfaite
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures parfaites
+\brief Procedure pour les interfaces interieures parfaites
 */
 void compt_parfait (Interface &Inter,int &imic) {
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
@@ -124,10 +124,10 @@ void compt_parfait (Interface &Inter,int &imic) {
 }
 
 //interface interieure de type jeu impose = idem interface parfaite avec prise en compte du jeu
-//comme il y a des tests stat Qstat, on a préféré séparé dans un premier temps
+//comme il y a des tests stat Qstat, on a prefere separe dans un premier temps
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures de type jeu imposé
+\brief Procedure pour les interfaces interieures de type jeu impose
 */
 void compt_jeu_impose (Interface &Inter,TimeParameters &temps) {
     int imic = temps.pt;
@@ -248,12 +248,12 @@ struct apply_type_elem{
 //interface interieure de type contact avec frottement
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures de type contact avec frottement, avec jeu ou non
+\brief Procedure pour les interfaces interieures de type contact avec frottement, avec jeu ou non
 */
 void compt_contact (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
-    double dt=temps.dt;
+    TYPEREEL dt=temps.dt;
 
     Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
     Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
@@ -392,12 +392,12 @@ void compt_contact (Interface &Inter,TimeParameters &temps) {
 //interface interieure de type defaut de forme
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures de type defaut de forme
+\brief Procedure pour les interfaces interieures de type defaut de forme
 */
 void compt_contact_ep (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
-    double dt=temps.dt;
+    TYPEREEL dt=temps.dt;
 
     Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
     Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
@@ -521,12 +521,12 @@ void compt_contact_ep (Interface &Inter,TimeParameters &temps) {
 //interface interieure de type parfait cassable => contact avec frottement
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures de type parfait cassable
+\brief Procedure pour les interfaces interieures de type parfait cassable
 */
 void compt_breakable (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
-    double dt=temps.dt;
+    TYPEREEL dt=temps.dt;
 
     Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
     Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
@@ -565,14 +565,14 @@ void compt_breakable (Interface &Inter,TimeParameters &temps) {
         // test contact normal
         TYPEREEL N = ( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
         
-        if (Inter.param_comp->convergence >= 0 and Inter.param_comp->comportement[i] == 0){//la convergence du calcul itératif est OK, on met à jour le comportement des éléments qui ne sont pas déja cassé
+        if (Inter.param_comp->convergence >= 0 and Inter.param_comp->comportement[i] == 0){//la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
             if (N>0.0 and std::abs(dot(n,F1)) > Inter.param_comp->Gcrit){ //David dit de mettre 10% de plus
             Inter.param_comp->comportement[i] = 1;
             Inter.param_comp->convergence++;
             }
         }
         
-        if (Inter.param_comp->comportement[i] == 1){//interface cassée donc contact :
+        if (Inter.param_comp->comportement[i] == 1){//interface cassee donc contact :
             if (N>0.0) { // separation de l'interface
                 Fchap1=0.0;
                 Fchap2=0.0;
@@ -683,66 +683,122 @@ struct assign_d_mesh {
 //interface interieure avec loi cohesive (type mesomodele)
 /** \ingroup  etape_locale
 \relates etape_locale_inter
-\brief Procédure pour les interfaces intérieures de type cohésif
+\brief Procedure pour les interfaces interieures de type cohesif
 */
 void compt_cohesif (Interface &Inter,TimeParameters &temps) {
 
     int imic = temps.pt;
-    double dt=temps.dt;
+    TYPEREEL dt=temps.dt;
 
     typedef  Vec<TYPEREEL,DIM> TV;
     typedef Mat<TYPEREEL,Gen<DIM>,Dense<> > TMAT;
 
-    Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
-    Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
-    Vec<TYPEREEL> WWchap1=Inter.side[0].t[imic].Wchap[list1];
-    Vec<TYPEREEL> WWchap2=Inter.side[1].t[imic].Wchap[list2];
-    Vec<TYPEREEL> FFchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vec<TYPEREEL> FFchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vec<TYPEREEL> &FF1=Inter.side[0].t[imic].F[list1];
-    const Vec<TYPEREEL> &FF2=Inter.side[1].t[imic].F[list2];
-    const Vec<TYPEREEL> &WWp1=Inter.side[0].t[imic].Wp[list1];
-    const Vec<TYPEREEL> &WWp2=Inter.side[1].t[imic].Wp[list2];
-    const Vec<TYPEREEL> &WWchap1old=Inter.side[0].t[imic-1].Wchap[list1];
-    const Vec<TYPEREEL> &WWchap2old=Inter.side[1].t[imic-1].Wchap[list2];
+    /// Correspondance des noeuds sur l'interface
+    const Vec<unsigned> &list1 = Inter.side[0].ddlcorresp;
+    const Vec<unsigned> &list2 = Inter.side[1].ddlcorresp;
+    /// Champs connus
+    //const Vec<TYPEREEL> &FF1=Inter.side[0].t[imic].F[list1];
+    //const Vec<TYPEREEL> &FF2=Inter.side[1].t[imic].F[list2];
+    const Vec<TYPEREEL> &WWp1 = Inter.side[0].t[imic].Wp[list1];
+    const Vec<TYPEREEL> &WWp2 = Inter.side[1].t[imic].Wp[list2];
+    const Vec<TYPEREEL> &WWchap1old = Inter.side[0].t[imic-1].Wchap[list1];
+    const Vec<TYPEREEL> &WWchap2old = Inter.side[1].t[imic-1].Wchap[list2];
+    /// Champs recherches
+    Vec<TYPEREEL> WWchap1 = Inter.side[0].t[imic].Wchap[list1];
+    Vec<TYPEREEL> WWchap2 = Inter.side[1].t[imic].Wchap[list2];
+    Vec<TYPEREEL> FFchap1 = Inter.side[0].t[imic].Fchap[list1];
+    Vec<TYPEREEL> FFchap2 = Inter.side[1].t[imic].Fchap[list2];
 
-    const Vec<TYPEREEL> &neq=Inter.side[0].neq[list1];
+    /// Vecteur des normales
+    const Vec<TYPEREEL> &neq = Inter.side[0].neq[list1];
 
+    /// Matrice identite
     TMAT Id;
     Id.set(0.);
-    Id.diag()=Vec<TYPEREEL,DIM>(1);
+    Id.diag() = Vec<TYPEREEL,DIM>(1);
 
-    double eps=1e-3;
+    //TYPEREEL eps=1e-3;
 
-    PARAM_DAMAGE_INTER damage=Inter.param_comp->param_damage;
+    PARAM_DAMAGE_INTER damage = Inter.param_comp->param_damage;
 
-    // parametres de direction de recherche
-    TYPEREEL h1n=Inter.side[0].hn;
-    TYPEREEL h2n=Inter.side[1].hn;
-    TYPEREEL h1t=Inter.side[0].ht;
-    TYPEREEL h2t=Inter.side[1].ht;
+    /// parametres de direction de recherche
+    //TYPEREEL h1n=Inter.side[0].hn;
+    //TYPEREEL h2n=Inter.side[1].hn;
+    //TYPEREEL h1t=Inter.side[0].ht;
+    //TYPEREEL h2t=Inter.side[1].ht;
+    
+    bool contact = false;
 
-    // travail pt par pt
-    unsigned nbpts=Inter.side[0].nodeeq.size();
+    /// travail pt par pt
+    const unsigned nbpts=Inter.side[0].nodeeq.size();
     for(unsigned i=0;i<nbpts;++i) {
-        Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
-        Vec<TYPEREEL,DIM> n=neq[rep]; // normale de 1 vers 2
-        //matrice normale nxn
+        const Vec<unsigned> rep = range(i*DIM,(i+1)*DIM);   /// Vecteur des numeros des noeuds de l'element
+        const Vec<TYPEREEL,DIM> n = neq[rep];               /// normale de 1 vers 2
+        ///matrice normale
         TMAT ntn;
         tens(n,n,ntn);
-        //matrices des directions de recherche
-        TMAT H1 = h1n*ntn + h1t*(Id-ntn);
-        TMAT H2 = h2n*ntn + h2t*(Id-ntn);
+        ///matrices des directions de recherche
+        //TMAT H1 = h1n*ntn + h1t*(Id-ntn);
+        //TMAT H2 = h2n*ntn + h2t*(Id-ntn);
         
-        //variables connues
-        Vec<TYPEREEL,DIM> F1=FF1[rep], F2=FF2[rep], Wp1=WWp1[rep],Wp2=WWp2[rep],Wchap1old=WWchap1old[rep],Wchap2old=WWchap2old[rep];
-        //variables inconnues
-        Vec<TYPEREEL,DIM> Fchap1(0.), Fchap2(0.),Wchap1=WWchap1[rep],Wchap2=WWchap2[rep],Fchap1t(0.);
+        ///variables connues
+        //Vec<TYPEREEL,DIM> F1=FF1[rep];
+        //Vec<TYPEREEL,DIM> F2=FF2[rep];
+        const Vec<TYPEREEL,DIM> Wp1 = WWp1[rep];
+        const Vec<TYPEREEL,DIM> Wp2 = WWp2[rep];
+        const Vec<TYPEREEL,DIM> Wchap1old = WWchap1old[rep];
+        const Vec<TYPEREEL,DIM> Wchap2old = WWchap2old[rep];
+        const TYPEREEL dold=Inter.param_comp->d[i];
+        
+        ///variables inconnues
+        //Vec<TYPEREEL,DIM> Fchap1(0.);
+        //Vec<TYPEREEL,DIM> Fchap2(0.);
+        //Vec<TYPEREEL,DIM> Fchap1t(0.);
+        //Vec<TYPEREEL,DIM> Wchap1=WWchap1[rep];
+        //Vec<TYPEREEL,DIM> Wchap2=WWchap2[rep];
+        const Vec<TYPEREEL,DIM> Wchap1 = Wp1 * dt + Wchap1old;
+        const Vec<TYPEREEL,DIM> Wchap2 = Wp2 * dt + Wchap2old;
+        
+        bool compression = dot(n,(Wchap2-Wchap1)) < 0 ;
+        
+        const Vec<TYPEREEL,DIM> jumpWchap = Wchap2 - Wchap1;
+        const TYPEREEL jumpn = dot(jumpWchap,n);
+        const Vec<TYPEREEL,DIM> jumpt = jumpWchap - jumpn * n;
+        const TYPEREEL Yn = 0.5 * damage.kn * jumpn * jumpn * (jumpn > 0);
+        const TYPEREEL Yt = 0.5 * damage.kt * norm_2(jumpt) * norm_2(jumpt);
+        const TYPEREEL Y = std::pow( std::pow(Yn,damage.alpha) + (damage.gamma*std::pow(Yt,damage.alpha)) , 1./damage.alpha) ;
+        const TYPEREEL w = (damage.n/(damage.n+1))* std::pow( ((Y-damage.Yo)>=0)*(Y-damage.Yo)/(damage.Yc-damage.Yo), damage.n ) ;
+        const TYPEREEL d = std::min( std::max(w,dold), 1.0);
+        
+        TMAT Kc = damage.knc*ntn + damage.kt*(1.-d)*(Id - ntn);         /// comportement en compression
+        TMAT Kt = damage.kn*(1.-d)*ntn +  damage.kt*(1.-d)*(Id - ntn);  /// comportement en traction
+        TMAT Ktilde = Kt * (!compression) + Kc * compression ;
+        
+        Vec<TYPEREEL,DIM> Fchap1 = Ktilde * jumpWchap;
+        Vec<TYPEREEL,DIM> Fchap2 = -Fchap1;
+        
+        Inter.param_comp->t[imic].d[i] = d ;
+        
+        /// affectation des champs par elements aux champs par interface
+        FFchap1[rep] = Fchap1 ;
+        FFchap2[rep] = Fchap2 ;
+        WWchap1[rep] = Wchap1 ;
+        WWchap2[rep] = Wchap2 ;
+    }
+    
+    /// affectation des champs chapeaux calcules
+    Inter.side[0].t[imic].Wchap[list1] = WWchap1 ;
+    Inter.side[1].t[imic].Wchap[list2] = WWchap2 ;
+    Inter.side[0].t[imic].Fchap[list1] = FFchap1 ;
+    Inter.side[1].t[imic].Fchap[list2] = FFchap2 ;
+    
+    /// calcul et affectation des champs de vitesses
+    Inter.side[0].t[imic].Wpchap = (Inter.side[0].t[imic].Wchap - Inter.side[0].t[imic-1].Wchap)/dt;
+    Inter.side[1].t[imic].Wpchap = (Inter.side[1].t[imic].Wchap - Inter.side[1].t[imic-1].Wchap)/dt;
 
-        //initialisation de la boucle iterative
-        TYPEREEL dold=Inter.param_comp->dmax[i];
+        /*///initialisation de la boucle iterative
+        TYPEREEL Ymax = Inter.param_comp->Y[i];
         TYPEREEL d = dold;
-        TYPEREEL Ymax = Inter.param_comp->Ymax[i];
         TYPEREEL erreur = 1.;
         unsigned it=0;
         //boucle iterative
@@ -750,19 +806,19 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
             it+=1;
 
             if(dold>=1.-eps) {
-                //etape necessaire lorsque d vaut 1 dans la boucle itérative : on ne gere pas le frottement tant que toute l'interface n'est pas cassee
+                ///etape necessaire lorsque d vaut 1 dans la boucle iterative : on ne gere pas le frottement tant que toute l'interface n'est pas cassee
                 TYPEREEL N=0;
                 //if (temps.type_de_calcul=="stat")
                 //    N = ( dot(n,(Wp2-Wp1)) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
                 //else
                     N=( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
 
-                if (N>0.0) { // separation de l'interface
+                if (N>0.0) { /// separation de l'interface
                     Fchap1=0.0;
                     Fchap2=0.0;
                     //Wchap1=(Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n))*dt+Wchap1old;
                     //Wchap2=(Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n))*dt+Wchap2old;
-                } else { // contact
+                } else { /// contact
                     Fchap1 = N*n;
                     Fchap2 = -1.*Fchap1;
                 }
@@ -777,9 +833,9 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
                 //}
                 //else{cout << "Mauvais type de calcul" << endl; assert(0);}
                 
-                erreur=0;//pour sortir de la boucle
-            } else {//dans tous les autres cas
-                //matrice pour relation de comportement d'interface prenant en compte l'endommagement
+                erreur=0;///pour sortir de la boucle
+            } else {///dans tous les autres cas
+                ///matrice pour relation de comportement d'interface prenant en compte l'endommagement
                 TMAT Kc;
                 Kc = damage.knc*ntn +  damage.kt*(1.-dold)*(Id - ntn);
                 TMAT Kt;
@@ -787,7 +843,7 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
                 TMAT invKc = 1./damage.knc*ntn + 1./(damage.kt*(1.-dold))*(Id - ntn);
                 TMAT invKt = 1./(damage.kn*(1.-dold))*ntn +  1./(damage.kt*(1.-dold))*(Id - ntn);
 
-                //1ere etape : calcul de Fchap1
+                ///1ere etape : calcul de Fchap1
                 Vec<TYPEREEL,DIM> Wtemp;
                 //if(temps.type_de_calcul=="Qstat")
                 Wtemp= ( -1.*H2*F2 + H1*F1 + (Wp2-Wp1) + (Wchap2old-Wchap1old)/dt );
@@ -799,7 +855,7 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
                 if (dot(Fchap1,n)>=0) {
                     Fchap1 = inv(H2+H1+invKt)*Wtemp;
                 }
-                //calcul de Fchap2, Wchap1, Wchap2
+                ///calcul de Fchap2, Wchap1, Wchap2
                 Fchap2 = -1.*Fchap1;
                 //if(temps.type_de_calcul=="Qstat"){
                 Wchap1=(Wp1 + H1*(Fchap1 - F1 ))*dt + Wchap1old;
@@ -811,13 +867,13 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
                 //}
                 //else{cout << "Mauvais type de calcul" << endl; assert(0);}
                 
-                //calcul des forces d'endommagement normales et tangentielles a partir de Fchap1
+                ///calcul des forces d'endommagement normales et tangentielles a partir de Fchap1
                 TYPEREEL Ydn = (dot(Fchap1,n)>=0)*( std::pow((dot(Fchap1,n)/(1.-d)),2.)/(2.*damage.kn) );
                 Fchap1t = Fchap1 - dot(Fchap1,n)*n;
                 TYPEREEL Yt = ( std::pow(norm_2(Fchap1t)/(1.-d),2.)/(2.*damage.kt) );
                 TYPEREEL Ynew = std::pow( std::pow(Ydn,damage.alpha)+ (damage.gamma*std::pow(Yt,damage.alpha)) , 1./damage.alpha);
                 Ymax = std::max(Ynew,Inter.param_comp->Ymax[i]);
-                //calcul du nouvel endommagement pour cette iteration
+                ///calcul du nouvel endommagement pour cette iteration
                 TYPEREEL Ypos = ((Ymax-damage.Yo)>=0)*(Ymax-damage.Yo);
                 //        cout<< "ftemp " << Ftemp << " nodeeq "<<Inter.side[0].nodeeq[i]<< endl;
                 //         cout<< " n " <<n <<"F1 " << F1 << " F2 " << F2 << " nodeeq "<<Inter.side[0].nodeeq[i]<< endl;
@@ -827,7 +883,7 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
                 d = std::pow((damage.n/(damage.n+1))*(Ypos/(damage.Yc-damage.Yo)),damage.n);
                 d = std::min(d,1.);
                 if (d>=1.-eps) {
-                    //test contact (sans frottement)
+                    ///test contact (sans frottement)
                     TYPEREEL N=0;
                     //if (temps.type_de_calcul=="stat")
                     //    N = ( dot(n,(Wp2-Wp1)) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
@@ -866,7 +922,7 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
         Inter.param_comp->t[imic].d[i]=d;
          
         //cout<< it << endl;
-        //modification dmax pour le pas de temps suivant si necessaire
+        ///modification dmax pour le pas de temps suivant si necessaire
         if(d>=Inter.param_comp->t[imic].dmax[i]) {
             Inter.param_comp->t[imic].dmax[i]=d;
             Inter.param_comp->t[imic].Ymax[i]=Ymax;
@@ -879,29 +935,28 @@ void compt_cohesif (Interface &Inter,TimeParameters &temps) {
     }
 
     Inter.side[0].t[imic].Wchap[list1]=WWchap1;
-    Inter.side[1].t[imic].Wchap[list2]=WWchap2;  
+    Inter.side[1].t[imic].Wchap[list2]=WWchap2;
     Inter.side[0].t[imic].Fchap[list1]=FFchap1;
     Inter.side[1].t[imic].Fchap[list2]=FFchap2;
     
-   //cout << Inter.param_comp->t[imic].d<<" d et Y " << Inter.param_comp->t[imic].Y <<" et F " << Inter.side[0].t[imic].Fchap << " sautW " << Inter.side[1].t[imic].Wchap - Inter.side[0].t[imic].Wchap<< endl;
+    //cout << Inter.param_comp->t[imic].d<<" d et Y " << Inter.param_comp->t[imic].Y <<" et F " << Inter.side[0].t[imic].Fchap << " sautW " << Inter.side[1].t[imic].Wchap - Inter.side[0].t[imic].Wchap<< endl;
     
-      Inter.side[0].t[imic].Wpchap=(Inter.side[0].t[imic].Wchap - Inter.side[0].t[imic-1].Wchap)/dt;
-      Inter.side[1].t[imic].Wpchap=(Inter.side[1].t[imic].Wchap - Inter.side[1].t[imic-1].Wchap)/dt;
-/*      unsigned incr=0;
-      apply(Inter.side[0].mesh.elem_list,assign_d_mesh(),incr,Inter.param_comp->t[imic].d);
-      incr=0;
-      apply(Inter.side[1].mesh.elem_list,assign_d_mesh(),incr,Inter.param_comp->t[imic].d);*/
+    Inter.side[0].t[imic].Wpchap=(Inter.side[0].t[imic].Wchap - Inter.side[0].t[imic-1].Wchap)/dt;
+    Inter.side[1].t[imic].Wpchap=(Inter.side[1].t[imic].Wchap - Inter.side[1].t[imic-1].Wchap)/dt;
+    unsigned incr=0;
+    apply(Inter.side[0].mesh.elem_list,assign_d_mesh(),incr,Inter.param_comp->t[imic].d);
+    incr=0;
+    apply(Inter.side[1].mesh.elem_list,assign_d_mesh(),incr,Inter.param_comp->t[imic].d);
    
-      //modification du type d'interface si dmax = 1 pour tous les points
-/*      TT dmin;
-      for(unsigned i=0;i<nbpts;i++) {
-         dmin = min(dmin,Inter.param_comp->d[i]);
-      }
-      if (dmin>=1.-eps) {
-         cout <<Inter.num <<  " Inter modif" << endl;
-         Inter.comp="Contact";
-      }  */    
-
+    ///modification du type d'interface si dmax = 1 pour tous les points
+    TT dmin;
+    for(unsigned i=0;i<nbpts;i++) {
+       dmin = min(dmin,Inter.param_comp->d[i]);
+    }
+    if (dmin>=1.-eps) {
+       cout <<Inter.num <<  " Inter modif" << endl;
+       Inter.comp="Contact";
+    }  */
 }
 
 

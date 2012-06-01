@@ -9,7 +9,7 @@ struct LatinParameters;     // parametres associes a la resolution LATIN
 struct MultiScaleParameters;     // parametres multiechelles
 struct TimeParameters;     // parametres temporels
 struct PROPERTY;  // parametres de proprietes materielles globales
-struct MPIParameters; // parametres de MPI
+struct ParallelisationParameters; // parametres de MPI
 
 // Structures de donnees d'origine
 struct MacroProblem;

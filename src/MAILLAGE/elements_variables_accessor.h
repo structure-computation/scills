@@ -18,12 +18,16 @@
  * 
  * Ces fonctions sont actuellement definis pour:
  *   - sigma (vecteur en notation de Voigt)
- *   - sigma_von_mises (scalaire)
- *   - epsilon (vecteur en notation de Voigt)   PAS UTILISEE
+ *   - sigma_von_mises (scalaire) PAS UTILISEE
+ *   - epsilon (vecteur en notation de Voigt)
  *   - epsilon_e (vecteur en notation de Voigt) PAS UTILISEE
  *   - epsilon_p (vecteur en notation de Voigt)
  *   - p (scalaire)
  *   - R_p (scalaire)
+ *   - d1 (scalaire)
+ *   - d2 (scalaire)
+ *   - df (scalaire)
+ *   - Yd (vecteur)
  * 
  * Remarque: Les fonctions 'upload_q' utilisant la meme nomenclature ont egalement ete definies pour le deplacement, par convenience.
  * 
@@ -37,16 +41,15 @@
 
 #include "../DEFINITIONS/Sst.h"
 
+///----------------------------   Q   ----------------------------------
 void upload_q(Sst &S,Vec<TYPEREEL> &sto);
 void upload_q(Sst &S,Sst::Time &t);
 void upload_q(Sst &S,unsigned pt);
 
-
+//*
 ///---------------------------- SIGMA ----------------------------------
 /// Recuperation depuis le maillage
 void download_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
-void download_sigma(Sst &S,Sst::Time &t);
-void download_sigma(Sst &S,unsigned pt);
 
 struct __Download_sigma{
     template<typename Elem,typename Stockage>
@@ -58,8 +61,6 @@ struct __Download_sigma{
 
 /// Envoi vers le maillage
 void upload_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
-void upload_sigma(Sst &S,Sst::Time &t);
-void upload_sigma(Sst &S,unsigned pt);
 
 struct __Upload_sigma{
     template<typename Elem,typename Stockage>
@@ -68,8 +69,7 @@ struct __Upload_sigma{
         i_elem++;
     }
 };
-
-
+//*/
 /*
 ///---------------------------- SIGMA VON MISES ----------------------------
 /// Recuperation depuis le maillage
@@ -94,7 +94,7 @@ struct __Upload_sigma_von_mises{
     }
 };
 //*/
-/*
+//*
 ///---------------------------- EPSILON ---------------------------------
 /// Recuperation depuis le maillage
 void download_epsilon(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
@@ -222,6 +222,118 @@ struct __Upload_R_p{
     template<typename Elem,typename Stockage>
     void operator()(Elem &e, const Stockage &sto, unsigned &i_elem) const {
         e.plast_ecrouissage = sto[i_elem];
+        i_elem++;
+    }
+};
+//*/
+//*
+///-------------------------------   d1   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_d1(Sst &S,Vec<TYPEREEL> &sto);
+void download_d1(Sst &S,Sst::Time &t);
+void download_d1(Sst &S,unsigned pt);
+
+struct __Download_d1{
+    template<typename Elem,typename Stockage>
+    void operator()(const Elem &e, Stockage &sto, unsigned &i_elem) const {
+        sto[i_elem] = e.d1;
+        i_elem++;
+    }
+};
+
+/// Envoi vers le maillage
+void upload_d1(Sst &S,Vec<TYPEREEL> &sto);
+void upload_d1(Sst &S,Sst::Time &t);
+void upload_d1(Sst &S,unsigned pt);
+
+struct __Upload_d1{
+    template<typename Elem,typename Stockage>
+    void operator()(Elem &e, const Stockage &sto, unsigned &i_elem) const {
+        e.d1 = sto[i_elem];
+        i_elem++;
+    }
+};
+//*/
+//*
+///-------------------------------   d2   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_d2(Sst &S,Vec<TYPEREEL> &sto);
+void download_d2(Sst &S,Sst::Time &t);
+void download_d2(Sst &S,unsigned pt);
+
+struct __Download_d2{
+    template<typename Elem,typename Stockage>
+    void operator()(const Elem &e, Stockage &sto, unsigned &i_elem) const {
+        sto[i_elem] = e.d2;
+        i_elem++;
+    }
+};
+
+/// Envoi vers le maillage
+void upload_d2(Sst &S,Vec<TYPEREEL> &sto);
+void upload_d2(Sst &S,Sst::Time &t);
+void upload_d2(Sst &S,unsigned pt);
+
+struct __Upload_d2{
+    template<typename Elem,typename Stockage>
+    void operator()(Elem &e, const Stockage &sto, unsigned &i_elem) const {
+        e.d2 = sto[i_elem];
+        i_elem++;
+    }
+};
+//*/
+//*
+///-------------------------------   df   -------------------------------------------
+/// Recuperation depuis le maillage
+void download_df(Sst &S,Vec<TYPEREEL> &sto);
+void download_df(Sst &S,Sst::Time &t);
+void download_df(Sst &S,unsigned pt);
+
+struct __Download_df{
+    template<typename Elem,typename Stockage>
+    void operator()(const Elem &e, Stockage &sto, unsigned &i_elem) const {
+        sto[i_elem] = e.df;
+        i_elem++;
+    }
+};
+
+/// Envoi vers le maillage
+void upload_df(Sst &S,Vec<TYPEREEL> &sto);
+void upload_df(Sst &S,Sst::Time &t);
+void upload_df(Sst &S,unsigned pt);
+
+struct __Upload_df{
+    template<typename Elem,typename Stockage>
+    void operator()(Elem &e, const Stockage &sto, unsigned &i_elem) const {
+        e.df = sto[i_elem];
+        i_elem++;
+    }
+};
+//*/
+//*
+///-------------------------------   Yd   ------------------------------------------
+/// Recuperation depuis le maillage
+void download_Yd(Sst &S,Vec<Vec<TYPEREEL,3> > &sto);
+void download_Yd(Sst &S,Sst::Time &t);
+void download_Yd(Sst &S,unsigned pt);
+
+struct __Download_Yd{
+    template<typename Elem,typename Stockage>
+    void operator()(const Elem &e, Stockage &sto, unsigned &i_elem) const {
+        sto[i_elem] = e.Yd;
+        i_elem++;
+    }
+};
+
+/// Envoi vers le maillage
+void upload_Yd(Sst &S,Vec<Vec<TYPEREEL,3> > &sto);
+void upload_Yd(Sst &S,Sst::Time &t);
+void upload_Yd(Sst &S,unsigned pt);
+
+struct __Upload_Yd{
+    template<typename Elem,typename Stockage>
+    void operator()(Elem &e, const Stockage &sto, unsigned &i_elem) const {
+        e.Yd = sto[i_elem];
         i_elem++;
     }
 };

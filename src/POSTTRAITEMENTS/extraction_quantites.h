@@ -1,7 +1,7 @@
 #include "containers/vecpointedvalues.h"
 
 /** \ingroup  Post_Traitements
-\brief Extraction de l'evolution du déplacement d'un point donné par ses coordonnées 
+\brief Extraction de l'evolution du deplacement d'un point donne par ses coordonnees 
 */
 void extraction_depl_pt(Vec<VecPointedValues<Sst> > &S, Process &process) {
 #if DIM == 2
@@ -87,7 +87,7 @@ void extraction_depl_pt(Vec<VecPointedValues<Sst> > &S, Process &process) {
 }
 
 /** \ingroup  Post_Traitements
-\brief Extraction de l'evolution des champs sur une interface a partir de son numéro et de l'element souhaite
+\brief Extraction de l'evolution des champs sur une interface a partir de son numero et de l'element souhaite
 */
 /*template<class TT>
  void affichage_var_inter(Vec<VecPointedValues<Sst<2,TT> > > &S,Vec<Interface<2,TT>, Process* &process) {*/

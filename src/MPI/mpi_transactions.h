@@ -19,10 +19,10 @@ template <class TV>
 void SendbigF(Process &process,TV &bigF ) {
     Vec<TYPEREEL> temp;
     temp.resize(bigF.size());
-    if (process.rank==0)
+    if (process.parallelisation->is_master_cpu())
       bigF.set(0.0);
     MPI_Reduce(bigF.ptr(),temp.ptr(),bigF.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-    if (process.rank==0)
+    if (process.parallelisation->is_master_cpu())
       bigF=temp;
 
 }

@@ -88,7 +88,7 @@ struct Calc_SST_rigidite_K0_k {
 #endif
         
 #ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
 #endif
 
 //        ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
@@ -107,7 +107,7 @@ struct Calc_SST_rigidite_K0_k {
         }
         
 #ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
 #endif
 
 //      ofstream f2(("Kk0_"+to_string(S.num)).c_str());
@@ -133,7 +133,7 @@ struct Calc_SST_rigidite_K0_k {
 #endif
 
 #ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
 #endif
         S.mesh.unload();
     }
@@ -250,12 +250,9 @@ On résout donc ce problème pour en extraire les déplacements sur le bord de la s
 */
 struct Calc_SST_LE {
     void operator()(Sst &S, Vec<Interface> &Inter, Process &process) const {
-        typedef Mat<TYPEREEL, Gen<>, Dense<> > TMAT;
-
-        unsigned nbincmacro=S.nb_macro;
         // initialisation de LE : operateur homogeneise
-        TMAT LE;
-        LE.resize(nbincmacro);
+        Mat<TYPEREEL, Gen<>, Dense<> > LE;
+        LE.resize(S.nb_macro);
         // creation des colonnes de LE en appliquant successivement des chargements macro en deplacement (multiplicateur) sur chaque cote
         unsigned repg= 0, repgj= 0;
         

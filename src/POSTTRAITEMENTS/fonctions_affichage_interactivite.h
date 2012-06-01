@@ -2,7 +2,7 @@
 using namespace LMT;
 
 inline void parametre_inconnu(Vec<Sc2String> &v,Process &process) {
-    if (process.rank==0)
+    if (process.parallelisation->is_master_cpu())
         std::cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << std::endl;
 }
 
@@ -108,20 +108,20 @@ inline void help(Vec<Sc2String> &v, Process &process) {
        }*/
     if (v.size() > 1) {
         if (findalain2(m,v[1]) > 0 )
-            if (process.rank==0) {
+            if (process.parallelisation->is_master_cpu()) {
                 std::cout << m[findalain2(m,v[1])][2] << std::endl;
             } else {
-                if (process.rank==0)
+                if (process.parallelisation->is_master_cpu())
                     std::cout << "Liste des commandes disponibles :" << std::endl;
                 for(unsigned i=0 ;i<m.size() ;i++ )
-                    if (process.rank==0)
+                    if (process.parallelisation->is_master_cpu())
                         std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
             }
     } else {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Liste des commandes disponibles :" << std::endl;
         for(unsigned i=0 ;i<m.size() ;i++ )
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
     }
 }
@@ -132,10 +132,10 @@ inline void help(Vec<Sc2String> &v, Process &process) {
 inline void evol(Vec<Sc2String> &v,Process &process) {
     //modification de la coordonnee du point
     if (v.size()!=DIM+1) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvais choix de point" << std::endl;
         process.affichage->coor_point.resize(DIM,0.);
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "On choisit par défaut : " << process.affichage->coor_point << std::endl;
     } else {
         process.affichage->coor_point.resize(DIM);
@@ -151,9 +151,9 @@ inline void evol(Vec<Sc2String> &v,Process &process) {
 inline void evol_inter(Vec<Sc2String> &v,Process &process) {
 //modification de la coordonnee du point
     if (v.size()!=4) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvaise utilisation : help evol_inter" << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "On choisit par défaut : l'interface 0, élement 0 et l'affichage de toutes les composantes." << process.affichage->coor_point << std::endl;
         process.affichage->param_ener.set(0);
         process.affichage->param_ener[2]=3;
@@ -205,9 +205,9 @@ inline void trac_inter(Vec<Sc2String> &v,Process &process) {
     process.affichage->save="display";
 
     if(v.size()<4) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvais nombre d'arguments" << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Par défaut on trace le cote 0, le pas de temps 1 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
@@ -237,9 +237,9 @@ inline void trac_inter_temps(Vec<Sc2String> &v,Process &process) {
     process.affichage->affich_resultat=1;
     process.affichage->save="save";
     if(v.size()<3) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvais nombre d'arguments" << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Par défaut on trace le cote 0 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
@@ -283,9 +283,9 @@ inline void trac_mesh_inter(Vec<Sc2String> &v,Process &process) {
     process.affichage->save="display";
 
     if(v.size()<2) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvais nombre d'arguments" << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Par défaut on trace le cote 0" << std::endl;
         process.affichage->side=0;
     } else {
@@ -306,7 +306,7 @@ inline void trac_error(Vec<Sc2String> &v,Process &process) {
  */
 inline void trac_ener(Vec<Sc2String> &v,Process &process) {
     if (v.size()!=3) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Parametres par defaut : dissip - Qchap" << std::endl;
         process.affichage->param_ener.set(0);
     } else {
@@ -318,7 +318,7 @@ inline void trac_ener(Vec<Sc2String> &v,Process &process) {
         if(num[0]==0 or num[0]==1 or num[0]==2 or num[0]==3 or num[0]==4 or num[0]==5 or num[0]==6) {
             process.affichage->param_ener[0]=num[0];
         } else {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Deuxieme argument non pris en compte -> par defaut ener_dissip" << std::endl;
             process.affichage->param_ener[0]=0;
         }
@@ -326,7 +326,7 @@ inline void trac_ener(Vec<Sc2String> &v,Process &process) {
         if(num[1]==0 or num[1]==1) {
             process.affichage->param_ener[1]=num[1];
         } else {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Troisieme argument non pris en compte -> par defaut Qchap" << std::endl;
             process.affichage->param_ener[1]=0;
         }
@@ -400,79 +400,79 @@ void affichage_cl(TV1 &S, TI &Inter,Process &process) {
 inline void modif_param(Vec<Sc2String> &v,Process &process) {
 
     if (v.size()==1) {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "On garde les parametres actuels : " << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Nombre d'iterations max : " << process.latin->nbitermax << std::endl;
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Critere d'erreur : " << process.latin->critere_erreur << std::endl;
     } else if(v.size()==3) {
         if(v[1]=="nbitermax") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else if(v.size()==5) {
         if(v[1]=="nbitermax") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
         if(v[3]=="nbitermax") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[4].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[3]=="critere_erreur") {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Modification des parametres " << std::endl;
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[4].c_str());
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
+            if (process.parallelisation->is_master_cpu())
                 std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else {
-        if (process.rank==0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Mauvais choix de modification a faire" << std::endl;
     }
 }

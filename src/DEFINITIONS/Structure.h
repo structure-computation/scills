@@ -27,7 +27,7 @@
 
 struct Structure{
     //attributs==============================================================================================
-    //attribut de mise en données
+    ///attribut de mise en donnees
     Process process;
     TicTac tic1;
     
@@ -35,35 +35,35 @@ struct Structure{
     GeometryUser geometry_user;
     FieldStructureUser field_structure_user;
     
-    //attribut géométriques
-    Vec<Sst> S;                                 // vecteur des sous structures
-    Vec<Interface> Inter;                       // vecteur des interfaces
+    ///attribut geometriques
+    Vec<Sst> S;                                 /// vecteur des sous structures
+    Vec<Interface> Inter;                       /// vecteur des interfaces
     
-    Vec< VecPointedValues<Sst> > SubS;          // MPI : vecteur de pointeur vers les Sst
-    Vec< VecPointedValues<Sst> > Stot;          // MPI : vecteur de pointeur vers les Sst
-    Vec< VecPointedValues<Interface> > SubI;    // MPI : vecteur de pointeur vers les Interfaces
+    Vec< VecPointedValues<Sst> > SubS;          /// MPI : vecteur de pointeur vers les Sst
+    Vec< VecPointedValues<Sst> > Stot;          /// MPI : vecteur de pointeur vers les Sst
+    Vec< VecPointedValues<Interface> > SubI;    /// MPI : vecteur de pointeur vers les Interfaces
     
-    // attributs de comportement
-    Vec<Boundary> CL;                           // vecteur des conditions limites
-    Vec<SstCarac> matprops;                     // vecteur des propriété matériaux
+    /// attributs de comportement
+    Vec<Boundary> CL;                           /// vecteur des conditions limites
+    Vec<SstCarac> matprops;                     /// vecteur des propriete materiaux
     
-    // opérateurs de la structure
-    MacroProblem Global;                        // propriété macro de la structure
+    /// operateurs de la structure
+    MacroProblem Global;                        /// propriete macro de la structure
     
 
 
 
-    //méthodes================================================================================================
-    //lecture des données
+    //methodes================================================================================================
+    int algorithme_incremental(int argc,char **argv);
     void initialisation_MPI(int argc,char **argv);
     void finalisation_MPI();
     void lecture_fichiers(Sc2String id_model, Sc2String id_calcul);
     void chargement_donnees();
     
-    void multiscale();
-    void multiscale_calculation();
+    void boucle_multi_resolution();
+    void boucle_steps_client();
     void synchronize_and_print_duration(TicTac& tic, const char* msg);
-    
+    void display(const char* msg);
 };
 
 

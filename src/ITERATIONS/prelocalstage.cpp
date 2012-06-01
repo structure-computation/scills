@@ -142,15 +142,21 @@ void assign_CL_spatial_temporel_normale(Vec<TYPEREEL> &V, Vec<ScPoint > &nodeeq,
         data = (TYPEREEL)expr.subs_numerical(var);
         Vec<TYPEREEL,DIM> temp=V[range(i*DIM,(i+1)*DIM)];
         V[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+CL.ft[0]*data*neq;
+        /*if(i == 0){
+            std::cout << "Maj CL normale :" << std::endl;
+            std::cout << "data : " << data << std::endl;
+            std::cout << "Vecteur : " << V[range(0,3)] << std::endl;
+        }//*/
     }
 }
 
 
 void initialise_CL_values_space_time(ScInterRef &Inter, ScCLVec &CL, Process &process, DataUser &data_user ){
+    /// Donnees utiles
     for(unsigned i_inter = 0; i_inter < Inter.size(); i_inter++){
-        /// Teste si l'initialisation est inutile
+        /// Teste si la CL doit etre initialisee
         if(Inter[i_inter].type != "Ext" or (Inter[i_inter].comp != "depl" and Inter[i_inter].comp != "depl_normal"))
-            continue;   /// Si oui, passer a l'interface suivante
+            continue;   /// Si inutile, passer a l'interface suivante
         const unsigned i_dir_max = (Inter[i_inter].comp == "depl_normal")? 1 : DIM;
         /// Creation des symbols
         Ex t = symbol("t");
@@ -164,19 +170,15 @@ void initialise_CL_values_space_time(ScInterRef &Inter, ScCLVec &CL, Process &pr
             }
         }
         
-        unsigned i_step=process.temps->step_cur;
-        unsigned tpas=process.temps->time_step[i_step].pt_cur;
-        TYPEREEL ti=process.temps->current_time;                    /// Instant courant
-        TYPEREEL told = ti - process.temps->time_step[i_step].dt;   /// Instant precedent (pour le calcul des derivees)
         /// Evaluation des CL
         for(unsigned i_cl=0;i_cl<CL.size();++i_cl) {
             /// Recuperation des expression symboliques
             Ex expr;
-            expr = read_ex(CL[i_cl].fcts_temporelles[i_step],symbols);
+            expr = read_ex(CL[i_cl].fcts_temporelles[0],symbols);
             
             /// Construction de la table des (symbol, valeur)
             Ex::MapExNum var_temp;
-            var_temp[symbols[0]]=ti;
+            var_temp[symbols[0]]=0.0;
             if(data_user.options.Multiresolution_on==1){
                 /// Evaluation des variables de multiresolution
                 for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
@@ -186,7 +188,7 @@ void initialise_CL_values_space_time(ScInterRef &Inter, ScCLVec &CL, Process &pr
             std::cout << Inter[i_inter].comp << " : " << std::endl;
             for(unsigned i_dir=0;i_dir<i_dir_max ;i_dir++ ){
                 CL[i_cl].ft[i_dir]=(TYPEREEL)expr.subs_numerical(var_temp);
-                std::cout << "    " << CL[i_cl].ft[i_dir] << "*(" << CL[i_cl].fcts_spatiales[i_step][i_dir] << ")" << std::endl;
+                std::cout << CL[i_cl].id << ":    " << CL[i_cl].fcts_temporelles[0] << "*(" << CL[i_cl].fcts_spatiales[0][i_dir] << ")" << std::endl;
             }
         }
         
@@ -216,7 +218,7 @@ void initialise_CL_values_space_time(ScInterRef &Inter, ScCLVec &CL, Process &pr
             
             Vec<Ex,DIM> expr;
             for(unsigned i_dir = 0; i_dir < i_dir_max; i_dir++){
-                expr[i_dir] = read_ex(CL[Inter[i_inter].refCL].fcts_spatiales[i_step][i_dir],symbols2);
+                expr[i_dir] = read_ex(CL[Inter[i_inter].refCL].fcts_spatiales[0][i_dir],symbols2);
             }
             
             Ex::MapExNum var;
@@ -282,24 +284,37 @@ void assign_CL_values_space_time_latin(ScInterRef &Inter, ScCLVec &CL, Process &
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration incrementale)
 //*
 void assign_CL_values_space_time_incr(ScInterRef &Inter, ScCLVec &CL, Process &process, DataUser &data_user ) {
-    std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.rank << " : " << std::endl;
+    std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
-        std::cout << "    id : " << Inter[i_inter].id  << "    type : " << Inter[i_inter].type << "    comportement : " << Inter[i_inter].comp << std::endl;
+        std::cout << "    id : " << Inter[i_inter].id  << "    type : " << Inter[i_inter].type << "    comportement : " << Inter[i_inter].comp << "    valeur : ";
         if (Inter[i_inter].type=="Ext" and Inter[i_inter].comp != "periodique") {
             calc_CL_time(process,CL,data_user);
             if (Inter[i_inter].comp=="effort") {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if (Inter[i_inter].comp=="effort_normal") {
                 assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if (Inter[i_inter].comp=="depl" or Inter[i_inter].comp=="depl_nul" or Inter[i_inter].comp=="vit" or Inter[i_inter].comp=="vit_nulle") {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else if (Inter[i_inter].comp=="sym") {
                 if(process.temps->pt_cur==1) {
-                    if(process.reprise_calcul==0)
+                    if(process.reprise_calcul==0){
                         assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);
+                    }
                     if(process.reprise_calcul==0)
                         Inter[i_inter].side[0].t[1].Fchap.set(0.0);
                 }
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else if (Inter[i_inter].comp=="depl_normal" or Inter[i_inter].comp=="vit_normale") {
                 if(process.temps->pt_cur==1) {
                     assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
@@ -311,6 +326,9 @@ void assign_CL_values_space_time_incr(ScInterRef &Inter, ScCLVec &CL, Process &p
                     assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],process.temps->step_cur,data_user);
                     Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else {
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
@@ -324,6 +342,7 @@ void assign_CL_values_space_time_incr(ScInterRef &Inter, ScCLVec &CL, Process &p
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             }
         }
+        std::cout << std::endl;
     }
 }//*/
 /*

@@ -1,7 +1,7 @@
 #ifndef MATERIALS_H
 #define MATERIALS_H
 
-// Ajout class PARAM_DAMAGE_SST contenant les grandeurs materiaux associées a l'endommagement
+// Ajout class PARAM_DAMAGE_SST contenant les grandeurs materiaux associees a l'endommagement
 #include "definition_PARAM_COMP_INTER.h"
 #include <boost/concept_check.hpp>
 #include "../UTILS/Sc2String.h"
@@ -49,6 +49,7 @@ struct SstCarac
         a = -1;
         tau_c = -1;
         viscosite = -1;
+        couplage = 0.38;
         
         ///Initialisation des coefficients de la contrainte equivalente a Von Mises standart
         for(int i = 0; i < DIM*(DIM+1)/2; i++)
@@ -69,42 +70,46 @@ struct SstCarac
     }
     
     /// Attributs communs
-    int id;                         ///< identite du materiaux dans data_user
-    int type_num;                   ///< numero d'identité du comportement materiaux : 0=isotrope elastique
-    Sc2String type;                 ///< type de formulation : isotrope, orthotrope, orthotrope endommageable
-    Sc2String comp;                 ///< type de comportement : elastique, endommageable, plastique, mesomodele...
-    bool resolution;                ///< type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
-    Vec<TYPEREEL,DIM> v1,v2;        ///< direction pour les materiaux orthotropes
-    TYPEREEL density;               ///< densite du materiaux
-    Vec<TYPEREEL,DIM> f_vol;        ///< Champs de force volumique constant
-    Vec<Sc2String,DIM> f_vol_e;     ///< Champs de force volumique par element
-    TYPEREEL dt;                    ///< pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
+    int id;                         /// identite du materiaux dans data_user
+    int type_num;                   /// numero d'identite du comportement materiaux : 0=isotrope elastique
+    Sc2String type;                 /// type de formulation : isotrope, orthotrope, orthotrope endommageable
+    Sc2String comp;                 /// type de comportement : elastique, endommageable, plastique, mesomodele...
+    bool resolution;                /// type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
+    Vec<TYPEREEL,DIM> v1,v2;        /// direction pour les materiaux orthotropes
+    TYPEREEL density;               /// densite du materiaux
+    Vec<TYPEREEL,DIM> f_vol;        /// Champs de force volumique constant
+    Vec<Sc2String,DIM> f_vol_e;     /// Champs de force volumique par element
+    TYPEREEL dt;                    /// pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
     
     /// Comportement elastique
     TYPEREEL elastic_modulus,poisson_ratio; /// Isotrope
-    TYPEREEL elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23; /// Anisotrope
+    TYPEREEL elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,
+             poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,
+             shear_modulus_12,shear_modulus_13,shear_modulus_23; /// Anisotrope
     
     /// Comportement thermique
-    TYPEREEL alpha;                     ///< Isotrope
-    TYPEREEL alpha_1,alpha_2,alpha_3;   ///< Anisotrope
-    TYPEREEL deltaT;                    ///< Variable pour le stockage de la variation de temperature
+    TYPEREEL alpha;                     /// Isotrope
+    TYPEREEL alpha_1,alpha_2,alpha_3;   /// Anisotrope
+    TYPEREEL deltaT;                    /// Variable pour le stockage de la variation de temperature
     
     /// Compoprtement plastique
-    Sc2String type_plast;   ///< Options decrivant l'evolution du domaine elastique (parfaite, isotrope, cinematique) et la contrainte equivalente (von_mises)
-    ///< Coefficients de la loi d'ecrouissage : R(p) = R0 + k_p * p ^ m_p
-    TYPEREEL plast_ecrouissage_init;    ///< Limite d'elasticite initiale
-    TYPEREEL plast_ecrouissage_mult;    ///< Coefficient multiplicateur de la loi d'ecrouissage
-    TYPEREEL plast_ecrouissage_expo;    ///< Exposant de la loi d'ecrouissage
-    TYPEREEL plast_cinematique_coef;    ///< Coefficient multiplicateur du modele cinematique : dX = C*depsilon_p
-    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2>,DIM*(DIM+1)/2> coeff_seq;     ///< Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
+    Sc2String type_plast;   /// Options decrivant l'evolution du domaine elastique (parfaite, isotrope, cinematique) et la contrainte equivalente (von_mises)
+    /// Coefficients de la loi d'ecrouissage : R(p) = R0 + k_p * p ^ m_p
+    TYPEREEL plast_ecrouissage_init;    /// Limite d'elasticite initiale
+    TYPEREEL plast_ecrouissage_mult;    /// Coefficient multiplicateur de la loi d'ecrouissage
+    TYPEREEL plast_ecrouissage_expo;    /// Exposant de la loi d'ecrouissage
+    TYPEREEL plast_cinematique_coef;    /// Coefficient multiplicateur du modele cinematique : dX = C*depsilon_p
+    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2>,DIM*(DIM+1)/2> coeff_seq;     /// Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
+                                                                /// COEFF_SEQ N'EST PAS UTILISE POUR L'INSTANT
     
-    /// Comportement endommageable de type mesomodele de composite SEULE LA LECTURE DES DONNEES EST IMPLEMENTEE
-    Sc2String type_endo;    ///< Options decrivant l'endommagement A SPECIFIER!!!
-    TYPEREEL Yo,Yc,Ycf;     ///< Efforts limites de l'endommagement de la rupture
-    TYPEREEL dmax;          ///< Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
-    TYPEREEL b_c;           ///< Couplage entre micro-fissuration et decohesion fibres/matrice
-    bool effet_retard;      ///< Indique si un effet retard doit etre applique a l'endommagement
-    TYPEREEL a,tau_c;       ///< Coefficients de l'effet_retard de l'endommagement
+    /// Comportement endommageable de type mesomodele de composite
+    Sc2String type_endo;    /// Options decrivant l'endommagement A SPECIFIER!!!
+    TYPEREEL Yo,Yc,Ycf;     /// Efforts limites de l'endommagement de la rupture
+    TYPEREEL dmax;          /// Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
+    TYPEREEL couplage;      /// Coefficient pour le calcul de la contrainte equivalente
+    TYPEREEL b_c;           /// Couplage entre micro-fissuration et decohesion fibres/matrice
+    bool effet_retard;      /// Indique si un effet retard doit etre applique a l'endommagement
+    TYPEREEL a,tau_c;       /// Coefficients de l'effet_retard de l'endommagement
     
     /// Comportement visqueux
     TYPEREEL viscosite;     ///< Viscosite du materiau

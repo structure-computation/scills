@@ -3,7 +3,7 @@
 
 
 /** \ingroup  Maillage_geometrie 
-\brief Calcul de la mesure et centre de gravité des sst à partir du maillage
+\brief Calcul de la mesure et centre de gravite des sst à partir du maillage
 */
 struct calculate_measure_G_SST {
    template<class SST> void operator() (SST &S) const {
@@ -20,7 +20,7 @@ struct calculate_measure_G_SST {
 
 
 /** \ingroup  Maillage_geometrie
-\brief Calcul de la taille du problème en nombre d'éléments
+\brief Calcul de la taille du problème en nombre d'elements
 */
 template<class TV1, class TV2>
 void calcul_taille_probleme(TV1 &S, TV2 &Inter) {

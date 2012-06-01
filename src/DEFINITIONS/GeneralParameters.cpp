@@ -2,7 +2,6 @@
 #include "../UTILS/utils_2.h"
 
 GeneralParameters::GeneralParameters(){
-    scale=1;
     extension=".avs";
 }
 
@@ -20,7 +19,6 @@ void GeneralParameters::display_all_data(){
     std::cout << "*************************************************************" << std::endl;
     std::cout << "***************** Debug GeneralParameters : *****************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
-    debug("double scale",scale);
     debug("Sc2String nom_fichier_qualification_materiaux",nom_fichier_qualification_materiaux);
     debug("Sc2String repertoire_des_maillages           ",repertoire_des_maillages);
     debug("unsigned nb_maillages                        ",nb_maillages);
@@ -29,7 +27,7 @@ void GeneralParameters::display_all_data(){
     debug("unsigned jeu_physique                        ",jeu_physique);
     debug("Sc2String nom_maillages_jeu                  ",nom_maillages_jeu);
     debug("Vec< Vec<int> > inter_jeu                    ",inter_jeu);
-    debug("double volumetot",volumetot);
+    debug("TYPEREEL volumetot",volumetot);
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
 }

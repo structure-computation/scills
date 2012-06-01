@@ -16,10 +16,10 @@ void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String na
     
     
     int i_proc_ini=1;
-    if(process.size==1) i_proc_ini=0;        
+    if(not process.parallelisation->is_multi_cpu()) i_proc_ini=0;        
     
-    //lecture du fichier hdf5 créé par chaque processeur
-    for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
+    //lecture du fichier hdf5 cree par chaque processeur
+    for(unsigned i_proc=i_proc_ini; i_proc < process.parallelisation->size ;i_proc++){
         Sc2String input_hdf5; input_hdf5 << name_hdf5 <<"_"<<i_proc<<".h5";
         Hdf hdf(input_hdf5.c_str());    
 
@@ -64,7 +64,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String na
                 TYPE val_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt ;
                 f<<"                    <Grid Name=\"Time "<<process.temps->pt_cur<<"\"  GridType=\"Collection\" >" << std::endl;
                 f<<"                            <Time Value=\""<<val_time<<"\" />" << std::endl;
-                for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
+                for(unsigned i_proc=i_proc_ini; i_proc < process.parallelisation->size ;i_proc++){
                     write_grids_2(f,name_hdf5, name_elements,name_nodes, name_fields, generic_grid_name, attributs, process.temps->pt_cur, i_proc);
                 }
             f<<"                        </Grid>"<< std::endl;
@@ -74,7 +74,7 @@ void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String na
     }
     else{
         f<< "               <Grid Name=\""<< grid_collection_name.c_str() <<"\" GridType=\"Tree\" >" << std::endl;
-        for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
+        for(unsigned i_proc=i_proc_ini; i_proc < process.parallelisation->size ;i_proc++){
             write_grids_2(f,name_hdf5, name_elements,name_nodes,name_fields, generic_grid_name,attributs, 0, i_proc);
         }    
         f<<"                </Grid>"<< std::endl;
@@ -86,10 +86,10 @@ void write_nodes(std::ofstream &f, Process &process, Sc2String name_node){
     Sc2String name_nodes = process.affichage->name_geometry + "/" + name_node;
     
     int i_proc_ini=1;
-    if(process.size==1) i_proc_ini=0;
+    if(not process.parallelisation->is_multi_cpu()) i_proc_ini=0;
     
-    //lecture du fichier hdf5 créé par chaque processeur
-    for(unsigned i_proc=i_proc_ini; i_proc < process.size ;i_proc++){
+    //lecture du fichier hdf5 cree par chaque processeur
+    for(unsigned i_proc=i_proc_ini; i_proc < process.parallelisation->size ;i_proc++){
         Sc2String input_hdf5; input_hdf5 << name_hdf5 <<"_"<<i_proc<<".h5";
         Hdf hdf(input_hdf5.c_str());
         std::cout << "Test write_nodes 2 ************************************************************************************" << std::endl;

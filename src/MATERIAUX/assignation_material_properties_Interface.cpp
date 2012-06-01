@@ -4,7 +4,7 @@
 
 
 void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Process &process, FieldStructureUser &field_structure_user){
-    if (process.rank == 0) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
     Vec<InterCarac > propinter;
     BasicVec<BasicVec<TYPEREEL > > link_prop_temp;
     read_propinter(propinter,data_user, link_prop_temp);
@@ -40,7 +40,8 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
             propinter[i].type = "breakable";
             propinter[i].comp="Breakable";
         }else{
-            std::cout  << "comportement d'interface non reconnu" << std::endl;  assert(0);
+            std::cerr  << "comportement d'interface non reconnu" << std::endl;
+            assert(0);
         }
         
         
@@ -111,7 +112,7 @@ void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &pro
         //assignation des proprietes aux interfaces selectionnees
         for(unsigned j=0;j<inter_select.size();j++) {
             unsigned q=inter_select[j];
-            //if (process.rank == 0) std::cout << "\t  Interface modifiee : " << Inter[q].num << std::endl;
+            //if (process.parallelisation->is_master_cpu()) std::cout << "\t  Interface modifiee : " << Inter[q].num << std::endl;
             Inter[q].comp=propinter[i].comp;
             if (propinter[i].type=="contact_sst" or propinter[i].type=="contact_box") {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
@@ -186,7 +187,7 @@ void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &pro
             if (propinter[i].type=="contact_jeu_physique") {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;
                 Inter[q].param_comp->jeu.set(0.);
-                //le champ jeu est assigné quand on fait la correspondances des éléments des deux maillages d interfaces, comme on a la distance g1 g2 dans op_inter.h
+                //le champ jeu est assigne quand on fait la correspondances des elements des deux maillages d interfaces, comme on a la distance g1 g2 dans op_inter.h
             }
             if (propinter[i].type=="discrete") {
                 Inter[q].param_comp->coeffrottement=propinter[i].coeffrottement;

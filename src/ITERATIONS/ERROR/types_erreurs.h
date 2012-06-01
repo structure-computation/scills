@@ -100,9 +100,9 @@ struct calcerror_ddr {
             Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t[imic].Fchap;
             const Vec<TYPEREEL> &JJ=Inter[q].param_comp->jeu;
             Vec<TYPEREEL> temp=tempF-tempFchap;
-            double temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
+            TYPEREEL temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
-            double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
+            TYPEREEL temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             temp=tempF+tempFchap;
             errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             //temp=tempW-JJ+tempWchap;  // TEST
@@ -147,9 +147,9 @@ struct calcerror_ddr_post {
             Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t_post[imic].Wpchap;
             Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t_post[imic].Fchap;
             Vec<TYPEREEL> temp=tempF-tempFchap;
-            double temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
+            TYPEREEL temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
-            double temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
+            TYPEREEL temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             temp=tempF+tempFchap;
             errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW+tempWchap;
@@ -181,8 +181,8 @@ struct calcerror_dissi {
         for(unsigned i=0;i<S.edge.size();++i) {
             q=S.edge[i].internum;
             data=S.edge[i].datanum;
-            double temp1=0;
-            double temp2=0;
+            TYPEREEL temp1=0;
+            TYPEREEL temp2=0;
             if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<process.temps->nbpastemps ;j++ ) {
                     temp1+=process.temps->dt*(
@@ -207,8 +207,8 @@ struct calcerror_dissi_post {
         for(unsigned i=0;i<S.edge.size();++i) {
             q=S.edge[i].internum;
             data=S.edge[i].datanum;
-            double temp1=0;
-            double temp2=0;
+            TYPEREEL temp1=0;
+            TYPEREEL temp2=0;
             if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<(unsigned)process.temps->pt_cur ;j++ ) {
                     temp1+=process.temps->dt*(

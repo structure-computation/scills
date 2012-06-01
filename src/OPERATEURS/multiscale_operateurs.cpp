@@ -24,7 +24,7 @@
 using namespace LMT;
 extern Crout crout;
 
-const double Apply_nb_macro::eps;
+const TYPEREEL Apply_nb_macro::eps;
 
 /** \defgroup Operateurs Création des opérateurs
 \brief  Creation des opérateurs pour le problème sous-structuré
@@ -67,78 +67,77 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
     TicToc2 tic;
     tic.start();
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
+    process.parallelisation->synchronisation();
     TicTac tic1;
-    if (process.rank==0) tic1.start();
+    if (process.parallelisation->is_master_cpu()) tic1.start();
 #endif
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_INTER : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_INTER : ").c_str(),1);
 #endif
 
     if(data_user.options.Multiresolution_on==0 or (data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_current_resolution==0)){  
-        if (process.rank == 0)
+        if (process.parallelisation->is_master_cpu())
             std::cout << "Calcul des Quantites d'interfaces" << endl;
         create_op_INTER(Stot,Inter,SubI,process);
-        crout << process.rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
+        crout << process.parallelisation->rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
         tic.stop();
-        if (process.size>1)
-            MPI_Barrier(MPI_COMM_WORLD);
+        process.parallelisation->synchronisation();
         tic.start();
 #ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_SST : ").c_str(),1);
 #endif
 #ifdef INFO_TIME
-        if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-        if (process.rank==0) std::cout << "Operateurs d interface : " ;
-        if (process.rank==0) tic1.stop();
-        if (process.rank==0) std::cout << std::endl;
-        if (process.rank==0) tic1.start();
+        process.parallelisation->synchronisation();
+        if (process.parallelisation->is_master_cpu()){
+            std::cout << "Operateurs d interface : " ;
+            tic1.stop();
+            std::cout << std::endl;
+            tic1.start();
+        }
 #endif
     }
 
-    if (process.rank == 0)
-        std::cout << "Calcul des Quantites par SST" << endl;
+    if (process.parallelisation->is_master_cpu()) std::cout << "Calcul des Quantites par SST" << endl;
     create_op_SST(Stot,Inter,SubS,SubI,process, data_user);
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation OP SST : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) std::cout << std::endl;
-    if (process.rank==0) tic1.start();
+    process.parallelisation->synchronisation();
+    if (process.parallelisation->is_master_cpu()){
+        std::cout << "Creation OP SST : " ;
+        tic1.stop();
+        std::cout << std::endl;
+        tic1.start();
+    }
 #endif
 
-    crout << process.rank << " : Op SST : "  ;
+    crout << process.parallelisation->rank << " : Op SST : "  ;
     tic.stop();
     tic.start();
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire avant create_op_MACRO : ").c_str(),1);
+    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_MACRO : ").c_str(),1);
 #endif
 
     if (process.multiscale->multiechelle==1) { //cas multiechelle
-        if (process.rank == 0)
-            std::cout << "Creation du probleme macro" << endl;
-        if (process.rank == 0 and process.size>1)
+        if (process.parallelisation->is_master_cpu()) std::cout << "Creation du probleme macro" << endl;
+        if (process.parallelisation->is_local_cpu()){
             create_op_MACRO(Stot,Inter,process,Global);
-        else
+        } else {
             create_op_MACRO(SubS,Inter,process,Global);//juste pour faire repddl pour savoir où on balance le macro dans bigF...
-        
+        }
 #ifdef INFO_TIME
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-    if (process.rank==0) std::cout << "Creation OP MACRO : " ;
-    if (process.rank==0) tic1.stop();
-    if (process.rank==0) std::cout << std::endl;
-    if (process.rank==0) tic1.start();
+        process.parallelisation->synchronisation();
+        if (process.parallelisation->is_master_cpu()){
+            std::cout << "Creation OP MACRO : " ;
+            tic1.stop();
+            std::cout << std::endl;
+            tic1.start();
+        }
 #endif
     }
 
-    crout << process.rank << " : Op Macro : "  ;
+    crout << process.parallelisation->rank << " : Op Macro : "  ;
     tic.stop();
-    if (process.size>1)
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
-    if (process.rank == 0)
-        std::cout << endl;
+    process.parallelisation->synchronisation();
+    if (process.parallelisation->is_master_cpu()) std::cout << endl;
 };

@@ -2,9 +2,9 @@
 
 
 /** \ingroup  PostTraitements
-\brief Sauvegarde des quantites désirées pour les interfaces
+\brief Sauvegarde des quantites desirees pour les interfaces
  
-L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
+L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nomme save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque cote de l'interface selectionnee tous les pas de temps.
 */
 template<class TV2, class TV1>
 void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
@@ -15,12 +15,12 @@ void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields
 
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
+    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
     Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << std::endl;
-    if (process.size==1 or process.rank>0)
+    os << process.parallelisation->size << std::endl;
+    if (process.parallelisation->is_local_cpu())
       for( unsigned i=0;i<S.size() ;i++ ){
       for( unsigned kk=0;kk<S[i].edge.size() ;kk++ ){
         unsigned q=S[i].edge[kk].internum;
@@ -36,7 +36,7 @@ void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields
                         os << "Fchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Fchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Fchap.size() );
-                        //if (pt == 2) std::cout << process.rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << std::endl;
+                        //if (pt == 2) std::cout << process.parallelisation->rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << std::endl;
                     } else if(fields_to_save[k]=="F") {
                         os << "F" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t[pt].F.size() );
@@ -77,9 +77,9 @@ void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields
 }
 
 /** \ingroup  PostTraitements
-\brief Lecture des quantites désirées pour les interfaces
+\brief Lecture des quantites desirees pour les interfaces
  
-L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
+L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nomme save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque cote de l'interface selectionnee tous les pas de temps.
 */
 template<class TV2>
 void read_data_inter(TV2 &Inter, Process &process) {
@@ -90,7 +90,7 @@ void read_data_inter(TV2 &Inter, Process &process) {
     //nom du fichier de sauvegarde
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
+    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
     Sc2String name(ss1.str());
     is.open( name.c_str() );
 
@@ -99,10 +99,10 @@ void read_data_inter(TV2 &Inter, Process &process) {
     Sc2String str;
     if (is ) {
       getline(is,str);
-      if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
+      if ((not process.parallelisation->is_multi_cpu()) and process.parallelisation->size != atoi(str.c_str()) ) {//ca va pas aller
         std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
-      } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
+      } else if (process.parallelisation->size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
         std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
@@ -113,7 +113,7 @@ void read_data_inter(TV2 &Inter, Process &process) {
     
     for( unsigned i=0;i<toutlire ;i++ ){
       std::ostringstream ss2;
-      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
+      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
       else ss2<<process.affichage->repertoire_save<<"save_inter_"<<i;
       Sc2String name2(ss2.str());
       is.open( name2.c_str() );
@@ -204,7 +204,7 @@ void read_data_inter(TV2 &Inter, Process &process) {
 
 
 /** \ingroup  PostTraitements
-\brief Sauvegarde des quantites désirées pour les sous-structures
+\brief Sauvegarde des quantites desirees pour les sous-structures
  
 */
 template<class TV1>
@@ -216,11 +216,11 @@ void save_data_sst(TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
 
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
+    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
     Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << std::endl;
+    os << process.parallelisation->size << std::endl;
     if (process.latin->save_depl_SST ==1)
     for(unsigned q=0;q<S.size();q++) {
         os<< "S " << S[q].num <<std::endl;
@@ -231,7 +231,7 @@ void save_data_sst(TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
                     os << "q" << std::endl;
                     if(process.nom_calcul=="latin") os.write( (char *)S[q].t[pt].q.ptr(), sizeof(T)*S[q].t[pt].q.size() );
                     if(process.nom_calcul=="incr")  os.write( (char *)S[q].t_post[pt].q.ptr(), sizeof(T)*S[q].t_post[pt].q.size() );
-                    //std::cout << process.rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << std::endl;
+                    //std::cout << process.parallelisation->rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << std::endl;
                 } else {
                     std::cout << "Erreur dans le choix des champs a sauvegarder " << std::endl;
                     assert(0);
@@ -246,7 +246,7 @@ void save_data_sst(TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
 }
 
 /** \ingroup  PostTraitements
-\brief Lecture des quantites désirées pour les interfaces
+\brief Lecture des quantites desirees pour les interfaces
  */
 template<class TV1>
 void read_data_sst(TV1 &S, Process &process) {
@@ -254,7 +254,7 @@ void read_data_sst(TV1 &S, Process &process) {
     //nom du fichier de sauvegarde
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
+    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
     Sc2String name(ss1.str());
     is.open( name.c_str() );
 
@@ -263,10 +263,10 @@ void read_data_sst(TV1 &S, Process &process) {
     Sc2String str;
     if (is) {
       getline(is,str);
-      if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
+      if (not(process.parallelisation->is_multi_cpu()) and process.parallelisation->size != atoi(str.c_str()) ) {//ca va pas aller
         std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
-      } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
+      } else if (process.parallelisation->size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
       std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
@@ -277,7 +277,7 @@ void read_data_sst(TV1 &S, Process &process) {
     
     for( unsigned i=0;i<toutlire ;i++ ){
       std::ostringstream ss2;
-      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
+      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
       else ss2<<process.affichage->repertoire_save<<"save_sst_"<<i;
       Sc2String name2(ss2.str());
       is.open( name2.c_str() );

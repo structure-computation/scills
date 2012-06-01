@@ -37,6 +37,7 @@ struct Boundary {
     
     Boundary() {ft.set(0.0);}
     ~Boundary() {free();}
+    void display_all_data();
     
     /** Evalue la valeur de la CL en chaque noeud de "nodeeq" au step numero "i_step" et stocke le resultat dans V
      * ATTENTION!!! Cette fonction ne reactualise pas les valeurs dependant du temps!

@@ -33,11 +33,11 @@ struct SaveParameters{
     Sc2String command_file;     ///< nom du fichier de commande pour l interactivite
     bool interactivite;         ///< Booléen permettant de post traiter les resultats de maniere interactive sans relancer un calcul. Taper help pour connaitre les mots clés
     bool affich_inter_data;     ///< affichage des efforts et deplacements d'interface
-    Vec<int> num_inter_select;  ///< numero des interfaces sélectionnées pour l'affichage des efforts et déplacement (-1 pour toutes les interfaces)
+    Vec<int> num_inter_select;  ///< numero des interfaces selectionnees pour l'affichage des efforts et déplacement (-1 pour toutes les interfaces)
     unsigned side;          ///< cote selectionne pour affichage des efforts et deplacement
     unsigned pt;            ///< pas de temps a afficher
     bool affich_depl_pt;    ///< affichage du deplacement d'un point sous gnuplot
-    Vec<double> coor_point; ///< coordonnees du point a tracer
+    Vec<TYPEREEL> coor_point; ///< coordonnees du point a tracer
     bool fichiers_paraview_sst_crees;   ///< booleen indiquant si les fichiers paraview des sst ont ete crees
     bool fichiers_paraview_inter_crees; ///< booleen indiquant si les fichiers paraview des interfaces ont ete crees
     Vec<int,3> param_ener; ///< parametres pour l'affichage des energies dissipees ou imposees

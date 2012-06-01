@@ -5,7 +5,7 @@ using namespace std;
 
 struct find_elem_vois {
    template<class TE,class TV> void operator() (TE &e , TV &G, unsigned &num, bool &flag) const{
-      double eps=1e-5;
+      TYPEREEL eps=1e-5;
       typedef typename TE::Pvec Pvec;
       if (flag==0){
          Pvec G_i = center(e);

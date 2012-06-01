@@ -376,7 +376,7 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Proce
     Vec<TYPEREEL> dissi_inter;
     dissi_inter.resize(dissipation.size());
     if (process.latin->save_depl_SST!=1){
-       if(process.rank == 0) std::cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
+        if(process.parallelisation->is_master_cpu()) std::cout << "ATTENTION il faut mettre save_depl_SST a 1 pour utiliser cette commande" << endl;
     } else {
         for(unsigned i=0;i<S.size();i++) {
             dissi_inter.set(0.);

@@ -14,6 +14,10 @@
 
 #include "mpi.h"
 
+#include "../../LMT/include/containers/vec.h"
+#include "../../LMT/include/containers/mat.h"
+using namespace LMT;
+
 /** \example send_recv.cpp Exemple de passage d'éléments de la classe LMT d'un ordinateur à un autre...
 
 Dans cet exemple, nous présentons comment on utilise les fonctions MPI_Send et MPI_Recv sur des données élémentaires, sur les vecteurs, sur les vecteurs de vecteurs, sur des matrices full et sparse, et enfin sur la classe Time du code COFAST+ de D. Violeau.
@@ -149,9 +153,7 @@ Il suffit de lancer la commande MPI_Send(vecteur, rank) pour envoyer le vecteur 
 */
 template<class TN>
 void MPI_Send(Vec<TN> &vec,int rank,int tag=201) {
-
-    MPI_Send(vec.ptr(), vec.size(),
-Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
+    MPI_Send(vec.ptr(), vec.size(),Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
 }
 
 
@@ -162,8 +164,7 @@ Il suffit de lancer la commande MPI_Isend(vecteur, rank) pour envoyer le vecteur
 */
 template<class TN>
 void MPI_Isend(Vec<TN> &vec,int rank,MPI_Request &request, int tag=201) {
-    MPI_Isend(vec.ptr(), vec.size(),
-              Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD,&request);
+    MPI_Isend(vec.ptr(), vec.size(),Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD,&request);
 }
 
 
@@ -187,8 +188,7 @@ void MPI_Send(Vec<Vec<TN> > &vec,int rank,int tag=201) {
         a[(range(vec[i].size())+ size)]= vec[i];
         size+=vec[i].size();
     }
-    MPI_Send(a.ptr(), a.size(),
-Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
+    MPI_Send(a.ptr(), a.size(),Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
 }
 /** \ingroup MPI_Send
 \brief Passer une matrice de la classe LMT de type standard
@@ -198,8 +198,7 @@ Il suffit de lancer la commande MPI_Send(matrice, rank) pour envoyer la matrice 
 template<class TN>
 void MPI_Send(Mat<TN> &mat,int rank,int tag=201) {
     MPI_Status status;
-    MPI_Send(mat.data.ptr(), mat.nb_cols()*mat.nb_rows(),
-Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
+    MPI_Send(mat.data.ptr(), mat.nb_cols()*mat.nb_rows(),Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
 }
 
 
@@ -224,8 +223,7 @@ void MPI_Send(Mat<TN,TO,SparseLine<Col> > &mat,int rank,int tag=201) {
          a[range(row[i])+pos]=mat.data[i].indices;pos+=row[i];
          a[range(row[i])+pos]=mat.data[i].data;pos+=row[i];
     }
-    MPI_Send(a.ptr(), a.size(),
-Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
+    MPI_Send(a.ptr(), a.size(),Mpi_type< typename Vec<TN>::template SubType<0> ::T >::res() , rank, tag, MPI_COMM_WORLD);
 }
 
 

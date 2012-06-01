@@ -2,7 +2,7 @@
 
 
 
-Sst::Sst() : pb(*mesh.m,true),plastique(false) {}     ///< constructeur de la formulation pour la sous-structure
+Sst::Sst() : pb(*mesh.m,true),plastique(false),endommageable(false),maj_operateurs(false) {}     /// constructeur de la formulation pour la sous-structure
 
 Sst::~Sst() {free();}    ///destructeur de la SST
 
@@ -10,7 +10,7 @@ void Sst::free(){
     vois.free();
     edge.free();
     LE.free();
-    ///K est libéré apres factorisation de toute facon et non calculer où y a pas besoin
+    ///K est liberee apres factorisation de toute facon et non calculer où y a pas besoin
     fvol.free();
     t.free();
     t_post.free();
@@ -70,11 +70,16 @@ void Sst::assign_material_on_element(const DataUser &data_user){
         mesh.load_f_vol_e(matprop.f_vol_e,data_user);
     }
         
-    if(matprop.comp.find("plastique")<matprop.comp.size() or matprop.comp.find("mesomodele")<matprop.comp.size()){
+    if(matprop.comp.find("plastique")<matprop.comp.size()){
         mesh->plast_ecrouissage_init = matprop.plast_ecrouissage_init;
         mesh->plast_ecrouissage_mult = matprop.plast_ecrouissage_mult;
         mesh->plast_ecrouissage_expo = matprop.plast_ecrouissage_expo;
         mesh->plast_cinematique_coef = matprop.plast_cinematique_coef;
+    }
+    
+    if(matprop.comp.find("endommageable")<matprop.comp.size()){
+        mesh->Yo           = matprop.Yo;
+        mesh->b_c          = matprop.b_c;
     }
     
     if(matprop.comp.find("mesomodele")<matprop.comp.size()){
@@ -91,12 +96,12 @@ void Sst::assign_material_on_element(const DataUser &data_user){
 
 
 void Sst::Time::allocations(unsigned nbddl,unsigned nbelem,const Process &process,Sst &S){
-    if (process.rank>0 or process.size==1){
+    if (process.parallelisation->is_local_cpu()){
         /// Deplacements
         q.resize(nbddl);
         q.set(0.0);
         /// Comportement plastique
-        if(S.plastique){
+        if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){
             /// Plasticite cumulee
             p.resize(nbelem);
             p.set(0.0);
@@ -108,11 +113,6 @@ void Sst::Time::allocations(unsigned nbddl,unsigned nbelem,const Process &proces
             for( unsigned i = 0; i < nbelem; ++i ) {
                 epsilon_p[i].set(0.0);
             }
-            /// Contraintes
-            sigma.resize(nbelem);
-            for( unsigned i = 0; i < nbelem; ++i ) {
-                sigma[i].set(0.0);
-            }
             /// Origines des domaines elastiques
             if(S.matprop.type_plast.find("cinematique") < S.matprop.type_plast.size()){
                 X_p.resize(nbelem);
@@ -121,19 +121,25 @@ void Sst::Time::allocations(unsigned nbddl,unsigned nbelem,const Process &proces
                 }
             }
         }
-        /* Debug
-        if(plastique){
-            std::cout << "--------------TEST-------------" << std::endl;
-            std::cout << this << "   " << epsilon_p.size() << std::endl;
-            for(int i = 0; i < nbelem; i++){
-                std::cout << i << ": ";
-                for(int j = 0; j < DIM*(DIM+1)/2; j++)
-                    std::cout << epsilon_p[0][i] << " , ";
-                std::cout << endl;
-            }
-            std::cout << endl;
+        /// Comportement endommageable
+        if(S.f == S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat or S.f == S.pb.formulation_mesomodele){
+            /// Endommagement standart ou micro-fissuration du mesomodele
+            d1.resize(nbelem);
+            d1.set(0.0);
         }
-        //*/
+        /// Comportement mesomodele
+        if(S.f == S.pb.formulation_mesomodele){
+            /// Decohesion fibres/matrice du mesomodele
+            d2.resize(nbelem);
+            d2.set(0.0);
+            /// Rupture fragile des fibres du mesomodele
+            df.resize(nbelem);
+            df.set(0.0);
+            /// Forces associees
+            Yd.resize(nbelem);
+            for( unsigned i = 0; i < nbelem; ++i )
+                Yd[i].set(0.0);
+        }
     }
 }
 
@@ -146,7 +152,10 @@ void Sst::Time::display_all_data(){
     std::cout << "p         : " << p.size()         << std::endl;
     std::cout << "R_p       : " << R_p.size()       << std::endl;
     std::cout << "epsilon_p : " << epsilon_p.size() << std::endl;
-    std::cout << "sigma     : " << sigma.size()     << std::endl;
+    std::cout << "d1        : " << d1.size()        << std::endl;
+    std::cout << "d2        : " << d2.size()        << std::endl;
+    std::cout << "df        : " << df.size()        << std::endl;
+    std::cout << "Yd        : " << Yd.size()        << std::endl;
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
     std::cout << std::endl;

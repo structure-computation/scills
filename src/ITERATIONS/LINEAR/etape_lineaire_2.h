@@ -5,14 +5,14 @@
 //Fonctions utilisees a l'etape micro 2
 /** \ingroup etape_lineaire
 \relates semilinstage2
- \brief Résolution des problemes micro 2 
+ \brief Resolution des problemes micro 2 
  
- Cette étape permet de déterminer les efforts et vitesses (ou déplacements) pour une sous-structure à partir des quantités \f$ \tilde{W} \f$ connues pour un pas de temps donné.
- On effectue les opérations suivantes :
+ Cette etape permet de determiner les efforts et vitesses (ou deplacements) pour une sous-structure à partir des quantites \f$ \tilde{W} \f$ connues pour un pas de temps donne.
+ On effectue les operations suivantes :
  - Assemblage du second membre:
-   - assemblage des quantités \f$ \tilde{W} \f$  des interfaces entourant la sous-structure : \f$ Q_d = k*\dot{\tilde{W}} + \f$
- - Résolution du problème pour obtenir la vitesse (ou déplacement) \f$ q_2 \f$: \f$ \mathbf{K} u + k\frac{W}{\Delta t}  =  Q_d  \f$ en quasistatique et \f$ \mathbf{K} u + k W =  Q_d \f$ en statique
- - Reconstruction du déplacement \f$ W_2 \f$ sur les interfaces à partir de \f$ q_2 \f$
+   - assemblage des quantites \f$ \tilde{W} \f$  des interfaces entourant la sous-structure : \f$ Q_d = k*\dot{\tilde{W}} + \f$
+ - Resolution du problème pour obtenir la vitesse (ou deplacement) \f$ q_2 \f$: \f$ \mathbf{K} u + k\frac{W}{\Delta t}  =  Q_d  \f$ en quasistatique et \f$ \mathbf{K} u + k W =  Q_d \f$ en statique
+ - Reconstruction du deplacement \f$ W_2 \f$ sur les interfaces à partir de \f$ q_2 \f$
  - Reconstruction de l'effort \f$ F_2 \f$ à partir de la direction de recherche : \f$ F_2 = Q_d - k*\frac{W_2}{\Delta t} \f$ en quasistatique ou \f$ F_2 = Q_d - k*W_2 \f$ en statique
  */
 struct semilinstage2 {

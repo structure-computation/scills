@@ -22,7 +22,7 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     TYPEREEL num=0.0,den=0.0,eps=1e-9;
     Vec<TYPEREEL> frac;frac.resize(2+Inter.size());frac.set(0.);
     Vec<TYPEREEL> fracfin;fracfin.resize(2+Inter.size());fracfin.set(0.);
-    if (process.size == 1 or process.rank >0) {
+    if (process.parallelisation->is_local_cpu()) {
         if(process.nom_calcul=="latin") {
             for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
                 process.temps->pt=imic;
@@ -38,7 +38,7 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
                 } else if(process.latin->type_error=="residu_depl") {
                     //indicateur d'erreur sur la dissipation
                     apply(S,calcerror_residu_depl(),Inter,frac,process);
-                    if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+                    if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
                 } else {
                     std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
                     apply(S,calcerror_ddr(),Inter,frac,process);
@@ -64,7 +64,7 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
                 } else if(process.latin->type_error=="residu_depl") {
                     //indicateur d'erreur sur la dissipation
                     apply(S,calcerror_residu_depl_post(),Inter,frac,process);
-                    if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+                    if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
                 } else {
                     std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
                     apply(S,calcerror_ddr_post(),Inter,frac,process);
@@ -73,14 +73,14 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
         }
     }
 
-    if (process.size>1) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+    if (process.parallelisation->is_multi_cpu()) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
     else fracfin=frac;
         den=fracfin[1];
         num=fracfin[0]; 
         if (std::abs(den)>=eps)
           if (process.latin->type_error!="dissipation") {
             process.latin->error[process.latin->iter] =std::sqrt(num)/std::sqrt(den);
-//             if (process.rank == 0) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)] << std::endl;
+//             if (process.parallelisation->is_master_cpu()) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)] << std::endl;
           }
           else process.latin->error[process.latin->iter] =std::abs(num-den)/std::abs(num);
         else
@@ -118,21 +118,21 @@ void calcul_erreur_incr(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     } else if(process.latin->type_error=="residu_depl") {
         //indicateur d'erreur sur la dissipation
         apply(S,calcerror_residu_depl(),Inter,frac,process);
-        if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+        if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
     } else {
         std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
         apply(S,calcerror_ddr(),Inter,frac,process);
     }
     
 
-    if (process.size>1) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+    if (process.parallelisation->is_multi_cpu()) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
     else fracfin=frac;
     den=fracfin[1];
     num=fracfin[0]; 
     if (std::abs(den)>=eps)
       if (process.latin->type_error!="dissipation") {
       process.latin->error[process.latin->iter] =std::sqrt(num)/std::sqrt(den);
-//       if (process.rank == 0) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)]/num*100 << std::endl;
+//       if (process.parallelisation->is_master_cpu()) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)]/num*100 << std::endl;
       }
       else process.latin->error[process.latin->iter] =std::abs(num-den)/std::abs(num);
     else

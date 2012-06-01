@@ -16,7 +16,7 @@ using namespace __gnu_cxx;
 */
 // struct NodesEq{
 //    template<class TV> bool operator()(const TV &n1, const TV &n2) const{
-//       double eps=1e-6;
+//       TYPEREEL eps=1e-6;
 //       return (length(n1.pos-n2.pos)<=eps);
 //    }
 // };

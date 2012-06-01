@@ -118,3 +118,29 @@ void Boundary::evaluate(unsigned i_step, Vec<TYPEREEL> &V, Vec<Vec<TYPEREEL,DIM>
     }
     
 }
+
+void Boundary::display_all_data(){
+    std::cout << std::endl;
+    std::cout << "*************************************************************" << std::endl;
+    std::cout << "********************** Debug Boundary : *********************" << std::endl;
+    std::cout << "*************************************************************" << std::endl;
+    std::cout << "id : " << id << std::endl;
+    std::cout << "comportement : " << comp << std::endl;
+    std::cout << "id sst : " << sst_num << std::endl;
+    std::cout << "fonctions spatiales & temporelles :" << std::endl;
+    for(int i = 0; i < fcts_spatiales.size(); i++){
+        std::cout << "Step " << i << " :    ft : " << fcts_temporelles[i];
+        if(comp.find("normal")<comp.size())
+            std::cout << "    fn :" << fcts_spatiales[i][0];
+        else{
+            std::cout << "    fx :" << fcts_spatiales[i][0];
+            std::cout << "    fy :" << fcts_spatiales[i][1];
+            if(DIM == 3)
+                std::cout << "    fz :" << fcts_spatiales[i][2];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "*************************************************************" << std::endl;
+    std::cout << "*************************************************************" << std::endl;
+    std::cout << std::endl;
+}
