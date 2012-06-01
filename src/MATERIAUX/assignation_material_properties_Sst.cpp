@@ -196,21 +196,30 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
 void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite) const{ 
     S.matprop = matprops[S.typmat]; 
     //formulation isotrope 
-    if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+    //if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+    if (matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size()) {
+      if (matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size() or matprops[S.typmat].comp.find("el")<matprops[S.typmat].comp.size()){
         S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="isotrope"; 
+      }
     } else
     //formulation orthotrope 
-    if (matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+    //if (matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size() and matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size()) {
+    if (matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size()) {
+      if (matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size() or matprops[S.typmat].comp.find("el")<matprops[S.typmat].comp.size()){
         S.f = S.pb.formulation_elasticity_orthotropy_stat_Qstat;
-        S.mesh.type_formulation="orthotrope"; 
+        S.mesh.type_formulation="orthotrope";
+      }
     } else
     //*//formulation plastique isotrope 
-    if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="plastique") {
+    //if (matprops[S.typmat].type=="isotrope" and matprops[S.typmat].comp=="plastique") {
+    if (matprops[S.typmat].type=="isotrope") {
+      if (matprops[S.typmat].comp=="plastique" or matprops[S.typmat].comp=="pl") {
         plasticite = true;   /// Informe process qu'au moins un des materiaux est plastifiable
         S.plastique = true;
         S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="plastique"; 
+      }
     }//*/
     //formulation mesomodele 
     if (matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size()) {

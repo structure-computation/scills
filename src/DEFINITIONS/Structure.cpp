@@ -82,7 +82,8 @@ void Structure::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
         
     if (process.rank==0)std::cout << std::endl << "Lecture du fichier de calcul-----------------------------------------------------" << std::endl;
     data_user.initialisation(id_model, id_calcul);
-    data_user.read_json_calcul();
+    //data_user.read_json_calcul();
+    data_user.read_json_calcul_v2();
     
     if (process.rank==0)std::cout << std::endl << "Lecture du fichier du modele-----------------------------------------------------" << std::endl;
     geometry_user.initialisation(id_model, id_calcul);
