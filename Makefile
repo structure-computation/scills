@@ -2,7 +2,7 @@
 #dimension du probleme
 DIM = 3
 #nombre de processeurs pour la compilation
-NB_COMP_PROC = 1
+NB_COMP_PROC = 3
 
 
 PRG_multi_release = SC_multi_$(DIM).exe
