@@ -1,4 +1,5 @@
-#include "create_new_elem_p.h" 
+#include "create_new_elem_p.h"
+#include "../DEFINITIONS/structure_typedef.h"
 
 /** \ingroup  Sous_structures 
 \brief Modification de l'element
@@ -99,16 +100,16 @@ struct copy_num_elem_verif{
 
 /// copie des noeuds des interfaces sur les bords des SST + assignation du numero de l'element peau de bord de la sous-structure correspondant a chaque element de l'interface
 struct p_decoup_INTER{
-  template<class INTER,class TV1> void operator()(INTER &inter, TV1 &S) const{
+  void operator()(Interface &inter, Substructures &S) const{
     for(unsigned j=0;j<inter.side.size();++j){
       int ii=inter.side[j].vois[0];
       int jj=inter.side[j].vois[1];
 
       if (j == 0 or inter.comp=="Contact_jeu_physique" or inter.comp=="periodique") {
 #ifdef PRINT_ALLOC
-      total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESHedge).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESHedge);
+      //total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESHedge).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESHedge);
 #endif
-      S[ii].edge[jj].mesh=new typename TV1::template SubType<0>::T::TMESHedge;
+      S[ii].edge[jj].mesh=new EdgeMesh;
       S[ii].edge[jj].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       S[ii].edge[jj].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       S[ii].edge[jj].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);

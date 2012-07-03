@@ -1,7 +1,8 @@
 #ifndef MULTISCALE_GEOMETRY_MESH_H
 #define MULTISCALE_GEOMETRY_MESH_H
 
-#include "../all_declarations.h"
+#include "../DEFINITIONS/structure_typedef.h"
+#include "../DEFINITIONS/Process.h"
 
 /** \defgroup Maillage_geometrie Création des sous-structures et interfaces
  \ brief Génération des maillages et géométrie des sous-structures, inte*rfaces.
@@ -33,7 +34,7 @@
 /** \ingroup Maillage_geometrie
  \ brief Fonction principale de création des maillages et géométries    *
  
- - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class GeneralParameters (inclus dans Process) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
+ - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class GeneralData (inclus dans Process) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
  La creation des sous-structures et interfaces est effectuée de la facon indiquée dans la fonction create_SST_INTER() .
  
  On crée ensuite les données géométriques associées aux interfaces : calculate_measure_G_neq_INTER.
@@ -45,14 +46,14 @@
  Rq : La réorganisation des noeuds des Sous-structures n'est pas nécessaire étant donné qu'on utilise une renumérotation dans le solveur sparse (symamd).
  
  */
-void multiscale_geometry_mesh(DataUser                          &data_user, 
-                              GeometryUser                      &geometry_user,
-                              Vec<Sst>                          &S,
-                              Vec<Interface>                    &Inter, 
-                              Process                           &process, 
-                              Vec<Boundary>                     &CL,
-                              Vec<VecPointedValues<Sst> >       &Stot,
-                              Vec<VecPointedValues<Sst> >       &SubS,
-                              Vec<VecPointedValues<Interface> > &SubI);
+void multiscale_geometry_mesh(DataUser             &data_user, 
+                              GeometryUser         &geometry_user,
+                              Substructures        &S,
+                              VecInterfaces        &Inter, 
+                              Process              &process, 
+                              Boundaries           &CL,
+                              PointedSubstructures &Stot,
+                              PointedSubstructures &SubS,
+                              PointedInterfaces    &SubI);
 
 #endif //MULTISCALE_GEOMETRY_MESH_H

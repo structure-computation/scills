@@ -1,26 +1,25 @@
 #ifndef PARAM_COMP_INTER_H
 #define PARAM_COMP_INTER_H
 
-#include "../UTILS/Sc2String.h"
-using namespace LMT;
+#include "main_typedef.h"
 
 struct PARAM_DAMAGE_INTER{
     PARAM_DAMAGE_INTER(){Yc=0.01; Yo=0.; n=0.5; alpha=1.5; gamma=0.3; kn=10000; knc=10000; kt=10000;}
-    TYPEREEL kn, kt,knc;
-    TYPEREEL gamma,alpha, Yc, Yo, n;
+    Scalar kn, kt,knc;
+    Scalar gamma,alpha, Yc, Yo, n;
 };
  
 struct PARAM_COMP_INTER{
-    TYPEREEL coeffrottement;
-    Vec<TYPEREEL> f_coeffrottement;
-    Vec<TYPEREEL> jeu;
+    Scalar coeffrottement;
+    Vector f_coeffrottement;
+    Vector jeu;
     Sc2String fcts_spatiales;
-    TYPEREEL Gcrit;
+    Scalar Gcrit;
     bool degradable;
-    Vec<TYPEREEL> d;//,dmax;
-    //Vec<TYPEREEL> Y;//,Ymax;
+    Vector d;//,dmax;
+    //Vector Y;//,Ymax;
     unsigned nbpastempsimpos;
-    Vec<bool> comportement;
+    LMT::Vec<bool> comportement;
     int convergence; ///< =-1 si le calcul du pas de temps n'est pas convergence, >=0 sinon
                      ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
 
@@ -46,7 +45,7 @@ struct PARAM_COMP_INTER{
     }
 
     struct Time{
-        Vec<TYPEREEL> d;//,Y;//,dmax,Ymax;
+        Vector d;//,Y;//,dmax,Ymax;
         void allocate(unsigned nbnodeeq)
         {
             //Ymax.resize(nbnodeeq,0.);

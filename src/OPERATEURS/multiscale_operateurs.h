@@ -5,12 +5,7 @@
 #include "../GEOMETRY/GeometryUser.h"
 
 #include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/MacroProblem.h"
-#include "../DEFINITIONS/Sst.h"
-#include "../DEFINITIONS/Interface.h"
-
-#include "../../LMT/include/containers/vec.h"
-#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../DEFINITIONS/structure_typedef.h"
 
 using namespace Metil;
 using namespace LMT;
@@ -42,12 +37,12 @@ L'ordre d'utilisation des fonctions est le suivant :
         - penalisation() get_factorization() : penalisation puis factorisation de la matrice macro 
  
  */
-void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
-                           Vec<VecPointedValues<Sst> >       &SubS, 
-                           Vec<Interface>                    &Inter, 
-                           Vec<VecPointedValues<Interface> > &SubI, 
-                           Process                           &process, 
-                           MacroProblem                      &Global, 
-                           DataUser                          &data_user);
+void multiscale_operateurs(PointedSubstructures &Stot,
+                           PointedSubstructures &SubS, 
+                           VecInterfaces        &Inter, 
+                           PointedInterfaces    &SubI, 
+                           Process              &process, 
+                           MacroProblem         &Global, 
+                           DataUser             &data_user);
 
 #endif //MULTISCALE_OPERATEURS_H

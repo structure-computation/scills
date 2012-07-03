@@ -90,7 +90,7 @@ struct etape_locale_sst {
 /** \ingroup  etape_locale
 \brief Procédure principale pour l'étape locale
 */
-void etape_locale(Vec<VecPointedValues<Interface > > &Inter,Vec<VecPointedValues<Sst > > &S,Process &process) {
+void etape_locale(PointedInterfaces &Inter,PointedSubstructures &S,Process &process) {
     apply(Inter,etape_locale_inter(),process);
     apply(S,etape_locale_sst(),process);
 };

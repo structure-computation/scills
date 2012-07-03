@@ -3,9 +3,8 @@
 
 // Ajout class PARAM_DAMAGE_SST contenant les grandeurs materiaux associees a l'endommagement
 #include "definition_PARAM_COMP_INTER.h"
-#include <boost/concept_check.hpp>
-#include "../UTILS/Sc2String.h"
-using namespace LMT;
+#include "main_typedef.h"
+#include "../PARAMETERS/Parameters.h"
 
 
 //*******************************************
@@ -16,58 +15,7 @@ using namespace LMT;
 */
 struct SstCarac
 {
-    SstCarac(){
-        dt=1.0;
-        resolution=1;
-        /// Initialisation des grandeurs a -1 pour detecter les erreurs de chargement
-        density = -1;
-        elastic_modulus = -1;
-        poisson_ratio = -1;
-        elastic_modulus_1 = -1;
-        elastic_modulus_2 = -1;
-        elastic_modulus_3 = -1;
-        poisson_ratio_12 = -1;
-        poisson_ratio_13 = -1;
-        poisson_ratio_23 = -1;
-        shear_modulus_12 = -1;
-        shear_modulus_13 = -1;
-        shear_modulus_23 = -1;
-        alpha = -1;
-        alpha_1 = -1;
-        alpha_2 = -1;
-        alpha_3 = -1;
-        deltaT = -1;
-        plast_ecrouissage_init = -1;
-        plast_ecrouissage_mult = -1;
-        plast_ecrouissage_expo = -1;
-        plast_cinematique_coef = -1;
-        Yo = -1;
-        Yc = -1;
-        Ycf = -1;
-        dmax = -1;
-        b_c = -1;
-        a = -1;
-        tau_c = -1;
-        viscosite = -1;
-        couplage = 0.38;
-        
-        ///Initialisation des coefficients de la contrainte equivalente a Von Mises standart
-        for(int i = 0; i < DIM*(DIM+1)/2; i++)
-            coeff_seq[i].set(0.0);
-        if(DIM == 2){
-            ;
-        } else if(DIM == 3){
-            coeff_seq[0][0] = 1;
-            coeff_seq[1][1] = 1;
-            coeff_seq[2][2] = 1;
-            coeff_seq[0][1] = -1;
-            coeff_seq[0][2] = -1;
-            coeff_seq[1][2] = -1;
-            coeff_seq[3][3] = 3;
-            coeff_seq[4][4] = 3;
-            coeff_seq[5][5] = 3;
-        }
-    }
+    static ParameterGroup sst_materials_parameters;
     
     /// Attributs communs
     int id;                         /// identite du materiaux dans data_user
@@ -75,85 +23,66 @@ struct SstCarac
     Sc2String type;                 /// type de formulation : isotrope, orthotrope, orthotrope endommageable
     Sc2String comp;                 /// type de comportement : elastique, endommageable, plastique, mesomodele...
     bool resolution;                /// type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
-    Vec<TYPEREEL,DIM> v1,v2;        /// direction pour les materiaux orthotropes
-    TYPEREEL density;               /// densite du materiaux
-    Vec<TYPEREEL,DIM> f_vol;        /// Champs de force volumique constant
-    Vec<Sc2String,DIM> f_vol_e;     /// Champs de force volumique par element
-    TYPEREEL dt;                    /// pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
+    Point v1,v2;        /// direction pour les materiaux orthotropes
+    UserParameter density;          /// densite du materiaux
+    Point f_vol;        /// Champs de force volumique constant
+    LMT::Vec<Sc2String,DIM> f_vol_e;     /// Champs de force volumique par element
+    Scalar dt;                    /// pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
     
     /// Comportement elastique
-    TYPEREEL elastic_modulus,poisson_ratio; /// Isotrope
-    TYPEREEL elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,
-             poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,
-             shear_modulus_12,shear_modulus_13,shear_modulus_23; /// Anisotrope
+    /// Isotrope
+    UserParameter elastic_modulus;
+    UserParameter poisson_ratio;
+    /// Anisotrope
+    UserParameter elastic_modulus_1;
+    UserParameter elastic_modulus_2;
+    UserParameter elastic_modulus_3;
+    UserParameter poisson_ratio_12;
+    UserParameter poisson_ratio_13;
+    UserParameter poisson_ratio_23;
+    UserParameter shear_modulus_12;
+    UserParameter shear_modulus_13;
+    UserParameter shear_modulus_23;
     
     /// Comportement thermique
-    TYPEREEL alpha;                     /// Isotrope
-    TYPEREEL alpha_1,alpha_2,alpha_3;   /// Anisotrope
-    TYPEREEL deltaT;                    /// Variable pour le stockage de la variation de temperature
+    Scalar deltaT;    /// Variable pour le stockage de la variation de temperature
+    /// Isotrope
+    UserParameter alpha;
+    /// Anisotrope
+    UserParameter alpha_1;
+    UserParameter alpha_2;
+    UserParameter alpha_3;
     
     /// Compoprtement plastique
     Sc2String type_plast;   /// Options decrivant l'evolution du domaine elastique (parfaite, isotrope, cinematique) et la contrainte equivalente (von_mises)
     /// Coefficients de la loi d'ecrouissage : R(p) = R0 + k_p * p ^ m_p
-    TYPEREEL plast_ecrouissage_init;    /// Limite d'elasticite initiale
-    TYPEREEL plast_ecrouissage_mult;    /// Coefficient multiplicateur de la loi d'ecrouissage
-    TYPEREEL plast_ecrouissage_expo;    /// Exposant de la loi d'ecrouissage
-    TYPEREEL plast_cinematique_coef;    /// Coefficient multiplicateur du modele cinematique : dX = C*depsilon_p
-    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2>,DIM*(DIM+1)/2> coeff_seq;     /// Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
+    UserParameter plast_ecrouissage_init;    /// Limite d'elasticite initiale
+    UserParameter plast_ecrouissage_mult;    /// Coefficient multiplicateur de la loi d'ecrouissage
+    UserParameter plast_ecrouissage_expo;    /// Exposant de la loi d'ecrouissage
+    UserParameter plast_cinematique_coef;    /// Coefficient multiplicateur du modele cinematique : dX = C*depsilon_p
+    VoigtMatrix coeff_seq;     /// Coefficients multiplicateurs pour la fonction seuil (matrice de la forme bilineaire associee a la norme energetique)
                                                                 /// COEFF_SEQ N'EST PAS UTILISE POUR L'INSTANT
     
     /// Comportement endommageable de type mesomodele de composite
     Sc2String type_endo;    /// Options decrivant l'endommagement A SPECIFIER!!!
-    TYPEREEL Yo,Yc,Ycf;     /// Efforts limites de l'endommagement de la rupture
-    TYPEREEL dmax;          /// Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
-    TYPEREEL couplage;      /// Coefficient pour le calcul de la contrainte equivalente
-    TYPEREEL b_c;           /// Couplage entre micro-fissuration et decohesion fibres/matrice
+    UserParameter Yo;
+    UserParameter Yc;
+    UserParameter Ycf;      /// Efforts limites de l'endommagement de la rupture
+    Scalar dmax;            /// Maximum possible de l'endommagement avant rupture (pour eviter les divisions par 0)
+    Scalar couplage;        /// Coefficient pour le calcul de la contrainte equivalente
+    Scalar b_c;             /// Couplage entre micro-fissuration et decohesion fibres/matrice
     bool effet_retard;      /// Indique si un effet retard doit etre applique a l'endommagement
-    TYPEREEL a,tau_c;       /// Coefficients de l'effet_retard de l'endommagement
+    Scalar a,tau_c;         /// Coefficients de l'effet_retard de l'endommagement
     
     /// Comportement visqueux
-    TYPEREEL viscosite;     ///< Viscosite du materiau
+    UserParameter viscosite;     ///< Viscosite du materiau
     
-    void affiche(){
-        std::cout << std::endl << std::endl;
-        std::cout << "******************SSTCARAC_DEBUG*********************" << std::endl;
-        std::cout << "density : " << density << std::endl;
-        if (type == "isotrope"){
-            std::cout << "elastic_modulus : " << elastic_modulus << std::endl;
-            std::cout << "poisson_ratio : " << poisson_ratio << std::endl;
-            std::cout << "alpha : " << alpha << std::endl;
-        } else if (type == "orthotrope"){
-            std::cout << "elastic_modulus_1 : " << elastic_modulus_1 << std::endl;
-            std::cout << "elastic_modulus_2 : " << elastic_modulus_2 << std::endl;
-            std::cout << "elastic_modulus_3 : " << elastic_modulus_3 << std::endl;
-            std::cout << "poisson_ratio_12 : " << poisson_ratio_12 << std::endl;
-            std::cout << "poisson_ratio_13 : " << poisson_ratio_13 << std::endl;
-            std::cout << "poisson_ratio_23 : " << poisson_ratio_23 << std::endl;
-            std::cout << "shear_modulus_12 : " << shear_modulus_12 << std::endl;
-            std::cout << "shear_modulus_13 : " << shear_modulus_13 << std::endl;
-            std::cout << "shear_modulus_23 : " << shear_modulus_23 << std::endl;
-            std::cout << "alpha_1 : " << alpha_1 << std::endl;
-            std::cout << "alpha_2 : " << alpha_2 << std::endl;
-            std::cout << "alpha_3 : " << alpha_3 << std::endl;
-        }
-        std::cout << "deltaT  : " << deltaT << std::endl;
-        if (comp == "plastique" or comp == "mesomodele"){
-            std::cout << "plast_ecrouissage_init : " << plast_ecrouissage_init << std::endl;
-            std::cout << "plast_ecrouissage_mult : " << plast_ecrouissage_mult << std::endl;
-            std::cout << "plast_ecrouissage_expo : " << plast_ecrouissage_expo << std::endl;
-            std::cout << "plast_cinematique_coef : " << plast_cinematique_coef << std::endl;
-        }
-        if (comp == "mesomodele"){
-            std::cout << "Yo           : " << Yo << std::endl;
-            std::cout << "Yc           : " << Yc << std::endl;
-            std::cout << "Ycf          : " << Ycf << std::endl;
-            std::cout << "dmax         : " << dmax << std::endl;
-            std::cout << "b_c          : " << b_c << std::endl;
-            std::cout << "effet_retard : " << effet_retard << std::endl;
-            std::cout << "a            : " << a << std::endl;
-            std::cout << "tau_c        : " << tau_c << std::endl;
-        }
-    }
+    
+    SstCarac();
+    void read_data_user(int index,Metil::DataUser &data_user);
+    static void prepareParameters();
+    static void updateParameters();
+    void affiche();
 };
 
 //**************************************************************************
@@ -170,27 +99,67 @@ Deux possibilites sont offertes pour selectionner les interfaces particulieres :
 
 struct InterCarac
 {
-    typedef Vec<TYPEREEL,DIM> Pvec; ///< type des points
+    static ParameterGroup inter_materials_parameters;
     
-    //selection des interfaces pour application des parametres materiau : 2 possibilites : boite ou numero des sst voisines
-    Vec<Pvec,2> box; ///< boite dans laquelle les interfaces possedant cette propriete doivent se trouver
-    Vec<unsigned,2> num_sst; ///< numero des sous-structures adjacentes
-    TYPEREEL coeffrottement; ///< coefficient de frottement 
-    Sc2String jeu ; ///< fonction donnant le jeu en fonction des variables d'espace par une fonction analytique
-    Sc2String f_coeffrottement; ///< fonction analytique donnant le coeficient de frottement
-    Sc2String f_R; ///< fonction analytique donnant la raideur d'une interface elastique
+    unsigned id;                    /// numero d'identification de cette caracteristique
+    Sc2String name;                    /// nom de la caracteristique d'interface (informatif)
+    Sc2String type;                    /// type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
+    Sc2String comp;                    /// comportement des interfaces incluses
+    LMT::Vec<unsigned,2> num_sst;   /// numero des sous-structures adjacentes
+    bool degradable;                /// indique si l'interface est degradable
     
-    unsigned nbpastempsimpos;
+    UserParameter f_jeu ;               /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
+    UserParameter f_coeffrottement;     /// parametre representant le coefficient de frottement
+    Scalar coeffrottement;        /// coefficient de frottement sur l'interface
+    UserParameter f_raideur;            /// parametre donnant la raideur d'une interface elastique
+    UserParameter Gcrit;                /// valeur de taux de restitution critique pour les interfaces cassables
+    
+    UserParameter kn;       /// raideur normale (en traction si knc definie)
+    UserParameter kt;       /// raideur tangentielle
+    UserParameter knc;      /// raideur normale en compression
+    
+    UserParameter gamma;    /// coefficients pour le calcul des efforts associes a l'endommagement
+    UserParameter alpha;    /// Y(t) = sup[tau < t]{ ( Y3(tau)^alpha + (gamma*Y1(tau))^alpha + (gamma*Y2(tau))^alpha )^(1/alpha) } si la normale est le vecteur indice 3
+    
+    UserParameter n;        /// coefficients pour le calcul de l'endommagement:
+    UserParameter Yc;       /// d = min( (n/(n+1))*abs(Y-Yo)/(Yc-Yo) , 1 )
+    UserParameter Yo;       /// Yo et Yc sont les seuils limite de l'endommagement
+    
+    unsigned nbpastempsimpos;   /// Voir comportement "jeu impose"
+    
+    InterCarac();
+    void allocate();
+    void free();
+    void read_data_user(int index,DataUser &data_user);
+    static void prepareParameters();
+    static void updateParameters();
+    void affiche();
+};
 
-    unsigned id;    ///< numero d'identification de cette caracteristique
-    Sc2String name;    ///< nom de la caracteristique d'interface (informatif)
-    TYPEREEL Gcrit;     ///< valeur de taux de restitution critique pour les interfaces discretes
-    Sc2String type;    ///< type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
-    Sc2String comp;    ///< comportement des interfaces incluses
+/*
+struct InterCarac
+{
+    typedef Vec<Scalar,DIM> Pvec; ///< type des points
+    
+    ///selection des interfaces pour application des parametres materiau : 2 possibilites : boite ou numero des sst voisines
+    Vec<Pvec,2> box;            /// boite dans laquelle les interfaces possedant cette propriete doivent se trouver
+    Vec<unsigned,2> num_sst;    /// numero des sous-structures adjacentes
+    Scalar coeffrottement;    /// coefficient de frottement 
+    String jeu ;             /// fonction donnant le jeu en fonction des variables d'espace par une fonction analytique
+    String f_coeffrottement; /// fonction analytique donnant le coeficient de frottement
+    String f_R;              /// fonction analytique donnant la raideur d'une interface elastique
+    
+    unsigned nbpastempsimpos;   /// Voir comportement "jeu impose"
+    
+    unsigned id;       /// numero d'identification de cette caracteristique
+    String name;    /// nom de la caracteristique d'interface (informatif)
+    Scalar Gcrit;    /// valeur de taux de restitution critique pour les interfaces discretes
+    String type;    /// type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
+    String comp;    /// comportement des interfaces incluses
     
     ///parametres d'endommagement pour les interfaces cohesives
     PARAM_DAMAGE_INTER param_damage;
-
+    
     
     void affiche(){
         std::cout << "----------------------------------------------------------------------"<< std::endl;
@@ -202,8 +171,8 @@ struct InterCarac
         std::cout << "comp = " << comp << std::endl;
         std::cout << "----------------------------------------------------------------------"<< std::endl;
     }
-  
+    
 };
-
+//*/
 #endif //MATERIALS_H
 

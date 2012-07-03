@@ -11,7 +11,7 @@
 //fichiers de definition des variables
 #include "Boundary.h"
 #include "Process.h"
-#include "GeneralParameters.h"
+#include "GeneralData.h"
 #include "Sst.h"
 #include "Interface.h"
 
@@ -27,21 +27,21 @@
 #include "assignation_mpi.h"
 
 
-#include "DataUser.h"
-#include "GeometryUser.h"
+#include "../COMPUTE/DataUser.h"
+#include "../GEOMETRY/GeometryUser.h"
 
 using namespace LMT;
 
 
-void multiscale_geometry_mesh(DataUser                          &data_user, 
-                              GeometryUser                      &geometry_user,
-                              Vec<Sst>                          &S,
-                              Vec<Interface>                    &Inter, 
-                              Process                           &process, 
-                              Vec<Boundary>                     &CL,
-                              Vec<VecPointedValues<Sst> >       &Stot,
-                              Vec<VecPointedValues<Sst> >       &SubS,
-                              Vec<VecPointedValues<Interface> > &SubI) {
+void multiscale_geometry_mesh(DataUser             &data_user, 
+                              GeometryUser         &geometry_user,
+                              Substructures        &S,
+                              VecInterfaces        &Inter, 
+                              Process              &process, 
+                              Boundaries           &CL,
+                              PointedSubstructures &Stot,
+                              PointedSubstructures &SubS,
+                              PointedInterfaces    &SubI) {
     
     /// creation SST et INTERFACE - maillage
     create_SST_INTER(data_user, geometry_user,S,Inter,CL,process,Stot,SubS,SubI);

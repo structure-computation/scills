@@ -1,4 +1,5 @@
 #include "assignation_material_properties_Sst.h"
+#include "../DEFINITIONS/ParallelisationData.h"
 
 #include "../../LMT/include/containers/mat.h"
 #include "../../LMT/include/codegen/codegen.h"
@@ -14,13 +15,10 @@ void assignation_materials_property_SST(DataUser &data_user, Vec<SstCarac> &matp
     BasicVec<BasicVec<TYPEREEL > > mat_prop_temp;
     read_matprop(matprops,process,data_user, mat_prop_temp); 
     //assignation des proprietes aux SST
-    apply_mt(S,process.parallelisation->nb_threads,assignation_material_to_SST(),matprops,process.plasticite,process.endommagement);      
-    //assignation des proprietes aux group_elements (pour GPU)
-    field_structure_user.assign_material_id_to_group_elements(data_user);
-    field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
+    apply_mt(S,process.parallelisation->nb_threads,assignation_material_to_SST(),matprops,process.plasticite,process.endommagement);
 }
 
-void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {
+void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user , BasicVec<BasicVec<TYPEREEL> > &mat_prop_temp) {/*
     unsigned nbmat = data_user.behaviour_materials.size();
     matprops.resize(nbmat);
     mat_prop_temp.resize(nbmat);
@@ -128,7 +126,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             var_temp[symbols[DIM+data_user.Multiresolution_parameters.size()]]=M_PI;
             
             mat_prop_temp[i][i_prop] = (TYPEREEL) expr_temp.subs_numerical(var_temp);
-        }
+        }// TODO ADAPTATION POUR CLASSE PARAMETRE
         matprops[i].density = mat_prop_temp[i][3];
         
         std::cout << "id : " << matprops[i].id << "    type : " << matprops[i].type << "    comp : " << matprops[i].comp << std::endl;
@@ -192,12 +190,12 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
             matprops[i].effet_retard = mat_prop_temp[i][35];     /// effet_retard
             matprops[i].a            = mat_prop_temp[i][36];     /// a
             matprops[i].tau_c        = mat_prop_temp[i][37];     /// tau_c
-        }
+        }//*/
     }
-};
+//};
 
 void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite,bool &endommagement) const{ 
-    S.matprop = matprops[S.typmat];
+    S.matprop = &matprops[S.typmat];
     /// Type du materiau
     bool isotrope = matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size();
     bool orthotrope = matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size();
@@ -206,9 +204,9 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         assert(0);
     }
     /// Comportement du materiau
-    bool elastique = matprops[S.typmat].comp.find("elastique")<matprops[S.typmat].comp.size() ;
-    bool plastique = matprops[S.typmat].comp.find("plastique")<matprops[S.typmat].comp.size() ;
-    bool endommageable = matprops[S.typmat].comp.find("endommageable")<matprops[S.typmat].comp.size();
+    bool elastique = matprops[S.typmat].comp.find("el")<matprops[S.typmat].comp.size() ;
+    bool plastique = matprops[S.typmat].comp.find("pl")<matprops[S.typmat].comp.size() ;
+    bool endommageable = matprops[S.typmat].comp.find("en")<matprops[S.typmat].comp.size();
     bool mesomodele = matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size();
     /// Assignation de la formulation
     ///formulation elastique isotrope 

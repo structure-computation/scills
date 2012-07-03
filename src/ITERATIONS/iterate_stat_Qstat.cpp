@@ -1,11 +1,12 @@
+#ifdef qfmlqsdnkfqmdlsfnkqmelsfnkdmljcxvn // pour que rien ne soit compile
 //librairies Hugo
 
 #include "ITERATIONS_declarations.h"
 
 //fichiers de definition des variables
-#include "../DEFINITIONS/LatinParameters.h"
-#include "../DEFINITIONS/TimeParameters.h"
-#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/LatinData.h"
+#include "../DEFINITIONS/TimeData.h"
+#include "../DEFINITIONS/SavingData.h"
 
 // fonctions speciales math
 #include "../UTILITAIRES/algebre.h"
@@ -53,20 +54,10 @@ void multiscale_iterate_incr(ScSstVec           &S,
         MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
     process.nb_breakable = nb_breakable ;
     
-    /// Allocations et initialisation des quantites
-    if(process.temps->step_cur == 0){
-        process.print("Allocations des vecteurs de stockage des resultats");
-        //if (process.reprise_calcul!=2) //REPRISE CALCUL NE SEMBLE PLUS UTILISE
-        allocate_quantities(SubS,SubI,process,Global);
-        #ifdef PRINT_ALLOC
-        disp_alloc(to_string(process.parallelisation->rank)+" : Memoire apres allocations : ",1);
-        #endif
-    }
-    
     /// Assignation des grandeurs a l'instant initial
     if(process.temps->step_cur == 0){
         if(process.parallelisation->is_master_cpu()) std::cout << "Assignation des grandeurs a l'instant initial" << std::endl;
-        initialise_CL_values_space_time(SubI, CL, process, data_user);
+        initialise_CL_values(SubI, CL);
     }
     
     /* REPRISE CALCUL NE SEMBLE PLUS UTILISE
@@ -96,7 +87,7 @@ void multiscale_iterate_incr(ScSstVec           &S,
     process.parallelisation->synchronisation();
     
     /// Reactualisation du 2nd membre de micro1 pour le calcul de l'erreur
-    apply_mt(SubS,process.parallelisation->nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
+    //apply_mt(SubS,process.parallelisation->nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
     
     /// Boucle sur les pas de temps
     unsigned i_step=process.temps->step_cur;
@@ -104,18 +95,13 @@ void multiscale_iterate_incr(ScSstVec           &S,
         /// Actualisation des indicateurs temporels
         process.temps->time_step[i_step].pt_cur=i_pt;
         process.temps->pt_cur+=1;
-        process.temps->current_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
-        if (process.parallelisation->is_master_cpu()) std::cout << std::endl << "----Piquet de temps courant " << process.temps->current_time << std::endl;
+        process.temps->t_cur=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
+        process.print_data("----Piquet de temps courant ",process.temps->t_cur);
 
         /// Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
-        if (process.parallelisation->is_master_cpu()) std::cout << " - Comportements des interfaces :" << std::endl;
-        if (process.parallelisation->is_local_cpu()) assign_CL_values_space_time_incr(SubI, CL, process, data_user);
-        if (process.parallelisation->is_master_cpu()) std::cout << std::endl << " - Conditions aux limites :" << std::endl;
-        for(int ic=0;ic<CL.size();ic++){
-            if (process.parallelisation->is_master_cpu()) std::cout << "id : " << CL[ic].id << " : " << CL[ic].ft << std::endl;
-                //std::cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;
-        }
-        if (process.parallelisation->is_master_cpu()) std::cout << std::endl;
+        process.print("\n - Comportements des interfaces :");
+        if (process.parallelisation->is_local_cpu()) update_CL_values(SubI, CL, process, data_user);
+        process.print("\n - Conditions aux limites :");
         
         /* REPRISE CALCUL NE SEMBLE PLUS UTILISE
         if(process.reprise_calcul>0){
@@ -132,7 +118,7 @@ void multiscale_iterate_incr(ScSstVec           &S,
                 if (process.parallelisation->is_local_cpu()){
                     for(unsigned q=0; q < SubI.size();q++){
                         if (SubI[q].comp == "Breakable")
-                            SubI[q].param_comp->convergence = -1; 
+                            SubI[q].convergence = -1; 
                     }
                 }
                 if (process.parallelisation->is_master_cpu()) std::cout << "          Sous iteration interface cassable : " << sous_iter << std::endl;
@@ -140,7 +126,7 @@ void multiscale_iterate_incr(ScSstVec           &S,
                 if (process.parallelisation->is_local_cpu()){
                     for(unsigned q=0; q < SubI.size();q++){
                         if (SubI[q].comp == "Breakable")
-                            nb_change += SubI[q].param_comp->convergence ; 
+                            nb_change += SubI[q].convergence ; 
                     }
                 }
             }
@@ -148,25 +134,25 @@ void multiscale_iterate_incr(ScSstVec           &S,
             iterate_incr(process,SubS,Inter,SubI,Global,data_user);
         }
         ///assignation ptcur au ptold
-        if (process.parallelisation->is_master_cpu()) std::cout << " - Reactualisation des valeurs pour le pas de temps suivant" << endl;
+        process.print(" - Reactualisation des valeurs pour le pas de temps suivant");
         assign_quantities_current_to_old(SubS,SubI,process);
         
         /// Sauvegarde des resultats
         if(process.save_data==1){
-            if (process.parallelisation->is_master_cpu()) std::cout << " - Sauvegarde des resultats au format HDF" << std::endl; 
+            process.print(" - Sauvegarde des resultats au format HDF"); 
             if (process.parallelisation->is_local_cpu()) {
                 // write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);  BUG
                 convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
                 Sc2String rank; rank << process.parallelisation->rank;
                 Sc2String file_output_hdf5 = process.affichage->name_hdf + "_" + rank + ".h5";
-                field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields, process.temps->pt_cur, process.temps->current_time, process.parallelisation->rank);
+                field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields, process.temps->pt_cur, process.temps->t_cur, process.parallelisation->rank);
             }
         }
         
         /// Modification du comportement des entites
         //modification_sst_inter_behaviour(S,Inter,process.temps);  A TESTER
         
-        if (process.parallelisation->is_master_cpu()) std::cout << "----Fin piquet de temps " << process.temps->current_time << std::endl;
+        process.print_data("----Fin piquet de temps ",process.temps->t_cur);
     }
 
     ///Affichage des energies
@@ -184,4 +170,4 @@ void multiscale_iterate_incr(ScSstVec           &S,
     }
 
 };
-// #endif
+#endif

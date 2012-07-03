@@ -1,7 +1,7 @@
 #ifndef ITERATION_DECLARATIONS_H
 #define ITERATION_DECLARATIONS_H
 
-#include "../all_declarations.h"
+#include "../DEFINITIONS/main_typedef.h"
 
 #include "../COMPUTE/FieldStructureUser.h"
 

@@ -1,22 +1,20 @@
 #include "assignation_material_properties_Interface.h"
 #include "../../LMT/include/codegen/codegen.h"
 #include "../../LMT/include/containers/basicops.h"
+#include "../DEFINITIONS/ParallelisationData.h"
 
 
 void assignation_materials_property_INTER(DataUser &data_user, Vec<Interface> &Inter, Process &process, FieldStructureUser &field_structure_user){
-    if (process.parallelisation->is_master_cpu()) std::cout << "\t Assignation de materiau particulier (Ex : contact) aux Interfaces" << std::endl;
+    process.print("\t Assignation de materiau particulier (Ex : contact) aux Interfaces");
     Vec<InterCarac > propinter;
     BasicVec<BasicVec<TYPEREEL > > link_prop_temp;
     read_propinter(propinter,data_user, link_prop_temp);
 
     modif_inter(Inter,propinter,process,data_user);
-    //idem pour les group_interfaces (pour GPU)
-    field_structure_user.assign_link_id_to_group_interfaces(data_user);
-    field_structure_user.assign_link_properties_to_group_interfaces(data_user,link_prop_temp);
 }
 
 
-void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicVec<BasicVec<TYPEREEL> > &link_prop_temp) {
+void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicVec<BasicVec<TYPEREEL> > &link_prop_temp) {/*
     unsigned nbliaisons = data_user.behaviour_links.size();
     propinter.resize(nbliaisons);
     link_prop_temp.resize(nbliaisons);
@@ -84,11 +82,11 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
         propinter[i].jeu = data_user.behaviour_links[i].link_prop[1];                   /// jeux ou epaisseur negative        
         propinter[i].Gcrit = link_prop_temp[i][7];                                      /// limite en rupture    
         propinter[i].f_R = data_user.behaviour_links[i].link_prop[3];                   /// coeff frottement analytique
-    }
+    }*/
 }
 
 
-void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &process,const DataUser &data_user) {
+void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &process,const DataUser &data_user) {/*
     //allocation de la memoire pour les parametres de comportement d'interface
     for(unsigned q=0;q<Inter.size();++q) {
         #ifdef PRINT_ALLOC
@@ -293,5 +291,5 @@ void modif_inter(Vec<Interface> &Inter, Vec<InterCarac> &propinter, Process &pro
                 }
             }
         }
-    }
+    }//*/
 }

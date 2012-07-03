@@ -1,5 +1,5 @@
-#include "../DEFINITIONS/TimeParameters.h"
-#include "../DEFINITIONS/LatinParameters.h"
+#include "../DEFINITIONS/TimeData.h"
+#include "../DEFINITIONS/LatinData.h"
 #include "manipulate_quantities.h"
 #include "LOCAL/plasticite.h"
 
@@ -12,164 +12,179 @@ using namespace LMT;
  * 
  * Pour chaque pas de temps les differents vecteurs sont initialises à 0. On n'alloue pas la memoire pour les differents vecteurs en chaque pas de temps des ssts car ils ne sont stockes qu'à convergence.
  */
-void allocate_quantities(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<Interface > > &Inter,Process &process,MacroProblem &Global){
+void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces &SubI,Process &process){
     /// Recuperation du nombre de pas de temps
     unsigned nbpastemps;
-    if(process.nom_calcul=="incr")
+    if(process.nom_calcul=="incr"){
         nbpastemps=1;
-    else if (process.nom_calcul=="latin")
+    }else if (process.nom_calcul=="latin"){
         nbpastemps=process.temps->nbpastemps;
-    else{std::cout << "Nom de calcul non implemente dans allocate.h" << endl;assert(0);}
+    }else{
+        std::cerr << "Nom de calcul invalide : " << process.nom_calcul << endl;
+        assert(0);
+    }
     
     /// Allocation des quantites des Sst
     if (process.latin->save_depl_SST==1){
-        for(unsigned i=0;i<S.size();++i){
-            S[i].t.resize(nbpastemps+1);
-            if(process.recopie_t_post==1)
-                S[i].t=S[i].t_post;
-            for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les CInit
-                unsigned nbddl = S[i].mesh.node_list_size*DIM;
-                unsigned nbelem = S[i].mesh.elem_list_size;
-                S[i].t[pt].allocations(nbddl,nbelem,process,S[i]);
+        for(unsigned i=0;i<SubS.size();++i){
+            SubS[i].t.resize(nbpastemps+1);
+            if(process.recopie_t_post==1){
+                SubS[i].t=SubS[i].t_post;
+            }
+            if(process.parallelisation->is_local_cpu()){
+                for(unsigned pt=0;pt<(nbpastemps+1);pt++){  ///L'initialisation commence a 0 et non plus a 1, pour les conditions
+                    SubS[i].t[pt].allocate(SubS[i]);
+                }
             }
         }
+    }
+    /// Affichage de debug
+    for(int i = 0; i < SubS.size(); i++){
+        SubS[i].affiche();
     }
     
     /// Allocation des quantites des Interface
     if (process.parallelisation->is_local_cpu()){
-        for(unsigned i=0;i<Inter.size();++i){
-            for(unsigned j=0;j<Inter[i].side.size();++j){
-                Inter[i].side[j].t.resize(nbpastemps+1);
-                if(process.recopie_t_post==1)
-                    Inter[i].side[j].t=Inter[i].side[j].t_post;
-                else{
-                    for(unsigned pt=0;pt<(nbpastemps+1);pt++)
-                        Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);
+        for(unsigned i=0;i<SubI.size();++i){
+            for(unsigned j=0;j<SubI[i].side.size();++j){
+                SubI[i].side[j].t.resize(nbpastemps+1);
+                if(process.recopie_t_post==1){
+                    SubI[i].side[j].t=SubI[i].side[j].t_post;
+                }else{
+                    for(unsigned pt=0;pt<(nbpastemps+1);pt++){
+                        if (process.parallelisation->is_local_cpu()) {
+                            SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);
+                        }
+                    }
                 }
             }
             ///allocation des parametres de comportements dependant du temps (exemple endommagement)
-            Inter[i].param_comp->t.resize(nbpastemps+1);
-            for(unsigned j=0;j<Inter[i].param_comp->t.size();j++)
-                Inter[i].param_comp->t[j].allocate(Inter[i].side[0].nodeeq.size());
+            SubI[i].t.resize(nbpastemps+1);
+            for(unsigned j=0;j<nbpastemps+1;j++){
+                SubI[i].t[j].allocate(SubI[i]);
+            }
         }
     }
     
-    if(process.recopie_t_post!=1){   
-        Global.allocations(process);
+    if(process.recopie_t_post!=1){
         process.latin->error.resize(process.latin->nbitermax+1);
         process.latin->error.set(0.0);
     }
-    
 }
 
 
 //allocation de t_post uniquement pour les sorties de resultat
-void allocate_quantities_post(Vec<VecPointedValues<Sst > > &S, Vec<VecPointedValues<Interface > > &Inter,Process &process){
+void allocate_quantities_post(PointedSubstructures &SubS, PointedInterfaces &SubI,Process &process){
     unsigned nbpastemps;
-    if(process.nom_calcul=="incr")
+    if(process.nom_calcul=="incr"){
         nbpastemps=1;
-    else if (process.nom_calcul=="latin")
+    }else if (process.nom_calcul=="latin"){
         nbpastemps=process.temps->nbpastemps;
-    else{std::cout << "Nom de clacul non implemente dans allocate.h" << std::endl;assert(0);}
+    }else{
+        std::cout << "Nom de clacul non implemente dans allocate.h" << std::endl;
+        assert(0);
+    }
     
-    if (process.latin->save_depl_SST==1)
-        for(unsigned i=0;i<S.size();++i){
-            S[i].t.resize(nbpastemps+1);
-            if(process.recopie_t_post==1)
-                S[i].t=S[i].t_post;
-            else
-                S[i].t_post.resize(process.temps->nbpastemps+1);//utile pour le post traitement en incremental
+    if (process.latin->save_depl_SST==1){
+        for(unsigned i=0;i<SubS.size();++i){
+            SubS[i].t.resize(nbpastemps+1);
+            if(process.recopie_t_post==1){
+                SubS[i].t=SubS[i].t_post;
+            }else if(process.parallelisation->is_local_cpu()){
+                SubS[i].t_post.resize(process.temps->nbpastemps+1);//utile pour le post traitement en incremental
                 for(unsigned pt=1;pt<(nbpastemps+1);pt++){
-                    unsigned nbddl = S[i].mesh.node_list_size*DIM;
-                    unsigned nbelem = S[i].mesh.elem_list_size;
-                    S[i].t[pt].allocations(nbddl,nbelem,process,S[i]);
+                    SubS[i].t[pt].allocate(SubS[i]);
                 }
-                if (process.nom_calcul=="incr")
+                if (process.nom_calcul=="incr"){
                     for(unsigned pt=1;pt<(process.temps->nbpastemps+1);pt++){
-                        unsigned nbddl = S[i].mesh.node_list_size*DIM;
-                        unsigned nbelem = S[i].mesh.elem_list_size;
-                        S[i].t_post[pt].allocations(nbddl,nbelem,process,S[i]);
+                        SubS[i].t_post[pt].allocate(SubS[i]);
                     }
+                }
+            }
                     
         }
-        if (process.parallelisation->is_local_cpu())
-            for(unsigned i=0;i<Inter.size();++i){
-                for(unsigned j=0;j<Inter[i].side.size();++j){
-                    Inter[i].side[j].t.resize(nbpastemps+1);
+        if (process.parallelisation->is_local_cpu()){
+            for(unsigned i=0;i<SubI.size();++i){
+                for(unsigned j=0;j<SubI[i].side.size();++j){
+                    SubI[i].side[j].t.resize(nbpastemps+1);
                     if(process.recopie_t_post==1)
-                        Inter[i].side[j].t=Inter[i].side[j].t_post;
+                        SubI[i].side[j].t=SubI[i].side[j].t_post;
                     else{
-                        Inter[i].side[j].t_post.resize(process.temps->nbpastemps+1); //utile pour le post traitement en incremental
-                        for(unsigned pt=0;pt<(nbpastemps+1);pt++)
-                            Inter[i].side[j].t[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);
-                        for(unsigned pt=0;pt<(process.temps->nbpastemps+1);pt++)
-                            if(process.nom_calcul=="incr")
-                                Inter[i].side[j].t_post[pt].allocations(Inter[i].side[j].nodeeq.size()*DIM,process);                        
-                            
+                        SubI[i].side[j].t_post.resize(process.temps->nbpastemps+1); //utile pour le post traitement en incremental
+                        if(process.nom_calcul=="incr" and process.parallelisation->is_local_cpu()){
+                            for(unsigned pt=0;pt<(nbpastemps+1);pt++){
+                                SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);
+                            }
+                            for(unsigned pt=0;pt<(process.temps->nbpastemps+1);pt++){
+                                SubI[i].side[j].t_post[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);                        
+                            }
+                        }
                     }
                 }
-                //allocation des parametres de comportements dependant du temps (exemple endommagement)
-                Inter[i].param_comp->t.resize(nbpastemps+1);
-                for(unsigned j=0;j<Inter[i].param_comp->t.size();j++)
-                    Inter[i].param_comp->t[j].allocate(Inter[i].side[0].nodeeq.size());
+                /// allocation des parametres de comportements dependant du temps (exemple endommagement)
+                SubI[i].t.resize(nbpastemps+1);
+                for(unsigned j=0;j<nbpastemps+1;j++){
+                    SubI[i].t[j].allocate(SubI[i]);
+                }
             }
+        }
+    }
             
 }
 
 
-void assign_quantities_current_to_old(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interface> > &Inter, Process &process){
-    
-    for(unsigned i=0;i<S.size();i++){
-        S[i].t_post[process.temps->pt_cur]=S[i].t[1];
-        S[i].t[0]=S[i].t[1];
+void assign_quantities_current_to_old(PointedSubstructures &SubS, PointedInterfaces &SubI, Process &process){
+    for(unsigned i=0;i<SubS.size();i++){
+        SubS[i].t_post[process.temps->pt_cur]=SubS[i].t[1];
+        SubS[i].t[0]=SubS[i].t[1];
     }
-    for(unsigned i=0;i<Inter.size();i++){
-        for(unsigned j=0;j<Inter[i].side.size();j++){
-            Inter[i].side[j].t[0].F=Inter[i].side[j].t[1].F;
-            Inter[i].side[j].t[0].Wp=Inter[i].side[j].t[1].Wp;
-            Inter[i].side[j].t[0].Fchap=Inter[i].side[j].t[1].Fchap;
-            Inter[i].side[j].t[0].Wpchap=Inter[i].side[j].t[1].Wpchap;
-            Inter[i].side[j].t[0].W=Inter[i].side[j].t[1].W;
-            Inter[i].side[j].t[0].Wchap=Inter[i].side[j].t[1].Wchap;
-            Inter[i].side[j].t_post[process.temps->pt_cur]=Inter[i].side[j].t[1];
+    for(unsigned i=0;i<SubI.size();i++){
+        for(unsigned j=0;j<SubI[i].side.size();j++){
+            SubI[i].side[j].t[0].F=SubI[i].side[j].t[1].F;
+            SubI[i].side[j].t[0].Wp=SubI[i].side[j].t[1].Wp;
+            SubI[i].side[j].t[0].Fchap=SubI[i].side[j].t[1].Fchap;
+            SubI[i].side[j].t[0].Wpchap=SubI[i].side[j].t[1].Wpchap;
+            SubI[i].side[j].t[0].W=SubI[i].side[j].t[1].W;
+            SubI[i].side[j].t[0].Wchap=SubI[i].side[j].t[1].Wchap;
+            SubI[i].side[j].t_post[process.temps->pt_cur]=SubI[i].side[j].t[1];
         }
     }
 }
 
 
-void assign_t_post(Vec<VecPointedValues<Sst> > &S, Vec<VecPointedValues<Interface> > &Inter, Process &process){
+void assign_t_post(PointedSubstructures &SubS, PointedInterfaces &SubI, Process &process){
     
-    for(unsigned i=0;i<S.size();i++){
-        S[i].t_post[process.temps->pt_cur]=S[i].t[1];
-        S[i].t[0]=S[i].t[1];
+    for(unsigned i=0;i<SubS.size();i++){
+        SubS[i].t_post[process.temps->pt_cur]=SubS[i].t[1];
+        SubS[i].t[0]=SubS[i].t[1];
     }
-    for(unsigned i=0;i<Inter.size();i++){
-        for(unsigned j=0;j<Inter[i].side.size();j++)
-            Inter[i].side[j].t_post[process.temps->pt_cur]=Inter[i].side[j].t[1];
+    for(unsigned i=0;i<SubI.size();i++){
+        for(unsigned j=0;j<SubI[i].side.size();j++)
+            SubI[i].side[j].t_post[process.temps->pt_cur]=SubI[i].side[j].t[1];
     }
 }
 
 
-void recopie_old_from_new(Vec<Interface> &Inter,Process &process) {
+void recopie_old_from_new(PointedInterfaces &SubI,Process &process) {
     unsigned nbpastemps=0;
     if (process.nom_calcul=="incr") nbpastemps=1;
     if (process.nom_calcul=="latin") nbpastemps=process.temps->nbpastemps;
     for(unsigned pt=1;pt<=nbpastemps;pt++)
-        for( unsigned q=0;q<Inter.size() ;q++ )
-            for( unsigned data=0;data<Inter[q].side.size() ;data++ ) {
-                Inter[q].side[data].t[pt].oldF=Inter[q].side[data].t[pt].F;
-                Inter[q].side[data].t[pt].oldWp=Inter[q].side[data].t[pt].Wp;
-                Inter[q].side[data].t[pt].oldW=Inter[q].side[data].t[pt].W;
+        for( unsigned q=0;q<SubI.size() ;q++ )
+            for( unsigned data=0;data<SubI[q].side.size() ;data++ ) {
+                SubI[q].side[data].t[pt].oldF=SubI[q].side[data].t[pt].F;
+                SubI[q].side[data].t[pt].oldWp=SubI[q].side[data].t[pt].Wp;
+                SubI[q].side[data].t[pt].oldW=SubI[q].side[data].t[pt].W;
             }
 }
 
 
-void recopie_old_from_new_post(Vec<Interface> &Inter,Process &process) {
-    for( unsigned q=0;q<Inter.size() ;q++ )
-        for( unsigned data=0;data<Inter[q].side.size() ;data++ ) {
-            Inter[q].side[data].t[1].oldF=Inter[q].side[data].t_post[1].F;
-            Inter[q].side[data].t[1].oldWp=Inter[q].side[data].t_post[1].Wp;
-            Inter[q].side[data].t[1].oldW=Inter[q].side[data].t_post[1].W;
+void recopie_old_from_new_post(PointedInterfaces &SubI,Process &process) {
+    for( unsigned q=0;q<SubI.size() ;q++ )
+        for( unsigned data=0;data<SubI[q].side.size() ;data++ ) {
+            SubI[q].side[data].t[1].oldF=SubI[q].side[data].t_post[1].F;
+            SubI[q].side[data].t[1].oldWp=SubI[q].side[data].t_post[1].Wp;
+            SubI[q].side[data].t[1].oldW=SubI[q].side[data].t_post[1].W;
         }
 }
 

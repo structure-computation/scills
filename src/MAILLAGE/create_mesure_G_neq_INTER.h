@@ -3,6 +3,7 @@
 
 #include "../UTILITAIRES/algebre.h"
 #include "../UTILITAIRES/utilitaires.h"
+#include "../DEFINITIONS/structure_typedef.h"
 
 //********************************************
 // calcul mesure cdg pour les interfaces
@@ -58,13 +59,13 @@ Les normales sont créées pour les deux cotés de l'interface (elles sont opposées
  
 Les normales sont calculées par élément et donc aux noeuds équivalents de l'interface pour lesquels les grandeurs F, W sont définies. Celles ci sont normalisées.
 */
-template<class TV1, class INTER > void calculate_normales(INTER &Inter, TV1 &S) {
+void calculate_normales(Interface &Inter, Substructures &S) {
    //le maillage de peau des SST a deja ete mis a jour dans calculate_measure_G_SST.h
    for(unsigned q=0;q<Inter.side.size();++q) {
       //selection des elements de peau de la sous-structure voisine correspondant
       unsigned ii = Inter.vois[2*q];
       //preselection des elements du maillage de peau qui peuvent convenir (pour accelerer les calculs)
-      Vec<typename TV1::template SubType<0>::T::TMESH::TM::Pvec,2> box = create_box_mesh(*Inter.side[q].mesh);
+      Vec<Point,2> box = create_box_mesh(*Inter.side[q].mesh);
 
       Inter.side[q].neq.resize(Inter.side[q].mesh->elem_list.size()*DIM,0.);
       S[ii].mesh->update_skin();
@@ -81,7 +82,7 @@ Le centre de gravité et la mesure sont déterminées uniquement sur le coté 0 de l
 Les normales pour un coté donné de l'interface sont toujours dirigées de la sous-structure vers l'interface.
 */
 struct calculate_measure_G_neq_INTER {
-   template<class INTER,class TV1> void operator() (INTER &Inter, TV1 &S) const {
+   void operator() (Interface &Inter, Substructures &S) const {
       Inter.G=barycenter_constant_rho(*Inter.side[0].mesh);
       Inter.measure=measure(*Inter.side[0].mesh);
       calculate_normales(Inter,S);

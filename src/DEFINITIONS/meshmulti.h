@@ -227,7 +227,7 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
 */
 struct assigne_f_vol_e {
     template<class TE,class TM>
-    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {
+    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {/*
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
         Pvec G = center(e);
@@ -269,7 +269,7 @@ struct assigne_f_vol_e {
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
             e.f_vol_e[d2] = m.density * (TYPEREEL)expr[d2].subs_numerical(var);
-        }
+        }*/
     }
 };
 

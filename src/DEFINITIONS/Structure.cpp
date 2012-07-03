@@ -1,11 +1,12 @@
-#include "Structure.h"
+#include "Structure.h"/*
 #include "../MPI/assignation_mpi.h"
 
 //fichiers de definition des variables
 #include "definition_PARAM_COMP_INTER.h"
-#include "LatinParameters.h"
-#include "MultiScaleParameters.h"
-#include "TimeParameters.h"
+#include "LatinData.h"
+#include "MultiScaleData.h"
+#include "MultiResolutionData.h"
+#include "TimeData.h"
 
 //pour l'affichage et le post-traitement
 #include "../../LMT/include/containers/gnuplot.h"
@@ -20,6 +21,8 @@
 #include "../MATERIAUX/MATERIAUX_declarations.h"
 #include "../OPERATEURS/multiscale_operateurs.h"
 #include "read_CL.h"
+
+void iterate_incr(Process &process,ScSstRef &SubS,ScInterVec &Inter,ScInterRef &SubI,MacroProblem &Global,DataUser &data_user);
 
 #include "../POSTTRAITEMENTS/save_read_data.h"
 #include "../MPI/mpi_sendrecvall.h"
@@ -51,75 +54,52 @@ void Structure::initialisation_MPI(int argc,char **argv){
 #endif
 }
 
+
+
 void Structure::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
     process.print_title(0,Sc2String("LANCEMENT DU CALCUL ")+id_model+" "+id_calcul);
     process.print_title(1,"Lecture des donnees venant de SC-create_2");
+    /// Lecture du JSON
     process.print_title(2,"Lecture du fichier de calcul");
     data_user.initialisation(id_model, id_calcul);
     data_user.read_json_calcul();
     
+    /// Lecture du HDF5
     process.print_title(2,"Lecture du fichier du modele");
     geometry_user.initialisation(id_model, id_calcul);
     geometry_user.read_hdf5(false,true,data_user.options.mode);                       // true si on lit les info micro, true si on lit toutes les infos
-    S.resize(geometry_user.nb_group_elements);
 }
 
-void Structure::chargement_donnees(){
-    process.print_title(1,"Lecture des donnees");
+
+
+void Structure::mise_en_donnees(){
+    /// Lecture du DataUser
+    process.print_title(1,"Lecture du DataUser");
 #ifdef INFO_TIME
     process.parallelisation->synchronisation();
     if (process.parallelisation->is_master_cpu()) {tic1.init();tic1.start();}
 #endif
-    /// lecture des donnees de calcul
-    process.print_title(2,"Lecture du DataUser");
     process.read_data_user(data_user);
-    #ifdef INFO_TIME
+#ifdef INFO_TIME
     process.print_duration(tic1);
-    #endif
+#endif
     
-    /// lecture des conditions aux limites
-    process.print_title(2,"Lecture des Conditions aux Limites");
-    read_CL(data_user,CL,process);
-    for(int i = 0; i < CL.size(); i++)
-        CL[i].display_all_data();
-    #ifdef INFO_TIME
-    process.print_duration(tic1);
-    #endif
-    
-    
-    process.print_title(1,"Construction du maillage micro et macro");
     /// construction de la geometrie et des maillages
+    process.print_title(1,"Construction du maillage micro et macro");
     multiscale_geometry_mesh( data_user, geometry_user, S, Inter, process, CL, Stot, SubS, SubI );
-    #ifdef INFO_TIME
+#ifdef INFO_TIME
     process.print_duration(tic1);
-    #endif
+#endif
     
-    process.save_data=1;
-    
-    ///recherche des donnees utilisant les parametres de multiresolution
-    data_user.find_Multiresolution_parameters();
-    
-    field_structure_user.load_geometry_user(geometry_user);
-    
-    ///assignation des proprietes materiaux aux maillages des sst
-    assignation_materials_property_SST(data_user, matprops, S, process, field_structure_user);//pas de SubS, pour les directions de recherches, besoin de connaitre les E de SST pas sur le pro
-    #ifdef INFO_TIME
-    process.print_duration(tic1);
-    #endif
-    
-    /// modification du comportement des interfaces interieures si besoin : contact...
-    assignation_materials_property_INTER(data_user,Inter,process, field_structure_user);//pas de SubI on verifie juste que les interfaces a modifier sont utiles pour le pro
-    #ifdef INFO_TIME
-    process.print_duration(tic1);
-    #endif
-}
-
-
-
-/** \ingroup
-\brief Fonction principale pour un calcul sous-structure.
-*/
-void Structure::boucle_multi_resolution() {
+    /// Remplissage du FieldStructureUser
+    /// Chargement des maillages
+    field_structure_user.load_geometry_user(geometry_user);      
+    /// Assignation des proprietes aux group_elements (pour GPU)
+    field_structure_user.assign_material_id_to_group_elements(data_user);
+    field_structure_user.assign_material_properties_to_group_elements(data_user,mat_prop_temp);
+    ///idem pour les group_interfaces (pour GPU)
+    field_structure_user.assign_link_id_to_group_interfaces(data_user);
+    field_structure_user.assign_link_properties_to_group_interfaces(data_user,link_prop_temp);
     
     /// sauvegarde du maillage pour la visualisation des resultats
     process.print("Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats");
@@ -157,154 +137,179 @@ void Structure::boucle_multi_resolution() {
         return;
     }
     
-    process.print("Allocations des quantites d'interfaces et SST");
-    if(process.reprise_calcul!=2)
-        allocate_quantities_post(SubS,SubI,process);
-    
-#ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.parallelisation->rank)+" : Memoire apres allocations : ").c_str(),1);
-#endif    
-    
-    
+    /// Allocations et initialisation des quantites
+    process.print("Allocations des vecteurs de stockage des resultats");
+    allocate_quantities(SubS,SubI,process,Global);
+    #ifdef PRINT_ALLOC
+    disp_alloc(to_string(process.parallelisation->rank)+" : Memoire apres allocations : ",1);
+    #endif
+}
+
+
+
+void Structure::boucle_multi_resolution() {
     /// Lancement du calcul
-    if(data_user.options.Multiresolution_on==1){
-        /// Calcul avec MultiResolution
-        if (process.parallelisation->is_master_cpu()) std::cout << "Calcul parametrique : " << data_user.options.Multiresolution_type <<std::endl;
-        if(data_user.options.Multiresolution_type=="fatigue"){
-            data_user.options.Multiresolution_nb_calcul=data_user.Multiresolution_parameters[0].nb_values;
-            process.print_data("Nombre de calculs a faire : ",data_user.options.Multiresolution_nb_calcul);
-            /// Boucle sur la MultiResolution
-            for(int i_res=0 ;i_res<  data_user.options.Multiresolution_nb_calcul ;i_res++){
-                /// Evaluation des parametres
-                data_user.options.Multiresolution_current_resolution=i_res;
-                for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
-                    data_user.Multiresolution_parameters[i_par].current_value=data_user.options.Multiresolution_nb_cycle*i_res+data_user.Multiresolution_parameters[i_par].min_value;
-                    PRINT(data_user.Multiresolution_parameters[i_par].current_value);
-                }
-                boucle_steps_client();
-            }
-        }
-        else {
-            std::cerr <<"TODO : plan d'experience" << std::endl;
-            assert(0);
-        }
-    }
-    else{
-        process.temps->dt=0;
-        boucle_steps_client();
+    MultiResolutionData* multiresolution = process.multiresolution;
+    process.print_data("Calcul parametrique : ",multiresolution->type);
+    process.print_data("Nombre de calculs : ",multiresolution->nb_calculs);
+    for(multiresolution->init();multiresolution->has_next();multiresolution->next()){
+        multiresolution->update_parameters();                                           /// Mise a jour des parametres de multi-resolution
+        SstCarac::sst_materials_parameters.update_all(multiresolution->m.value);        /// Mise a jour des parametres materiaux des sst
+        InterCarac::inter_materials_parameters.update_all(multiresolution->m.value);    /// Mise a jour des parametres materiaux des interfaces
+        boucle_temporelle();
     }
     process.parallelisation->synchronisation();
     
     memory_free(S,Inter,process);
 }
 
-/** \ingroup
- \ *brief Fonction principale pour un calcul sous-structure. Cette routine est appelee plusieurs fois dans le cas d'une multiresolution
- */
-void Structure::boucle_steps_client() {
-#ifdef INFO_TIME
+
+
+void Structure::boucle_temporelle(){
+    #ifdef INFO_TIME
     process.parallelisation->synchronisation();
     TicTac tic2;
     if (process.parallelisation->is_master_cpu()) {tic2.init();tic2.start();}
-#endif
-    
-    bool calculate_operator=false;  /// indique si les operateurs doivent etre recalcules
-    /// Reevaluation des proprietes materiaux en MultiResolution
-    if(data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_material_link_CL_CLvolume[0]==1){
-        process.print("Reevaluation (multiresolution) des materiaux SST");
-        assignation_materials_property_SST(data_user,matprops,S,process,field_structure_user);
-        assignation_materials_property_INTER(data_user,Inter,process,field_structure_user);
-        calculate_operator=true;
-    }
+    #endif
     
     /// Boucle sur les steps temporels
+    TimeData* temps = process.temps;
     process.print_title(1,"DEBUT DU CALCUL ITERATIF ");
-    process.print_data("Nombre de pas de temps total : ",process.temps->nbpastemps);
-    process.temps->pt_cur=0;
-    for(unsigned i_step=0;i_step<process.temps->nb_step;i_step++){
-        process.print_data("********************Step : ",i_step);
-        process.temps->step_cur=i_step;
+    process.print_data("Nombre de pas de temps total : ",temps->nbpastemps);
+    for(temps->init();temps->has_next();temps->next()){
+        if(temps->step_changed()){
+            process.print_data("********************Step : ",temps->step_cur);
+        }
+        process.print_data("----Piquet de temps courant ",temps->t_cur);
+        temps->update_parameters();
         
         /// Calcul des operateurs
-        if(process.temps->dt!=process.temps->time_step[i_step].dt or calculate_operator==true){
-            process.temps->dt=process.temps->time_step[i_step].dt;
-            calculate_operator=false;
-            
-            process.print_title(1,"Calcul des operateurs");
-            
-#ifdef PRINT_ALLOC
-            disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
-#endif
-            multiscale_operateurs(Stot,SubS,Inter,SubI,process,Global, data_user);
-            #ifdef INFO_TIME
-            process.print_duration(tic2);
-            #endif
+        process.print_title(1,"Mise a jour des operateurs");
+        for(int i_sst = 0; i_sst < S.size(); i_sst++){
+            if(S[i_sst].update_operator){
+                process.print_data("Solide ",S[i_sst].id);
+                #ifdef PRINT_ALLOC
+                disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
+                #endif
+                multiscale_operateurs(Stot,SubS,Inter,SubI,process,Global, data_user);
+                #ifdef PRINT_ALLOC
+                disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
+                #endif
+                break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
+            }
         }
+        #ifdef INFO_TIME
+        process.print_duration(tic2);
+        #endif
         
-        /// destruction des quantites surperflues en MPI
-#ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant free : ").c_str(),1);
-#endif
-        //memory_free(S,Inter,process);
-#ifdef PRINT_ALLOC
-        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres free : ").c_str(),1);
-#endif
-        /*    STAND BY
-         *       if(process.read_data==1) {
-         *           if (process.parallelisation->is_master_cpu()) std::cout << "Allocations des quantites d'interfaces et SST" << std::endl;
-         *           allocate_quantities(SubS,SubI,process,Global);
-         *           if (process.parallelisation->is_master_cpu()) std::cout << "Lecture des resultats dans les fichiers save_sst et save_inter" << std::endl;
-         *           read_data_sst(S, process);
-         *           read_data_inter(Inter, process);
-         *           if (process.parallelisation->is_multi_cpu()) SendRecvInterAll(process.parallelisation->intertoexchangebypro,Inter,process);
-         *           calcul_erreur_latin(SubS, Inter, process, Global);
-         *           if (process.parallelisation->is_master_cpu()) std::cout << "Erreur : " << process.latin->error[process.latin->iter] << std::endl;
-         } else {
-             //*/
-             if(process.nom_calcul=="incr") {
-                 process.print("Calcul incremental");
-                 multiscale_iterate_incr(S,SubS, Inter,SubI,process, Global,CL, data_user, geometry_user, field_structure_user);
-             } else {
-                 std::cerr << "Nom de calcul non defini : incremental uniquement" << std::endl;
-                 assert(0);
-             }
-             
-             if(process.save_data==1) {
-                 //if (process.parallelisation->is_master_cpu) std::cout << "Sauvegarde des resultats dans les fichiers save_sst et save_inter" << std::endl;
-                 //Vec<Sc2String> fields_to_save("Fchap","F","Wpchap","Wp","Wchap","W");
-                 //save_data_inter(Inter,SubS, process, fields_to_save);
-                 //Vec<Sc2String> fields_to_save2("q");
-                 //save_data_sst(SubS, process, fields_to_save2);
-             }
-             #ifdef INFO_TIME
-             process.print_duration(tic2);
-             #endif
-        //}
-    }
-         
-    /// Affichage en temps reel de la convergence
-    if(process.parallelisation->is_master_cpu()){
-        if (process.affichage->display_error==1) {
-            GnuPlot gp;
-            gp.plot(log10(process.latin->error[range(process.latin->iter)]));
-            gp.wait();
+        if(process.nom_calcul=="incr") {
+            process.print("Calcul incremental");
+            /// Presence d'interface Breakable ?
+            int nb_breakable=0;
+            if (process.parallelisation->is_master_cpu()){
+                for(unsigned q=0; q <Inter.size();q++){
+                    if (Inter[q].comp =="Breakable"){
+                        nb_breakable++;
+                    }
+                    if (process.parallelisation->is_multi_cpu()){
+                        MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+                    }
+                    process.nb_breakable = nb_breakable ;
+                }
+            }
+            
+            /// Mise a jour des conditions aux limites
+            if(process.temps->pt_cur == 0 and process.parallelisation->is_local_cpu()){
+                process.print(" - Initialisation des Conditions aux limites :");
+                initialise_CL_values(SubI, CL);
+            }
+            process.print("\n - Mise a jour des Conditions aux limites :");
+            if (process.parallelisation->is_local_cpu()) update_CL_values(SubI, CL, process, data_user);
+        
+            /// Calcul sur le pas de temps
+            if (nb_breakable>0) {
+                int nb_change = 0;
+                int sous_iter = 1;
+                while(nb_change != 0 or sous_iter == 1) {
+                    if (process.parallelisation->is_local_cpu()){
+                        for(unsigned q=0; q < SubI.size();q++){
+                            if (SubI[q].comp == "Breakable")
+                                SubI[q].convergence = -1; 
+                        }
+                    }
+                    if (process.parallelisation->is_master_cpu()) std::cout << "          Sous iteration interface cassable : " << sous_iter << std::endl;
+                    iterate_incr(process,SubS,Inter,SubI,Global,data_user);
+                    if (process.parallelisation->is_local_cpu()){
+                        for(unsigned q=0; q < SubI.size();q++){
+                            if (SubI[q].comp == "Breakable")
+                                nb_change += SubI[q].convergence ; 
+                        }
+                    }
+                }
+            } else {
+                iterate_incr(process,SubS,Inter,SubI,Global,data_user);
+            }
+            ///assignation ptcur au ptold
+            process.print(" - Reactualisation des valeurs pour le pas de temps suivant");
+            assign_quantities_current_to_old(SubS,SubI,process);
+            
+            /// Sauvegarde des resultats
+            if(process.save_data){
+                process.print(" - Sauvegarde des resultats au format HDF"); 
+                if (process.parallelisation->is_local_cpu()) {
+                    // write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);  BUG
+                    convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
+                    Sc2String rank; rank << process.parallelisation->rank;
+                    Sc2String file_output_hdf5 = process.affichage->name_hdf + "_" + rank + ".h5";
+                    field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields, temps->pt_cur, temps->t_cur, process.parallelisation->rank);
+                }
+            }
+            
+            /// Modification du comportement des entites
+            //modification_sst_inter_behaviour(S,Inter,temps);  A TESTER
+            
+            process.print_data("----Fin piquet de temps ",temps->t_cur);
+        
+            ///Affichage des energies
+            if (process.affichage->trac_ener_imp == 1) {
+                process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
+                affichage_energie(SubS,Inter,process,data_user);
+                process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
+                affichage_energie(SubS,Inter,process,data_user);
+            }
+            if (process.affichage->trac_ener_diss == 1) {
+                process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=0;
+                affichage_energie(SubS,Inter,process,data_user);
+                process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=1;
+                affichage_energie(SubS,Inter,process,data_user);
+            }
+        } else {
+            std::cerr << "Nom de calcul non defini : incremental uniquement" << std::endl;
+            assert(0);
         }
     }
 
+    
+    #ifdef INFO_TIME
+    process.print_duration(tic2);
+    #endif
+    
     ///sortie xdmf à partir du fichier hdf5 cree au fur et à mesure du calcul
     if(process.parallelisation->is_master_cpu() and process.save_data==1){
         //write_xdmf_file_compute(process, data_user);
     }
-
+    
     affichage_resultats(SubS,process, data_user);           ///sortie paraview pour les sst (volumes et peaux)
     affichage_resultats_inter(SubI, S ,process, data_user); ///sortie paraview pour les interfaces
 }
 
 
+
 void Structure::finalisation_MPI(){
     process.print("Programme complet : ",true);
-    #ifdef INFO_TIME
+#ifdef INFO_TIME
     process.print_duration(tic1);
-    #endif
+#endif
     if (process.parallelisation->is_multi_cpu()) MPI_Finalize();
 }
+*/
