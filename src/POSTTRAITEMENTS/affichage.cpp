@@ -11,10 +11,10 @@
 
 // fichiers de definition des variables
 #include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/SavingData.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
-#include "../DEFINITIONS/TimeParameters.h"
+#include "../DEFINITIONS/TimeData.h"
 
 #include "../ITERATIONS/manipulate_quantities.h"
 
@@ -179,7 +179,7 @@ void affichage_depl_pt(TV3 &S, Process &process){
 /** \ingroup Post_Traitement
 \brief Affichage de l'évolution de l'énergie dissipée ou de l'énergie imposée au cours du temps à partir des quantités chapeaux ou des quantités n de l'interface
  
- Selon les parametres du champ SaveParameters::param_ener, on sélectionne le type d'énergie et les quantités retenues.
+ Selon les parametres du champ SavingData::param_ener, on sélectionne le type d'énergie et les quantités retenues.
 0 - 0 : energie dissipee sur les quantites chapeau
 0 - 1 : energie dissipee sur les quantites n
 1 - 0 : energie imposee sur les quantites chapeau

@@ -1,13 +1,14 @@
 #include "MacroProblem.h"
+#include "MultiScaleData.h"
 
 MacroProblem::MacroProblem(){
     max_erreur=0;
 }
 
-void MacroProblem::allocations(Process &process){
-    bigW.resize(process.multiscale->sizeM);
+void MacroProblem::allocations(int size_macro_pb){
+    bigW.resize(size_macro_pb);
     bigW.set(0.0);
-    bigF.resize(process.multiscale->sizeM);
+    bigF.resize(size_macro_pb);
     bigF.set(0.0);
 }
 

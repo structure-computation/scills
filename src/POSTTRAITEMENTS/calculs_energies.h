@@ -21,7 +21,8 @@
 
 // fichiers de definition des variables
 #include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/SavingData.h"
+#include "../DEFINITIONS/LatinData.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
 

@@ -1,18 +1,21 @@
+#include "create_op_INTER.h"
+#include "../../DEFINITIONS/MultiScaleData.h"
+
 #include "../../../LMT/include/containers/vec.h"
 #include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/mesh/mesh.h"
+#include "../../../LMT/include/mesh/remove_doubles.h"
+#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
+
 using namespace LMT;
 
 //***********************************************************
 // Calcul des matrices de masse M et sous-integration N
 //***********************************************************
+#include "../../UTILITAIRES/algebre.h"
 #include "createMN.h"
-#include "../../../LMT/include/mesh/remove_doubles.h"
-#include "../../../LMT/include/containers/evaluate_nb_cycles.h"
 
 
-//********************************************
-// Calcul matrice de masse et sous-integration
-//*******************************************
 /** \ingroup Operateurs_inter
 \brief Construction de la matrice de masse et de sous-intégration (Interface::Side::M et Interface::Side::N)
  
@@ -41,9 +44,9 @@ struct CalcMN {
     }
 };
 
-void testMN(Interface::TMATS &N,Sst::TMESHedge &mesh,Vec<Vec<TYPEREEL,DIM> > &nodeeq, Interface &inter) {
+void testMN(SparseMatrix &N,EdgeMesh &mesh,Vec<Point> &nodeeq, Interface &inter) {
 
-    Vec<TYPEREEL> xbord;
+    Vector xbord;
     xbord.resize(N.nb_cols(),0.0);
     for(unsigned i=0;i<mesh.node_list.size();++i) {
         xbord[range(i*DIM,(i+1)*DIM)]=mesh.node_list[i].pos;
@@ -52,7 +55,7 @@ void testMN(Interface::TMATS &N,Sst::TMESHedge &mesh,Vec<Vec<TYPEREEL,DIM> > &no
     std::cout << "\n" << std::endl;
     std::cout << "xbord" << xbord <<std::endl;
 
-    Vec<TYPEREEL> xinter;
+    Vector xinter;
     xinter.resize(N.nb_rows(),0.0);
     for(unsigned i=0;i<nodeeq.size();++i) {
         xinter[range(i*DIM,(i+1)*DIM)]=nodeeq[i];
@@ -91,18 +94,18 @@ struct  Corresp_ddlinter {
             int test=0;
             Vec<unsigned> candidats=range(Inter.side[0].mesh->elem_list.size());
             for (unsigned i=0;i<Inter.side[0].mesh->elem_list.size();i++) {
-                Interface::TMESH::EA *e1=Inter.side[0].mesh->elem_list[i];
-                Interface::Pvec g1 = center(*e1);
-                Interface::Pvec n1 = Inter.side[0].neq[range(i*DIM,(i+1)*DIM)];
+                InterfaceMesh::EA *e1=Inter.side[0].mesh->elem_list[i];
+                Point g1 = center(*e1);
+                Point n1 = Inter.side[0].neq[range(i*DIM,(i+1)*DIM)];
 
                 for( unsigned j=0;j<candidats.size() ;j++ ) {
-                    Interface::TMESH::EA *e2=Inter.side[1].mesh->elem_list[candidats[j]];
-                    Interface::Pvec g2 = center(*e2);
+                    InterfaceMesh::EA *e2=Inter.side[1].mesh->elem_list[candidats[j]];
+                    Point g2 = center(*e2);
                     if ( (length(vect_prod(g2-g1,n1)) <= 1E-3 )and (dot(g2-g1,n1)  >= -1E-6)) {
                         test=1;
                         //on rentre le jeu physique :)
                         if (Inter.comp=="Contact_jeu_physique" )
-                            Inter.param_comp->jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
+                            Inter.jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
                         //on ecrit la correspondance entre les elements du cote 0 et cote 1
                             Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);
@@ -129,7 +132,7 @@ struct  Corresp_ddlinter {
 };
 
 
-unsigned nb_moment_inertie_inf_eps(Vec<TYPEREEL,DIM> moments,TYPEREEL eps){
+unsigned nb_moment_inertie_inf_eps(Point moments,Scalar eps){
     unsigned zob=0;
     for(unsigned i=0;i<moments.size();i++)
         if (std::abs(moments[i])< eps)
@@ -145,7 +148,7 @@ unsigned nb_moment_inertie_inf_eps(Vec<TYPEREEL,DIM> moments,TYPEREEL eps){
 Selon le champ  process.multiscale->type_base_macro différentes bases macro sont utilisees. Ce champ peut prendre la valeur 1 (resultante) et le nombre de fcts de base est alors de 2 en 2d et 3 en 3d. Lorsque le champ vaut 2 (resultantes et moments), on a 3 fcts de base en 2d et 6 en 3d. Quand le champ vaut 4 (resultante moment et partie lineaire), plusieurs cas sont considérés selon la forme de l'interface. En 2d, si l'interface est droite on a au total 4 fcts de base, si celle ci est de forme quelconque on utilise 6 fcts. Pour le 3d, pour des interfaces planes on utilise 9 fcts de base et 12 pour des interfaces quelconques.
 */
 struct Apply_nb_macro {
-    static const TYPEREEL eps=1e-6;
+    static const Scalar eps=1e-6;
     //cas 3d
     void operator()(Interface &Inter, Process &process) const {
 #if DIM == 2
@@ -176,8 +179,12 @@ struct Apply_nb_macro {
             //resultantes + moments:
             Inter.nb_macro_espace=6;
         } else if(process.multiscale->type_base_macro==3) {
-           //resultantes + moments + extensions:
-            if (Inter.side[0].mesh->elem_list.size()==0 or nb_moment_inertie_inf_eps(Inter.Moments_inertie,eps)>1) {
+            //resultantes + moments + extensions:
+            unsigned zob=0;
+            for(unsigned i=0;i<Inter.Moments_inertie.size();i++)
+                if (std::abs(Inter.Moments_inertie[i])< eps)
+                    zob++;
+            if (Inter.side[0].mesh->elem_list.size()==0 or zob>1) {
                 Inter.nb_macro_espace=0;
             } else if(min(abs(Inter.Moments_inertie))<=eps) {
                 Inter.nb_macro_espace=9;
@@ -349,5 +356,25 @@ struct CreateProjMacro {
     }
 };
 
-
-
+void create_op_INTER(Vec<VecPointedValues<Sst> > &S,Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI,Process &process)
+{
+    // calcul des matrices de masse et de sousintegration pour chaque interface
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Matrice de masse et sous-integration " << std::endl;
+    apply_mt(SubI,process.parallelisation->nb_threads,CalcMN(),S);
+    
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Correspondance ddl de chaque cote de l'interface" << std::endl;       
+    apply_mt(SubI,process.parallelisation->nb_threads,Corresp_ddlinter());
+    
+    if (process.parallelisation->is_master_cpu()) std::cout << "\t Centre de gravite des interfaces" << std::endl;
+    
+    if (process.multiscale->multiechelle==1){  
+        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des BPI" << std::endl;
+        // calcul Base Principale d'Inertie
+        apply_mt(SubI,process.parallelisation->nb_threads,CalcBPI());
+        // Application du nombre de fct de base macro par interface 
+        apply_mt(SubI,process.parallelisation->nb_threads,Apply_nb_macro(),process);
+        // creation des projecteurs macro et micro
+        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des projecteurs macro " << std::endl;
+        apply_mt(SubI,process.parallelisation->nb_threads,CreateProjMacro(),process);
+    }
+}

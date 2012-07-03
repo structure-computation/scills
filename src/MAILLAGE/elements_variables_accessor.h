@@ -29,7 +29,7 @@
  *   - df (scalaire)
  *   - Yd (vecteur)
  * 
- * Remarque: Les fonctions 'upload_q' utilisant la meme nomenclature ont egalement ete definies pour le deplacement, par convenience.
+ * Remarque: Les fonctions 'upload_q' et 'upload_f_vol_e' - utilisant la meme nomenclature - ont egalement ete definies pour le deplacement et les efforts volumiques, par convenience.
  * 
  * Attention !!!
  * - Ne pas definir les surcharges utilisant 'pt' ou 't' si la variable n'a pas de vecteur de stockage dans la definition de 'Sst::Time'
@@ -41,11 +41,13 @@
 
 #include "../DEFINITIONS/Sst.h"
 
+
+//*
 ///----------------------------   Q   ----------------------------------
 void upload_q(Sst &S,Vec<TYPEREEL> &sto);
 void upload_q(Sst &S,Sst::Time &t);
 void upload_q(Sst &S,unsigned pt);
-
+//*/
 //*
 ///---------------------------- SIGMA ----------------------------------
 /// Recuperation depuis le maillage

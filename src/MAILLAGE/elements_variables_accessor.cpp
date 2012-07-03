@@ -1,6 +1,7 @@
 #include "elements_variables_accessor.h"
 
 
+///----------------------------   Q   ----------------------------------
 void upload_q(Sst &S,Vec<TYPEREEL> &sto){
     S.f->get_result() = sto;
 }
@@ -13,8 +14,6 @@ void upload_q(Sst &S,Sst::Time &t){
 void upload_q(Sst &S,unsigned pt){
     S.f->get_result() = S.t[pt].q;
 }
-
-
 
 //*
 ///---------------------------- SIGMA ----------------------------------

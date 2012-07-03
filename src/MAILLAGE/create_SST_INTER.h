@@ -7,18 +7,9 @@
 #include "../DEFINITIONS/Boundary.h"
 #include "../DEFINITIONS/Process.h"
 
-#include <fstream>
-#include <sstream>
-#include "../../LMT/include/mesh/read_avs.h"
-#include "../../LMT/include/mesh/read_geof.h"
-#include "../../LMT/include/mesh/write_avs.h"
-#include "../../LMT/include/mesh/read_mshadv.h"
-#include "../../LMT/include/containers/algo.h"
-#include <map>
-#include "../../LMT/include/containers/vecpointedvalues.h"
-
 #include "../GEOMETRY/GeometryUser.h"
 #include "../COMPUTE/DataUser.h"
+
 using namespace Metil;
 #include "mpi.h"
 
@@ -44,7 +35,7 @@ using namespace LMT;
 La structure data_user contient une liste de group_elements correspondant à chaque sst et une id_material. Cet id_material correspond à l'identificateur des matériaux donnés dans le fichier json.
 A cette etape, on spécifie la taille du vecteur de Sous-structures par l'intermédiaire geometry_user.nb_group_elements et on assigne le numéro du matériau pour chaque sous-structure.
 */
-void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Vec<Sst> &S,Process &process);
+void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Substructures &S,Process &process);
 
 
 /**\ingroup Maillage_geometrie_sst
@@ -96,7 +87,7 @@ struct ConvertMeshConnectivitiesSkin{
 void convert_mesh_skin_to_geometry_user(Sst &S, GeometryUser &geometry_user);
 
 
-void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Process &process);
+void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, Process &process);
 
 
 /** \ingroup Maillage_geometrie_inter
@@ -106,16 +97,16 @@ Le maillage de l'interface est obtenu par la lecture de geometry_user issue de S
  
 */
 
-void read_mesh_interface_geometry_user(Sst::TMESH::TM &mesh, GeometryUser &geometry_user, int num_inter) throw(std::runtime_error);
+void read_mesh_interface_geometry_user(SstMesh::TM &mesh, GeometryUser &geometry_user, int num_inter) throw(std::runtime_error);
 
-void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Process &process);
+void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, VecInterfaces &Inter, Process &process);
 
 /** \ingroup Maillage_geometrie_inter
 \brief Création des interfaces contenues dans une condition aux limites donnée
  
 On recherche les Ssts ayant une intersection avec chacune des conditions aux limites (intersection de boites). On extrait alors du maillage de peau de chaque Ssts sélectionnée le maillage contenu dans une condition aux limites donnée. 
 */
-void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Vec<Sst> &S, Vec<Interface> &Inter, Vec<Boundary> &CL, Process &process);
+void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, VecInterfaces &Inter, Boundaries &CL, Process &process);
 
 struct make_interface_inter {
     void operator()(Interface &SubI, GeometryUser &geometry_user) const;
@@ -149,15 +140,15 @@ On construit ici le vecteur des sous-structures et des interfaces à partir des i
 #endif 
 #include "containers/evaluate_nb_cycles.h"
 
-void create_SST_INTER(DataUser                          &data_user, 
-                      GeometryUser                      &geometry_user, 
-                      Vec<Sst>                          &S,
-                      Vec<Interface>                    &Inter, 
-                      Vec<Boundary>                     &CL, 
-                      Process                           &process, 
-                      Vec<VecPointedValues<Sst> >       &Stot,
-                      Vec<VecPointedValues<Sst> >       &SubS,
-                      Vec<VecPointedValues<Interface> > &SubI);
+void create_SST_INTER(DataUser              &data_user,
+                      GeometryUser          &geometry_user,
+                      Substructures         &S,
+                      VecInterfaces         &Inter,
+                      Boundaries            &CL,
+                      Process               &process,
+                      PointedSubstructures  &Stot,
+                      PointedSubstructures  &SubS,
+                      PointedInterfaces     &SubI);
 
 
 #endif //CREATE_SST_INTER

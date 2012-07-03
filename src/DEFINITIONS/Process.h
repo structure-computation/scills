@@ -1,21 +1,22 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-
-#include "GeneralParameters.h"
-#include "LatinParameters.h"
-#include "MultiScaleParameters.h"
-#include "SaveParameters.h"
-#include "TimeParameters.h"
-#include "PROPERTY.h"
-#include "ParallelisationParameters.h"
-
 #include "../COMPUTE/DataUser.h"
-#include "../UTILS/Sc2String.h"
-#include "../UTILS/SCtime.h"
+#include "../COMPUTE/FieldStructureUser.h"
+#include "../GEOMETRY/GeometryUser.h"
 
-#include "../../LMT/include/containers/vec.h"
-using namespace LMT;
+#include "structure_typedef.h"
+#include "SavingData.h"
+#include "GeneralData.h"
+#include "MultiScaleData.h"
+#include "LatinData.h"
+#include "TimeData.h"
+#include "PROPERTY.h"
+#include "ParallelisationData.h"
+#include "MultiResolutionData.h"
+#include "MacroProblem.h"
+
+#include "../UTILS/SCtime.h"
 
 /** \defgroup Parametres
 \brief Paramètres du programme multiéchelle 
@@ -31,15 +32,35 @@ Cette classe regroupe toutes les donnees d'un calcul multi-echelle de la methode
 */
 struct Process
 {
+    
     //attributs==============================================================================================
-    /// Principales structures de donnees
-    GeneralParameters *structure;                   /// parametres donnant la geometrie et maillages de la structure
-    LatinParameters *latin;                         /// parametres lies a la strategie latin
-    MultiScaleParameters *multiscale;               /// parametres multiechelle
-    SaveParameters *affichage;                      /// parametres d'affichage et de sauvegarde
-    TimeParameters *temps;                          /// parametres temporels
-    PROPERTY *properties;                           /// parametres pour les proprietes materielles
-    ParallelisationParameters *parallelisation;     /// parametres MPI
+    /// Structures de donnees associees a la methode LaTIn
+    GeneralData *structure;                 /// parametres donnant la geometrie et maillages de la structure
+    LatinData *latin;                       /// parametres lies a la strategie latin
+    MultiScaleData *multiscale;             /// parametres multiechelle
+    SavingData *affichage;                  /// parametres d'affichage et de sauvegarde
+    TimeData *temps;                        /// parametres temporels
+    //PROPERTY *properties;                   /// parametres pour les proprietes materielles
+    ParallelisationData *parallelisation;   /// parametres MPI
+    MultiResolutionData *multiresolution;   /// parametres de multi-resolution
+    DataUser *data_user;                     /// structure de stockage des informations du fichier JSON
+    GeometryUser *geometry_user;             /// structure de stockage des informations du fichier HDF5
+    FieldStructureUser *field_structure_user;
+    
+    MacroProblem *Global;        /// propriete macro de la structure
+    
+    /// Donnees associees a la structure etudiee
+    Substructures *S;            /// vecteur des sous structures (contient toutes les Sst du pb, mais seules celles dans SubS seront traitees par l'instance du programme)
+    VecInterfaces *Inter;        /// vecteur des interfaces (idem que S mais pour les interfaces)
+    PointedSubstructures *SubS;  /// MPI : vecteur de pointeur vers les Sst a traiter dans cette instance du programme
+    PointedSubstructures *Stot;  /// MPI : vecteur de pointeur vers toutes les Sst (pour avoir le meme type que SubS)
+    PointedInterfaces *SubI;     /// MPI : vecteur de pointeur vers les Interfaces a traiter dans cette instance du programme
+    Boundaries *CL;              /// vecteur des conditions limites
+    VolumicForces *Fvol;         /// efforts volumiques sur la structure
+    Materials *sst_materials;    /// vecteur des propriete materiaux des Sst
+    Links *inter_materials;      /// vecteur des propriete materiaux des Interfaces
+    
+    /// Operateurs de la structure
     
     /// donnees globales pour le calcul 
     bool sousint;           /// sousintegration oui = 1 non=0
@@ -64,74 +85,38 @@ struct Process
     
 
     //methodes===============================================================================================
-    Process();  /// Constructeur
-    ~Process(); /// Destructeur
-    void read_data_user(DataUser &data_user);   /// Charge les donnees du DataUser dans les structures de donnees ci-dessous
-    void allocation_memoire();      /// Alloue la memoire des differentes structures de donnees (appele par le constructeur)
-    void desallocation_memoire();   /// Libere la memoire des differentes structures de donnees (appele par le destructeur)
+    /// Constructeur
+    Process();
+    /// Destructeur
+    ~Process();
+    /// Alloue la memoire des differentes structures de donnees (appele par le constructeur)
+    void allocate();
+    /// Libere la memoire des differentes structures de donnees (appele par le destructeur)
+    void free();
     
-    /// void print_title(int level,Sc2String title) affiche le titre 'title', de niveau 'level'
-    void print_title(int level,Sc2String title){
-        if(not parallelisation->is_master_cpu())
-            return;
-        if(level == 0){
-            /// Titre principal
-            const int n = 78 - title.size(); /// Nombre d'espaces pour completer la ligne
-            std::cout << std::endl << std::endl;
-            std::cout << "********************************************************************************" << std::endl;
-            std::cout << "*                                                                              *" << std::endl;
-            std::cout << "*";
-            const int n2 = n/2;
-            for(int i = 0; i < n2; i++)
-                std::cout << " ";
-            std::cout << title;
-            const int n3 = n - n2;
-            for(int i = 0; i < n3; i++)
-                std::cout << " ";
-            std::cout << "*" << std::endl;
-            std::cout << "*                                                                              *" << std::endl;
-            std::cout << "********************************************************************************" << std::endl;
-            std::cout << std::endl << std::endl;
-        } else if(level == 1) {
-            /// Grande partie
-            const int n = title.size()+8;
-            std::cout << std::endl << std::endl;
-            for(int i = 0; i < n; i++)
-                std::cout << "*";
-            std::cout << std::endl << "*   " << title << "   *" << std::endl;
-            for(int i = 0; i < n; i++)
-                std::cout << "*";
-            std::cout << std::endl;
-        } else {
-            /// Petite partie
-            const int n = 79 - title.size();
-            std::cout << std::endl << title << " ";
-            for(int i = 0; i < n; i++)
-                std::cout << "-";
-            std::cout << std::endl;
-        }
-    }
+    /// Initialisation de MPI
+    void initialisation_MPI(int argc,char **argv);
+    /// Lecture des fichier JSON et HDF5
+    void lecture_fichiers(Sc2String id_model, Sc2String id_calcul);
+    /// Preparation des structures de donnees
+    void preparation_calcul();
+    /// Gestion de la boucle de multi-resolution
+    void boucle_multi_resolution();
+    /// Gestion de la boucle temporelle
+    void boucle_temporelle();
+    /// Terminaison de MPI
+    void finalisation_MPI();
     
-    /// void print(Sc2String statement,bool no_endl = false) affiche 'statement' avec ('no_endl'=false) ou sans ('no_endl'=true) retour a la ligne
-    void print(Sc2String statement,bool no_endl = false){
-        if(parallelisation->is_master_cpu()){
-            std::cout << statement;
-            if(not no_endl) std::cout << std::endl;
-        }
-    }
+    /// Charge les donnees du DataUser dans les structures de donnees
+    void read_data_user();
     
-    /// void print_duration(TicTac& tic) synchronise les CPU et affiche la duree du timer 'tic'
-    void print_duration(TicTac& tic){
-        parallelisation->synchronisation();
-        if (parallelisation->is_master_cpu()){
-            std::cout << "duree : ";
-            tic.stop();
-            std::cout << " secondes" << std::endl;
-            tic.start();
-        }
-    }
-    
-    /// template< typename Data > void print_data(const char* msg,const Data& value) affiche la valeur 'value' precedee du message 'msg'
+    /// Affiche le titre 'title', de niveau 'level'
+    void print_title(int level,Sc2String title);
+    /// Affiche 'statement' avec ('no_endl'=false) ou sans ('no_endl'=true) retour a la ligne
+    void print(Sc2String statement,bool no_endl = false);
+    /// Synchronise les CPU et affiche la duree du timer 'tic'
+    void print_duration(TicTac& tic);
+    /// Affiche la valeur 'value' precedee du message 'msg'
     template<typename Data> void print_data(const char* msg,const Data& value){
         if(parallelisation->is_master_cpu()) std::cout << msg << value << std::endl;
     }

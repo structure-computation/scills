@@ -17,7 +17,7 @@ using namespace LMT;
  On multiplie dans prelocalstage.h la valeur de la fonction spatiale en un noeud equivalent par la fonction temporel (en statique comme en quasistatique)
 */
 
-void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
+void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {/*
     const unsigned nbCL = data_user.behaviour_bc.size();
     const unsigned nbStep = process.temps->nb_step;
     unsigned nbfct_temporelle;
@@ -32,7 +32,7 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
         } else if (CL[i].comp=="depl_nul") {
             CL[i].comp = "depl";
             data_user.behaviour_bc[i].type = "depl";
-        } else if*/ (CL[i].comp=="sym") {
+        } else if// (CL[i].comp=="sym") {
             CL[i].fcts_spatiales.resize(nbStep);
             CL[i].fcts_temporelles.resize(nbStep);
             CL[i].intervalles_temps.resize(nbStep);
@@ -74,11 +74,11 @@ void read_CL(DataUser &data_user, Vec<Boundary > &CL, Process &process) {
                 assert(0);
             }
         }
-    }
+    }*/
 };
 
 // modification des valeurs des boites de CL en fonction du parametre d'echelle
-void modif_CL_scale(Vec<Boundary > &CL, TYPEREEL &scale) {
+/*void modif_CL_scale(Vec<Boundary > &CL, TYPEREEL &scale) {
     for(unsigned i=0;i<CL.size();++i)
         CL[i].box=CL[i].box*scale;
-};
+};*/

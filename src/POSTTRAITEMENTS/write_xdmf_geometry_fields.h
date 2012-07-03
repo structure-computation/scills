@@ -6,12 +6,12 @@ using namespace Metil;
 #include "containers/mat.h"
 using namespace LMT;
 #include "Process.h"
-#include "LatinParameters.h"
-#include "MultiScaleParameters.h"
-#include "TimeParameters.h"
-#include "SaveParameters.h"
+#include "LatinData.h"
+#include "MultiScaleData.h"
+#include "TimeData.h"
+#include "SavingData.h"
 
-#include "DataUser.h"
+#include "../COMPUTE/DataUser.h"
 
 //ecriture du fichier xdmf a partir de donnees hdf5 pour un maillage contenant des noeuds, elements, des attributs. Utilisable pour les sst ou les interfaces
 void write_xdmf_geometry_fields(std::ofstream &f, Process &process, Sc2String name_element, Sc2String name_node, Sc2String generic_grid_name, Sc2String grid_collection_name, bool with_time, BasicVec<Sc2String> &attributs);

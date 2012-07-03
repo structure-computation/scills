@@ -3,14 +3,15 @@
 using namespace LMT;
 #include "types_erreurs.h"
 #include "../manipulate_quantities.h"
+#include "../../DEFINITIONS/LatinData.h"
 
 /** \defgroup calcul_erreur Calcul de l'erreur
 \ingroup LATIN
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LatinParameters::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LatinParameters::type_error == "ddr") : calcerror_ddr
+- erreur en énergie : (LatinData::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinData::type_error == "ddr") : calcerror_ddr
 Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 
@@ -92,8 +93,8 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LatinParameters::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LatinParameters::type_error == "ddr") : calcerror_ddr
+- erreur en énergie : (LatinData::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinData::type_error == "ddr") : calcerror_ddr
 Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 

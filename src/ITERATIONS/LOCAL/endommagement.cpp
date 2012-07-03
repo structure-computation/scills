@@ -1,4 +1,5 @@
 #include "endommagement.h"
+#include "../../DEFINITIONS/TimeData.h"
 #include "../../MAILLAGE/elements_variables_accessor.h"
 #include "../../../LMT/include/containers/mat.h"
 
@@ -9,9 +10,9 @@ void calcul_endommagement(Sst &S, Process &process){
     int pt = process.temps->pt;
     Sst::Time &t_old = S.t[pt-1];
     Sst::Time &t_new = S.t[pt];
-    const TYPEREEL Yo = S.matprop.Yo;
-    const TYPEREEL b_c = S.matprop.b_c;
-    const TYPEREEL dmax = S.matprop.dmax;
+    const Scalar Yo = S.matprop->Yo;
+    const Scalar b_c = S.matprop->b_c;
+    const Scalar dmax = S.matprop->dmax;
     
     /// Reactualisation de la formulation
     S.f->set_mesh(S.mesh.m);
@@ -20,21 +21,21 @@ void calcul_endommagement(Sst &S, Process &process){
     S.f->update_variables();
     S.f->call_after_solve();
     /// Recuperation des contraintes a corriger
-    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > all_sigma;
+    Vec<VoigtVector> all_sigma;
     all_sigma.resize(S.mesh.elem_list_size);
     download_sigma(S,all_sigma);
-    Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > all_epsilon;
+    Vec<VoigtVector> all_epsilon;
     all_epsilon.resize(S.mesh.elem_list_size);
     download_epsilon(S,all_epsilon);
     
     /// CALCUL DE L'ENDOMMAGEMENT
     for(unsigned i_elem = 0; i_elem < S.mesh.elem_list_size; i_elem++){
-        Vec<TYPEREEL,DIM*(DIM+1)/2> &sigma = all_sigma[i_elem];
-        Vec<TYPEREEL,DIM*(DIM+1)/2> &epsilon = all_epsilon[i_elem];
-        TYPEREEL &d_old = t_old.d1[i_elem];
+        VoigtVector &sigma = all_sigma[i_elem];
+        VoigtVector &epsilon = all_epsilon[i_elem];
+        Scalar &d_old = t_old.d1[i_elem];
         
         /// Evaluation de la fonction seuil
-        TYPEREEL energie,f;
+        Scalar energie,f;
 #if DIM == 2
         energie = 0.5*(sigma[0]*epsilon[0]
                       +sigma[1]*epsilon[1]
@@ -51,7 +52,7 @@ void calcul_endommagement(Sst &S, Process &process){
         
         if(f>0){ /// Correction de l'endommagement
             t_new.d1[i_elem] = std::min((1+b_c)*(1+std::sqrt(Yo/energie)),dmax);  /// On impose f = 0 puis d <= dmax
-            S.maj_operateurs = true;
+            S.update_operator = true;
         }else{ /// pas d'endommagement
             t_new.d1[i_elem] = d_old;
         }

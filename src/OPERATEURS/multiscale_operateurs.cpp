@@ -1,9 +1,9 @@
 #include "multiscale_operateurs.h"
 
 //librairies Hugo
-#include "containers/mat.h"
-#include "containers/vecpointedvalues.h"
-#include "containers/allocator.h"
+#include "../../LMT/include/containers/mat.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../../LMT/include/containers/allocator.h"
 #include "../UTILS/SCtime.h"
 #ifndef INFO_TIME
 #define INFO_TIME
@@ -13,18 +13,20 @@
 #include "INTER/create_op_INTER.h"
 #include "MACRO/create_op_MACRO.h"
 #include "SST/create_op_SST.h"
+#include "../DEFINITIONS/main_typedef.h"
+#include "../../LMT/include/containers/matcholamd.h"
 
 //pour l'affichage : inclure ce .h
 // #include "affichage.h"
 
 #include "mpi.h"
+#include "../DEFINITIONS/MultiResolutionData.h"
 
 
 
 using namespace LMT;
 extern Crout crout;
 
-const TYPEREEL Apply_nb_macro::eps;
 
 /** \defgroup Operateurs Création des opérateurs
 \brief  Creation des opérateurs pour le problème sous-structuré
@@ -56,13 +58,13 @@ L'ordre d'utilisation des fonctions est le suivant :
 //***************************************************************************************************
 //  Procedure de creation des operateurs utilises dans la strategie multiechelle
 //***************************************************************************************************
-void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
-                           Vec<VecPointedValues<Sst> >       &SubS, 
-                           Vec<Interface>                    &Inter, 
-                           Vec<VecPointedValues<Interface> > &SubI, 
-                           Process                           &process, 
-                           MacroProblem                      &Global, 
-                           DataUser                          &data_user) {
+void multiscale_operateurs(PointedSubstructures &Stot,
+                           PointedSubstructures &SubS, 
+                           VecInterfaces        &Inter, 
+                           PointedInterfaces    &SubI, 
+                           Process              &process, 
+                           MacroProblem         &Global, 
+                           DataUser             &data_user) {
 
     TicToc2 tic;
     tic.start();
@@ -76,7 +78,7 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
     disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_INTER : ").c_str(),1);
 #endif
 
-    if(data_user.options.Multiresolution_on==0 or (data_user.options.Multiresolution_on==1 and data_user.options.Multiresolution_current_resolution==0)){  
+    if(process.multiresolution->type=="Off" or process.multiresolution->m==0){  
         if (process.parallelisation->is_master_cpu())
             std::cout << "Calcul des Quantites d'interfaces" << endl;
         create_op_INTER(Stot,Inter,SubI,process);
@@ -139,5 +141,13 @@ void multiscale_operateurs(Vec<VecPointedValues<Sst> >       &Stot,
     crout << process.parallelisation->rank << " : Op Macro : "  ;
     tic.stop();
     process.parallelisation->synchronisation();
-    if (process.parallelisation->is_master_cpu()) std::cout << endl;
-};
+    for(int i_sst = 0; i_sst < SubS.size(); i_sst++){
+        //std::cout << "Matrice de raideur :" << std::endl;
+        //display(*(SubS[i_sst].K));
+        //std
+        std::cout << std::endl << "Matrice homogénéisée : (" << SubS[i_sst].LE.nb_rows() << "," << SubS[i_sst].LE.nb_cols() << ")" << std::endl;
+        display(std::cout, SubS[i_sst].LE);
+        std::cout << std::endl;
+    }
+    process.print("");
+}

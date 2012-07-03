@@ -98,7 +98,7 @@ struct calcerror_ddr {
             Vec<TYPEREEL> &tempW=Inter[q].side[data].t[imic].Wp;
             Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
             Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t[imic].Fchap;
-            const Vec<TYPEREEL> &JJ=Inter[q].param_comp->jeu;
+            const Vec<TYPEREEL> &JJ=Inter[q].jeu;
             Vec<TYPEREEL> temp=tempF-tempFchap;
             TYPEREEL temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
