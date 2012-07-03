@@ -11,12 +11,14 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "../DEFINITIONS/ParallelisationParameters.h"
+#include "../DEFINITIONS/ParallelisationData.h"
 #include "../MAILLAGE/calculate_measure_G_SST.h"
 #include "mpi_lmt_functions.h"
 #include <fstream>
 #include "crout.h"
+#include "../DEFINITIONS/Process.h"
 #include "../GEOMETRY/GeometryUser.h"
+#include "../../LMT/include/containers/algo.h"
 
 extern "C" {
     // #include "metis.h"
@@ -50,7 +52,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
             for( int i=1 ;i<process.parallelisation->size ; i++) {
                 Sc2String str;
                 getline(f,str);
-                istringstream s(str);
+                std::istringstream s(str);
                 s >> process.parallelisation->repartition_sst[i];
             }
         } else {//repartition automatique avec les routines METIS
@@ -81,13 +83,13 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
             int nbcut,nbsst=S.size(),wgtflag=3,npart=process.parallelisation->size-1,numflag=0;
             mrepart.resize(nbsst);
 
-            std::cout << "Proc " << process.parallelisation->rank << " : " << "msst = " << msst << endl;
-            std::cout << "Proc " << process.parallelisation->rank << " : " << "mwsst = "  << mwsst << endl;
-            std::cout << "Proc " << process.parallelisation->rank << " : " << "minter = "  << minter << endl;
-            std::cout << "Proc " << process.parallelisation->rank << " : " << "mwinter = "  << mwinter << endl;
+            std::cout << "Proc " << process.parallelisation->rank << " : " << "msst = " << msst << std::endl;
+            std::cout << "Proc " << process.parallelisation->rank << " : " << "mwsst = "  << mwsst << std::endl;
+            std::cout << "Proc " << process.parallelisation->rank << " : " << "minter = "  << minter << std::endl;
+            std::cout << "Proc " << process.parallelisation->rank << " : " << "mwinter = "  << mwinter << std::endl;
 
             METIS_PartGraphRecursive(&nbsst,msst.ptr(),minter.ptr(),mwsst.ptr(),mwinter.ptr(),&wgtflag,&numflag,&npart,mopts.ptr(),&nbcut,mrepart.ptr());
-            std::cout << "Proc " << process.parallelisation->rank << " : " << "mrepart = " << mrepart << endl;
+            std::cout << "Proc " << process.parallelisation->rank << " : " << "mrepart = " << mrepart << std::endl;
             process.parallelisation->repartition_sst.resize(process.parallelisation->size);
             for( unsigned i=0 ;i<mrepart.size() ; i++) {
                 process.parallelisation->repartition_sst[mrepart[i]+1].push_back(i);
@@ -106,11 +108,11 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     sort(temp);
 
     if (std::abs(norm_2(1.0*temp)-norm_2(1.0*range(S.size())))> 0.000001 ) {
-        std::cout << "Toutes les SST ne sont pas presentes ou le sont en double : verifier le nombre de processeur ou le fichier mpi_repartition" << endl;
+        std::cout << "Toutes les SST ne sont pas presentes ou le sont en double : verifier le nombre de processeur ou le fichier mpi_repartition" << std::endl;
         assert(0);
     }
     if ((unsigned)process.parallelisation->size-1 > S.size()) {
-        std::cout << "Il faut avoir au moins autant de proc que de SST a repartir" << endl;
+        std::cout << "Il faut avoir au moins autant de proc que de SST a repartir" << std::endl;
         assert(0);
     }
 
@@ -138,7 +140,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
 
 
     ///Creation du vecteur de la structure d'interface a envoyer sur les pro et sur le master
-    //std::cout << process.parallelisation->rank << " " << process.parallelisation->repartition_sst[process.parallelisation->rank] << endl;
+        //std::cout << process.parallelisation->rank << " " << process.parallelisation->repartition_sst[process.parallelisation->rank] << std::endl;
     for(unsigned i=0;i<process.parallelisation->repartition_sst[process.parallelisation->rank].size();i++) {
         int numsst1 = process.parallelisation->repartition_sst[process.parallelisation->rank][i];
         for( unsigned j=0;j<S[numsst1].edge.size() ;j++ ) {
@@ -156,25 +158,25 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
                         if (k1 == (unsigned)process.parallelisation->rank)
                             break;
                         else {
-                            ParallelisationParameters::INTERTOEXCHANGE temp;
+                            ParallelisationData::INTERTOEXCHANGE temp;
                             temp.num = num;
                             temp.sidetosend = side;
                             temp.to = k1;
                             process.parallelisation->intertoexchange.push_back(temp);
-                            //std::cout << process.parallelisation->rank << " doit envoyer l interface "<< num << " cote " << side << " a " << k1 << endl;
+                            //std::cout << process.parallelisation->rank << " doit envoyer l interface "<< num << " cote " << side << " a " << k1 << std::endl;
                         }
                     }
                 }
             }
             if (side==0) {
-                ParallelisationParameters::INTERTOEXCHANGE temp;
+                ParallelisationData::INTERTOEXCHANGE temp;
                 temp.num = num;
                 temp.sidetosend = side;
                 temp.to = 0;
                 process.parallelisation->intertoexchangeformaster.push_back(temp);
             }
             if (side==1) {
-                ParallelisationParameters::INTERTOEXCHANGE temp;
+                ParallelisationData::INTERTOEXCHANGE temp;
                 temp.num = num;
                 temp.sidetosend = side;
                 temp.to = 0;
@@ -193,7 +195,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
             }
         }
         if (found==0) {
-            ParallelisationParameters::INTERTOEXCHANGEBYPRO temp;
+            ParallelisationData::INTERTOEXCHANGEBYPRO temp;
             temp.inter.push_back(process.parallelisation->intertoexchange[i]);
             temp.to = process.parallelisation->intertoexchange[i].to;
             process.parallelisation->intertoexchangebypro.push_back(temp);
@@ -205,7 +207,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
         for(unsigned j=0 ;j< process.parallelisation->intertoexchangebypro[i].inter.size();j++ ) {
             internum.push_back(process.parallelisation->intertoexchangebypro[i].inter[j].num);
         }
-        Vec<ParallelisationParameters::INTERTOEXCHANGE> temp;
+        Vec<ParallelisationData::INTERTOEXCHANGE> temp;
         temp.resize(internum.size());
         temp=process.parallelisation->intertoexchangebypro[i].inter[sort_with_index(internum)];
         process.parallelisation->intertoexchangebypro[i].inter=temp;
@@ -217,9 +219,9 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     //         }
     //     }
 
-    //     std::cout << "Taille intertoexchangebypro " << process.parallelisation->rank << " " << process.parallelisation->intertoexchangebypro.size() << endl;
-    //     std::cout << "Taille intertoexchange " << process.parallelisation->rank << " " << process.parallelisation->intertoexchange.size() << endl;
-    //     std::cout << "Taille intertoexchangeformaster " << process.parallelisation->rank << " " << process.parallelisation->intertoexchangeformaster.size() << endl;
+    //     std::cout << "Taille intertoexchangebypro " << process.parallelisation->rank << " " << process.parallelisation->intertoexchangebypro.size() << std::endl;
+    //     std::cout << "Taille intertoexchange " << process.parallelisation->rank << " " << process.parallelisation->intertoexchange.size() << std::endl;
+    //     std::cout << "Taille intertoexchangeformaster " << process.parallelisation->rank << " " << process.parallelisation->intertoexchangeformaster.size() << std::endl;
 
     ///Creation du sous vecteur d interface
     Vec<int> interput;
@@ -244,10 +246,10 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
 
 
 
-    /*    std::cout << "Vecteur d interface " << process.parallelisation->rank << " " << SubI.data << endl;
-        for( unsigned i=0;i<Inter.size() ;i++ )
-            std::cout<< &Inter[i] ;
-        std::cout << endl;*/
+/*    std::cout << "Vecteur d interface " << process.parallelisation->rank << " " << SubI.data << std::endl;
+    for( unsigned i=0;i<Inter.size() ;i++ )
+        std::cout<< &Inter[i] ;
+    std::cout << std::endl;*/
     ///Affichage de la repartion des SST et Interface en terme de nombre de noeuds par pro et à echanger
     if (process.parallelisation->is_local_cpu()) {
         for( unsigned k=0;k<(unsigned) Inter.size() ;k++ ) {
@@ -266,7 +268,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
                 }
             }
         }
-        std::cout << "Liste des interfaces qui vont etre envoyees  : " << process.parallelisation->listinter << endl;
+        std::cout << "Liste des interfaces qui vont etre envoyees  : " << process.parallelisation->listinter << std::endl;
     }
     Vec<int> nodeparpro,nodeinterparpro,nodeinterparprotoexchange;
     if (process.parallelisation->is_master_cpu()) {
@@ -291,9 +293,9 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
                 }
             }
         }
-        std::cout << "Nb noeud par processeur                      : " << nodeparpro << endl;
-        std::cout << "Nb noeud interface equivalent par processeur : " << nodeinterparpro << endl;
-        std::cout << "Nb noeud interface a envoye   par processeur : " << nodeinterparprotoexchange << endl;
+        std::cout << "Nb noeud par processeur                      : " << nodeparpro << std::endl;
+        std::cout << "Nb noeud interface equivalent par processeur : " << nodeinterparpro << std::endl;
+        std::cout << "Nb noeud interface a envoye   par processeur : " << nodeinterparprotoexchange << std::endl;
     }
     if (process.parallelisation->is_local_cpu()) {
         process.parallelisation->listinter.resize(0);
@@ -370,26 +372,26 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
     //         display_fields_temp.push_back(iter->first);
     //
     //     process.affichage->display_fields_inter=display_fields_temp;
-    //     //std::cout << "DEBUG vecteur display_fields_inter : " << process.affichage->display_fields_inter << endl;
+    //     //std::cout << "DEBUG vecteur display_fields_inter : " << process.affichage->display_fields_inter << std::endl;
 
 }
 
 
-template<class TV1,class TV2>
-void memory_free(TV1 &S,TV2 &Inter,Process &process) {
-    std::cout << process.parallelisation->rank << " : " << process.parallelisation->listsst.size() << endl;
+template<class TV1,class TV2,class TV3,class TV4,class TV5>
+void memory_free(TV1 &S,TV2 &Inter,TV3 &CL,TV4 &SstMat,TV5 &InterMat,Process &process) {
+    std::cout << process.parallelisation->rank << " : " << process.parallelisation->listsst.size() << std::endl;
     int nbedge=0,nbvois=0;
     for(unsigned i=0;i<S.size();i++)
         if(!find(process.parallelisation->listsst,LMT::_1==i)) {
             if(not process.parallelisation->is_master_cpu()) {
                 nbedge+=S[i].edge.size();
                 nbvois+=S[i].vois.size();
-/*                std::cout << process.parallelisation->rank << " : Edge size " << S[i].edge.size() << endl;
-                std::cout << process.parallelisation->rank << " : Vois size " << S[i].vois.size() << endl;*/
+/*                std::cout << process.parallelisation->rank << " : Edge size " << S[i].edge.size() << std::endl;
+                std::cout << process.parallelisation->rank << " : Vois size " << S[i].vois.size() << std::*endl;*/
                 S[i].free();
             }
         }
-//         std::cout << process.parallelisation->rank << " : nbedge " << nbedge << " et nbvois " << nbvois << endl;
+//         std::cout << process.parallelisation->rank << " : nbedge " << nbedge << " et nbvois " << nbvois << std::endl;
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage SST : ").c_str(),1);
 #endif
@@ -401,12 +403,12 @@ void memory_free(TV1 &S,TV2 &Inter,Process &process) {
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage SST maillage : ").c_str(),1);
 #endif
       
-//     std::cout << process.parallelisation->rank << " : " << process.parallelisation->listinter.size() << endl;
+//     std::cout << process.parallelisation->rank << " : " << process.parallelisation->listinter.size() << std::endl;
     for(unsigned i=0;i<Inter.size();i++)
         if(!find(process.parallelisation->listinter,LMT::_1==i))
             if(not process.parallelisation->is_master_cpu()) {
                 Inter[i].free();
-                //std::cout << process.parallelisation->rank << " : On efface l interface " << i << endl;
+                //std::cout << process.parallelisation->rank << " : On efface l interface " << i << std::endl;
             }
 
 #ifdef PRINT_ALLOC
@@ -425,7 +427,14 @@ void memory_free(TV1 &S,TV2 &Inter,Process &process) {
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage Inter proc 0 : ").c_str(),1);
 #endif
-
+    /*
+    for(unsigned i=0;i<CL.size();i++)
+        CL[i].free();
+    for(unsigned i=0;i<SstMat.size();i++)
+        SstMat[i].free();
+    for(unsigned i=0;i<InterMat.size();i++)
+        InterMat[i].free();
+    */
 }
 
 

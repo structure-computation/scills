@@ -1,7 +1,7 @@
 #include "../UTILS/Sc2String.h"
 #include <algorithm>
 
-#include "ParallelisationParameters.h"
+#include "ParallelisationData.h"
 #include "mpi_lmt_functions.h"
 #include "fonctions_affichage_interactivite.h"
 

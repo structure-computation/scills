@@ -144,7 +144,7 @@ void multiscale_operateurs(PointedSubstructures &Stot,
     for(int i_sst = 0; i_sst < SubS.size(); i_sst++){
         //std::cout << "Matrice de raideur :" << std::endl;
         //display(*(SubS[i_sst].K));
-        std
+        //std
         std::cout << std::endl << "Matrice homogénéisée : (" << SubS[i_sst].LE.nb_rows() << "," << SubS[i_sst].LE.nb_cols() << ")" << std::endl;
         display(std::cout, SubS[i_sst].LE);
         std::cout << std::endl;

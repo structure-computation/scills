@@ -79,7 +79,7 @@ void affich_SST(TV1 &S,Process &process) {
     eclat_SST(S,ecl);
 
     //lecture des maillages
-    typename TV1::template SubType<0>::T::TMESH::TM meshglob;
+    SstMesh::TM meshglob;
     for(unsigned i=0;i<S.size();++i){
         meshglob.append(*S[i].mesh.m);
         S[i].mesh.unload();

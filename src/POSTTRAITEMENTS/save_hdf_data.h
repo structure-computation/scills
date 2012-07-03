@@ -1,6 +1,7 @@
 #include "../ITERATIONS/manipulate_quantities.h"
-#include <boost/concept_check.hpp>
 #include "../COMPUTE/FieldStructureUser.h"
+#include "../../LMT/include/mesh/calculate_measure.h"
+#include "../MAILLAGE/correspondance_ddl_sst.h"
 
 
 //Assignation des champs de geometrie d'elements sur la peau à partir des champs des elements parents correspondant
@@ -244,8 +245,6 @@ void test_nb_elements_with_type(TSST &S) {
     }
 }
 
-#include "correspondance_ddl_sst.h"
-
 
 template<class TSST,class TV2>
 void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, int nb_previous_nodes) {
@@ -286,7 +285,7 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, i
     //extraction
     apply(S.mesh->skin.elem_list,Extract_connectivities_on_element_sst_skin(), S, nb_previous_nodes);
 
-    Calc_SST_Correspddl(S,process);
+    S.calc_SST_Correspddl();
 
    //sauvegarde des connectivites des elements d'interface
     for(unsigned j=0;j<S.edge.size();++j) {
