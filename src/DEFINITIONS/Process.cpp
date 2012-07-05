@@ -489,7 +489,7 @@ void Process::read_data_user() {
     
     /// Creation des liens de parente entre groupes de parametres
     SstCarac::sst_materials_parameters.addParent(&(multiresolution->parameters));
-    InterCarac::inter_materials_parameters.addParent(&(multiresolution->parameters));
+    InterCarac::inter_materials_parameters.addParent(&(temps->parameters));
     temps->parameters.addParent(&(multiresolution->parameters));
     Boundary::CL_parameters.addParent(&(temps->parameters));
     Fvol->parameters.addParent(&(temps->parameters));
