@@ -38,10 +38,10 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
             }
         }
     }
-    /// Affichage de debug
+    /* Affichage de debug
     for(int i = 0; i < SubS.size(); i++){
         SubS[i].affiche();
-    }
+    }//*/
     
     /// Allocation des quantites des Interface
     if (process.parallelisation->is_local_cpu()){
@@ -192,9 +192,10 @@ void recopie_old_from_new_post(PointedInterfaces &SubI,Process &process) {
 /** Assigne les resultats stockes dans le Sst::Time dans la formulation et force le calcul sur les autres grandeurs
  * Utilisee pour le stockage des resultats dans les fichiers
  */
-void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user){
+void rebuild_state(Sst &S,Sst::Time &t, Process &process){
     S.mesh.load();
-    S.assign_material_on_element(data_user);
+    S.apply_behavior();
+    process.Fvol->apply_on_sst(S);
     S.f->set_mesh(S.mesh.m);
     upload_q(S,t);
     if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){

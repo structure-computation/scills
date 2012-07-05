@@ -38,6 +38,6 @@ void recopie_old_from_new(VecInterfaces &SubI,Process &process);
  */
 void recopie_old_from_new_post(VecInterfaces &SubI,Process &process);
 
-void rebuild_state(Sst &S,Sst::Time &t, DataUser &data_user);
+void rebuild_state(Sst &S,Sst::Time &t, Process &process);
 
 #endif //MANIPULATE_QUANTITIES_H

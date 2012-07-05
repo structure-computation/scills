@@ -2,7 +2,6 @@
 #define SST_H
 
 #include "main_typedef.h"
-#include "VolumicForces.h"
 #include "SstCarac_InterCarac.h"
 /// definition du solveur LDL
 #include "../../LMT/include/containers/matcholamd.h"
@@ -140,7 +139,7 @@ struct Sst
     static int find_index_sst(LMT::Vec<Sst> &S, int id_);
     
     /// Assigne les proprietes materiau au maillage associe a la Sst
-    void assign_material_on_element(const DataUser &data_user);
+    void apply_behavior();
     
     /// Intersecte le maillage de la sst et de ses bords, etablis les tables de correspondance (avec verification si elles sont completes)
     void calc_SST_Correspddl(); // A REMETTRE A CA PLACE

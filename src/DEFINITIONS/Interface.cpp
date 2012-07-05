@@ -1,5 +1,5 @@
 #include "Interface.h"
-
+#include "Boundary.h"
 
 Interface::Side::Side(){
     t.resize(1);
@@ -72,6 +72,28 @@ void Interface::free(){
     /// matprop est gere par le vecteur de SstCarac
 }
 
+/// Initialisation des proprietes de l'interface
+void Interface::init(){
+    const LMT::Vec<Point> &nodes = side[0].nodeeq;
+    const int nb_nodes = nodes.size();
+    jeu.resize(nb_nodes*DIM,0.0);
+    coeffrottement_vec.resize(nb_nodes,0.0);
+    coeffrottement = 0;
+    if(matprop == 0){
+        return;
+    }
+    Ex::MapExNum values = InterCarac::inter_materials_parameters.getParentsValues();             /// Recuperation des parametres temporels et de multiresolution
+    for(unsigned i=0;i<nb_nodes;++i){
+        for(unsigned i_dir=0;i_dir<DIM;++i_dir){
+            values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodes[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
+        }
+        jeu[LMT::range(DIM*i,DIM*(i+1))] = matprop->f_jeu.updateValue(values);  /// Evaluation des composantes du jeu
+        coeffrottement_vec[i] = matprop->f_coeffrottement.updateValue(values);  /// Evaluation des composantes du frottement
+        coeffrottement += coeffrottement_vec[i];                                /// incrementation du coefficient de frottement global
+    }
+    coeffrottement /= nb_nodes;
+}
+
 void Interface::affiche(){
     std::cout << "------------------- interface ------------------------" << std::endl;
     PRINT(id);
@@ -101,5 +123,5 @@ void Interface::read_data_user(int index, const DataUser& data_user, const Geome
     id_sst_1 = data_user.find_pieces_index(id_sst_1);
 */}
 
-Interface::Interface() {matprop = NULL;}
+Interface::Interface() {matprop = 0;id_link = -1;}
 Interface::~Interface() {free();}

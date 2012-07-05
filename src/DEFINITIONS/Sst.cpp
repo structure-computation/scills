@@ -83,19 +83,18 @@ int Sst::find_index_sst(LMT::Vec<Sst> &S, int id_) {
     assert(0);
 }
 
-void Sst::assign_material_on_element(const DataUser &data_user){
+void Sst::apply_behavior(){
+    mesh->density    = matprop->density    ;
+    mesh->deltaT     = matprop->deltaT     ;
+    mesh->resolution = matprop->resolution ;
+    
     if (matprop->type.find("isotrope")<matprop->type.size()) {
-        ///formulation isotrope 
-        mesh->elastic_modulus = matprop->elastic_modulus ; 
-        mesh->poisson_ratio   = matprop->poisson_ratio   ; 
-        mesh->deltaT          = matprop->deltaT          ; 
-        mesh->resolution      = matprop->resolution      ; 
-        mesh->alpha           = matprop->alpha           ; 
-        mesh->f_vol           = matprop->f_vol           ; 
-        mesh->density         = matprop->density         ; 
-        //mesh.load_f_vol_e(matprop->f_vol_e,Fvol);
+        ///formulation isotrope
+        mesh->elastic_modulus = matprop->elastic_modulus ;
+        mesh->poisson_ratio   = matprop->poisson_ratio   ;
+        mesh->alpha           = matprop->alpha           ;
     } else if (matprop->type.find("orthotrope")<matprop->type.size()) {
-        ///formulation orthotrope 
+        ///formulation orthotrope
         mesh->elastic_modulus_1 = matprop->elastic_modulus_1;
         mesh->elastic_modulus_2 = matprop->elastic_modulus_2;
         mesh->elastic_modulus_3 = matprop->elastic_modulus_3;
@@ -113,10 +112,8 @@ void Sst::assign_material_on_element(const DataUser &data_user){
         mesh->alpha_2           = matprop->alpha_2          ;
         mesh->alpha_3           = matprop->alpha_3          ;
         mesh->f_vol             = matprop->f_vol            ;
-        mesh->density           = matprop->density          ;
-        //mesh.load_f_vol_e(matprop->f_vol_e,Fvol);
     }
-        
+    
     if(matprop->comp.find("pl")<matprop->comp.size()){
         mesh->plast_ecrouissage_init = matprop->plast_ecrouissage_init;
         mesh->plast_ecrouissage_mult = matprop->plast_ecrouissage_mult;

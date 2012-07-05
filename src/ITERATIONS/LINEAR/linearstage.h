@@ -153,7 +153,8 @@ struct derivation_quantites {
 struct Calcul_2nd_membre_micro1_sst {
     void operator()(Sst &S, const Process &process, const DataUser &data_user) const{
         S.mesh.load();
-        S.assign_material_on_element(data_user);
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
         if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){
             upload_epsilon_p(S,process.temps->pt);
         }

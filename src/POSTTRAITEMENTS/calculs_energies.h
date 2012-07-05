@@ -383,9 +383,9 @@ void calcul_energie_elastique(TV1 &S, TI &Inter,Vec<TYPEREEL> &dissipation,Proce
             dissi_inter.set(0.);
             for(unsigned j=0 ;j<dissi_inter.size()-1 ;j++ ) {
                 if(process.nom_calcul=="incr")
-                    rebuild_state(S[i],S[i].t_post[j+1], data_user);
+                    rebuild_state(S[i],S[i].t_post[j+1], process);
                 else if(process.nom_calcul=="latin")
-                    rebuild_state(S[i],S[i].t[j+1], data_user);
+                    rebuild_state(S[i],S[i].t[j+1], process);
 
                 apply(S[i].mesh->elem_list,add_ener_elem(),dissi_inter[j+1]);
                 S[i].mesh.unload();

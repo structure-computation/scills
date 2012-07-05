@@ -64,8 +64,8 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
         if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive" and Inter.comp!="Contact_ep") {
             TYPEREEL facteur_frottement;
             TYPEREEL eps=1e-6;
-            if(Inter.matprop->coeffrottement<=eps){facteur_frottement=1e-3;}
-            else{facteur_frottement=Inter.matprop->coeffrottement;}
+            if(Inter.coeffrottement<=eps){facteur_frottement=1e-3;}
+            else{facteur_frottement=Inter.coeffrottement;}
             //facteur_frottement=1;
             kt = kt * facteur_frottement;
             ht = ht / facteur_frottement;
