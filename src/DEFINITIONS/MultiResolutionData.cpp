@@ -15,7 +15,7 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
     const DataUser::Json_multiresolution_parameters &multiresolution_parameters = data_user.multiresolution_parameters;
     /// Recuperation du type
     type = multiresolution_parameters.multiresolution_type;
-    if(type == "Off"){
+    if(type == "off"){
         nb_calculs = 1;
     }else if(type == "plan d'experience"){
         std::cerr << "Type de multi-resolution : " << type << " a implementer" << std::endl;

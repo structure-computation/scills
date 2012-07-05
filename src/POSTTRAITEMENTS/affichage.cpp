@@ -103,6 +103,9 @@ void affichage_inter_temps(Process &process) {
  */
 template <class TV3,class TV4, class TV1> 
 void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser &data_user){
+    PRINT(process.affichage->type_affichage);
+    PRINT(process.affichage->affich_mesh);
+    PRINT(process.parallelisation->is_local_cpu());
     if (process.affichage->affich_mesh==1) {
         if (process.parallelisation->is_local_cpu()){
             std::cout << "type " << process.affichage->type_affichage << std::endl;
@@ -112,8 +115,10 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
                 affich_INTER(Inter,Stot, process);
             }else if (process.affichage->type_affichage=="all") { 
                 process.affichage->type_affichage="Sbord";
+                PRINT(process.affichage->type_affichage);
                 affich_SST(S,process);
                 process.affichage->type_affichage="Inter";
+                PRINT(process.affichage->type_affichage);
                 affich_INTER(Inter,Stot, process);
             } else {
                 std::cout << "erreur d'affichage" << endl;

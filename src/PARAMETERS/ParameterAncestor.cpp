@@ -102,7 +102,7 @@ void UserParameter::prepareExpression(std::vector<Codegen::Ex> &symbols_){
 
 /// Evalue l'attribut 'ex_expr'(Codegen::Ex) connaissant 'values_'. Retourne le resultat de l'evaluation
 Scalar UserParameter::updateValue(Codegen::Ex::MapExNum &values_){
-    setValue((Scalar) ex_expr.subs_numerical(values_,true));
+    setValue((Scalar) ex_expr.subs_numerical(values_));
     return value;
 }
 

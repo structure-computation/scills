@@ -16,6 +16,7 @@
 
 void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Substructures &S,Process &process) {
     
+    PRINT(S.size());
     ///initialisation de la taille des sst et de leur id == num
     for(unsigned i=0;i<S.size();i++) {
         S[i].num = geometry_user.group_elements[i].id;
@@ -149,23 +150,32 @@ void read_mesh_interface_geometry_user(InterfaceMesh &mesh, GeometryUser &geomet
 void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, VecInterfaces &Inter, Process &process) {  
     // initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
+    int nb_edge = 0;
     BasicVec< int > rep_id_inter;
     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
         if(geometry_user.group_interfaces[i_group].type == 2){
             nb_inter += 1;
             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
         }
+        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1 and geometry_user.group_interfaces[i_group].edge_id != -2){
+            nb_edge += 1;
+        }
     }
-    
     // assignation des id d'interfaces et des reference vers un comportement
-    Inter.resize(nb_inter);
+    const int nb_inter_total =  nb_inter + nb_edge;
+    PRINT(nb_inter);
+    PRINT(nb_edge);
+    PRINT(nb_inter_total);
+
+    Inter.resize(nb_inter_total);
+    
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
         Inter[i_inter].num = rep_id_inter[i_inter];
         Inter[i_inter].id = rep_id_inter[i_inter];
         int id_link = data_user.find_interfaces_pointer(Inter[i_inter].id)->link_id;
+        
         int index_link = data_user.find_links_index(id_link);
         Inter[i_inter].id_link = id_link ; 
-        
         //ajout des numeros des Sst voisines et cotes correspondants
         Sst::Edge edge;
         edge.internum=i_inter;
@@ -198,21 +208,39 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
 
 
 void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, VecInterfaces &Inter, Vec<Boundary> &CL, Process &process) {
-    // initialisation de la taille du vecteur d'interfaces
+  
+  
     int nb_inter = 0;
+    int nb_edge = 0;
     BasicVec< int > rep_id_inter;
     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
-        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1 and geometry_user.group_interfaces[i_group].edge_id != -2){
+        if(geometry_user.group_interfaces[i_group].type == 2){
             nb_inter += 1;
+        }
+        if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1 and geometry_user.group_interfaces[i_group].edge_id != -2){
+            nb_edge += 1;
             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
         }
     }
-    const int nb_inter_actuel =  Inter.size();
-    const int nb_inter_total =  nb_inter_actuel + nb_inter;
-    Inter.resize(nb_inter_total);
+    
+    // initialisation de la taille du vecteur d'interfaces
+    //     int nb_inter = 0;
+    //     BasicVec< int > rep_id_inter;
+    //     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
+    //         if(geometry_user.group_interfaces[i_group].type == 0 and geometry_user.group_interfaces[i_group].is_splited == 0 and geometry_user.group_interfaces[i_group].edge_id != -1 and geometry_user.group_interfaces[i_group].edge_id != -2){
+    //             nb_inter += 1;
+    //             rep_id_inter.push_back(geometry_user.group_interfaces[i_group].id);
+    //         }
+    //     }
+    
+    const int nb_inter_actuel =  nb_inter;
+    const int nb_inter_total =  nb_edge + nb_inter;
+    PRINT(nb_inter);
+    PRINT(nb_edge);
+    PRINT(nb_inter_total);
+    //Inter.resize(nb_inter_total);
     // assignation des id d'interfaces et des reference vers un comportement
-    for(int i_inter=0; i_inter<nb_inter; i_inter++){
-        
+    for(int i_inter=0; i_inter<nb_edge; i_inter++){
         int num_inter = nb_inter_actuel + i_inter;
         Inter[num_inter].num = rep_id_inter[i_inter];
         Inter[num_inter].id = rep_id_inter[i_inter]; 
@@ -232,6 +260,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
         Inter[num_inter].side.resize(1);
         id_sst.resize(1);
         index_sst.resize(1);
+        
         for(int i_group=0; i_group<1; i_group++){
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[num_inter].num)->group_elements_id[i_group];
             index_sst[i_group] = data_user.find_pieces_index(id_sst[i_group]);
@@ -242,6 +271,18 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
         Inter[num_inter].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
         Inter[num_inter].side[0].vois=Vec<unsigned>(index_sst[0], S[index_sst[0]].edge.size()-1);
     }
+    
+    
+    /// vérification du maillage
+    for(int i_inter = 0; i_inter<Inter.size(); i_inter++){
+        PRINT(Inter[i_inter].id);
+        PRINT(Inter[i_inter].type);
+        PRINT(Inter[i_inter].edge_id);
+        PRINT(Inter[i_inter].id_bc);
+        PRINT(Inter[i_inter].refCL);
+        PRINT(Inter[i_inter].comp);
+    }
+    
 }
 
 
