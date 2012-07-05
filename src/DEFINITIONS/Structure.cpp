@@ -62,7 +62,8 @@ void Structure::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
     /// Lecture du JSON
     process.print_title(2,"Lecture du fichier de calcul");
     data_user.initialisation(id_model, id_calcul);
-    data_user.read_json_calcul();
+    //data_user.read_json_calcul();
+    data_user.read_json_calcul_v2();
     
     /// Lecture du HDF5
     process.print_title(2,"Lecture du fichier du modele");
@@ -110,7 +111,7 @@ void Structure::mise_en_donnees(){
     process.affichage->name_fields = "/Level_0/Fields";
     if (process.parallelisation->is_local_cpu()) {
         if(process.save_data==1){
-            write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
+            //write_hdf_geometry_SST_INTER(SubS,Inter,process, geometry_user);
             Sc2String file_output_hdf ; file_output_hdf << process.affichage->name_hdf <<"_"<< process.parallelisation->rank<<".h5";
             geometry_user.write_hdf5_in_parallel(file_output_hdf,process.parallelisation->rank);
         }

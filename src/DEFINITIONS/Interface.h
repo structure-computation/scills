@@ -113,9 +113,9 @@ struct Interface
     struct Time{
         Vector d;    /// endommagement des elements de l'interface
         void allocate(const Interface& interface){
-            if(interface.matprop->degradable){
+            //if(interface.matprop->degradable){ //DESACTIVATION LE TEMPS DE TRANSFERER TOUT DANS MATPROP
                 d.resize(interface.side[0].nodeeq.size());
-            }
+            //}
         }
         void free(){d.free();}
     };

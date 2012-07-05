@@ -194,6 +194,7 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
     }
 //};
 
+
 void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite,bool &endommagement) const{ 
     S.matprop = &matprops[S.typmat];
     /// Type du materiau
@@ -204,10 +205,12 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         assert(0);
     }
     /// Comportement du materiau
+
     bool elastique = matprops[S.typmat].comp.find("el")<matprops[S.typmat].comp.size() ;
     bool plastique = matprops[S.typmat].comp.find("pl")<matprops[S.typmat].comp.size() ;
     bool endommageable = matprops[S.typmat].comp.find("en")<matprops[S.typmat].comp.size();
     bool mesomodele = matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size();
+
     /// Assignation de la formulation
     ///formulation elastique isotrope 
     if (isotrope and elastique) {

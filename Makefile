@@ -31,10 +31,15 @@ PRG_multi_debug = SC_multi_$(DIM)_$(ARCHITECTURE)_debug.exe
 DIR_build_debug = --comp-dir build/SC_multi_$(DIM)_$(ARCHITECTURE)_debug
 OPT_DBG = -ne -j$(NB_COMP_PROC) -g -g3 -ffast-math -fexpensive-optimizations
 
+# option pour le test de chargement des donnees
+PRG_test_load_data = SC_test_load_data_$(DIM).exe
 
 all: clean codegen_py metil_comp_multi_dbg
 
 update: metil_comp_multi metil_comp_multi_dbg
+
+metil_comp_test_load_data :
+	$(LOC_MC)  -o  $(PRG_test_load_data) $(GLOB_VAR) $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_release_cpu) $(CFLAGS) $(LIBS) $(OPT)  test/test_load_data.cpp
 
 metil_comp_multi :
 	$(LOC_MC)  -o  $(PRG_multi_release) $(GLOB_VAR) $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_release) $(CFLAGS) $(LIBS) $(OPT)  src/main.cpp

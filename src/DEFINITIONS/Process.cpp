@@ -123,6 +123,63 @@ void Process::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
 }
 
 
+void Process::test_load_data(){
+    /// Lecture du DataUser
+    print_title(1,"Lecture du DataUser");
+    #ifdef INFO_TIME
+    parallelisation->synchronisation();
+    if (parallelisation->is_master_cpu()) {tic1.init();tic1.start();}
+    #endif
+    read_data_user();
+    #ifdef INFO_TIME
+    print_duration(tic1);
+    #endif
+    
+    /// construction de la geometrie et des maillages + repartition MPI
+    print_title(1,"Construction du maillage micro et macro");
+    multiscale_geometry_mesh( *data_user, *geometry_user, *S, *Inter, *this, *CL, *Stot, *SubS, *SubI );
+    #ifdef INFO_TIME
+    print_duration(tic1);
+    #endif
+    
+    /// Remplissage du FieldStructureUser  A REVOIR
+    /// Chargement des maillages
+    //field_structure_user->load_geometry_user(geometry_user);      
+    /// Assignation des proprietes aux group_elements (pour GPU)
+    //field_structure_user->assign_material_properties_to_group_elements(data_user,mat_prop_temp);
+    /// Idem pour les group_interfaces (pour GPU)
+    //field_structure_user->assign_link_properties_to_group_interfaces(data_user,link_prop_temp);
+    
+    /// Sauvegarde du maillage pour la visualisation des resultats
+    print("Sauvegarde de la geometrie du maillage de peau au format hdf pour la visualisation des resultats");
+    affichage->name_hdf = data_user->result_path;
+    int temp=system(("mkdir -p "+affichage->name_hdf).c_str());//Il faut creer le repertoire results
+    affichage->name_hdf << "geometry_fields";
+    affichage->name_geometry = "/Level_0/Geometry";
+    affichage->name_fields = "/Level_0/Fields";
+    if (parallelisation->is_local_cpu()) {
+        write_hdf_geometry_SST_INTER(*SubS,*Inter,*this, *geometry_user);
+        Sc2String file_output_hdf ; file_output_hdf << affichage->name_hdf <<"_"<< parallelisation->rank<<".h5";
+        geometry_user->write_hdf5_in_parallel(file_output_hdf,parallelisation->rank);
+    }
+    parallelisation->synchronisation();
+    
+    /// ecriture du fichier de sortie xdmf
+    if(parallelisation->is_master_cpu() and save_data==1){
+        print("Sortie XDMF");
+        //write_xdmf_file_geometry(*this, data_user);
+    }
+    
+    /// affichage du maillage si necessaire
+    //affichage->affich_mesh=1;
+    affichage->type_affichage= "all";
+    affichage->affich_mesh= 1;
+    affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
+    #ifdef INFO_TIME
+    print_duration(tic1);
+    #endif
+}
+
 
 void Process::preparation_calcul(){
     /// Lecture du DataUser
@@ -320,13 +377,14 @@ void Process::boucle_temporelle(){
             /// Sauvegarde des resultats
             if(save_data){
                 print_title(2,"Sauvegarde des resultats au format HDF"); 
-                if (parallelisation->is_local_cpu()) {/* A REVOIR APRES MODIFICATION DATAUSER
-                    // write_hdf_fields_SST_INTER(SubS, Inter, *this , data_user);  BUG
-                    convert_fields_to_field_structure_user(*SubS, *Inter, *this , *data_user, *field_structure_user, *geometry_user);
-                    Sc2String rank; rank << parallelisation->rank;
-                    Sc2String file_output_hdf5 = affichage->name_hdf + "_" + rank + ".h5";
-                    field_structure_user->write_hdf5_in_parallel(file_output_hdf5, *geometry_user, affichage->name_fields, temps->pt_cur, temps->t_cur, parallelisation->rank);
-                */}
+                if (parallelisation->is_local_cpu()) {//* A REVOIR APRES MODIFICATION DATAUSER
+                    write_hdf_fields_SST_INTER(*SubS, *Inter, *this , *data_user);//  BUG
+                    //convert_fields_to_field_structure_user(*SubS, *Inter, *this , *data_user, *field_structure_user, *geometry_user);
+                    //Sc2String rank; rank << parallelisation->rank;
+                    //Sc2String file_output_hdf5 = affichage->name_hdf + "_" + rank + ".h5";
+                    //field_structure_user->write_hdf5_in_parallel(file_output_hdf5, *geometry_user, affichage->name_fields, temps->pt_cur, temps->t_cur, parallelisation->rank);
+                //*/
+                }
             }
             
             /// Modification du comportement des entites
