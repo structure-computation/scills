@@ -1,5 +1,6 @@
 #include "Interface.h"
 
+
 Interface::Side::Side(){
     t.resize(1);
     mesh=NULL;
@@ -26,7 +27,7 @@ Vector Interface::Side::Pn(Vector &f) {
 /// fonction projecteur tangentiel
 Vector Interface::Side::Pt(Vector &f) {
     Vec<TYPEREEL,-1,void> ft; ft.resize(f.size()); ft.set(0.);
-    for(unsigned i=0;i<nodeeq.size();++i) { Vec<TYPEREEL,DIM> rep=range(i*DIM,(i+1)*DIM); ft[rep]=dot(neq[rep],f[rep])*neq[rep]; }
+    for(unsigned i=0;i<nodeeq.size();++i) { Vec<int,DIM> rep=range(i*DIM,(i+1)*DIM); ft[rep]=dot(neq[rep],f[rep])*neq[rep]; }
     return f-ft;
 }
 
@@ -62,22 +63,21 @@ void Interface::free(){
     if (side[0].mesh != NULL) total_allocated[ typeid(typename Interface::TMESH).name() ] -= sizeof(typename Interface::TMESH);
     #endif
 
-    //les maillages sont les memes des 2 cotés...
+    /// Les maillages sont les memes des 2 cotés...
     if (side.size() != 0){
         if (side[0].mesh != NULL) delete side[0].mesh;
         side[0].mesh=NULL;
         side.free();
-        if (matprop != NULL ) matprop->free();
-        if (matprop != NULL ) delete matprop;
     }
+    /// matprop est gere par le vecteur de SstCarac
 }
 
 void Interface::affiche(){
     std::cout << "------------------- interface ------------------------" << std::endl;
     PRINT(id);
-    std::cout << type << std::endl;
-    std::cout << comp << std::endl;
-    
+    PRINT(type);
+    PRINT(comp);
+    PRINT(matprop);
     PRINT(refCL);
     PRINT(edge_id);
     PRINT(id_bc);

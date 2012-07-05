@@ -48,12 +48,14 @@ struct Sst
     {
         Edge(): mesh(NULL) {}
         void affiche() const{
-            std::cout << "*************************************************************" << std::endl;
+            std::cout << "**************************** Edge ***************************" << std::endl;
             std::cout << "datanum    : " << datanum << std::endl;
             std::cout << "internum   : " << internum << std::endl;
             std::cout << "repddledge : " << repddledge.size() << std::endl;
             std::cout << "repLE      : " << repLE.size() << std::endl;
             std::cout << "G          : " << G << std::endl;
+            std::cout << "nb ddl     : " << mesh->list_group_node.size() << std::endl;
+            std::cout << "nb elem    : " << mesh->list_group_elem.size() << std::endl;
             std::cout << "*************************************************************" << std::endl;
         }
 

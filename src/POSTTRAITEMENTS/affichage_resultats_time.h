@@ -53,7 +53,7 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
     Vec<Sc2String,2> generic_names;
     for(int i=0;i<2;i++) {
         int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
-        generic_names[i]=directory_names[i]+"/"+name_multiresolution.c_str()+ process.affichage->name_data; //nom generique du fichier vtu
+        generic_names[i] = directory_names[i] + "/" + name_multiresolution + process.affichage->name_data; //nom generique du fichier vtu
     }
    
     ///eclatement de chaque sous-structure
@@ -81,12 +81,14 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
         apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
 
         ///ecriture des fichiers vtu
+        std::cout << "Ecriture des fichiers .vtu au pas de temps " << imic << std::endl;
         for(unsigned i=0;i<2;i++){
             DisplayParaview dp;
             ///ecriture fichier paraview generique de tous les champs (volume ou peau)
             ostringstream sp;
             sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
             Sc2String strp(sp.str());
+            PRINT(strp);
             if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
             if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
             else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
@@ -96,6 +98,7 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
             ostringstream ss;
             ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
             Sc2String namefile(ss.str());
+            PRINT(namefile);
             int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
         }
     }

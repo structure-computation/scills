@@ -262,6 +262,8 @@ void Sst::affiche() const {
     debug("update_operator",update_operator);
     debug("nb_macro       ",nb_macro);
     debug("nb_macro_espace",nb_macro_espace);
+    debug("nb nodes       ",mesh.node_list_size);
+    debug("nb elements    ",mesh.elem_list_size);
     //std::cout << "formulation : " << f << std::endl;
     std::cout << "edge : " << edge.size() << std::endl;
     for(int i = 0; i < edge.size(); i++){

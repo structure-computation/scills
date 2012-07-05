@@ -147,7 +147,7 @@ void read_mesh_interface_geometry_user(InterfaceMesh &mesh, GeometryUser &geomet
 
 
 void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user, Substructures &S, VecInterfaces &Inter, Process &process) {  
-    // initialisation de la taille du vecteur d'interfaces
+    /// initialisation de la taille du vecteur d'interfaces
     int nb_inter = 0;
     BasicVec< int > rep_id_inter;
     for(int i_group=0; i_group<geometry_user.group_interfaces.size(); i_group++){
@@ -157,16 +157,16 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
         }
     }
     
-    // assignation des id d'interfaces et des reference vers un comportement
+    /// assignation des id d'interfaces et des reference vers un comportement
     Inter.resize(nb_inter);
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
         Inter[i_inter].num = rep_id_inter[i_inter];
         Inter[i_inter].id = rep_id_inter[i_inter];
         int id_link = data_user.find_interfaces_pointer(Inter[i_inter].id)->link_id;
         int index_link = data_user.find_links_index(id_link);
-        Inter[i_inter].id_link = id_link ; 
+        Inter[i_inter].id_link = id_link ;
         
-        //ajout des numeros des Sst voisines et cotes correspondants
+        ///ajout des numeros des Sst voisines et cotes correspondants
         Sst::Edge edge;
         edge.internum=i_inter;
         
@@ -179,6 +179,7 @@ void create_perfect_interfaces(DataUser &data_user, GeometryUser &geometry_user,
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[i_inter].num)->group_elements_id[i_group];
             index_sst[i_group] = data_user.find_pieces_index(id_sst[i_group]);
         }
+        
         edge.datanum=0;
         S[index_sst[0]].edge.push_back(edge);
         S[index_sst[0]].vois.push_back(index_sst[1]);
@@ -209,13 +210,14 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
     }
     const int nb_inter_actuel =  Inter.size();
     const int nb_inter_total =  nb_inter_actuel + nb_inter;
+    
     Inter.resize(nb_inter_total);
-    // assignation des id d'interfaces et des reference vers un comportement
+    /// assignation des id d'interfaces et des reference vers un comportement
     for(int i_inter=0; i_inter<nb_inter; i_inter++){
-        
         int num_inter = nb_inter_actuel + i_inter;
         Inter[num_inter].num = rep_id_inter[i_inter];
-        Inter[num_inter].id = rep_id_inter[i_inter]; 
+        Inter[num_inter].id = rep_id_inter[i_inter];
+        
         Inter[num_inter].type="Ext";
         Inter[num_inter].edge_id = geometry_user.find_group_interfaces(Inter[num_inter].id)->edge_id; 
         int id_bc = data_user.find_edges_pointer( Inter[num_inter].edge_id )->boundary_condition_id ;
@@ -236,6 +238,7 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[num_inter].num)->group_elements_id[i_group];
             index_sst[i_group] = data_user.find_pieces_index(id_sst[i_group]);
         }
+        
         edge.datanum=0;
         S[index_sst[0]].edge.push_back(edge);
         S[index_sst[0]].vois.push_back(-1);
@@ -245,30 +248,36 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
 }
 
 
-void make_interface_inter::operator()(Interface &SubI, GeometryUser &geometry_user) const {
-    if (SubI.comp=="Parfait"){
-        if (SubI.side[0].mesh == NULL){             
-            SubI.side[0].mesh=new InterfaceMesh;
-            read_mesh_interface_geometry_user(*SubI.side[0].mesh, geometry_user, SubI.id); 
-            SubI.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[1].mesh=SubI.side[0].mesh;
+void make_interface_inter::operator()(Interface &inter, GeometryUser &geometry_user) const {
+    if (inter.comp=="Parfait"){
+        if (inter.side[0].mesh == NULL){
+            std::cout << "creation du maillage pour l'interface d'id " << inter.id << std::endl;
+            inter.side[0].mesh=new InterfaceMesh;
+            read_mesh_interface_geometry_user(*(inter.side[0].mesh), geometry_user, inter.id);
+            std::cout << "Nombre de noeuds  : " << inter.side[0].mesh->node_list.size();
+            std::cout << "Nombre d'elements : " << inter.side[0].mesh->elem_list.size();
+            inter.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->elem_list.change_hash_size( *inter.side[0].mesh,1);
+            inter.side[1].mesh=inter.side[0].mesh;
         }
     }
 }
 
 
-void make_interface_CL::operator()(Interface &SubI, GeometryUser &geometry_user) const {
-    if (SubI.type=="Ext"){
-        if (SubI.side[0].mesh==NULL){
-            SubI.side[0].mesh=new InterfaceMesh;
-            read_mesh_interface_geometry_user(*SubI.side[0].mesh, geometry_user, SubI.id); 
-            SubI.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *SubI.side[0].mesh,1);
-            SubI.side[0].mesh->elem_list.change_hash_size( *SubI.side[0].mesh,1);
+void make_interface_CL::operator()(Interface &inter, GeometryUser &geometry_user) const {
+    if (inter.type=="Ext"){
+        if (inter.side[0].mesh==NULL){
+            std::cout << "creation du maillage pour l'interface d'id " << inter.id << std::endl;
+            inter.side[0].mesh=new InterfaceMesh;
+            read_mesh_interface_geometry_user(*(inter.side[0].mesh), geometry_user, inter.id);
+            std::cout << "Nombre de noeuds  : " << inter.side[0].mesh->node_list.size();
+            std::cout << "Nombre d'elements : " << inter.side[0].mesh->elem_list.size();
+            inter.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
+            inter.side[0].mesh->elem_list.change_hash_size( *(inter.side[0].mesh),1);
         }
     }
 }
@@ -338,7 +347,7 @@ void create_SST_INTER(DataUser              &data_user,
     apply(SubI,make_interface_inter(), geometry_user );                              // to be TEST
     apply(SubI,make_interface_CL(), geometry_user);                                  // to be TEST
     apply(S,mesh_unload());
-        
+    
     process.parallelisation->synchronisation();
     process.print(" - Assignation des numeros aux interfaces ",true);
     ///assignation du numero de l'interface
@@ -357,5 +366,4 @@ void create_SST_INTER(DataUser              &data_user,
             geometry_user.find_group_elements(id_sst)->side_adjacent_group_interfaces[i_side]=side_interface;
         }
     }
-        
 };

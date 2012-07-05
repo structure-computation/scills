@@ -46,13 +46,8 @@ void TimeData::read_data_user(const DataUser &data_user){
         expressions.resize(time_steps.parameter_collection_vec.size());
         /// Initialisation des parametres
         for(unsigned i_param = 0; i_param < time_steps.parameter_collection_vec.size(); i_param++){
-            std::cout << "*******************************************************************************************" << std::endl;
-            std::cout << "time_steps.parameter_collection_vec[i_param].name : " << time_steps.parameter_collection_vec[i_param].name << std::endl;
             UserParameter *PT = new UserParameter(time_steps.parameter_collection_vec[i_param].name,&parameters);
             parameters.addParameter(PT);
-            std::cout << "PT->symbol : " << PT->symbol << std::endl;
-            std::cout << "PT->group  : " << PT->group << std::endl;
-            std::cout << "*******************************************************************************************" << std::endl;
             expressions[i_param].resize(nb_step);
         }
         /// Recuperation des steps et des expressions de parametres associees
@@ -135,7 +130,17 @@ void TimeData::affiche(){
         std::cout << std::endl;
     }
     std::cout << "parameters : " << std::endl; parameters.affiche();
-    //debug("Vec<STEP> time_step",);
+    std::cout << "steps : " << time_step.size() << std::endl;
+    for(int i = 0; i < time_step.size(); i++){
+        std::cout << "************* Step " << i << " *************" << std::endl;
+        std::cout << "id : " << time_step[i].id << std::endl;
+        std::cout << "t_ini : " << time_step[i].t_ini << std::endl;
+        std::cout << "t_fin : " << time_step[i].t_fin << std::endl;
+        std::cout << "dt    : " << time_step[i].dt << std::endl;
+        std::cout << "nb_pt  : " << time_step[i].nb_time_step << std::endl;
+        std::cout << "pt_cur : " << time_step[i].pt_cur << std::endl;
+        std::cout << "**********************************" << std::endl;
+    }
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
 }
@@ -147,6 +152,9 @@ void TimeData::init(){
     pt_cur = 1;
     t_cur.value = time_step[0].t_ini;
     dt = time_step[0].dt;
+    for(int i = 0; i < time_step.size(); i++){
+        time_step[i].pt_cur = 0;
+    }
 }
 
 void TimeData::next(){
@@ -167,7 +175,7 @@ bool TimeData::has_next(){
 }
 
 bool TimeData::step_changed(){
-    return (step_cur == step_old);
+    return (step_cur != step_old);
 }
 
 void TimeData::prepareParameters(){

@@ -161,7 +161,8 @@ void Process::preparation_calcul(){
     if (parallelisation->is_local_cpu()) {
         if(save_data==1){
             write_hdf_geometry_SST_INTER(*SubS,*Inter,*this, *geometry_user);
-            Sc2String file_output_hdf ; file_output_hdf << affichage->name_hdf <<"_"<< parallelisation->rank<<".h5";
+            Sc2String file_output_hdf;
+            file_output_hdf << affichage->name_hdf <<"_"<< parallelisation->rank<<".h5";
             geometry_user->write_hdf5_in_parallel(file_output_hdf,parallelisation->rank);
         }
     }
@@ -184,7 +185,17 @@ void Process::preparation_calcul(){
     /// Verification du mode de calcul ("test" ou "normal")
     if(data_user->options.mode == "test"){
         print("FIN DU MODE TEST.");
-        return;
+        assert(0);
+    }
+    
+    /// Creation des liens vers les materiaux et les formulations
+    apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
+    for(unsigned i = 0; i < Inter->size(); i++){
+        (*Inter)[i].matprop = &(*inter_materials)[(*Inter)[i].id_link];
+    }
+    
+    for(unsigned i = 0; i < Inter->size(); i++){
+        (*Inter)[i].affiche();
     }
     
     /// Allocations et initialisation des quantites
@@ -199,16 +210,17 @@ void Process::preparation_calcul(){
 
 
 void Process::boucle_multi_resolution() {
-    /// Lancement du calcul
-    print_title(1,"DEBUT DU CALCUL PARAMETRIQUE ");
+    /// Lancement des calculs parametriques
+    print_title(1,"DEBUT DES CALCULS PARAMETRIQUES ");
     print_data("Calcul parametrique : ",multiresolution->type);
     print_data("Nombre de calculs : ",multiresolution->nb_calculs);
     for(multiresolution->init();multiresolution->has_next();multiresolution->next()){
-        print_data("*************************************************** Calcul parametrique no : ",multiresolution->calcul_cur);
+        print_data("************************************************************ Calcul : ",multiresolution->calcul_cur);
         multiresolution->updateParameters();    /// Mise a jour des parametres de multi-resolution
         SstCarac::updateParameters();           /// Mise a jour des parametres materiaux des sst
         InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         boucle_temporelle();
+        print_data("******************************************************** Fin Calcul : ",multiresolution->calcul_cur);
     }
     parallelisation->synchronisation();
     
@@ -229,9 +241,10 @@ void Process::boucle_temporelle(){
     print_data("Nombre de pas de temps total : ",temps->nbpastemps);
     for(temps->init();temps->has_next();temps->next()){
         if(temps->step_changed()){
-            print_data("********************Step : ",temps->step_cur);
+            print_data("****************************** Step : ",temps->step_cur);
         }
-        print_data("----Piquet de temps courant ",temps->t_cur);
+        print_data("*************** Time : ",temps->t_cur);
+        print_title(2,"Mise a jour des parametres");
         temps->updateParameters();      /// Mise a jour des parametres temporels utilisateur
         Boundary::updateParameters();   /// Mise a jour des CL (PENSER A ENLEVER PLUS BAS LORSQUE PRET)
         
@@ -319,7 +332,7 @@ void Process::boucle_temporelle(){
             /// Modification du comportement des entites
             //modification_sst_inter_behaviour(S,Inter,temps);  A TESTER
             
-            print_data("----Fin piquet de temps ",temps->t_cur);
+            print_data("*************** End time : ",temps->t_cur);
             
             ///Affichage des energies
             if (affichage->trac_ener_imp == 1) {
@@ -352,7 +365,7 @@ void Process::boucle_temporelle(){
         //write_xdmf_file_compute(*this, data_user);
     }
     
-    affichage_resultats(*SubS,*this, *data_user);           ///sortie paraview pour les sst (volumes et peaux)
+    affichage_resultats(*SubS,*this, *data_user);            ///sortie paraview pour les sst (volumes et peaux)
     affichage_resultats_inter(*SubI, *S ,*this, *data_user); ///sortie paraview pour les interfaces
 }
 
@@ -415,12 +428,6 @@ void Process::read_data_user() {
         (*CL)[i].read_data_user(i,*data_user);
     }
     Fvol->read_data_user(*data_user);
-    
-    /// Creation des liens vers les materiaux et les formulations
-    apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
-    for(unsigned i = 0; i < Inter->size(); i++){
-        (*Inter)[i].matprop = &(*inter_materials)[(*Inter)[i].id_link];
-    }
     
     /// Creation des liens de parente entre groupes de parametres
     SstCarac::sst_materials_parameters.addParent(&(multiresolution->parameters));

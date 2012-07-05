@@ -136,7 +136,6 @@ struct Interface
     //*******************************************************************************************
     // methodes de la class
     //*******************************************************************************************
-   
     void free();
     void affiche();
     void read_data_user(int index,const DataUser &data_user, const GeometryUser &geometry_user);

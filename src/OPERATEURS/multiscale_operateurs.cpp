@@ -136,11 +136,11 @@ void multiscale_operateurs(PointedSubstructures &Stot,
             tic1.start();
         }
 #endif
+        crout << process.parallelisation->rank << " : Op Macro : "  ;
+        tic.stop();
+        process.parallelisation->synchronisation();
     }
 
-    crout << process.parallelisation->rank << " : Op Macro : "  ;
-    tic.stop();
-    process.parallelisation->synchronisation();
     for(int i_sst = 0; i_sst < SubS.size(); i_sst++){
         //std::cout << "Matrice de raideur :" << std::endl;
         //display(*(SubS[i_sst].K));

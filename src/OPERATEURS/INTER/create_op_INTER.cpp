@@ -162,6 +162,7 @@ struct Apply_nb_macro {
             //resultantes + moment + extension :
             if (Inter.side[0].mesh->elem_list.size()==0) {
                 Inter.nb_macro_espace=0;
+                std::cerr << "WARNING !! Aucun element dans l'interface " << Inter.id << std::endl;
             } else if(min(abs(Inter.Moments_inertie))<=eps) {
                 Inter.nb_macro_espace=4;
             } else {
@@ -180,12 +181,16 @@ struct Apply_nb_macro {
             Inter.nb_macro_espace=6;
         } else if(process.multiscale->type_base_macro==3) {
             //resultantes + moments + extensions:
-            unsigned zob=0;
+            unsigned nb_null=0;
             for(unsigned i=0;i<Inter.Moments_inertie.size();i++)
                 if (std::abs(Inter.Moments_inertie[i])< eps)
-                    zob++;
-            if (Inter.side[0].mesh->elem_list.size()==0 or zob>1) {
+                    nb_null++;
+            if (Inter.side[0].mesh->elem_list.size()==0){
                 Inter.nb_macro_espace=0;
+                std::cerr << "WARNING !! Aucun element dans l'interface " << Inter.id << std::endl;
+            } else if(nb_null>1) {
+                Inter.nb_macro_espace=0;
+                std::cerr << "WARNING !! Base macro nulle dans l'interface " << Inter.id << std::endl;
             } else if(min(abs(Inter.Moments_inertie))<=eps) {
                 Inter.nb_macro_espace=9;
             } else {
@@ -334,6 +339,7 @@ struct CreateProjMacro {
                         T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
                         break;
                     default:
+                        std::cerr << "ERREUR : Interface (id " << inter.id << ") nb_macro_espace = " << inter.nb_macro_espace << std::endl; 
                         assert(0);  /// Dimension de la base macro incorrecte
                 }
             }
