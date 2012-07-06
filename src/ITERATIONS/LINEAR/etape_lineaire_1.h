@@ -75,6 +75,8 @@ struct semilinstage1 {
                 S.Fadd[S.edge[j].repLE]=trans(Inter[q].side[data].MeM) * Inter[q].side[data].t[pt].F;
             }
         }
+        //std::cout << "etape lineaire, pb micro 1, solide " << S.id << " :" << std::endl;
+        //PRINT(S.t[pt].q);
     }
 };
 

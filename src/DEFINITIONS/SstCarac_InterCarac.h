@@ -79,7 +79,7 @@ struct SstCarac
     
     
     SstCarac();
-    void read_data_user(int index,Metil::DataUser &data_user);
+    void read_data_user(int index,DataUser &data_user);
     static void prepareParameters();
     static void updateParameters();
     void affiche();
@@ -110,7 +110,7 @@ struct InterCarac
     
     UserParameter f_jeu ;               /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
     UserParameter f_coeffrottement;     /// parametre representant le coefficient de frottement
-    Scalar coeffrottement;        /// coefficient de frottement sur l'interface
+    //Scalar coeffrottement;        /// coefficient de frottement sur l'interface
     UserParameter f_raideur;            /// parametre donnant la raideur d'une interface elastique
     UserParameter Gcrit;                /// valeur de taux de restitution critique pour les interfaces cassables
     

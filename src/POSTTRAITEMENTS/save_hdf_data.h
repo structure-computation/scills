@@ -51,10 +51,10 @@ template<class TSST>
 void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
     if(process.nom_calcul=="incr")
-        rebuild_state(S,S.t[1], data_user); 
+        rebuild_state(S,S.t[1],process); 
     else if(process.nom_calcul=="latin"){
         std::cout << "calcul_fields_on_sst non defini pour strategie latin pure " << std::endl; assert(0);
-        //rebuild_state(S,S.t[1].q);
+        //rebuild_state(S,S.t[1].q,process);
     }
     else{std::cout << "Type de calcul non reconnu dans save_geometry_sst " << std::endl;assert(0);}
     

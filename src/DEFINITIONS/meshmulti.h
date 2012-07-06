@@ -225,9 +225,10 @@ void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_s
 /** \ingroup  maillages 
 \brief assignation de la force volumique par elements
 */
+/*
 struct assigne_f_vol_e {
     template<class TE,class TM>
-    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {/*
+    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {
         typedef typename TM::Pvec Pvec;
         //ajout du noeud au maillage
         Pvec G = center(e);
@@ -269,9 +270,9 @@ struct assigne_f_vol_e {
         
         for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
             e.f_vol_e[d2] = m.density * (TYPEREEL)expr[d2].subs_numerical(var);
-        }*/
+        }
     }
-};
+};*/
 
 
 /** \ingroup  Sous_structures 
@@ -348,10 +349,10 @@ struct Meshmulti {
             node_list_size = geometry_user->find_group_elements(id_sst)->map_global_nodes.size();
             elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
         }
-    }
+    }/*
     void load_f_vol_e(Vec<Sc2String,DIM>& f_vol_e,const DataUser &data_user) {///application du chargement à chaque noeud
         apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
-    }
+    }*/
     //    
     void sousint() {///sousintegration de type p
         sousintegration = "p";

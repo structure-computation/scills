@@ -111,7 +111,7 @@ void compt_parfait (Interface &Inter,int &imic) {
         kloc2.n=n1;
         hloc.n=n1;
         // travail point par point
-        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep] ;//,jeu=JJ[rep]  ;
+        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep];//, jeu=JJ[rep]  ;
         //W1 += jeu;
         Wchap1[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
         Fchap1[rep]=F1+kloc1*(Wchap1[rep]-W1);
@@ -143,7 +143,7 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
     const Vector &Q2=Inter.side[1].t[imic].F[list2];
     const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
     const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &JJ=Inter.jeu[list1];
+    //const Vector &JJ=Inter.jeu[list1];
     const Vector &neq1=(Inter.side[0].neq)[list1];
     //const Vector &neq2=(Inter.side[1].neq)[list2];
 
@@ -171,9 +171,9 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
         hloc.n=n1;
 
         // travail point par point
-        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep],jeu=JJ[rep]  ;
+        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep];//,jeu=JJ[rep]  ;
         if (pt_cur==1)
-            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) -kloc2*jeu/temps.dt);
+            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) );//-kloc2*jeu/temps.dt);
         else
             Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2));
 
@@ -182,7 +182,7 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
     }
 
     if(pt_cur<=Inter.matprop->nbpastempsimpos)
-        Wchap2=Wchap1+JJ/(temps.dt*Inter.matprop->nbpastempsimpos);
+        Wchap2=Wchap1;//+JJ/(temps.dt*Inter.matprop->nbpastempsimpos);
     else
         Wchap2=Wchap1;
 
@@ -276,7 +276,7 @@ void compt_contact (Interface &Inter,TimeData &temps) {
 //     if (Inter.num == 15) cout << list2 << endl;
 //     if (Inter.num == 15) cout << Inter.side[0].neq << endl;
     
-    Scalar f=Inter.matprop->coeffrottement;
+    Scalar f=Inter.coeffrottement;
 
     Scalar h1n=Inter.side[0].hn;
     Scalar h2n=Inter.side[1].hn;
@@ -418,8 +418,8 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
     const Vector &neq=Inter.side[1].neq[list1];
 //    const Vector &neq=Inter.side[0].neq[list1];
 
-    Scalar f=Inter.matprop->coeffrottement;
-    const Vector &frott=Inter.coeffrottement;
+    Scalar f=Inter.coeffrottement;
+    const Vector &frott=Inter.coeffrottement_vec;
 
     Scalar h1n=Inter.side[0].hn;
     Scalar h2n=Inter.side[1].hn;
@@ -545,7 +545,7 @@ void compt_breakable (Interface &Inter,TimeData &temps) {
     
     const Vector &neq=Inter.side[0].neq[list1];
 
-    Scalar f=Inter.matprop->coeffrottement;
+    Scalar f=Inter.coeffrottement;
 
     Scalar h1n=Inter.side[0].hn;
     Scalar h2n=Inter.side[1].hn;

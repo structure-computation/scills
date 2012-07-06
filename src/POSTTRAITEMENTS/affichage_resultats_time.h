@@ -65,9 +65,9 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
         SstMesh::TM meshglob;
         for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic], data_user);
+                rebuild_state(S[i],S[i].t_post[imic], process);
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic], data_user);
+                rebuild_state(S[i],S[i].t[imic], process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -81,14 +81,12 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
         apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
 
         ///ecriture des fichiers vtu
-        std::cout << "Ecriture des fichiers .vtu au pas de temps " << imic << std::endl;
         for(unsigned i=0;i<2;i++){
             DisplayParaview dp;
             ///ecriture fichier paraview generique de tous les champs (volume ou peau)
             ostringstream sp;
             sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
             Sc2String strp(sp.str());
-            PRINT(strp);
             if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
             if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
             else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
@@ -98,7 +96,6 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
             ostringstream ss;
             ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
             Sc2String namefile(ss.str());
-            PRINT(namefile);
             int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
         }
     }
@@ -169,9 +166,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          typename TV1::template SubType<0>::T::TMESH::TM meshglob;
          for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic].q, data_user);
+                rebuild_state(S[i],S[i].t_post[imic].q, process);
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -201,9 +198,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          for(unsigned i=0;i<S.size();++i)
          {
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic].q, data_user); 
+                rebuild_state(S[i],S[i].t_post[imic].q, process); 
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);

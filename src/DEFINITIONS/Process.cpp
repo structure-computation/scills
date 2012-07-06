@@ -248,7 +248,11 @@ void Process::preparation_calcul(){
     /// Creation des liens vers les materiaux et les formulations
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
     for(unsigned i = 0; i < Inter->size(); i++){
-        (*Inter)[i].matprop = &(*inter_materials)[(*Inter)[i].id_link];
+        PRINT((*Inter)[i].id_link);
+        if((*Inter)[i].id_link >= 0){
+            int index_link = (*data_user).find_links_index((*Inter)[i].id_link);
+            (*Inter)[i].matprop = &((*inter_materials)[index_link]);
+        }
     }
     
     for(unsigned i = 0; i < Inter->size(); i++){
@@ -340,8 +344,11 @@ void Process::boucle_temporelle(){
             }
             
             /// Mise a jour des conditions aux limites
-            if(temps->pt_cur == 0 and parallelisation->is_local_cpu()){
+            if(temps->pt_cur == 1 and parallelisation->is_local_cpu()){
                 print_title(2,"Initialisation des Conditions aux limites :");
+                for(int i = 0; i < SubI->size(); i++){
+                    (*SubI)[i].init();
+                }
                 initialise_CL_values(*SubI, *CL);
             }
             print_title(2,"Mise a jour des Conditions aux limites :");
@@ -377,12 +384,12 @@ void Process::boucle_temporelle(){
             /// Sauvegarde des resultats
             if(save_data){
                 print_title(2,"Sauvegarde des resultats au format HDF"); 
-                if (parallelisation->is_local_cpu()) {//* A REVOIR APRES MODIFICATION DATAUSER
+                if (parallelisation->is_local_cpu()) {/* A REVOIR APRES MODIFICATION DATAUSER (pour field_structure_user) + MODIFIER format HDF5 pour la multi-resolution
                     write_hdf_fields_SST_INTER(*SubS, *Inter, *this , *data_user);//  BUG
-                    //convert_fields_to_field_structure_user(*SubS, *Inter, *this , *data_user, *field_structure_user, *geometry_user);
-                    //Sc2String rank; rank << parallelisation->rank;
-                    //Sc2String file_output_hdf5 = affichage->name_hdf + "_" + rank + ".h5";
-                    //field_structure_user->write_hdf5_in_parallel(file_output_hdf5, *geometry_user, affichage->name_fields, temps->pt_cur, temps->t_cur, parallelisation->rank);
+                    convert_fields_to_field_structure_user(*SubS, *Inter, *this , *data_user, *field_structure_user, *geometry_user);
+                    Sc2String rank; rank << parallelisation->rank;
+                    Sc2String file_output_hdf5 = affichage->name_hdf + "_" + rank + ".h5";
+                    field_structure_user->write_hdf5_in_parallel(file_output_hdf5, *geometry_user, affichage->name_fields, temps->pt_cur, temps->t_cur, parallelisation->rank);
                 //*/
                 }
             }
@@ -489,7 +496,7 @@ void Process::read_data_user() {
     
     /// Creation des liens de parente entre groupes de parametres
     SstCarac::sst_materials_parameters.addParent(&(multiresolution->parameters));
-    InterCarac::inter_materials_parameters.addParent(&(temps->parameters));
+    InterCarac::inter_materials_parameters.addParent(&(Boundary::CL_parameters));
     temps->parameters.addParent(&(multiresolution->parameters));
     Boundary::CL_parameters.addParent(&(temps->parameters));
     Fvol->parameters.addParent(&(temps->parameters));

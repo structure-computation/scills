@@ -18,7 +18,8 @@ void reactualisation_rigidite::operator()(Sst &S, VecInterfaces &Inter, const Pr
         }
         /// Creation de la matrice de rigidite
         S.mesh.load();
-        S.assign_material_on_element(data_user);
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
         S.f->set_mesh(S.mesh.m);
         S.f->update_variables();
         S.f->clean_mats();

@@ -74,7 +74,8 @@ struct Calc_SST_rigidite_K0_k {
         S.f->free_matrices();
         //reperage des ddl de bords (chargement du maillage + non effacement)
         S.calc_SST_Correspddl();
-        S.assign_material_on_element(data_user);
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
         S.f->set_mesh(S.mesh.m);
         S.f->want_amd=false;
         S.f->allocate_matrices();

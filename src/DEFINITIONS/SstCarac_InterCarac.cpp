@@ -242,6 +242,7 @@ void InterCarac::read_data_user(int index,Metil::DataUser &data_user){
     name = link.name;
     //type = link.;
     comp = link.comp_generique + link.comp_complexe;
+    f_jeu.setExpression(link.Ep);
 }
 
 void InterCarac::prepareParameters(){
@@ -255,7 +256,7 @@ void InterCarac::updateParameters(){
 void InterCarac::affiche(){
     std::cout << "----------------------------------------------------------------------"<< std::endl;
     std::cout << "id = " << id << std::endl;
-    std::cout << "coeffrottement = " << coeffrottement << std::endl;
+    std::cout << "coeffrottement = " << f_coeffrottement << std::endl;
     std::cout << "jeu = " << f_jeu << std::endl;
     std::cout << "Gcrit = " << Gcrit << std::endl;
     std::cout << "type = " << type << std::endl;

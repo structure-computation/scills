@@ -54,6 +54,8 @@ struct semilinstage2 {
             Inter[q].side[data].t[pt].F += Qd - Inter[q].side[data].kglo * W2/process.temps->dt;
             //Inter[q].side[data].t[pt].Wp2=(Inter[q].side[data].t[pt].W2-Inter[q].side[data].t[pt-1].W2)/temps.dt;
         }
+        //std::cout << "etape lineaire, pb micro 2, solide " << S.id << " :" << std::endl;
+        //PRINT(S.t[pt].q);
     }
 };
 

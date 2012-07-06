@@ -80,12 +80,12 @@ struct Interface
 
         /// Structure temporelle contenant les vecteurs nodaux
         struct Time{
-            Vector F;        /// efforts sur la face
-            Vector W;        /// deplacements sur la face
-            Vector Wp;       /// vitesses sur la face
-            Vector Fchap;    /// 
-            Vector Wchap;    ///
-            Vector Wpchap;   ///
+            Vector F;        /// efforts sur la face (etape )
+            Vector W;        /// deplacements sur la face (etape )
+            Vector Wp;       /// vitesses sur la face (etape )
+            Vector Fchap;    /// efforts sur la face (etape )
+            Vector Wchap;    /// deplacements sur la face (etape )
+            Vector Wpchap;   /// vitesses sur la face (etape )
             Vector WtildeM;  /// pseudo multiplicateur de
             Vector oldF;     /// efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
             Vector oldW;     /// deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
@@ -99,16 +99,16 @@ struct Interface
         BasicVec<int> nature; /// type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
         BasicVec<int> number; /// numéro de l'interface
         BasicVec< BasicVec<TYPEREEL>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; /// champs de déplacement et contrainte
-        
     };
     Vec<Side> side; ///< cotes de l'interface
 
-    Vector jeu ;             /// vecteur des valeurs de jeu sur l'interface
-    Vector coeffrottement;   /// vecteur des valeurs de coeficient de frottement sur l'interface
-    Vector raideur;          /// vecteur des valeurs de raideur sur l'interface
-    Vec<bool> comportement;         /// indique s'il y a modification du comportement d'un element
-    int convergence;                ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
-                                    ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
+    Scalar coeffrottement;      /// coefficient de frottement de l'interface
+    Vector coeffrottement_vec;  ///
+    Vector jeu ;                /// vecteur des valeurs de jeu sur l'interface
+    Vector raideur;             /// vecteur des valeurs de raideur sur l'interface
+    Vec<bool> comportement;     /// indique s'il y a modification du comportement d'un element
+    int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
+                                ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
     
     struct Time{
         Vector d;    /// endommagement des elements de l'interface
@@ -120,12 +120,12 @@ struct Interface
         void free(){d.free();}
     };
     Vec<Time> t;
-                                    
+    
     
     #if DIM==2
     static const   int nb_nodes_by_element=2;
     #else
-    static const   int nb_nodes_by_element=3; 
+    static const   int nb_nodes_by_element=3;
     #endif  
     BasicVec<BasicVec<TYPEREEL>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
@@ -137,6 +137,7 @@ struct Interface
     // methodes de la class
     //*******************************************************************************************
     void free();
+    void init();
     void affiche();
     void read_data_user(int index,const DataUser &data_user, const GeometryUser &geometry_user);
 
