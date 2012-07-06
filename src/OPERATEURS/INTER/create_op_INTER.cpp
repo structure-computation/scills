@@ -188,10 +188,10 @@ struct Apply_nb_macro {
             if (Inter.side[0].mesh->elem_list.size()==0){
                 Inter.nb_macro_espace=0;
                 std::cerr << "WARNING !! Aucun element dans l'interface " << Inter.id << std::endl;
-            } else if(nb_null>1) {
+            } /*else if(nb_null>1) {
                 Inter.nb_macro_espace=0;
                 std::cerr << "WARNING !! Base macro nulle dans l'interface " << Inter.id << std::endl;
-            } else if(min(abs(Inter.Moments_inertie))<=eps) {
+            }*/ else if(min(abs(Inter.Moments_inertie))<=eps) {
                 Inter.nb_macro_espace=9;
             } else {
                 Inter.nb_macro_espace=12;

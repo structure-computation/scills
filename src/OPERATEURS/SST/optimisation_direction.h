@@ -39,6 +39,7 @@ void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> 
 void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYPEREEL &hn, TYPEREEL &ht) {
     TYPEREEL facteur = 1000.;
     if(Inter.type=="Ext") {
+        PRINT(Inter.comp);
         if(Inter.comp=="depl" or Inter.comp=="depl_nul" or Inter.comp=="vit" or Inter.comp=="vit_nulle") {
             kn = kn * facteur;
             hn = hn / facteur;
