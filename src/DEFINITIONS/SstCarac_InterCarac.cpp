@@ -239,6 +239,7 @@ void InterCarac::free(){
 void InterCarac::read_data_user(int index,Metil::DataUser &data_user){
     const DataUser::Json_links &link = data_user.links_vec[index];
     id = link.id_in_calcul;
+    type_num = link.type_num;
     name = link.name;
     //type = link.;
     comp = link.comp_generique + link.comp_complexe;

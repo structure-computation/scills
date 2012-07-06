@@ -102,6 +102,7 @@ struct InterCarac
     static ParameterGroup inter_materials_parameters;
     
     unsigned id;                    /// numero d'identification de cette caracteristique
+    unsigned type_num;                 /// numero d'identification du comportement d'interface
     Sc2String name;                    /// nom de la caracteristique d'interface (informatif)
     Sc2String type;                    /// type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
     Sc2String comp;                    /// comportement des interfaces incluses

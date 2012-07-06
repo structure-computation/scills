@@ -264,16 +264,16 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
     
     
     /// vérification du maillage
-    for(int i_inter = 0; i_inter<Inter.size(); i_inter++){
-        PRINT("Interface--------------------------------------------");
-        PRINT(Inter[i_inter].id);
-        PRINT(Inter[i_inter].type);
-        PRINT(Inter[i_inter].edge_id);
-        PRINT(Inter[i_inter].id_bc);
-        PRINT(Inter[i_inter].refCL);
-        PRINT(Inter[i_inter].comp);
-        PRINT("-----------------------------------------------------");
-    }
+    //     for(int i_inter = 0; i_inter<Inter.size(); i_inter++){
+    //         PRINT("Interface--------------------------------------------");
+    //         PRINT(Inter[i_inter].id);
+    //         PRINT(Inter[i_inter].type);
+    //         PRINT(Inter[i_inter].edge_id);
+    //         PRINT(Inter[i_inter].id_bc);
+    //         PRINT(Inter[i_inter].refCL);
+    //         PRINT(Inter[i_inter].comp);
+    //         PRINT("-----------------------------------------------------");
+    //     }
     
 }
 

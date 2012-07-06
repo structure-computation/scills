@@ -252,12 +252,17 @@ void Process::preparation_calcul(){
         if((*Inter)[i].id_link >= 0){
             int index_link = (*data_user).find_links_index((*Inter)[i].id_link);
             (*Inter)[i].matprop = &((*inter_materials)[index_link]);
+            PRINT((*Inter)[i].matprop->comp);
+            PRINT((*Inter)[i].matprop->type_num);
+            if((*Inter)[i].matprop->type_num == 0) {(*Inter)[i].comp = "Parfait";}
+            else if((*Inter)[i].matprop->type_num == 2) {(*Inter)[i].comp = "Contact_ep";}
         }
+        
     }
     
-    for(unsigned i = 0; i < Inter->size(); i++){
-        (*Inter)[i].affiche();
-    }
+    //     for(unsigned i = 0; i < Inter->size(); i++){
+    //         (*Inter)[i].affiche();
+    //     }
     
     /// Allocations et initialisation des quantites
     print("Allocations des vecteurs de stockage des resultats");
@@ -279,7 +284,7 @@ void Process::boucle_multi_resolution() {
         print_data("************************************************************ Calcul : ",multiresolution->calcul_cur);
         multiresolution->updateParameters();    /// Mise a jour des parametres de multi-resolution
         SstCarac::updateParameters();           /// Mise a jour des parametres materiaux des sst
-        InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
+        //InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         boucle_temporelle();
         print_data("******************************************************** Fin Calcul : ",multiresolution->calcul_cur);
     }
@@ -306,8 +311,9 @@ void Process::boucle_temporelle(){
         }
         print_data("*************** Time : ",temps->t_cur);
         print_title(2,"Mise a jour des parametres");
-        temps->updateParameters();      /// Mise a jour des parametres temporels utilisateur
-        Boundary::updateParameters();   /// Mise a jour des CL (PENSER A ENLEVER PLUS BAS LORSQUE PRET)
+        temps->updateParameters();              /// Mise a jour des parametres temporels utilisateur
+        Boundary::updateParameters();           /// Mise a jour des CL (PENSER A ENLEVER PLUS BAS LORSQUE PRET)
+        InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         
         /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
         print_title(2,"Mise a jour des operateurs");
@@ -346,13 +352,18 @@ void Process::boucle_temporelle(){
             /// Mise a jour des conditions aux limites
             if(temps->pt_cur == 1 and parallelisation->is_local_cpu()){
                 print_title(2,"Initialisation des Conditions aux limites :");
-                for(int i = 0; i < SubI->size(); i++){
-                    (*SubI)[i].init();
-                }
+                //                 for(int i = 0; i < SubI->size(); i++){
+                //                     (*SubI)[i].init();
+                //                 }
                 initialise_CL_values(*SubI, *CL);
             }
             print_title(2,"Mise a jour des Conditions aux limites :");
-            if (parallelisation->is_local_cpu()) update_CL_values(*SubI, *CL, *this, *data_user);
+            if (parallelisation->is_local_cpu()){
+                update_CL_values(*SubI, *CL, *this, *data_user);
+                for(int i = 0; i < SubI->size(); i++){
+                    (*SubI)[i].init();
+                }
+            }
             
             /// Calcul sur le pas de temps
             if (nb_breakable>0) {
