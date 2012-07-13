@@ -35,17 +35,17 @@ struct Process
     
     //attributs==============================================================================================
     /// Structures de donnees associees a la methode LaTIn
-    GeneralData *structure;                 /// parametres donnant la geometrie et maillages de la structure
-    LatinData *latin;                       /// parametres lies a la strategie latin
-    MultiScaleData *multiscale;             /// parametres multiechelle
-    SavingData *affichage;                  /// parametres d'affichage et de sauvegarde
-    TimeData *temps;                        /// parametres temporels
+    GeneralData         *structure;                     /// parametres donnant la geometrie et maillages de la structure
+    LatinData           *latin;                         /// parametres lies a la strategie latin
+    MultiScaleData      *multiscale;                    /// parametres multiechelle
+    SavingData          *affichage;                     /// parametres d'affichage et de sauvegarde
+    TimeData            *temps;                         /// parametres temporels
     //PROPERTY *properties;                   /// parametres pour les proprietes materielles
-    ParallelisationData *parallelisation;   /// parametres MPI
-    MultiResolutionData *multiresolution;   /// parametres de multi-resolution
-    DataUser *data_user;                     /// structure de stockage des informations du fichier JSON
-    GeometryUser *geometry_user;             /// structure de stockage des informations du fichier HDF5
-    FieldStructureUser *field_structure_user;
+    ParallelisationData *parallelisation;               /// parametres MPI
+    MultiResolutionData *multiresolution;               /// parametres de multi-resolution
+    DataUser            *data_user;                     /// structure de stockage des informations du fichier JSON
+    GeometryUser        *geometry_user;                 /// structure de stockage des informations du fichier HDF5
+    FieldStructureUser  *field_structure_user;
     
     MacroProblem *Global;        /// propriete macro de la structure
     
@@ -57,6 +57,7 @@ struct Process
     PointedInterfaces *SubI;     /// MPI : vecteur de pointeur vers les Interfaces a traiter dans cette instance du programme
     Boundaries *CL;              /// vecteur des conditions limites
     VolumicForces *Fvol;         /// efforts volumiques sur la structure
+    ThermalLoad *Tload;          /// chargement thermique sur la structure
     Materials *sst_materials;    /// vecteur des propriete materiaux des Sst
     Links *inter_materials;      /// vecteur des propriete materiaux des Interfaces
     

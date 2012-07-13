@@ -85,7 +85,7 @@ int Sst::find_index_sst(LMT::Vec<Sst> &S, int id_) {
 
 void Sst::apply_behavior(){
     mesh->density    = matprop->density    ;
-    mesh->deltaT     = matprop->deltaT     ;
+    //mesh->deltaT     = matprop->deltaT     ;
     mesh->resolution = matprop->resolution ;
     
     if (matprop->type.find("isotrope")<matprop->type.size()) {
@@ -106,7 +106,7 @@ void Sst::apply_behavior(){
         mesh->shear_modulus_23  = matprop->shear_modulus_23 ;
         mesh->v1                = matprop->v1               ;
         mesh->v2                = matprop->v2               ;
-        mesh->deltaT            = matprop->deltaT           ;
+        //mesh->deltaT            = matprop->deltaT           ;
         mesh->resolution        = matprop->resolution       ;
         mesh->alpha_1           = matprop->alpha_1          ;
         mesh->alpha_2           = matprop->alpha_2          ;

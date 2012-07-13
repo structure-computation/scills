@@ -76,6 +76,7 @@ struct Calc_SST_rigidite_K0_k {
         S.calc_SST_Correspddl();
         S.apply_behavior();
         process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
         S.f->set_mesh(S.mesh.m);
         S.f->want_amd=false;
         S.f->allocate_matrices();

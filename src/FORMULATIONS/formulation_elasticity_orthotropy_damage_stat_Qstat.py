@@ -16,7 +16,8 @@ shear_modulus_12 = Variable( interpolation='global', default_value='5800' , unit
 shear_modulus_13 = Variable( interpolation='global', default_value='5800' , unit='N/mm^2')
 shear_modulus_23 = Variable( interpolation='global', default_value='5800', unit='N/mm^2' )
 #champ de temperature (normalement recopie du champ de temperature global sur la structure
-deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+#deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+deltaT = Variable( interpolation='elementary', default_value='0.0', unit='degC' )
 #coefficient de dilatation
 alpha_1 = Variable( interpolation='global', default_value='2.3e-6', unit='' )
 alpha_2 = Variable( interpolation='global', default_value='30e-6', unit='' )

@@ -20,6 +20,7 @@ void reactualisation_rigidite::operator()(Sst &S, VecInterfaces &Inter, const Pr
         S.mesh.load();
         S.apply_behavior();
         process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
         S.f->set_mesh(S.mesh.m);
         S.f->update_variables();
         S.f->clean_mats();

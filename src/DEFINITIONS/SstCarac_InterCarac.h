@@ -18,16 +18,16 @@ struct SstCarac
     static ParameterGroup sst_materials_parameters;
     
     /// Attributs communs
-    int id;                         /// identite du materiaux dans data_user
-    int type_num;                   /// numero d'identite du comportement materiaux : 0=isotrope elastique
-    Sc2String type;                 /// type de formulation : isotrope, orthotrope, orthotrope endommageable
-    Sc2String comp;                 /// type de comportement : elastique, endommageable, plastique, mesomodele...
-    bool resolution;                /// type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
-    Point v1,v2;        /// direction pour les materiaux orthotropes
-    UserParameter density;          /// densite du materiaux
-    Point f_vol;        /// Champs de force volumique constant
-    LMT::Vec<Sc2String,DIM> f_vol_e;     /// Champs de force volumique par element
-    Scalar dt;                    /// pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
+    int id;                             /// identite du materiaux dans data_user
+    int type_num;                       /// numero d'identite du comportement materiaux : 0=isotrope elastique
+    Sc2String type;                     /// type de formulation : isotrope, orthotrope, orthotrope endommageable
+    Sc2String comp;                     /// type de comportement : elastique, endommageable, plastique, mesomodele...
+    bool resolution;                    /// type de resolution contrainte_plane (1) ou deformation_plane (0) : utilise en 2d
+    Point v1,v2;                        /// direction pour les materiaux orthotropes
+    UserParameter density;              /// densite du materiaux
+    Point f_vol;                        /// Champs de force volumique constant
+    LMT::Vec<Sc2String,DIM> f_vol_e;    /// Champs de force volumique par element
+    Scalar dt;                          /// pas de temps lu uniquement pour la quasistatique (obtenu a partir de process.temps->dt)
     
     /// Comportement elastique
     /// Isotrope

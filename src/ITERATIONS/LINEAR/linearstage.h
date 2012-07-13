@@ -155,6 +155,7 @@ struct Calcul_2nd_membre_micro1_sst {
         S.mesh.load();
         S.apply_behavior();
         process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
         if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){
             upload_epsilon_p(S,process.temps->pt);
         }
