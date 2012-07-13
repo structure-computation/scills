@@ -1,218 +1,173 @@
+#ifdef qfmlqsdnkfqmdlsfnkqmelsfnkdmljcxvn // pour que rien ne soit compile
 //librairies Hugo
-#include "containers/mat.h"
-#include "containers/vecpointedvalues.h"
+
+#include "ITERATIONS_declarations.h"
 
 //fichiers de definition des variables
-#include "definition_PARAM_COMP_INTER.h"
-#include "definition_PARAM.h"
-#include "definition_PARAM_LATIN.h"
-#include "definition_PARAM_MULTI.h"
-#include "definition_PARAM_TEMPS.h"
-#include "definition_GLOB.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
-#include "definition_CL.h"
-#include "definition_PARAM_AFFICHAGE.h"
+#include "../DEFINITIONS/LatinData.h"
+#include "../DEFINITIONS/TimeData.h"
+#include "../DEFINITIONS/SavingData.h"
 
 // fonctions speciales math
-#include "algebre.h"
-#include "utilitaires.h"
+#include "../UTILITAIRES/algebre.h"
+#include "../UTILITAIRES/utilitaires.h"
 
 // fonction utilisees pour la phase d'initialisation ou affectation des valeurs des CL puis phase iterative
-#include "allocate.h"
-#include "save_read_data.h"
+#include "manipulate_quantities.h"
 #include "iterate.h"
 #include "prelocalstage.h"
-#include "assign_quantities_current_to_old.h"
-#include "calculate_error.h"
+#include "ERROR/calculate_error.h"
 
 #include "modification_sst_inter_behaviour.h"
 
-//fonctions pour les envoies des données par mpi
-#include "crout.h"
+#include "../POSTTRAITEMENTS/affichage.h"
+
+//fonctions pour les envoies des donnees par mpi
+#include "../MPI/crout.h"
+#include "../POSTTRAITEMENTS/save_read_data.h"
+#include "../POSTTRAITEMENTS/save_hdf_data.h"
+
+#include "../../LMT/include/containers/mat.h"
+
+//using namespace LMT;
+//using namespace Metil;
 
 
-using namespace LMT;
-using namespace std;
-
-/**\defgroup Strategie_iterative Stratégie Itérative
-\brief Stratégie itérative
- 
-Dans cette partie, on cherche à résoudre le problème de statique ou quasistatique. Deux méthodes sont envisagées : 
-- on effectue une résolution latin à savoir une boucle itérative dans laquelle on cherche la solution de manière incrémentale sur tous les pas de temps : multiscale_iterate_latin(). 
-- on effectue la boucle en temps et pour chaque piquet de temps on cherche une solution de manière itérative : multiscale_iterate_incr()
- 
-*/
-
-/** \ingroup   LATIN
-\brief Procédure principale itérative pour la résolution LATIN
- 
-Cette procédure est constituée des fonctions suivantes :
-   - allocate_quantities() : On alloue dans un premier temps la mémoire pour chaque quantités de Sst, Interface et Global pour chaque piquet de temps:
-   - assign_CL_values_space_time() : on assigne les valeurs des quantités chapeau sur le bord à partir des conditions aux limites pour chaque piquet de temps.
-   - iterate_latin() : on applique la stratégie itérative latin : \ref LATIN*
-*/
-template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_latin(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL) {
-  if(process.latin->alloc_quantites==1) {
-        //1ere phase : allocations et initialisation des quantites
-    if (process.rank == 0)
-      cout << " Allocations des quantites d'interfaces et SST" << endl;
-    if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);//on alloue si on reprend un calcul a partir d un resultat en memoire
-#ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
-#endif
-        //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
-    if(process.reprise_calcul==1) {
-      read_data_sst(S, process);
-      read_data_inter(Inter, process);
-      calcul_erreur_latin(SubS, Inter, process, Global);
-      if (process.rank == 0)
-        cout << "Erreur initiale apres relecture : " << process.latin->error[process.latin->iter] << endl;
+void multiscale_iterate_incr(ScSstVec           &S,
+                             ScSstRef           &SubS, 
+                             ScInterVec         &Inter, 
+                             ScInterRef         &SubI, 
+                             Process            &process, 
+                             MacroProblem       &Global, 
+                             ScCLVec            &CL, 
+                             DataUser           &data_user, 
+                             GeometryUser       &geometry_user, 
+                             FieldStructureUser &field_structure_user) {
+    process.temps->pt=1;        /// On reecrit toujours dans les memes Sst::Time et Interface::Edge::Time en incremental
+    /// Presence d'interface Breakable ?
+    int nb_breakable=0;
+    if (process.parallelisation->is_master_cpu())
+        for(unsigned q=0; q <Inter.size();q++)
+            if (Inter[q].comp =="Breakable")
+                nb_breakable++;
+            if (process.parallelisation->is_multi_cpu())
+        MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+    process.nb_breakable = nb_breakable ;
+    
+    /// Assignation des grandeurs a l'instant initial
+    if(process.temps->step_cur == 0){
+        if(process.parallelisation->is_master_cpu()) std::cout << "Assignation des grandeurs a l'instant initial" << std::endl;
+        initialise_CL_values(SubI, CL);
     }
-    if (process.size == 1 or process.rank>0)
-      assign_CL_values_space_time_latin(SubI, CL, process);
-    if(process.reprise_calcul>0)
-      calcul_erreur_latin(SubS, Inter, process, Global);
-    if(process.reprise_calcul>0)
-      recopie_old_from_new(Inter,process);
-    if(process.reprise_calcul>0)
-      if (process.rank == 0)
-        cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
-  }
-  if (process.rank == 0)
-    cout << " Processus iteratif " << endl;
-  iterate_latin(process,SubS,Inter,SubI,Global);
-};
-
-
-/** \ingroup   Incrementale
-\brief Procédure principale itérative pour la résolution du problème de manière incrémentale
- 
-Cette procédure est constituée des étapes suivantes :
-- allocate_quantities() : On alloue dans un premier temps la mémoire pour chaque quantités de Sst, Interface et Global (pas de temps 0 et 1):
-- pour chaque piquet de temps :
-   - assign_CL_values_space_time() : on assigne les valeurs des quantités chapeau sur le bord à partir des conditions aux limites pour le piquet de temps concerné
-   - iterate_incr() : on effectue une boucle itérative \ref Incrementale
-   - assign_quantities_current_to_old() : on met à jour les valeurs 0 à partir des valeurs 1
-*/
-template <class TV1,class TV2, class TV3, class TV4, class TV5, class TV6>
-void multiscale_iterate_incr(TV1 &S,TV2 &SubS, TV3 &Inter, TV4 &SubI, Param &process, TV5 &Global, TV6 &CL,const XmlNode &n) {
-    //1ere phase : allocations et initialisation des quantites
-    if (process.rank == 0)
-        cout << " Allocations des quantites d'interfaces et SST" << endl;
-    if(process.reprise_calcul!=2) allocate_quantities(SubS,SubI,process,Global);
-#ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Memoire apres allocations : ").c_str(),1);
-#endif
+    
+    /* REPRISE CALCUL NE SEMBLE PLUS UTILISE
     if(process.reprise_calcul==1) {
         read_data_sst(S, process);
         read_data_inter(Inter, process);
         calcul_erreur_latin(SubS, Inter, process, Global);
     }
-    if(process.reprise_calcul>0)
-      calcul_erreur_latin(SubS, Inter, process, Global);
-    if(process.reprise_calcul>0)
-      if (process.rank == 0)
-        cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
 
-
-    if (process.reprise_calcul>0)
-        for(unsigned i=0;i<Inter.size();i++)
+    if (process.reprise_calcul>0){
+        calcul_erreur_latin(SubS, Inter, process, Global);
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
+        for(unsigned i=0;i<Inter.size();i++){
             for(unsigned j=0;j<Inter[i].side.size();j++) {
                 Inter[i].side[j].t[1]=Inter[i].side[j].t_post[1];
                 Inter[i].side[j].t[0]=Inter[i].side[j].t_post[0];
-                if (process.reprise_calcul==1) recopie_old_from_new_post(Inter,process);
+                if (process.reprise_calcul==1)
+                    recopie_old_from_new_post(Inter,process);
             }
-
-    if(process.reprise_calcul>0)
-      calcul_erreur_incr(SubS, Inter, process, Global);
-    if(process.reprise_calcul>0)
-      if (process.rank == 0)
-        cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
-    if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-
-    // A mettre ici pour la thermique seulement
-    apply_mt(SubS,process.nb_threads,calcul_secmemb_micro_sst(),process);
-
-    if (process.rank == 0)
-        cout<<"Processus iteratif incremental" << endl;
-
-
+        }
+        calcul_erreur_incr(SubS, Inter, process, Global);
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Erreur initiale avant reprise : " << process.latin->error[process.latin->iter] << endl;
+    }
+    //*/
+    process.parallelisation->synchronisation();
+    
+    /// Reactualisation du 2nd membre de micro1 pour le calcul de l'erreur
+    //apply_mt(SubS,process.parallelisation->nb_threads,Calcul_2nd_membre_micro1_sst(),process, data_user);
+    
+    /// Boucle sur les pas de temps
     unsigned i_step=process.temps->step_cur;
     for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
-            process.temps->time_step[i_step].pt_cur=i_pt;
-            process.temps->pt_cur+=1;
-            if (process.rank == 0)
-                cout << "Piquet de temps " << process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt << endl;
-//     for(unsigned pt=1;pt<process.temps->nbpastemps+1;pt++) {
-//         process.temps->pt_cur=pt;
-//         if (process.rank == 0)
-//             cout << "Pas de temps " << pt << endl;
-//         
-                
-//         if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-//         cout << process.rank<< " : barrier2 : " << endl;
+        /// Actualisation des indicateurs temporels
+        process.temps->time_step[i_step].pt_cur=i_pt;
+        process.temps->pt_cur+=1;
+        process.temps->t_cur=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
+        process.print_data("----Piquet de temps courant ",process.temps->t_cur);
 
-        //Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
-        if (process.size == 1 or process.rank>0)
-            assign_CL_values_space_time_incr(SubI, CL, process);
-
-        for(int ic=0;ic<CL.size();ic++){
-            cout << "ft " << CL[ic].ft << endl;
-/*            cout <<"fspace " << CL[ic].fcts_spatiales[i_step]<< endl;*/
+        /// Assignation des Conditions aux limites pour chaque intervalle de temps et chaque interface de bord
+        process.print("\n - Comportements des interfaces :");
+        if (process.parallelisation->is_local_cpu()) update_CL_values(SubI, CL, process, data_user);
+        process.print("\n - Conditions aux limites :");
+        
+        /* REPRISE CALCUL NE SEMBLE PLUS UTILISE
+        if(process.reprise_calcul>0){
+            calcul_erreur_incr(SubS, Inter, process, Global);
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
+        }
+        //*/
+        /// Calcul sur le pas de temps
+        if (nb_breakable>0) {
+            int nb_change = 0;
+            int sous_iter = 1;
+            while(nb_change != 0 or sous_iter == 1) {
+                if (process.parallelisation->is_local_cpu()){
+                    for(unsigned q=0; q < SubI.size();q++){
+                        if (SubI[q].comp == "Breakable")
+                            SubI[q].convergence = -1; 
+                    }
+                }
+                if (process.parallelisation->is_master_cpu()) std::cout << "          Sous iteration interface cassable : " << sous_iter << std::endl;
+                iterate_incr(process,SubS,Inter,SubI,Global,data_user);
+                if (process.parallelisation->is_local_cpu()){
+                    for(unsigned q=0; q < SubI.size();q++){
+                        if (SubI[q].comp == "Breakable")
+                            nb_change += SubI[q].convergence ; 
+                    }
+                }
+            }
+        } else {
+            iterate_incr(process,SubS,Inter,SubI,Global,data_user);
+        }
+        ///assignation ptcur au ptold
+        process.print(" - Reactualisation des valeurs pour le pas de temps suivant");
+        assign_quantities_current_to_old(SubS,SubI,process);
+        
+        /// Sauvegarde des resultats
+        if(process.save_data==1){
+            process.print(" - Sauvegarde des resultats au format HDF"); 
+            if (process.parallelisation->is_local_cpu()) {
+                // write_hdf_fields_SST_INTER(SubS, Inter, process , data_user);  BUG
+                convert_fields_to_field_structure_user(SubS, Inter, process , data_user, field_structure_user, geometry_user);
+                Sc2String rank; rank << process.parallelisation->rank;
+                Sc2String file_output_hdf5 = process.affichage->name_hdf + "_" + rank + ".h5";
+                field_structure_user.write_hdf5_in_parallel(file_output_hdf5, geometry_user, process.affichage->name_fields, process.temps->pt_cur, process.temps->t_cur, process.parallelisation->rank);
+            }
         }
         
-/*        if (process.size >1 ) MPI_Barrier(MPI_COMM_WORLD);
-        cout << process.rank<< " : barrier3 : " << endl;*/
+        /// Modification du comportement des entites
+        //modification_sst_inter_behaviour(S,Inter,process.temps);  A TESTER
         
-        if(process.reprise_calcul>0)
-          calcul_erreur_incr(SubS, Inter, process, Global);
-        if(process.reprise_calcul>0)
-          if (process.rank == 0)
-            cout << "Erreur initiale apres assignation : " << process.latin->error[process.latin->iter] << endl;
-        // A mettre ici dans le cas d'un comportement dependant du temps pour les sst
-        //apply_mt(S,process.nb_threads,calcul_secmemb_micro_sst(),process);
-
-        iterate_incr(process,SubS,Inter,SubI,Global);
-        //assignation ptcur au ptold
-        assign_quantities_current_to_old(SubS,SubI,process);
-        //modification de certaines interfaces ou sst (exemple endommagement)
-        //modification_sst_inter_behaviour(S,Inter,param_incr);
+        process.print_data("----Fin piquet de temps ",process.temps->t_cur);
     }
-    calcul_erreur_latin(SubS, Inter, process, Global);
-    if (process.rank == 0)
-        cout << "Erreur : " << process.latin->error[process.latin->iter] << endl;
-    
+
+    ///Affichage des energies
+    if (process.affichage->trac_ener_imp == 1) {
+        process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=0;
+        affichage_energie(SubS,Inter,process,data_user);
+        process.affichage->param_ener[0]=1; process.affichage->param_ener[1]=1;
+        affichage_energie(SubS,Inter,process,data_user);
+    }
+    if (process.affichage->trac_ener_diss == 1) {
+        process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=0;
+        affichage_energie(SubS,Inter,process,data_user);
+        process.affichage->param_ener[0]=0; process.affichage->param_ener[1]=1;
+        affichage_energie(SubS,Inter,process,data_user);
+    }
+
 };
-// #endif
-
-void fake_iterate() {
-    XmlNode n;
-    Param process;
-
-#ifdef DIMENSION3
-    Vec<Interface<3,TYPEREEL> > Inter3;
-    Vec<Sst<3,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SubS3;
-    Vec<VecPointedValues<Interface<3,TYPEREEL> > > SubI3;
-    Glob<3,TYPEREEL> Global3;
-    Vec<Boundary<3,TYPEREEL> > CL3;
-    
-    multiscale_iterate_latin(S3,SubS3, Inter3, SubI3, process, Global3,CL3);
-    multiscale_iterate_incr(S3,SubS3, Inter3, SubI3, process, Global3,CL3,n);
 #endif
-
-#ifdef DIMENSION2
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    Vec<Sst<2,TYPEREEL> > S2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SubS2;
-    Vec<VecPointedValues<Interface<2,TYPEREEL> > > SubI2;
-    Glob<2,TYPEREEL> Global2;
-    Vec<Boundary<2,TYPEREEL> > CL2;
-    
-    multiscale_iterate_latin(S2,SubS2, Inter2, SubI2, process, Global2,CL2);
-    multiscale_iterate_incr(S2,SubS2, Inter2, SubI2, process, Global2,CL2,n);
-#endif
-
-}

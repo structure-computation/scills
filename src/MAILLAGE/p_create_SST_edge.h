@@ -1,4 +1,5 @@
-#include "create_new_elem_p.h" 
+#include "create_new_elem_p.h"
+#include "../DEFINITIONS/structure_typedef.h"
 
 /** \ingroup  Sous_structures 
 \brief Modification de l'element
@@ -14,7 +15,7 @@
 //       rep_nodes[i]=e.node(i)->number_in_original_mesh();
 //    
 //    for(unsigned i=0;i<nb_children;i++){
-//      typename TM::EA *ea = m.get_children_of(e,Number<dim-2>())[i]; //element ancestor i;
+//      typename TM::EA *ea = m.get_children_of(e,LMT::Number<dim-2>())[i]; //element ancestor i;
 //      typename TM::Pvec G = center(*ea);
 // 
 //      Noeud_Hash<typename TE::T,TM::dim> newnoeud;
@@ -41,7 +42,7 @@ template<class TE, class TM, class TNH> void operator()(TE &e, TM &m, hash_map<T
       rep_nodes[i]=e.node(i)->number_in_original_mesh();
    
    typename TM::Pvec G = center(e);
-   Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+   Noeud_Hash newnoeud;
    newnoeud.pos=G;
    unsigned num_hash=0;
    for(unsigned j=0;j<e.nb_nodes;j++)
@@ -61,13 +62,12 @@ template<class TM> void create_new_mesh_p_3D(TM &m, TM &m2){
 
 //pour les elements bar (2D)
 template<class TM> void create_new_mesh_p_2D(TM &m, TM &m2){
-    m.sub_mesh(Number<1>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
-    m.sub_mesh(Number<2>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
+    m.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
+    m.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( m, m.elem_list.size() /2 +1);
     m.update_elem_children();
    m.update_elem_parents();
    //1ere etape : ajout des noeuds et creation de la table de hashage
-   typedef Noeud_Hash<typename TM::Tpos, TM::dim> TNH;
-   hash_map<TNH, unsigned, MyHash, NodesEq> hm;
+   hash_map<Noeud_Hash, unsigned, MyHash, NodesEq> hm;
    apply(m.elem_list,add_nodes(),m,hm);
 
    //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
@@ -85,14 +85,14 @@ template<class TM> void create_new_mesh_p_2D(TM &m, TM &m2){
 struct copy_num_elem_verif{
   template<class TE, class TM> void operator()(TE &e,unsigned &incr, TM &m) const{
     //verification si l'element correspondant au numero donne par incr du maillage m a la meme cdg que l'element e
-    double eps=1e-8;
+    TYPEREEL eps=1e-8;
     if( length(center(e)-center(*m.elem_list[incr]))<=eps ) {
       e.elem.resize(1);
       e.elem[0]=incr;
       incr+=1;
     }
     else{
-      cout << "Les elements du maillage de bord ne sont pas numerotes de la meme facon que ceux de l'interface : TODO " << endl;
+      std::cout << "Les elements du maillage de bord ne sont pas numerotes de la meme facon que ceux de l'interface : TODO " << endl;
       assert(0);
     }
   }
@@ -100,27 +100,27 @@ struct copy_num_elem_verif{
 
 /// copie des noeuds des interfaces sur les bords des SST + assignation du numero de l'element peau de bord de la sous-structure correspondant a chaque element de l'interface
 struct p_decoup_INTER{
-  template<class INTER,class TV1> void operator()(INTER &inter, TV1 &S) const{
+  void operator()(Interface &inter, Substructures &S) const{
     for(unsigned j=0;j<inter.side.size();++j){
       int ii=inter.side[j].vois[0];
       int jj=inter.side[j].vois[1];
 
       if (j == 0 or inter.comp=="Contact_jeu_physique" or inter.comp=="periodique") {
 #ifdef PRINT_ALLOC
-      total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESHedge).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESHedge);
+      //total_allocated[ typeid(typename TV1::template SubType<0>::T::TMESHedge).name() ] += sizeof(typename TV1::template SubType<0>::T::TMESHedge);
 #endif
-      S[ii].edge[jj].mesh=new typename TV1::template SubType<0>::T::TMESHedge;
-      S[ii].edge[jj].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
-      S[ii].edge[jj].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
-      S[ii].edge[jj].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh=new EdgeMesh;
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       S[ii].edge[jj].mesh->elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       
       // creation du maillage de bord de la sous-structure correspondant
-      if (TV1::template SubType<0>::T::dim==3)
+      if (DIM==3)
       create_new_mesh_p_3D(*inter.side[j].mesh,*S[ii].edge[jj].mesh);
-      else if(TV1::template SubType<0>::T::dim==2)
+      else if(DIM==2)
       create_new_mesh_p_2D(*inter.side[j].mesh,*S[ii].edge[jj].mesh);
-      else{ cout << "pas de multiechelle en 1D" << endl;
+      else{ std::cout << "pas de multiechelle en 1D" << endl;
          assert(0);}
       
          unsigned incr=0;

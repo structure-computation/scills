@@ -1,7 +1,9 @@
 #ifndef CALCULATE_MEASURE_G_SST_H
 #define CALCULATE_MEASURE_G_SST_H
+
+
 /** \ingroup  Maillage_geometrie 
-\brief Calcul de la mesure et centre de gravité des sst à partir du maillage
+\brief Calcul de la mesure et centre de gravite des sst à partir du maillage
 */
 struct calculate_measure_G_SST {
    template<class SST> void operator() (SST &S) const {
@@ -18,7 +20,7 @@ struct calculate_measure_G_SST {
 
 
 /** \ingroup  Maillage_geometrie
-\brief Calcul de la taille du problème en nombre d'éléments
+\brief Calcul de la taille du problème en nombre d'elements
 */
 template<class TV1, class TV2>
 void calcul_taille_probleme(TV1 &S, TV2 &Inter) {
@@ -28,8 +30,8 @@ void calcul_taille_probleme(TV1 &S, TV2 &Inter) {
         nbelem+=S[i].mesh.elem_list_size;
         nbnode+=S[i].mesh.node_list_size;
     }
-    cout << "\t Taille du probleme : " << S.size() << " ssts, " << nbelem << " elements, " << nbnode << " noeuds"<< endl;
-    cout << "\t Nbre d'interfaces : " << Inter.size()  << endl;
+    std::cout << "\t Taille du probleme : " << S.size() << " ssts, " << nbelem << " elements, " << nbnode << " noeuds"<< std::endl;
+    std::cout << "\t Nbre d'interfaces : " << Inter.size()  << std::endl;
 }
 
 #endif //CALCULATE_MEASURE_G_SST_H

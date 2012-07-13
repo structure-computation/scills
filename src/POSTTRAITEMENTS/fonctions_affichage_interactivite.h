@@ -1,10 +1,9 @@
 
 using namespace LMT;
-using namespace std;
 
-inline void parametre_inconnu(Vec<string> &v,Param &process) {
-    if (process.rank==0)
-        cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << endl;
+inline void parametre_inconnu(Vec<Sc2String> &v,Process &process) {
+    if (process.parallelisation->is_master_cpu())
+        std::cout << "Commande Inconnue. Taper help pour avoir les commandes disponibles." << std::endl;
 }
 
 template <class T1,class T2>
@@ -17,7 +16,7 @@ int findalain(Mat<T1> &m, T2 &s) {
 }
 
 template <class T2>
-int findalain2(Vec<Vec<string> > &m, T2 &s) {
+int findalain2(Vec<Vec<Sc2String> > &m, T2 &s) {
     for(unsigned i=0 ;i<m.size() ;i++ ) {
         if (m[i][0]==s)
             return i;
@@ -25,8 +24,8 @@ int findalain2(Vec<Vec<string> > &m, T2 &s) {
     return -1;
 }
 
-inline void help(Vec<string> &v, Param &process) {
-    //    Mat<string> m(10,3);
+inline void help(Vec<Sc2String> &v, Process &process) {
+    //    Mat<Sc2String> m(10,3);
     //    m(0,0)="help";m(0,1)="Affiche les commandes disponibles";m(0,2)="help";
     //    m(1,0)="evol";m(1,1)="Trace l'evolution d'un point";m(1,2)="evol coor1 coor2 (coor3)";
     //    m(2,0)="trac_sst";m(2,1)="Trace la deformee + champs donnes";m(2,2)="trac_sst champ1 champ2 champ3 ... ou trac_sst ";
@@ -38,8 +37,8 @@ inline void help(Vec<string> &v, Param &process) {
     //    m(8,0)="trac_error";m(8,1)="Trace de l'erreur latin au cours des iterations ";m(8,2)="trac_error";
     //    m(9,0)="trac_ener";m(9,1)="Trace de la dissipation ou energie imposee au cours des pas de temps à partir des quantités chapeaux ou quantités n";m(9,2)="trac_ener (0)ener_dissip/(1)ener_impo (0)Qchap/(1)Qn";
 
-    Vec<Vec<string> > m;
-    Vec<string> help_cur;
+    Vec<Vec<Sc2String> > m;
+    Vec<Sc2String> help_cur;
     help_cur.resize(3);
     help_cur[0]="help";
     help_cur[1]="Affiche les commandes disponibles";
@@ -96,50 +95,50 @@ inline void help(Vec<string> &v, Param &process) {
 
     /*   if (v.size() > 1) {
           if (findalain2(m,v[1]) > 0 )
-             cout << m(findalain2(m,v[1]),2) << endl;
+             std::cout << m(findalain2(m,v[1]),2) << std::endl;
           else {
-             cout << "Liste des commandes disponibles :" << endl;
+             std::cout << "Liste des commandes disponibles :" << std::endl;
              for(unsigned i=0 ;i<m.nb_rows() ;i++ )
-                cout  << setw(15) << m(i,0) << "   "  << m(i,1) << endl;
+                std::cout  << setw(15) << m(i,0) << "   "  << m(i,1) << std::endl;
           }
        } else {
-          cout << "Liste des commandes disponibles :" << endl;
+          std::cout << "Liste des commandes disponibles :" << std::endl;
           for(unsigned i=0 ;i<m.nb_rows() ;i++ )
-             cout  << setw(15) << m(i,0) << "   "  << m(i,1) << endl;
+             std::cout  << setw(15) << m(i,0) << "   "  << m(i,1) << std::endl;
        }*/
     if (v.size() > 1) {
         if (findalain2(m,v[1]) > 0 )
-            if (process.rank==0) {
-                cout << m[findalain2(m,v[1])][2] << endl;
+            if (process.parallelisation->is_master_cpu()) {
+                std::cout << m[findalain2(m,v[1])][2] << std::endl;
             } else {
-                if (process.rank==0)
-                    cout << "Liste des commandes disponibles :" << endl;
+                if (process.parallelisation->is_master_cpu())
+                    std::cout << "Liste des commandes disponibles :" << std::endl;
                 for(unsigned i=0 ;i<m.size() ;i++ )
-                    if (process.rank==0)
-                        cout  << setw(18) << m[i][0] << "   "  << m[i][1] << endl;
+                    if (process.parallelisation->is_master_cpu())
+                        std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
             }
     } else {
-        if (process.rank==0)
-            cout << "Liste des commandes disponibles :" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Liste des commandes disponibles :" << std::endl;
         for(unsigned i=0 ;i<m.size() ;i++ )
-            if (process.rank==0)
-                cout  << setw(18) << m[i][0] << "   "  << m[i][1] << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout  << setw(18) << m[i][0] << "   "  << m[i][1] << std::endl;
     }
 }
 
 /** \ingroup  Post_Traitements
  \brief trace de l'evolution d'un point
  */
-inline void evol(Vec<string> &v,Param &process) {
+inline void evol(Vec<Sc2String> &v,Process &process) {
     //modification de la coordonnee du point
-    if (v.size()!=process.dim+1) {
-        if (process.rank==0)
-            cout << "Mauvais choix de point" << endl;
-        process.affichage->coor_point.resize(process.dim,0.);
-        if (process.rank==0)
-            cout << "On choisit par défaut : " << process.affichage->coor_point << endl;
+    if (v.size()!=DIM+1) {
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvais choix de point" << std::endl;
+        process.affichage->coor_point.resize(DIM,0.);
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "On choisit par défaut : " << process.affichage->coor_point << std::endl;
     } else {
-        process.affichage->coor_point.resize(process.dim);
+        process.affichage->coor_point.resize(DIM);
         for(unsigned i=1;i<v.size();i++)
             process.affichage->coor_point[i-1]=atof(v[i].c_str()) ;
     }
@@ -149,13 +148,13 @@ inline void evol(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief trace de l'evolution d'un point
  */
-inline void evol_inter(Vec<string> &v,Param &process) {
+inline void evol_inter(Vec<Sc2String> &v,Process &process) {
 //modification de la coordonnee du point
     if (v.size()!=4) {
-        if (process.rank==0)
-            cout << "Mauvaise utilisation : help evol_inter" << endl;
-        if (process.rank==0)
-            cout << "On choisit par défaut : l'interface 0, élement 0 et l'affichage de toutes les composantes." << process.affichage->coor_point << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvaise utilisation : help evol_inter" << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "On choisit par défaut : l'interface 0, élement 0 et l'affichage de toutes les composantes." << process.affichage->coor_point << std::endl;
         process.affichage->param_ener.set(0);
         process.affichage->param_ener[2]=3;
     } else {
@@ -167,11 +166,11 @@ inline void evol_inter(Vec<string> &v,Param &process) {
  /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les sous-structures
 */
-inline void trac_sst(Vec<string> &v,Param &process) {
-    if (process.dim == 2 ) process.affichage->type_affichage="Sinterieur";
+ inline void trac_sst(Vec<Sc2String> &v,Process &process) {
+    if (DIM == 2 ) process.affichage->type_affichage="Sinterieur";
     else process.affichage->type_affichage="Sbord";
     if (v.size()>1) {
-        Vec<string> choixchamps;
+        Vec<Sc2String> choixchamps;
         for(unsigned i=1;i<v.size();i++)
             choixchamps.push_back(v[i]);
         process.affichage->display_fields=choixchamps;
@@ -183,11 +182,11 @@ inline void trac_sst(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les sous-structures pour tous les pas de temps
 */
-inline void trac_sst_temps(Vec<string> &v,Param &process) {
-    if (process.dim == 2 ) process.affichage->type_affichage="Sinterieur";
+inline void trac_sst_temps(Vec<Sc2String> &v,Process &process) {
+    if (DIM == 2 ) process.affichage->type_affichage="Sinterieur";
     else process.affichage->type_affichage="Sbord";
     if (v.size()>1) {
-        Vec<string> choixchamps;
+        Vec<Sc2String> choixchamps;
         for(unsigned i=1;i<v.size();i++)
             choixchamps.push_back(v[i]);
         process.affichage->display_fields=choixchamps;
@@ -199,22 +198,22 @@ inline void trac_sst_temps(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les interfaces
 */
-inline void trac_inter(Vec<string> &v,Param &process) {
+inline void trac_inter(Vec<Sc2String> &v,Process &process) {
 
     process.affichage->affich_inter_data=1;
     process.affichage->type_affichage="Inter";
     process.affichage->save="display";
 
     if(v.size()<4) {
-        if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
-        if (process.rank==0)
-            cout << "Par défaut on trace le cote 0, le pas de temps 1 et toutes les interfaces" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Par défaut on trace le cote 0, le pas de temps 1 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
         process.affichage->pt=1;
     } else {
-        string side = v[1];
+        Sc2String side = v[1];
         std::istringstream i1( v[1] );
         i1 >> process.affichage->side;
         istringstream i2( v[2] );
@@ -233,20 +232,20 @@ inline void trac_inter(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des Résultats pour les interfaces pour tous les pas de temps
 */
-inline void trac_inter_temps(Vec<string> &v,Param &process) {
+inline void trac_inter_temps(Vec<Sc2String> &v,Process &process) {
     process.affichage->type_affichage="Inter";
     process.affichage->affich_resultat=1;
     process.affichage->save="save";
     if(v.size()<3) {
-        if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
-        if (process.rank==0)
-            cout << "Par défaut on trace le cote 0 et toutes les interfaces" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Par défaut on trace le cote 0 et toutes les interfaces" << std::endl;
         process.affichage->num_inter_select=Vec<int>(-1);
         process.affichage->side=0;
         process.affichage->pt=1;
     } else {
-        string side = v[1];
+        Sc2String side = v[1];
         std::istringstream i1( v[1] );
         i1 >> process.affichage->side;
         Vec<int> Num_Inter;
@@ -263,9 +262,9 @@ inline void trac_inter_temps(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des maillages des sous-structures
 */
-inline void trac_mesh_sst(Vec<string> &v,Param &process) {
+inline void trac_mesh_sst(Vec<Sc2String> &v,Process &process) {
     if (v.size()>1) {
-        Vec<string> choixchamps;
+        Vec<Sc2String> choixchamps;
         for(unsigned i=1;i<v.size();i++)
             choixchamps.push_back(v[i]);
         process.affichage->display_fields=choixchamps;
@@ -278,16 +277,16 @@ inline void trac_mesh_sst(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage des maillages des interfaces
 */
-inline void trac_mesh_inter(Vec<string> &v,Param &process) {
+inline void trac_mesh_inter(Vec<Sc2String> &v,Process &process) {
     process.affichage->affich_mesh=1;
     process.affichage->type_affichage="Inter";
     process.affichage->save="display";
 
     if(v.size()<2) {
-        if (process.rank==0)
-            cout << "Mauvais nombre d'arguments" << endl;
-        if (process.rank==0)
-            cout << "Par défaut on trace le cote 0" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvais nombre d'arguments" << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Par défaut on trace le cote 0" << std::endl;
         process.affichage->side=0;
     } else {
         istringstream i1(v[1]);
@@ -298,17 +297,17 @@ inline void trac_mesh_inter(Vec<string> &v,Param &process) {
 /** \ingroup  Post_Traitements
 \brief Affichage de l'erreur latin
 */
-inline void trac_error(Vec<string> &v,Param &process) {
+inline void trac_error(Vec<Sc2String> &v,Process &process) {
     process.affichage->display_error=1;
 }
 
 /** \ingroup  Post_Traitements
  \brief Trace de l'energie de dissipation ou imposée pour les quantités chapeua ou quantités n au cours du temps
  */
-inline void trac_ener(Vec<string> &v,Param &process) {
+inline void trac_ener(Vec<Sc2String> &v,Process &process) {
     if (v.size()!=3) {
-        if (process.rank==0)
-            cout << "Parametres par defaut : dissip - Qchap" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Parametres par defaut : dissip - Qchap" << std::endl;
         process.affichage->param_ener.set(0);
     } else {
         Vec<int,2> num;
@@ -319,72 +318,72 @@ inline void trac_ener(Vec<string> &v,Param &process) {
         if(num[0]==0 or num[0]==1 or num[0]==2 or num[0]==3 or num[0]==4 or num[0]==5 or num[0]==6) {
             process.affichage->param_ener[0]=num[0];
         } else {
-            if (process.rank==0)
-                cout << "Deuxieme argument non pris en compte -> par defaut ener_dissip" << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Deuxieme argument non pris en compte -> par defaut ener_dissip" << std::endl;
             process.affichage->param_ener[0]=0;
         }
 
         if(num[1]==0 or num[1]==1) {
             process.affichage->param_ener[1]=num[1];
         } else {
-            if (process.rank==0)
-                cout << "Troisieme argument non pris en compte -> par defaut Qchap" << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Troisieme argument non pris en compte -> par defaut Qchap" << std::endl;
             process.affichage->param_ener[1]=0;
         }
     }
 }
 
-inline void trac_cl(Vec<string> &v,Param &process) {
+inline void trac_cl(Vec<Sc2String> &v,Process &process) {
     //rien a faire
 }
 
 template <class TV1, class TI>
-void affichage_cl(TV1 &S, TI &Inter,Param &process) {
+void affichage_cl(TV1 &S, TI &Inter,Process &process) {
     for(unsigned i=0;i<S.size();i++)
         for( unsigned j=0;j<S[i].edge.size() ;j++ ) {
             unsigned internum=S[i].edge[j].internum;
-            if (Inter[internum].comp=="effort") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+            if (Inter[internum].comp=="effort" or Inter[internum].comp=="effort_normal") {
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,2,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,2,(int)Inter[internum].side[0].t[pt].F.size())]) << endl;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    if (DIM == 2) {
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,2,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,2,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(2,3,(int)Inter[internum].side[0].t[pt].F.size())]) << endl;
+                    if (DIM == 3) {
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(0,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(1,3,(int)Inter[internum].side[0].t[pt].F.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].F[range(2,3,(int)Inter[internum].side[0].t[pt].F.size())]) << std::endl;
                     }
                 }
             }
-            if (Inter[internum].comp=="depl" or Inter[internum].comp=="depl_normal") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+            if (Inter[q].comp=="depl" or Inter[q].comp=="depl_normal" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle" or Inter[internum].comp=="vit" or Inter[internum].comp=="vit_normale") {
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    if (DIM == 2) {
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                        cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                    if (DIM == 3) {
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                        std::cout << setw(14) << mean(Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                 }
             }
             if (Inter[internum].comp=="Jeu_impose") {
-                cout << "Interface " << internum << " de type " << Inter[internum].comp << endl;
+                std::cout << "Interface " << internum << " de type " << Inter[internum].comp << std::endl;
                 for( unsigned pt=0;pt<Inter[internum].side[0].t.size() ;pt++ ) {
-                    cout << "Pas de temps " << setw(3) << pt << " : " ;
-                    if (process.dim == 2) {
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                    std::cout << "Pas de temps " << setw(3) << pt << " : " ;
+                    if (DIM == 2) {
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,2,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
-                    if (process.dim == 3) {
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
-                      cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << endl;
+                    if (DIM == 3) {
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(0,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(1,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << " ";
+                      std::cout << setw(14) << mean(Inter[internum].side[1].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]-Inter[internum].side[0].t[pt].Wp[range(2,3,(int)Inter[internum].side[0].t[pt].Wp.size())]) << std::endl;
                     }
                 }
             }
@@ -398,83 +397,83 @@ void affichage_cl(TV1 &S, TI &Inter,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void modif_param(Vec<string> &v,Param &process) {
+inline void modif_param(Vec<Sc2String> &v,Process &process) {
 
     if (v.size()==1) {
-        if (process.rank==0)
-            cout << "On garde les parametres actuels : " << endl;
-        if (process.rank==0)
-            cout << "Nombre d'iterations max : " << process.latin->nbitermax << endl;
-        if (process.rank==0)
-            cout << "Critere d'erreur : " << process.latin->critere_erreur << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "On garde les parametres actuels : " << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Nombre d'iterations max : " << process.latin->nbitermax << std::endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Critere d'erreur : " << process.latin->critere_erreur << std::endl;
     } else if(v.size()==3) {
         if(v[1]=="nbitermax") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else if(v.size()==5) {
         if(v[1]=="nbitermax") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[2].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[1]=="critere_erreur") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[2].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
         if(v[3]=="nbitermax") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nombre d'iterations max actuel :" <<  process.latin->nbitermax<< std::endl;
             process.latin->nbitermax=atoi(v[4].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Nombre d'iterations max :" << process.latin->nbitermax << std::endl;
             process.latin->error.resize(process.latin->nbitermax+1,0.);
         } else if (v[3]=="critere_erreur") {
-            if (process.rank==0)
-                cout << "Modification des parametres " << endl;
-            if (process.rank==0)
-                cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Modification des parametres " << std::endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Critere d'erreur actuel : " <<  process.latin->critere_erreur<< std::endl;
             process.latin->critere_erreur=atof(v[4].c_str());
-            if (process.rank==0)
-                cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Nouveau Critere d'erreur :" << process.latin->critere_erreur << std::endl;
         } else {
-            if (process.rank==0)
-                cout << "Mauvais choix de modification a faire" << endl;
+            if (process.parallelisation->is_master_cpu())
+                std::cout << "Mauvais choix de modification a faire" << std::endl;
         }
     } else {
-        if (process.rank==0)
-            cout << "Mauvais choix de modification a faire" << endl;
+        if (process.parallelisation->is_master_cpu())
+            std::cout << "Mauvais choix de modification a faire" << std::endl;
     }
 }
 
@@ -483,7 +482,7 @@ inline void modif_param(Vec<string> &v,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void modif_param_inter(Vec<string> &v,Param &process) {
+inline void modif_param_inter(Vec<Sc2String> &v,Process &process) {
     process.reprise_calcul=2;
 }
 
@@ -492,12 +491,12 @@ inline void modif_param_inter(Vec<string> &v,Param &process) {
  
  Possibilite de modifier l'erreur, le nombre d'iterations
  */
-inline void calcul(Vec<string> &v,Param &process) {
-    /*   if(v.size()!=2){cout << "Nouveau calcul en latin" << endl;}
+inline void calcul(Vec<Sc2String> &v,Process &process) {
+    /*   if(v.size()!=2){std::cout << "Nouveau calcul en latin" << std::endl;}
        else{
           if(v[1]=="latin"){process.nom_calcul="latin";}
-          else if(v[1]=="incr"){cout << "Non implemente pour un calcul incremental : on lance un calcul latin" << endl; process.nom_calcul="latin";}
-          else{cout << "Type de calcul non implemente : on lance un calcul latin" << endl; process.nom_calcul="latin";}
+          else if(v[1]=="incr"){std::cout << "Non implemente pour un calcul incremental : on lance un calcul latin" << std::endl; process.nom_calcul="latin";}
+          else{std::cout << "Type de calcul non implemente : on lance un calcul latin" << std::endl; process.nom_calcul="latin";}
        }*/
 
     //process.latin->alloc_quantites=0;

@@ -19,7 +19,7 @@ debug = 1-opt
 timdavis=0 #pour utiliser un solveur different : pas encore bien teste
 
 #Repertoires contenant les .cpp et .h
-mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI  '
+mes_repertoires = 'DEFINITIONS  POSTTRAITEMENTS  OPERATEURS/SST  OPERATEURS/INTER  OPERATEURS/MACRO MAILLAGE  MATERIAUX ITERATIONS ITERATIONS/LINEAR  ITERATIONS/LOCAL  ITERATIONS/ERROR   PROBMICRO  UTILITAIRES  FORMULATIONS  ALLOCATIONS    MPI GEOMETRY  COMPUTE '
 mes_repertoires = map( lambda x: 'src/'+x, split(mes_repertoires))
 
 list_repertoires = ['LMT/include', 'build']+mes_repertoires + ['LMT/formulations']
@@ -27,18 +27,20 @@ list_repertoires_cppflags = map( lambda x: os.getcwd()+'/'+x, list_repertoires)
 
 #choix des formulations a compiler
 formuortho = 1
-formuiso = 1
-formuendom = 0
-formuvisco = 0
+
+formuiso   = 1
+formuisop  = 1
+formuendo  = 1
+formumeso  = 1
 
 #pour avoir les cout dans un ficher ...
 crout=1
 
 #pour compiler uniquement en 2 ou 3d (mettre les 2 a 1 pour compiler en 2D et en 3D
-dim2 = 1
+dim2 = 0
 dim3 = 1
 
-mes_formulations =  ['elasticity_isotropy_stat_Qstat']*formuiso +  ['elasticity_orthotropy_stat_Qstat']*formuortho + ['elasticity_orthotropy_damage_stat_Qstat']*formuendom + ['elasticity_viscosity_Qstat']*formuvisco
+mes_formulations =  ['elasticity_isotropy_stat_Qstat']*formuiso +  ['elasticity_orthotropy_stat_Qstat']*formuortho + ['plasticity_isotropy_stat_Qstat']*formuisop + ['mesomodele']*formumeso + ['elasticity_damageable_isotropy_stat_Qstat']*formuendo
 
 #pour utiliser la p-surdiscretisation mettre le flag a 1 (on compile alors avec les elements indiques + les elements de degre 2)         
 sur_discretisation=0
@@ -49,8 +51,9 @@ mes_elements = [ 'Triangle', 'Quad', 'Tetra', 'Wedge', 'Hexa']
 nom_repertoire_prog='build/'+arch+'_debug'*debug+'_opt'*opt+'/monprog_dim'+'2'*dim2+'_'+dim3*'3'
 
 # generation automatique des certains fichiers du programme en fonction des formulations
-import src.generation_auto
-src.generation_auto.generation_auto(mes_formulations)
+# Obsolete
+#import src.generation_auto
+#src.generation_auto.generation_auto(mes_formulations)
 #######################################################################
 
 
@@ -105,7 +108,7 @@ env = Environment(
     CPPPATH = list_repertoires_cppflags,
 #    LINKFLAGS = ' -LUTIL/lam/lib -llammpi++ -lmpi -llam -lutil -ldl -L'+compp+'/lib'+'64'*(arch=='x86-64')+'/ ' + linkflags( ['xml2-config'] )+ldflagtd,
     LINKFLAGS = ' -LUTIL/lam/lib -lmpi_cxx -lmpi -lutil -ldl -L'+compp+'/lib'+'64'*(arch=='x86-64')+'/ ' + linkflags( ['xml2-config'] )+ldflagtd,
-    CPPFLAGS = cppf + cppflags( ['xml2-config'] )+' -DLDL '*(1-timdavis)+cppftd+' -DDIMENSION3'*dim3+' -DDIMENSION2'*dim2+' -DFORMUENDO'*formuendom+'-DFORMUORTHO'*formuortho+'  -Dcrout_alain'*crout+' -IUTIL/openmpi ',
+    CPPFLAGS = cppf + cppflags( ['xml2-config'] )+' -DLDL '*(1-timdavis)+cppftd+' -DDIMENSION3'*dim3+' -DDIMENSION2'*dim2+' -DFORMUORTHO'*formuortho+'  -Dcrout_alain'*crout+' -IUTIL/openmpi ',
 )
 # -L/usr/lib/lam/lib -llammpi++ -lmpi -llam 
 # -LUTIL/lam/lib -llammpi++ -lmpi -llam 
@@ -181,7 +184,7 @@ autres=[
  #'makerefinement.cpp'
  #  'FICHIERS_TEST/conversion_maillage_data_gmsh.cpp'
 # 'validation/validation_elements.cpp',
-  'test_structure.cpp',
+#  'test_structure.cpp',
 #  'treillis.cpp',
 ]
 autres+=libs
@@ -190,5 +193,6 @@ autres+=libs
 
 env2=env
 env2["CPPFLAGS"]+=' -DTYPEREEL=double'
-prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
-Default(prg)
+#prg = env2.Program(('multinew')*(1-flag)+flag*'test_struct',(pb_libs+liste+libs)*(1-flag)+flag*(pb_libs+autres))
+#prg = env2.Program('compil_init',(pb_libs))
+#Default(prg)

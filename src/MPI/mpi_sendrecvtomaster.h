@@ -14,7 +14,7 @@
 #include "mpi_lmt_functions.h"
 
 template <class T1>
-void SendSST(T1 &SubS,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendSST(T1 &SubS,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     vectosend.resize(0);
     for( unsigned i=0;i<SubS.size() ;i++ ) {
       int sizebefore=vectosend.size();
@@ -33,12 +33,12 @@ void SendSST(T1 &SubS,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectos
     MPI_Isend(vectosend,0,request,204);
 }
 template <class T1>
-void RecvSST(T1 &S,int &MPIsource,Param &process) {
+void RecvSST(T1 &S,int &MPIsource,Process &process) {
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource,204);
     int repere=0;
-    for(unsigned i=0;i<process.multi_mpi->repartition_sst[MPIsource].size();i++) {
-        int num = process.multi_mpi->repartition_sst[MPIsource][i];
+    for(unsigned i=0;i<process.parallelisation->repartition_sst[MPIsource].size();i++) {
+        int num = process.parallelisation->repartition_sst[MPIsource][i];
         if (process.nom_calcul=="latin") {
             for(unsigned pt=1;pt<S[num].t.size();pt++) {
                 S[num].t[pt].q=vectorecv[range(repere+pt*S[num].t[pt].q.size(),repere+(pt+1)*S[num].t[pt].q.size())];
@@ -54,7 +54,7 @@ void RecvSST(T1 &S,int &MPIsource,Param &process) {
 }
 
 template <class T1, class T2>
-void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -75,7 +75,7 @@ void SendInterMaster(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param
 }
 
 template <class T1, class T2>
-void RecvInterMaster(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterMaster(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -99,7 +99,7 @@ void RecvInterMaster(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1, class T2>
-void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Param &process, Vec<TYPEREEL> &vectosend) {
+void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,Process &process, Vec<TYPEREEL> &vectosend) {
     int nbqsend=6;
     vectosend.resize(0);
     for( unsigned i=0;i<vecintertoexchange.size() ;i++ ) {
@@ -120,7 +120,7 @@ void SendInterMasterPost(T1 &vecintertoexchange,T2 &Inter,MPI_Request &request,P
 }
 
 template <class T1, class T2>
-void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Param &process) {
+void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Process &process) {
     int nbqsend=6;
     Vec<TYPEREEL> vectorecv;
     MPI_Recv(vectorecv,MPIsource);
@@ -144,19 +144,19 @@ void RecvInterMasterPost(T1 &MPIsource,T2 &Inter, Param &process) {
 }
 
 template <class T1,class T2,class T3,class T4>
-void SendRecvInterMaster(T1 &intertoexchangeformaster, T2 &Inter,T3 &S,T4 &SubS, Param &process) {
+void SendRecvInterMaster(T1 &intertoexchangeformaster, T2 &Inter,T3 &S,T4 &SubS, Process &process) {
     Vec<TYPEREEL> vectosend1,vectosend2,vectosend3,vectosend4;
     MPI_Request request,request2;
 
-    if(process.rank != 0) {
+    if(not process.parallelisation->is_master_cpu()) {
         if (process.nom_calcul=="latin")
             SendInterMaster(intertoexchangeformaster,Inter,request,process,vectosend1);
         if (process.nom_calcul=="incr")
             SendInterMasterPost(intertoexchangeformaster,Inter,request,process,vectosend1);
         SendSST(SubS, request2,process, vectosend2);
     }
-    if(process.rank == 0) {
-        int nbtorecv = (process.size-1)*2;
+    if(process.parallelisation->is_master_cpu()) {
+        int nbtorecv = (process.parallelisation->size-1)*2;
         while( nbtorecv != 0) {
             //On regarde si on a reçu un message de quelqu'un (MPI_ANY_SOURCE).
             int flag=0;

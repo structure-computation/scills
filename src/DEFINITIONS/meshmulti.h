@@ -11,24 +11,29 @@
 //
 #ifndef MESHMULTI_H
 #define MESHMULTI_H
-#include "create_new_elem_p.h"
+#include "../MAILLAGE/create_new_elem_p.h"
 #include <ext/hash_map>
 
-#include "mesh/read_avs.h"
-#include "mesh/read_geof.h"
+#include "../../LMT/include/mesh/read_avs.h"
+#include "../../LMT/include/mesh/read_geof.h"
 
-using namespace std;
+#include "../GEOMETRY/GeometryUser.h"
+#include "../COMPUTE/DataUser.h"
+#include "../../LMT/include/codegen/codegen.h"
+#include <boost/concept_check.hpp>
+
 using namespace LMT;
+using namespace Codegen;
 using namespace __gnu_cxx;
 
 ///application de flag indiquant le type de materiau et le numero de la sst pour chaque element (utile pour l'affichage)
 struct apply_mat_elem {
-  template<class TE>
-      void operator() ( TE &e, const int &typmat, const int &numsst,const int &num_proc) const {
-    e.typmat=typmat;
-    e.numsst=numsst;
-    e.num_proc=num_proc;
-      }
+    template<class TE>
+    void operator() ( TE &e, const int &typmat, const int &numsst,const int &num_proc) const {
+        e.typmat=typmat;
+        e.numsst=numsst;
+        e.num_proc=num_proc;
+    }
 };
 
 /** \ingroup  maillages 
@@ -47,20 +52,19 @@ struct MyHash {
 struct NodesEq {
     template<class TV>
     bool operator()(const TV &n1, const TV &n2) const {
-        double eps=1e-6;
+        TYPEREEL eps=1e-6;
         return (length(n1.pos-n2.pos)<=eps);
     }
 };
 /** \ingroup  maillages 
 \brief Structure pour le hashage du maillage
 */
-template<class T, unsigned dim>
 struct Noeud_Hash {
     Noeud_Hash() {
         num_hash=0;
         pos.set(0);
     }
-    Vec<T, dim> pos;
+    Vec<TYPEREEL, DIM> pos;
     unsigned num_hash;
 };
 
@@ -75,7 +79,7 @@ struct add_nodes {
         Pvec G = center(e);
         m.add_node(G);
         //creation de la structure pour hashage
-        Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+        Noeud_Hash newnoeud;
         newnoeud.pos=G;
 
         //reperage des numeros des noeuds extremes de l'element
@@ -105,10 +109,10 @@ struct ModifTypeElem {
             rep_nodes[i]=e.node(i)->number_in_original_mesh();
 
         for(unsigned i=0;i<nb_children;i++) {
-            typename TM::EA *ea = m.get_children_of(e,Number<number>())[i]; //element ancestor i;
+            typename TM::EA *ea = m.get_children_of(e,LMT::Number<number>())[i]; //element ancestor i;
             typename TM::Pvec G = center(*ea);
 
-            Noeud_Hash<typename TE::T,TM::dim> newnoeud;
+            Noeud_Hash newnoeud;
             newnoeud.pos=G;
             unsigned num_hash=0;
             for(unsigned j=0;j<ea->nb_nodes_virtual();j++)
@@ -122,6 +126,153 @@ struct ModifTypeElem {
         create_new_elem_p(e,m2,rep_nodes);
     }
 };
+
+/** \ingroup  Sous_structures 
+\brief lecture du maillage à paritr de geometry_user issue de SC_create_2
+*/
+template<class TM>
+void read_mesh_sst_geometry_user(TM &mesh, GeometryUser &geometry_user, int id_sst) throw(std::runtime_error) {
+    //TM mesh;
+    typedef typename TM::Tpos T;
+    typedef typename TM::Pvec Pvec;
+    typedef typename TM::TNode TNode;
+    typedef typename TM::EA EA;
+  
+    // obtaining nbnode, nbelem
+    unsigned nbnode = geometry_user.find_group_elements(id_sst)->map_global_nodes.size();
+    unsigned nbelem = geometry_user.find_group_elements(id_sst)->nb_elements;
+  
+    
+    //ajout des noeuds au maillage
+    map<int,TNode *> map_num_node;
+    Vec<TYPEREEL,DIM> vec;
+    for(int i_node=0; i_node<nbnode; i_node++){
+        for(unsigned d=0; d<DIM; d++){
+            vec[d] = geometry_user.find_group_elements(id_sst)->local_nodes[d][i_node];
+        }
+        map_num_node[i_node] = mesh.add_node(vec);
+    }
+    
+    //ajout des elements
+    switch (geometry_user.find_group_elements(id_sst)->pattern_base_id){
+        //for Triangle
+        case 0 :{
+//             PRINT("Triangle");
+            int nb_node_elem = 3;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle(),DefaultBehavior(),&vn[0]));
+                ne->group = id_sst;
+            }
+            break;
+        }
+        //for Triangle_6
+        case 1 :{
+//             PRINT("Triangle_6");
+            int nb_node_elem = 6;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Triangle_6(),DefaultBehavior(),&vn[0]));
+                ne->group = id_sst;
+            }
+            break;
+        }
+        //for Tetra
+        case 2 :{
+//             PRINT("Tetra");
+            int nb_node_elem = 4;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra(),DefaultBehavior(),&vn[0]));
+                ne->group = id_sst;
+            }
+            break;
+        }
+        //for Tetra_10
+        case 3 :{
+//             PRINT("Tetra_10");
+            int nb_node_elem = 10;
+            Vec<TNode *> vn;
+            vn.resize(nb_node_elem);
+            for(int i_elem=0; i_elem<nbelem; i_elem++) {
+                for(int i_node=0; i_node<nb_node_elem; i_node++) {
+                    vn[i_node] = map_num_node[geometry_user.find_group_elements(id_sst)->local_connectivities[i_node][i_elem]];
+                }
+                typename TM::EA *ne = reinterpret_cast<typename TM::EA *>(mesh.add_element(Tetra_10(),DefaultBehavior(),&vn[0]));
+                ne->group = id_sst;
+            }
+            break;
+        }
+        default :{
+            std::cerr << "type de pattern non implemente" << std::endl; assert(0);                    
+        }
+        mesh.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( mesh, mesh.elem_list.size() / 2 + 1 );
+    }
+}
+
+/** \ingroup  maillages 
+\brief assignation de la force volumique par elements
+*/
+/*
+struct assigne_f_vol_e {
+    template<class TE,class TM>
+    void operator() (TE &e, TM &m, Vec<Sc2String> force_volumique, const DataUser &data_user) const {
+        typedef typename TM::Pvec Pvec;
+        //ajout du noeud au maillage
+        Pvec G = center(e);
+        
+        std::vector<Ex> symbols;
+        if (DIM==2) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+        }
+        else if (DIM==3) {
+            symbols.push_back("x");
+            symbols.push_back("y");
+            symbols.push_back("z");
+        }
+        if(data_user.options.Multiresolution_on==1){
+            //ajout des variables de multiresolution aux symboles
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++){
+                Sc2String var="V"; var<<i_par; //nom de la variable de multiresolution
+                symbols.push_back(var.c_str());
+            }
+        }
+        
+        Vec<Ex> expr;
+        expr.resize(DIM);
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            expr[d2] = read_ex(force_volumique[d2],symbols);
+        }
+        
+        Vec<TYPEREEL,DIM> data;
+        Ex::MapExNum var;
+        for(unsigned d2=0;d2<DIM;++d2) {//boucle sur les inconnues possibles (dimension des vecteurs)
+            var[symbols[d2]]= G[d2];
+        }
+        if(data_user.options.Multiresolution_on==1){
+            //evaluation des variables de multiresolution aux symboles
+            for(unsigned i_par=0;i_par< data_user.Multiresolution_parameters.size() ;i_par++)
+                var[symbols[DIM+i_par]]=data_user.Multiresolution_parameters[i_par].current_value;
+        }
+        
+        for(unsigned d2=0;d2<DIM;++d2){//boucle sur les inconnues possibles (dimension des vecteurs)
+            e.f_vol_e[d2] = m.density * (TYPEREEL)expr[d2].subs_numerical(var);
+        }
+    }
+};*/
 
 
 /** \ingroup  Sous_structures 
@@ -143,14 +294,16 @@ template<class Carac>
 struct Meshmulti {
     typedef LMT::Mesh<Carac> TM;//type de maillage utilsé pour les sous-structures
     TM *m;//pointeur du maillage
-    string name;//nom du maillage a lire
-    string sousintegration;//type de sousintegration
+    Sc2String name;//nom du maillage a lire
+    Sc2String sousintegration;//type de sousintegration
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
     int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
-    Vec<double,Carac::dim> f_vol;//champs de force volumique
-    double elastic_modulus,poisson_ratio,deltaT,resolution,alpha,elastic_modulus_1,elastic_modulus_2,elastic_modulus_3,poisson_ratio_12,poisson_ratio_13,poisson_ratio_23,shear_modulus_12,shear_modulus_13,shear_modulus_23,v1,v2,alpha_1,alpha_2,alpha_3,viscosite;
-    string type_formulation;
+    Sc2String type_formulation;
+    
+    //ajout pour les données venant de SC_create_2
+    int id_sst;
+    GeometryUser *geometry_user;  //pointeur vers geometry_user
     //
     Meshmulti() {
         flag=0;
@@ -177,24 +330,38 @@ struct Meshmulti {
             total_allocated[ typeid(TM).name() ] += sizeof(TM);
 #endif
             m = new TM;
-            if ((const int &)name.find(".avs")!=-1) read_avs(*m,name.c_str());
-            if ((const int &)name.find(".geof")!=-1) read_geof(*m,name.c_str());
+            read_mesh_sst_geometry_user(*m, *geometry_user, id_sst);
             flag=1;
+            //affiche();
             if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
-            node_list_size=m->node_list.size();
-            elem_list_size=m->elem_list.size();
             if (sousintegration == "p") sousint();
         }
     }
+    void load(GeometryUser &geometry_user_,int id_sst_) {///chargement du maillage à partir de geometry_user
+        if (name != "" and flag == 0) {
+#ifdef PRINT_ALLOC
+            total_allocated[ typeid(TM).name() ] += sizeof(TM);
+#endif
+            //ajout pour SC_create_2
+            id_sst = id_sst_;
+            geometry_user = &geometry_user_;
+            
+            node_list_size = geometry_user->find_group_elements(id_sst)->map_global_nodes.size();
+            elem_list_size = geometry_user->find_group_elements(id_sst)->nb_elements;
+        }
+    }/*
+    void load_f_vol_e(Vec<Sc2String,DIM>& f_vol_e,const DataUser &data_user) {///application du chargement à chaque noeud
+        apply(m->elem_list,assigne_f_vol_e(),*m,f_vol_e, data_user);
+    }*/
     //    
     void sousint() {///sousintegration de type p
         sousintegration = "p";
         m->update_elem_children();
         m->update_elem_parents();
         //1ere etape : ajout des noeuds et creation de la table de hashage
-        typedef Noeud_Hash<typename Meshmulti<Carac>::TM::Tpos, Carac::dim> TNH;
+        typedef Noeud_Hash TNH;
         hash_map<TNH, unsigned, MyHash, NodesEq> hm;
-        apply(m->sub_mesh(Number<Carac::dim-1>()).elem_list,add_nodes(),*m,hm);
+        apply(m->sub_mesh(LMT::Number<Carac::dim-1>()).elem_list,add_nodes(),*m,hm);
         //2eme etape : boucle sur les noeuds et creation de nouveaux éléments
 #ifdef PRINT_ALLOC
         total_allocated[ typeid(TM).name() ] += sizeof(TM);
@@ -206,12 +373,23 @@ struct Meshmulti {
         unload();
         m = m2;
         flag=1;
-        m->sub_mesh(Number<1>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
-        m->sub_mesh(Number<2>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
+        m->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
+        m->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
         if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
         node_list_size=m->node_list.size();
         elem_list_size=m->elem_list.size();
     }
+    
+    void affiche(){/// affiche les infos du maillage pour vérification
+        PRINT("---------------affich maillage-------------------");
+        PRINT(typmat);
+        PRINT(numsst);
+        PRINT(num_proc);
+        PRINT(m->elem_list.size());
+        PRINT(m->node_list.size());
+    }
+    
+    
 };
 
 
