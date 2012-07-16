@@ -77,6 +77,7 @@ void compt_parfait (Interface &Inter,int &imic) {
     Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
     Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
     Vector Wchap1=Inter.side[0].t[imic].Wpchap[list1];
+    Vector Wchap_temp=Inter.side[0].t[imic].Wpchap[list1];
     Vector Wchap2=Inter.side[1].t[imic].Wpchap[list2];
     Vector Fchap1=Inter.side[0].t[imic].Fchap[list1];
     Vector Fchap2=Inter.side[1].t[imic].Fchap[list2];
@@ -85,7 +86,7 @@ void compt_parfait (Interface &Inter,int &imic) {
     const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
     const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
     const Vector &neq1=(Inter.side[0].neq)[list1];
-    //const Vector &JJ=Inter.jeu[list1];
+    const Vector &JJ=Inter.jeu[list1];
     //const Vector &neq2=(Inter.side[1].neq)[list2];
 
     //creation des operateurs locaux de direction de recherche
@@ -111,10 +112,11 @@ void compt_parfait (Interface &Inter,int &imic) {
         kloc2.n=n1;
         hloc.n=n1;
         // travail point par point
-        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep];//, jeu=JJ[rep]  ;
-        //W1 += jeu;
+        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep], jeu=JJ[rep]  ;
         Wchap1[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        Fchap1[rep]=F1+kloc1*(Wchap1[rep]-W1);
+        W1 += jeu;
+        Wchap_temp[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
+        Fchap1[rep]=F1+kloc1*(Wchap_temp[rep]-W1);
     }
 
     Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
@@ -143,7 +145,7 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
     const Vector &Q2=Inter.side[1].t[imic].F[list2];
     const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
     const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    //const Vector &JJ=Inter.jeu[list1];
+    const Vector &JJ=Inter.jeu[list1];
     const Vector &neq1=(Inter.side[0].neq)[list1];
     //const Vector &neq2=(Inter.side[1].neq)[list2];
 
@@ -171,9 +173,9 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
         hloc.n=n1;
 
         // travail point par point
-        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep];//,jeu=JJ[rep]  ;
+        Point F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep],jeu=JJ[rep]  ;
         if (pt_cur==1)
-            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) );//-kloc2*jeu/temps.dt);
+            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) -kloc2*jeu/temps.dt);
         else
             Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2));
 
@@ -253,7 +255,7 @@ struct apply_type_elem{
 void compt_contact (Interface &Inter,TimeData &temps) {
 
     int imic = temps.pt;
-    Scalar dt=temps.dt;
+    Scalar dt = temps.dt;
 
     Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
     Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
@@ -416,7 +418,7 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
     
     const Vector &JJ=Inter.jeu[list1];
     const Vector &neq=Inter.side[1].neq[list1];
-//    const Vector &neq=Inter.side[0].neq[list1];
+    //const Vector &neq=Inter.side[0].neq[list1];
 
     Scalar f=Inter.coeffrottement;
     const Vector &frott=Inter.coeffrottement_vec;
@@ -525,141 +527,160 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
 */
 void compt_breakable (Interface &Inter,TimeData &temps) {
 
-    int imic = temps.pt;
-    Scalar dt=temps.dt;
-
-    Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
-    Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
-    Vector WWpchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vector WWpchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vector Qchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vector Qchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vector &Q1=Inter.side[0].t[imic].F[list1];
-    const Vector &Q2=Inter.side[1].t[imic].F[list2];
-    const Vector &WWp1=Inter.side[0].t[imic].Wp[list1];
-    const Vector &WWp2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &WWchap1old=Inter.side[0].t[imic-1].Wchap[list1];
-    const Vector &WWchap2old=Inter.side[1].t[imic-1].Wchap[list2];
-    Vector WWchap1=Inter.side[0].t[imic].Wchap[list1];
-    Vector WWchap2=Inter.side[1].t[imic].Wchap[list2];
+    const int imic = temps.pt;
+    const Scalar dt = temps.dt;
     
-    const Vector &neq=Inter.side[0].neq[list1];
+    Interface::Side &side_0 = Inter.side[0];
+    Interface::Side &side_1 = Inter.side[1];
 
-    Scalar f=Inter.coeffrottement;
+    const Vec<unsigned> &list1 = side_0.ddlcorresp;
+    const Vec<unsigned> &list2 = side_1.ddlcorresp;
+    const Vector &Q1           = side_0.t[imic].F[list1];
+    const Vector &Q2           = side_1.t[imic].F[list2];
+    const Vector &WWp1         = side_0.t[imic].Wp[list1];
+    const Vector &WWp2         = side_1.t[imic].Wp[list2];
+    const Vector &WWchap1old   = side_0.t[imic-1].Wchap[list1];
+    const Vector &WWchap2old   = side_1.t[imic-1].Wchap[list2];
+    Vector WWchap1             = side_0.t[imic].Wchap[list1];
+    Vector WWchap2             = side_1.t[imic].Wchap[list2];
+    Vector WWpchap1            = side_0.t[imic].Wpchap[list1];
+    Vector WWpchap2            = side_1.t[imic].Wpchap[list2];
+    Vector Qchap1              = side_0.t[imic].Fchap[list1];
+    Vector Qchap2              = side_1.t[imic].Fchap[list2];
+    
+    const Vector &neq = side_0.neq[list1];
 
-    Scalar h1n=Inter.side[0].hn;
-    Scalar h2n=Inter.side[1].hn;
-    Scalar h1t=Inter.side[0].ht;
-    Scalar h2t=Inter.side[1].ht;
+    const Scalar f = Inter.coeffrottement;
+
+    const Scalar h1n = side_0.hn;
+    const Scalar h2n = side_1.hn;
+    const Scalar h1t = side_0.ht;
+    const Scalar h2t = side_1.ht;
 
     
     // travail pt par pt
-    unsigned nbpts=Inter.side[0].nodeeq.size();
+    const unsigned nbpts = side_0.nodeeq.size();
 
 
     for(unsigned i=0;i<nbpts;++i) {
-        Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
-        Point n=neq[rep]; // normale de 1 vers 2
-        Point F1=Q1[rep], F2=Q2[rep],Fchap1=Qchap1[rep], Fchap2=Qchap2[rep], Wp1=WWp1[rep],Wp2=WWp2[rep],Wpchap1=WWpchap1[rep],Wpchap2=WWpchap2[rep] , Wchap1old=WWchap1old[rep],Wchap2old=WWchap2old[rep] , Wchap1=WWchap1[rep],Wchap2=WWchap2[rep];
+        const Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
+        Point n         = neq[rep]; /// normale de 1 vers 2
+        Point F1        = Q1[rep];
+        Point F2        = Q2[rep];
+        Point Fchap1    = Qchap1[rep];
+        Point Fchap2    = Qchap2[rep];
+        Point Wp1       = WWp1[rep];
+        Point Wp2       = WWp2[rep];
+        Point Wpchap1   = WWpchap1[rep];
+        Point Wpchap2   = WWpchap2[rep];
+        Point Wchap1old = WWchap1old[rep];
+        Point Wchap2old = WWchap2old[rep];
+        Point Wchap1    = WWchap1[rep];
+        Point Wchap2    = WWchap2[rep];
 
-        // test contact normal
+        /// test contact normal
         Scalar N = ( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
         
-        if (Inter.convergence >= 0 and Inter.comportement[i] == 0){//la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
-            if (N>0.0 and std::abs(dot(n,F1)) > Inter.matprop->Gcrit){ //David dit de mettre 10% de plus
-            Inter.comportement[i] = 1;
-            Inter.convergence++;
+        if (Inter.convergence >= 0 and Inter.comportement[i] == 0){///la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
+            if (N>0.0 and std::abs(dot(n,F1)) > Inter.matprop->Gcrit){///David dit de mettre 10% de plus
+                Inter.comportement[i] = 1;
+                Inter.convergence++;
             }
         }
         
-        if (Inter.comportement[i] == 1){//interface cassee donc contact :
-            if (N>0.0) { // separation de l'interface
-                Fchap1=0.0;
-                Fchap2=0.0;
-                Wpchap1=Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
-                Wpchap2=Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
-            } else { // contact
-                Scalar Fchap1n=N;
-                Scalar Fchap2n=-1.0*Fchap1n;
-                Scalar Wpchap1n=dot(Wp1,n) + h1n*( Fchap1n - dot(n,F1) );
-                Scalar Wpchap2n=dot(Wp2,n) + h2n*( Fchap2n - dot(n,F2) );
+        if (Inter.comportement[i] == 1){
+            ///interface cassee :
+            if (N>0.0) {
+                /// separation de l'interface
+                Fchap1  = 0.0;
+                Fchap2  = 0.0;
+                Wpchap1 = Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
+                Wpchap2 = Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
+            } else {
+                /// contact
+                Scalar Fchap1n  = N;
+                Scalar Fchap2n  = -1.0*Fchap1n;
+                Scalar Wpchap1n = dot(Wp1,n) + h1n*( Fchap1n - dot(n,F1) );
+                Scalar Wpchap2n = dot(Wp2,n) + h2n*( Fchap2n - dot(n,F2) );
 
-                // test glissement adherence
+                /// test de glissement adherence
                 Point T;
                 T=(ProjT(Wp2,n)-ProjT(Wp1,n) -h2t*ProjT(F2,n) + h1t*ProjT(F1,n))/(h2t+h1t);
                 Scalar g = f*std::abs(Fchap1n);
 
-                Scalar normT=norm_2(T);
+                Scalar normT = norm_2(T);
                 Point Fchap1t,Fchap2t,Wpchap1t,Wpchap2t;
 
-                //Attention au signe : modifie pour eviter la division par 0
-                if (normT <= g) { // adherence
-                    Fchap1t=T;
-                    Fchap2t=-1.0*Fchap1t;
-                    Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
-                    Wpchap2t= Wpchap1t;
-                } else if (normT > g) { // glissement
-                    Fchap1t=T*g/normT;
-                    Fchap2t=-1.0*Fchap1t;
-                    Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
-                    Wpchap2t= ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
+                ///Attention au signe : modifie pour eviter la division par 0
+                if (normT <= g) {
+                    /// adherence
+                    Fchap1t  = T;
+                    Fchap2t  = -1.0*Fchap1t;
+                    Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
+                    Wpchap2t = Wpchap1t;
+                } else if (normT > g) {
+                    /// glissement
+                    Fchap1t  = T*g/normT;
+                    Fchap2t  = -1.0*Fchap1t;
+                    Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
+                    Wpchap2t = ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
                 }
-                Wpchap1=Wpchap1n*n+Wpchap1t;
-                Fchap1=Fchap1n*n+Fchap1t;
-                Wpchap2=Wpchap2n*n+Wpchap2t;
-                Fchap2=Fchap2n*n+Fchap2t;
+                Wpchap1 = Wpchap1n*n+Wpchap1t;
+                Fchap1  = Fchap1n*n+Fchap1t;
+                Wpchap2 = Wpchap2n*n+Wpchap2t;
+                Fchap2  = Fchap2n*n+Fchap2t;
             }
             
-            //integration
-            Wchap1 = Wpchap1*dt + Wchap1old;
-            Wchap2 = Wpchap2*dt + Wchap2old;
-            WWchap1[rep]=Wchap1;
-            WWchap2[rep]=Wchap2;
+            ///integration
+            Wchap1       = Wpchap1*dt + Wchap1old;
+            Wchap2       = Wpchap2*dt + Wchap2old;
+            WWchap1[rep] = Wchap1;
+            WWchap2[rep] = Wchap2;
 
-            Qchap1[rep]=Fchap1;
-            Qchap2[rep]=Fchap2;
-            WWpchap1[rep]=Wpchap1;
-            WWpchap2[rep]=Wpchap2;
+            Qchap1[rep]   = Fchap1;
+            Qchap2[rep]   = Fchap2;
+            WWpchap1[rep] = Wpchap1;
+            WWpchap2[rep] = Wpchap2;
             
-        } else {//interface parfaite
-            //creation des operateurs locaux de direction de recherche
+        } else {
+            ///interface parfaite
+            ///creation des operateurs locaux de direction de recherche
             Kloc kloc1;
-            kloc1.kn=Inter.side[0].kn;
-            kloc1.kt=Inter.side[0].kt;
+            kloc1.kn = side_0.kn;
+            kloc1.kt = side_0.kt;
             
             Kloc kloc2;
-            kloc2.kn=Inter.side[1].kn;
-            kloc2.kt=Inter.side[1].kt;
+            kloc2.kn = side_1.kn;
+            kloc2.kt = side_1.kt;
             
             Kloc hloc;
-            hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
-            hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
+            hloc.kn = 1.0/(side_1.kn+side_0.kn);
+            hloc.kt = 1.0/(side_1.kt+side_0.kt);
 
-            //assignation de la normale aux operateurs elementaires
-            kloc1.n=n;
-            kloc2.n=n;
-            hloc.n=n;
+            /// assignation de la normale aux operateurs elementaires
+            kloc1.n = n;
+            kloc2.n = n;
+            hloc.n  = n;
             
-            // travail point par point
-            WWpchap1[rep]=hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
-            WWpchap2[rep]=hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
-            Qchap1[rep]=F1+kloc1*(Wpchap1[rep]-Wp1);
-            Qchap2[rep]=-1.0*Qchap1[rep];
+            /// travail point par point
+            WWpchap1[rep] = hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
+            WWpchap2[rep] = hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2));
+            Qchap1[rep]   = F1+kloc1*(Wpchap1[rep]-Wp1);
+            Qchap2[rep]   = -1.0*Qchap1[rep];
 
-            //integration
-            Wchap1 = WWpchap1[rep]*dt + Wchap1old;
-            Wchap2 = WWpchap1[rep]*dt + Wchap2old;
-            WWchap1[rep]=Wchap1;
-            WWchap2[rep]=Wchap2;
+            /// integration
+            Wchap1       = WWpchap1[rep]*dt + Wchap1old;
+            Wchap2       = WWpchap1[rep]*dt + Wchap2old;
+            WWchap1[rep] = Wchap1;
+            WWchap2[rep] = Wchap2;
         }
     
-        Inter.side[0].t[imic].Wpchap[list1]=WWpchap1;
-        Inter.side[1].t[imic].Wpchap[list2]=WWpchap2;
-        Inter.side[0].t[imic].Wchap[list1]=WWchap1;
-        Inter.side[1].t[imic].Wchap[list2]=WWchap2;
-
-        Inter.side[0].t[imic].Fchap[list1]=Qchap1;
-        Inter.side[1].t[imic].Fchap[list2]=Qchap2;
+        side_0.t[imic].Wpchap[list1] = WWpchap1;
+        side_1.t[imic].Wpchap[list2] = WWpchap2;
+        side_0.t[imic].Wchap[list1]  = WWchap1;
+        side_1.t[imic].Wchap[list2]  = WWchap2;
+        side_0.t[imic].Fchap[list1]  = Qchap1;
+        side_1.t[imic].Fchap[list2]  = Qchap2;
     }
 }
 
@@ -685,7 +706,7 @@ struct assign_d_mesh {
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures de type cohesif
 */
-void compt_cohesif (Interface &Inter,TimeData &temps) {
+void compt_cohesif (Interface &Inter,TimeData &temps) {/*
 
     int imic = temps.pt;
     Scalar dt=temps.dt;
@@ -791,7 +812,7 @@ void compt_cohesif (Interface &Inter,TimeData &temps) {
     Inter.side[0].t[imic].Wpchap = (Inter.side[0].t[imic].Wchap - Inter.side[0].t[imic-1].Wchap)/dt;
     Inter.side[1].t[imic].Wpchap = (Inter.side[1].t[imic].Wchap - Inter.side[1].t[imic-1].Wchap)/dt;
 
-        /*///initialisation de la boucle iterative
+        ///initialisation de la boucle iterative
         Scalar Ymax = Inter.param_comp->Y[i];
         Scalar d = dold;
         Scalar erreur = 1.;

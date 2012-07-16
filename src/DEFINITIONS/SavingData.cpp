@@ -36,30 +36,41 @@ void SavingData::read_data_user(DataUser &data_user){
     save= "save";
 
     display_fields_sst_bulk.resize(15);
-    display_fields_sst_bulk[0]= "dep";
-    display_fields_sst_bulk[1]= "qtrans";
-    display_fields_sst_bulk[2]= "sigma";
-    display_fields_sst_bulk[3]= "epsilon";
-    display_fields_sst_bulk[4]= "ener";
-    display_fields_sst_bulk[5]= "sigma_von_mises";
-    display_fields_sst_bulk[6]= "numsst";
-    display_fields_sst_bulk[7]= "f_vol_e";
-    display_fields_sst_bulk[8]= "num_proc";
-    display_fields_sst_bulk[9]= "plast_cumulee";
-    display_fields_sst_bulk[10]= "plast_ecrouissage";
-    display_fields_sst_bulk[11]= "epsilon_p";
-    display_fields_sst_bulk[12]= "d1";
-    display_fields_sst_bulk[13]= "d2";
-    display_fields_sst_bulk[14]= "df";
-
+    display_fields_sst_bulk[0]  = "dep";
+    display_fields_sst_bulk[1]  = "qtrans";
+    display_fields_sst_bulk[2]  = "sigma";
+    display_fields_sst_bulk[3]  = "epsilon";
+    display_fields_sst_bulk[4]  = "ener";
+    display_fields_sst_bulk[5]  = "sigma_von_mises";
+    display_fields_sst_bulk[6]  = "numsst";
+    display_fields_sst_bulk[7]  = "f_vol_e";
+    display_fields_sst_bulk[8]  = "num_proc";
+    display_fields_sst_bulk[9]  = "plast_cumulee";
+    display_fields_sst_bulk[10] = "plast_ecrouissage";
+    display_fields_sst_bulk[11] = "epsilon_p";
+    display_fields_sst_bulk[12] = "d1";
+    display_fields_sst_bulk[13] = "d2";
+    display_fields_sst_bulk[14] = "df";
+    
     display_fields_sst_skin.resize(8);
-    display_fields_sst_skin[0]= "dep";
-    display_fields_sst_skin[1]= "qtrans";
-    display_fields_sst_skin[2]= "sigma_skin";
-    display_fields_sst_skin[3]= "epsilon_skin";
-    display_fields_sst_skin[5]= "sigma_mises_skin";
-    display_fields_sst_skin[6]= "numsst_skin";
-    display_fields_sst_skin[7]= "num_proc_skin";
+    display_fields_sst_skin[0] = "dep";
+    display_fields_sst_skin[1] = "qtrans";
+    display_fields_sst_skin[2] = "sigma_skin";
+    display_fields_sst_skin[3] = "epsilon_skin";
+    display_fields_sst_skin[5] = "sigma_mises_skin";
+    display_fields_sst_skin[6] = "numsst_skin";
+    display_fields_sst_skin[7] = "num_proc_skin";
+    
+    display_fields_inter.resize(10);
+    display_fields_inter[0] = "num";
+    display_fields_inter[1] = "type";
+    display_fields_inter[2] = "qtrans";
+    display_fields_inter[3] = "F";
+    display_fields_inter[5] = "W";
+    display_fields_inter[6] = "dWn";
+    display_fields_inter[7] = "dWt";
+    display_fields_inter[8] = "d";
+    display_fields_inter[9] = "dissipation";
 
     if(type_affichage== "Sinterieur"){
         display_fields=display_fields_sst_bulk;
@@ -72,6 +83,40 @@ void SavingData::read_data_user(DataUser &data_user){
     command_file= "No";
     //trac_ener_imp  = data_user.options.trac_ener_imp;     A REVOIR : N'EXISTE PLUS DANS LE DATAUSER
     //trac_ener_diss = data_user.options.trac_ener_diss;    A REVOIR : IDEM
+}
+
+Sc2String SavingData::get_vtu_filename_sst_bulk(const Sst &S, int pt, int m) const{/*
+    Sc2String filename = repertoire_save + "/result/sst_bulk/";
+    if(m<0){
+        filename << "results_"
+    }
+    return filename;
+*/}
+
+Sc2String SavingData::get_vtu_filename_sst_skin(const Sst &S, int pt, int m) const{/*
+    Sc2String filename = repertoire_save + "/result/sst_skin/";
+    return filename;
+*/}
+
+Sc2String SavingData::get_vtu_filename_inter(const Interface &I, int pt, int m) const{/*
+    Sc2String filename = repertoire_save + "/result/inter/";
+    return filename;
+*/}
+
+Sc2String SavingData::get_pvd_filename_sst_bulk(const Sst &S, int pt, int m) const{
+    
+}
+
+Sc2String SavingData::get_pvd_filename_sst_skin(const Sst &S, int pt, int m) const{
+    
+}
+
+Sc2String SavingData::get_pvd_filename_inter(const Interface &I, int pt, int m) const{
+    
+}
+
+Sc2String SavingData::get_hdf_filename(const Sst &S, int pt, int m) const{
+    
 }
 
 

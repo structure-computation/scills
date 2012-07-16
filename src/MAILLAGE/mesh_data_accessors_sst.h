@@ -1,7 +1,7 @@
-#ifndef ELEMENTS_VARIABLES_ACCESSORS_H
-#define ELEMENTS_VARIABLES_ACCESSORS_H
+#ifndef MESH_DATA_ACCESSORS_SST_H
+#define MESH_DATA_ACCESSORS_SST_H
 
-/** \brief Accesseurs pour les proprietes du maillage LMT::Mesh
+/** \brief Accesseurs (et mutateur) pour les proprietes du maillage LMT::Mesh des Sst
  * 
  * 
  * Ce header regroupe l'ensemble des fonctions associes a la manipulation des variables d'elements de maillage definies par les fichiers de formulation.
@@ -38,20 +38,20 @@
 
 
 
-
+#include "../DEFINITIONS/main_typedef.h"
 #include "../DEFINITIONS/Sst.h"
 
 
 //*
 ///----------------------------   Q   ----------------------------------
-void upload_q(Sst &S,Vec<TYPEREEL> &sto);
+void upload_q(Sst &S,Vector &sto);
 void upload_q(Sst &S,Sst::Time &t);
 void upload_q(Sst &S,unsigned pt);
 //*/
 //*
 ///---------------------------- SIGMA ----------------------------------
 /// Recuperation depuis le maillage
-void download_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void download_sigma(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Download_sigma{
     template<typename Elem,typename Stockage>
@@ -62,7 +62,7 @@ struct __Download_sigma{
 };
 
 /// Envoi vers le maillage
-void upload_sigma(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void upload_sigma(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Upload_sigma{
     template<typename Elem,typename Stockage>
@@ -75,7 +75,7 @@ struct __Upload_sigma{
 /*
 ///---------------------------- SIGMA VON MISES ----------------------------
 /// Recuperation depuis le maillage
-void download_sigma_von_mises(Sst &S,Vec<TYPEREEL> &sto);
+void download_sigma_von_mises(Sst &S,Vector &sto);
 
 struct __Download_sigma_von_mises{
     template<typename Elem,typename Stockage>
@@ -86,7 +86,7 @@ struct __Download_sigma_von_mises{
 };
 
 /// Envoi vers le maillage
-void upload_sigma_von_mises(Sst &S,Vec<TYPEREEL> &sto);
+void upload_sigma_von_mises(Sst &S,Vector &sto);
 
 struct __Upload_sigma_von_mises{
     template<typename Elem,typename Stockage>
@@ -99,7 +99,7 @@ struct __Upload_sigma_von_mises{
 //*
 ///---------------------------- EPSILON ---------------------------------
 /// Recuperation depuis le maillage
-void download_epsilon(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void download_epsilon(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Download_epsilon{
     template<typename Elem,typename Stockage>
@@ -110,7 +110,7 @@ struct __Download_epsilon{
 };
 
 /// Envoi vers le maillage
-void upload_epsilon(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void upload_epsilon(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Upload_epsilon{
     template<typename Elem,typename Stockage>
@@ -123,7 +123,7 @@ struct __Upload_epsilon{
 /*
 ///---------------------------- EPSILON E ---------------------------------
 /// Recuperation depuis le maillage
-void download_epsilon_e(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void download_epsilon_e(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Download_epsilon_e{
     template<typename Elem,typename Stockage>
@@ -134,7 +134,7 @@ struct __Download_epsilon_e{
 };
 
 /// Envoi vers le maillage
-void upload_epsilon_e(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void upload_epsilon_e(Sst &S,Vec<VoigtVector> &sto);
 
 struct __Upload_epsilon_e{
     template<typename Elem,typename Stockage>
@@ -147,7 +147,7 @@ struct __Upload_epsilon_e{
 
 ///---------------------------- EPSILON P ---------------------------------
 /// Recuperation depuis le maillage
-void download_epsilon_p(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void download_epsilon_p(Sst &S,Vec<VoigtVector> &sto);
 void download_epsilon_p(Sst &S,Sst::Time &t);
 void download_epsilon_p(Sst &S,unsigned pt);
 
@@ -160,7 +160,7 @@ struct __Download_epsilon_p{
 };
 
 /// Envoi vers le maillage
-void upload_epsilon_p(Sst &S,Vec<Vec<TYPEREEL,DIM*(DIM+1)/2> > &sto);
+void upload_epsilon_p(Sst &S,Vec<VoigtVector> &sto);
 void upload_epsilon_p(Sst &S,Sst::Time &t);
 void upload_epsilon_p(Sst &S,unsigned pt);
 
@@ -175,7 +175,7 @@ struct __Upload_epsilon_p{
 //*
 ///---------------------------     P     ----------------------------------
 /// Recuperation depuis le maillage
-void download_p(Sst &S,Vec<TYPEREEL> &sto);
+void download_p(Sst &S,Vector &sto);
 void download_p(Sst &S,Sst::Time &t);
 void download_p(Sst &S,unsigned pt);
 
@@ -188,7 +188,7 @@ struct __Download_p{
 };
 
 /// Envoi vers le maillage
-void upload_p(Sst &S,Vec<TYPEREEL> &sto);
+void upload_p(Sst &S,Vector &sto);
 void upload_p(Sst &S,Sst::Time &t);
 void upload_p(Sst &S,unsigned pt);
 
@@ -203,7 +203,7 @@ struct __Upload_p{
 //*
 ///-------------------------------  R_p  -------------------------------------------
 /// Recuperation depuis le maillage
-void download_R_p(Sst &S,Vec<TYPEREEL> &sto);
+void download_R_p(Sst &S,Vector &sto);
 void download_R_p(Sst &S,Sst::Time &t);
 void download_R_p(Sst &S,unsigned pt);
 
@@ -216,7 +216,7 @@ struct __Download_R_p{
 };
 
 /// Envoi vers le maillage
-void upload_R_p(Sst &S,Vec<TYPEREEL> &sto);
+void upload_R_p(Sst &S,Vector &sto);
 void upload_R_p(Sst &S,Sst::Time &t);
 void upload_R_p(Sst &S,unsigned pt);
 
@@ -231,7 +231,7 @@ struct __Upload_R_p{
 //*
 ///-------------------------------   d1   -------------------------------------------
 /// Recuperation depuis le maillage
-void download_d1(Sst &S,Vec<TYPEREEL> &sto);
+void download_d1(Sst &S,Vector &sto);
 void download_d1(Sst &S,Sst::Time &t);
 void download_d1(Sst &S,unsigned pt);
 
@@ -244,7 +244,7 @@ struct __Download_d1{
 };
 
 /// Envoi vers le maillage
-void upload_d1(Sst &S,Vec<TYPEREEL> &sto);
+void upload_d1(Sst &S,Vector &sto);
 void upload_d1(Sst &S,Sst::Time &t);
 void upload_d1(Sst &S,unsigned pt);
 
@@ -259,7 +259,7 @@ struct __Upload_d1{
 //*
 ///-------------------------------   d2   -------------------------------------------
 /// Recuperation depuis le maillage
-void download_d2(Sst &S,Vec<TYPEREEL> &sto);
+void download_d2(Sst &S,Vector &sto);
 void download_d2(Sst &S,Sst::Time &t);
 void download_d2(Sst &S,unsigned pt);
 
@@ -272,7 +272,7 @@ struct __Download_d2{
 };
 
 /// Envoi vers le maillage
-void upload_d2(Sst &S,Vec<TYPEREEL> &sto);
+void upload_d2(Sst &S,Vector &sto);
 void upload_d2(Sst &S,Sst::Time &t);
 void upload_d2(Sst &S,unsigned pt);
 
@@ -287,7 +287,7 @@ struct __Upload_d2{
 //*
 ///-------------------------------   df   -------------------------------------------
 /// Recuperation depuis le maillage
-void download_df(Sst &S,Vec<TYPEREEL> &sto);
+void download_df(Sst &S,Vector &sto);
 void download_df(Sst &S,Sst::Time &t);
 void download_df(Sst &S,unsigned pt);
 
@@ -300,7 +300,7 @@ struct __Download_df{
 };
 
 /// Envoi vers le maillage
-void upload_df(Sst &S,Vec<TYPEREEL> &sto);
+void upload_df(Sst &S,Vector &sto);
 void upload_df(Sst &S,Sst::Time &t);
 void upload_df(Sst &S,unsigned pt);
 

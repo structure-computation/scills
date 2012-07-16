@@ -10,7 +10,7 @@ using namespace LMT;
 //**********************************************
 
 /// Calcul les composantes normale et tangentielle du module d'elasticite
-void calcul_En_Et(Sst &S, TYPEREEL &En, TYPEREEL &Et){
+void calcul_En_Et(Sst &S, Scalar &En, Scalar &Et){
     //formulation isotrope ou viscoelastique 
     if (S.matprop->type.find("isotrope") < S.matprop->type.size()){
         En = S.matprop->elastic_modulus;
@@ -22,7 +22,7 @@ void calcul_En_Et(Sst &S, TYPEREEL &En, TYPEREEL &Et){
 }
 
 /// Recherche des SST a prendre en compte pour la raideur du domaine complementaire
-void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> &G, TYPEREEL &rayon, Vec<unsigned> &vois) {
+void find_SST_in_box(Vec<Sst> &S, Vec<Scalar,DIM> &normale, Vec<Scalar,DIM> &G, Scalar &rayon, Vec<unsigned> &vois) {
     for(unsigned k=0;k<vois.size();++k) {
         unsigned ii=vois[k];
         for(unsigned j=0;j<S[ii].vois.size();++j) {
@@ -36,37 +36,40 @@ void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> 
     }
 }
 
-void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYPEREEL &hn, TYPEREEL &ht) {
-    TYPEREEL facteur = 1000.;
-    if(Inter.type=="Ext") {
-        PRINT(Inter.comp);
-        if(Inter.comp=="depl" or Inter.comp=="depl_nul" or Inter.comp=="vit" or Inter.comp=="vit_nulle") {
+void modification_direction_CL(Interface &Inter, Scalar &kn, Scalar &kt, Scalar &hn, Scalar &ht) {
+    Scalar facteur = 1000.;
+    if(Inter.type == Interface::type_ext) {
+        if( Inter.comp == Interface::comp_deplacement or Inter.comp == Interface::comp_deplacement_nul or Inter.comp == Interface::comp_vitesse or Inter.comp == Interface::comp_vitesse_nulle) {
             kn = kn * facteur;
             hn = hn / facteur;
             kt = kt * facteur;
             ht = ht / facteur;
-        } else if(Inter.comp=="effort" or Inter.comp=="effort_normal") {
+        } else if(Inter.comp == Interface::comp_effort or Inter.comp == Interface::comp_effort_normal) {
             kn = kn / facteur ;
             hn = hn * facteur ;
             kt = kt / facteur ;
             ht = ht * facteur ;
-        } else if(Inter.comp=="sym" or Inter.comp=="depl_normal" or Inter.comp=="vit_normale") {
+        } else if(Inter.comp == Interface::comp_symetrie or Inter.comp == Interface::comp_deplacement_normal or Inter.comp == Interface::comp_vitesse_normale) {
             kn = kn * facteur ;
             hn = hn / facteur ;
             kt = kt / facteur ;
             ht = ht * facteur ;
-        } else if(Inter.comp=="periodique") {
+        } else if(Inter.comp == Interface::comp_periodique) {
             //ben on fait rien :)
         } else {
             std::cout << "optimisation direction : Type de condition limite non pris en compte : " << Inter.comp << endl;
             assert(0);
         }
-    } else if(Inter.type=="Int") {
-        if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive" and Inter.comp!="Contact_ep") {
-            TYPEREEL facteur_frottement;
-            TYPEREEL eps=1e-6;
-            if(Inter.coeffrottement<=eps){facteur_frottement=1e-3;}
-            else{facteur_frottement=Inter.coeffrottement;}
+    } else if(Inter.type == Interface::type_int) {
+        /// Pour une interface de type contact
+        if(Inter.comp == Interface::comp_contact_ep) {
+            Scalar facteur_frottement;
+            Scalar eps=1e-6;
+            if(Inter.coeffrottement<=eps){
+                facteur_frottement=1.0/facteur;
+            }else{
+                facteur_frottement=Inter.coeffrottement;
+            }
             //facteur_frottement=1;
             kt = kt * facteur_frottement;
             ht = ht / facteur_frottement;
@@ -105,7 +108,7 @@ struct optimise_direction {
                 jj=inter.side[!q].vois[1];
             }
 
-            TYPEREEL L=0, En=0, Et=0;
+            Scalar L=0, En=0, Et=0;
             //calcul de la longueur de l'interface à prendre en compte pour la determination automatique du scalaire
 #if DIM==2
                 L = inter.measure;
@@ -116,7 +119,7 @@ struct optimise_direction {
             //fonction generee a partir du __init__.py
             calcul_En_Et(S[ii],En,Et);
             //calcul des directions de recherche normale et tangentielle
-            TYPEREEL kn=0, kt=0, hn=0, ht=0;
+            Scalar kn=0, kt=0, hn=0, ht=0;
 
 
             SparseMatrix k, h;
@@ -125,7 +128,7 @@ struct optimise_direction {
 
             SparseMatrix Id;
             Id.resize(DIM);
-            Id.diag()=Vec<TYPEREEL,DIM>(1);
+            Id.diag()=Vec<Scalar,DIM>(1);
 
             if(latin.ktype=="scalaire_donne") {
                 kn = latin.kfact;
@@ -168,7 +171,7 @@ struct optimise_direction {
 
             for(unsigned i=0;i<inter.side[q].nodeeq.size();i++) {
                 Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
-                Vec<TYPEREEL,DIM> n=inter.side[q].neq[rep];
+                Vec<Scalar,DIM> n=inter.side[q].neq[rep];
                 SparseMatrix nn;
                 tens(n,n,nn);
 
@@ -179,7 +182,7 @@ struct optimise_direction {
 
         //copie des directions de recherche
         if(latin.copydirection==1) {
-            TYPEREEL kn=0,kt=0,hn=0,ht=0;
+            Scalar kn=0,kt=0,hn=0,ht=0;
             SparseMatrix kglo, hglo;
             kglo.resize(inter.side[0].nodeeq.size()*DIM);
             hglo.resize(inter.side[0].nodeeq.size()*DIM);

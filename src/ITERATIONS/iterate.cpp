@@ -126,14 +126,14 @@ void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inte
                     flag_convergence=1;
                     process.latin->save_depl_SST=save_depl_SST;
                 }
+            } else if ( d_err == 100 ) {
                 /// sinon si sur plusieurs itérations de suite le delta d'erreur n'est pas assez grand ou negatif on s'arrete
-            } else if ( d_err == 10 ) {
                 process.print("Arret par manque de convergence"); 
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
             }
-            /// arret du processus nb d iteration max-1 atteint (1 iteration supplementaire pour sauvegarder les deplacements)
             if (process.latin->iter==process.latin->nbitermax-1) {
+                /// arret du processus nb d iteration max-1 atteint (1 iteration supplementaire pour sauvegarder les deplacements)
                 flag_convergence=1;
                 process.latin->save_depl_SST=save_depl_SST;
             }

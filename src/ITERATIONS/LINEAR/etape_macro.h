@@ -52,13 +52,13 @@ struct macroassemble {
             unsigned data=S.edge[j].datanum;
             ///reperage de l'interface dans bigF
             Vec<unsigned> repF=Inter[q].repddl,repFadd=S.edge[j].repLE;
-            if (Inter[q].type!="Ext" or (Inter[q].comp!="vit" and Inter[q].comp!="depl")) {
+            if(Inter[q].type != Interface::type_ext or (Inter[q].comp != Interface::comp_deplacement and Inter[q].comp != Interface::comp_vitesse)) {
                 /// participation des efforts de l'etape micro 1
                 Global.bigF[repF] -= S.Fadd[repFadd];
                 /// participation des efforts imposes
-                if ( Inter[q].comp=="effort" or Inter[q].comp=="effort_normal") {
+                if(Inter[q].comp == Interface::comp_effort or Inter[q].comp == Interface::comp_effort_normal) {
                     Global.bigF[repF] += trans(Inter[q].side[data].MeM)*Inter[q].side[data].t[imic].Fchap;
-                } else if ( Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale" ) {
+                } else if(Inter[q].comp == Interface::comp_symetrie or Inter[q].comp == Interface::comp_deplacement_normal or Inter[q].comp == Interface::comp_vitesse_normale) {
                     add_bigF_CLsym(Global.bigF,Inter[q],data,imic);
                 }
             }
@@ -111,9 +111,9 @@ struct interextrmacro {
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned data=S.edge[j].datanum;
             unsigned q=S.edge[j].internum;
-            if (Inter[q].comp == "depl" or Inter[q].comp == "vit") {
+            if (Inter[q].comp == Interface::comp_deplacement or Inter[q].comp == Interface::comp_vitesse) {
                 Inter[q].side[data].t[imic].WtildeM.set(0.0);
-            } else if (Inter[q].comp == "sym" or Inter[q].comp == "depl_normal" or Inter[q].comp == "vit_normale") {
+            } else if (Inter[q].comp == Interface::comp_symetrie or Inter[q].comp == Interface::comp_deplacement_normal or Inter[q].comp == Interface::comp_vitesse_normale) {
                 modif_WtildeM_CLsym(Inter[q],Global.bigW,data,imic);
             } else {
                 Inter[q].side[data].t[imic].WtildeM=Inter[q].side[data].eM * Global.bigW[Inter[q].repddl];

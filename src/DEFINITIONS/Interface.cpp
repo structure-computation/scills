@@ -1,6 +1,25 @@
 #include "Interface.h"
 #include "Boundary.h"
 
+//---------------------------- Attributs statiques ----------------------------//
+Sc2String Interface::type_ext = "Ext";                          /// Nom pour le type interface exterieure (CL)
+Sc2String Interface::type_int = "Int";                          /// Nom pour le type interface interieure (liaison)
+Sc2String Interface::comp_parfait = "Parfait";                  /// Nom pour le comportement parfait
+Sc2String Interface::comp_contact_ep = "Contact_ep";            /// Nom pour le comportement contact avec epaisseur
+Sc2String Interface::comp_cohesive = "Cohesive";                /// Nom pour le comportement cohesif
+Sc2String Interface::comp_cassable = "Breakable";               /// Nom pour le comportement cassable
+Sc2String Interface::comp_deplacement = "depl";                 /// Nom pour le comportement deplacement impose
+Sc2String Interface::comp_deplacement_normal = "depl_normal";   /// Nom pour le comportement deplacement normal
+Sc2String Interface::comp_deplacement_nul = "depl_nul";         /// Nom pour le comportement deplacement nul
+Sc2String Interface::comp_vitesse = "vit";                      /// Nom pour le comportement vitesse imposee
+Sc2String Interface::comp_vitesse_normale = "vit_normale";      /// Nom pour le comportement vitesse normale
+Sc2String Interface::comp_vitesse_nulle = "vit_nulle";          /// Nom pour le comportement vitesse nulle
+Sc2String Interface::comp_effort = "effort";                    /// Nom pour le comportement effort impose
+Sc2String Interface::comp_effort_normal = "effort_normal";      /// Nom pour le comportement effort normal (pression)
+Sc2String Interface::comp_symetrie = "sym";                     /// Nom pour le comportement symetrie
+Sc2String Interface::comp_periodique = "periodique";            /// Nom pour le comportement periodique
+//-----------------------------------------------------------------------------//
+
 Interface::Side::Side(){
     t.resize(1);
     mesh=NULL;
@@ -8,30 +27,41 @@ Interface::Side::Side(){
 
 /// fonction projecteur macro . La définition d'un projecteur macro et micro sous forme d'une fonction permet de ne pas construire et stocker de nouvel opérateur et prend autant de temps que l'utilisation d'une matrice.
 Vector Interface::Side::PM(Vector &f) {
-    Vector fM; fM.resize(f.size()); fM.set(0.);
-    for(unsigned i=0;i<eM.nb_cols();i++) fM+=dot(eM.col(i),f)*eM.col(i);
+    Vector fM;
+    fM.resize(f.size());
+    fM.set(0.);
+    for(unsigned i=0;i<eM.nb_cols();i++){
+        fM+=dot(eM.col(i),f)*eM.col(i);
+    }
     return fM;
 }
 /// fonction projecteur micro
 Vector Interface::Side::Pm(Vector &f) {
-    Vector fm; fm.resize(f.size()); fm.set(0.);
-    for(unsigned i=0;i<eM.nb_cols();i++) fm+=dot(eM.col(i),f)*eM.col(i);
+    Vector fm;
+    fm.resize(f.size());
+    fm.set(0.);
+    for(unsigned i=0;i<eM.nb_cols();i++){
+        fm+=dot(eM.col(i),f)*eM.col(i);
+    }
     return f-fm;
 }
 /// fonction projecteur normal
 Vector Interface::Side::Pn(Vector &f) {
-    Vector fn; fn.resize(f.size()); fn.set(0.);
-    for(unsigned i=0;i<nodeeq.size();++i) { Vector rep=range(i*DIM,(i+1)*DIM); fn[rep]=dot(neq[rep],f[rep])*neq[rep]; }
+    Vector fn;
+    fn.resize(f.size());
+    fn.set(0.);
+    for(unsigned i=0;i<nodeeq.size();++i){
+        LMT::Vec<int,DIM> rep=range(i*DIM,(i+1)*DIM);
+        fn[rep]=dot(neq[rep],f[rep])*neq[rep];
+    }
     return fn;
 }
 /// fonction projecteur tangentiel
 Vector Interface::Side::Pt(Vector &f) {
-    Vec<TYPEREEL,-1,void> ft; ft.resize(f.size()); ft.set(0.);
-    for(unsigned i=0;i<nodeeq.size();++i) { Vec<int,DIM> rep=range(i*DIM,(i+1)*DIM); ft[rep]=dot(neq[rep],f[rep])*neq[rep]; }
-    return f-ft;
+    return f-Pn(f);
 }
 
-void Interface::Side::Time::allocations(unsigned sizenodeeq){
+void Interface::Side::Time::allocations(unsigned sizenodeeq,bool endommageable){
     F.resize(sizenodeeq);
     F.set(0.0);
     Wp.resize(sizenodeeq);
@@ -52,6 +82,10 @@ void Interface::Side::Time::allocations(unsigned sizenodeeq){
     oldF.set(0.0);
     oldWp.resize(sizenodeeq);
     oldWp.set(0.0);
+    if(endommageable){
+        d.resize(sizenodeeq/DIM);
+        d.set(0.0);
+    }
 }
 
 ///suppression des interfaces
@@ -126,6 +160,30 @@ void Interface::read_data_user(int index, const DataUser& data_user, const Geome
     id_sst_0 = data_user.find_pieces_index(id_sst_0);
     id_sst_1 = data_user.find_pieces_index(id_sst_1);
 */}
+
+int Interface::get_type_elem() const {
+    int type_elem=0;
+    if (type == type_ext and (comp == comp_deplacement or comp == comp_vitesse or comp == comp_deplacement_nul or comp == comp_vitesse_nulle)){
+        type_elem = 0;
+    } else if (type == type_ext and (comp == comp_effort)){
+        type_elem = 1;
+    } else if (type == type_ext and (comp == comp_symetrie)){
+        type_elem = 2;
+    } else if (type == type_ext and (comp == comp_deplacement_normal or comp == comp_vitesse_normale)){
+        type_elem = 3;
+    } else if (type == type_int and (comp == comp_parfait)){
+        type_elem = 4;
+    } else if (type == type_int and (comp=="Contact_jeu_physique" or comp == comp_contact_ep) ){
+        type_elem = 5;
+    } else if (type == type_int and (comp=="Jeu_impose")){
+        type_elem = 6;
+    } else if (type == type_ext and (comp == comp_periodique)){
+        type_elem = 7;
+    } else {
+        type_elem = 8;
+    }
+    return type_elem;
+}
 
 Interface::Interface() {matprop = 0;id_link = -1;}
 Interface::~Interface() {free();}

@@ -188,12 +188,19 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
     //creation du vecteur contenant les ddls a bloquer
     bool bloq=0;
     for(unsigned q=0;q<Inter.size();++q){
-        if (Inter[q].type=="Ext" and (Inter[q].comp=="depl" or Inter[q].comp=="vit" or Inter[q].comp=="depl_nul" or Inter[q].comp=="vit_nulle")){
+        if (Inter[q].type == Interface::type_ext and (
+            Inter[q].comp == Interface::comp_deplacement or
+            Inter[q].comp == Interface::comp_deplacement_nul or
+            Inter[q].comp == Interface::comp_vitesse or
+            Inter[q].comp == Interface::comp_vitesse_nulle) ){
             //ddl bloques
             repddlMbloq.append(Inter[q].repddl);
             bloq=1;
         }
-        else if(Inter[q].type=="Ext" and (Inter[q].comp=="sym" or Inter[q].comp=="depl_normal" or Inter[q].comp=="vit_normale") ){
+        else if(Inter[q].type == Interface::type_ext and (
+            Inter[q].comp == Interface::comp_symetrie or 
+            Inter[q].comp==Interface::comp_deplacement_normal or 
+            Inter[q].comp==Interface::comp_vitesse_normale) ){
 #if DIM == 2
             Vec<unsigned,2> repimp(1,2);
 #elif DIM == 3
@@ -206,8 +213,8 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
     
     if (bloq==0 and process.rbm.bloq==0){ // blocage des mvts de corps rigide
       for(unsigned q=0;q<Inter.size();++q){
-          if (Inter[q].type=="Ext"){
-              std::cout << "\t Blocage mvts corps rigide : interface " << q << endl;
+          if (Inter[q].type == Interface::type_ext){
+              std::cout << "\t Blocage mvts corps rigide : interface " << q << std::endl;
 #if DIM == 2
               repddlMbloq.append(Inter[q].repddl[range(3)]);
 #elif DIM == 3
@@ -218,7 +225,7 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
       }
     }
     else if (process.rbm.bloq==1){
-        std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
+        std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << std::endl;
         bloqrbm(Inter, process,repddlMbloq);
     }
 }

@@ -53,15 +53,11 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
                 }else{
                     for(unsigned pt=0;pt<(nbpastemps+1);pt++){
                         if (process.parallelisation->is_local_cpu()) {
-                            SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);
+                            /// Allocation des vecteurs de resultats. Endommagement uniquement si matprop existe et matprop->degradable vaut true
+                            SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);
                         }
                     }
                 }
-            }
-            ///allocation des parametres de comportements dependant du temps (exemple endommagement)
-            SubI[i].t.resize(nbpastemps+1);
-            for(unsigned j=0;j<nbpastemps+1;j++){
-                SubI[i].t[j].allocate(SubI[i]);
             }
         }
     }
@@ -113,18 +109,13 @@ void allocate_quantities_post(PointedSubstructures &SubS, PointedInterfaces &Sub
                         SubI[i].side[j].t_post.resize(process.temps->nbpastemps+1); //utile pour le post traitement en incremental
                         if(process.nom_calcul=="incr" and process.parallelisation->is_local_cpu()){
                             for(unsigned pt=0;pt<(nbpastemps+1);pt++){
-                                SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);
+                                SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);
                             }
                             for(unsigned pt=0;pt<(process.temps->nbpastemps+1);pt++){
-                                SubI[i].side[j].t_post[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM);                        
+                                SubI[i].side[j].t_post[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);                        
                             }
                         }
                     }
-                }
-                /// allocation des parametres de comportements dependant du temps (exemple endommagement)
-                SubI[i].t.resize(nbpastemps+1);
-                for(unsigned j=0;j<nbpastemps+1;j++){
-                    SubI[i].t[j].allocate(SubI[i]);
                 }
             }
         }
@@ -203,11 +194,11 @@ void rebuild_state(Sst &S,Sst::Time &t, Process &process){
         upload_p(S,t);          /// pour obtenir R_p
     }
     if(S.f == S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat or S.f == S.pb.formulation_mesomodele){
-        upload_d1(S,t);
+        upload_d1(S,t);         /// pour modifier l'operateur de rigidite
     }
     if(S.f == S.pb.formulation_mesomodele){
-        upload_d2(S,t);
-        upload_df(S,t);
+        upload_d2(S,t);         /// pour modifier l'operateur de rigidite
+        upload_df(S,t);         /// pour modifier l'operateur de rigidite
     }
     S.f->update_variables();
     S.f->call_after_solve();

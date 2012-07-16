@@ -177,17 +177,7 @@ struct Extract_connectivities_on_element_sst_inter{
           I.mesh_connectivities[i][e.number]=correspondance_ddl_edge_sst[e.node(i)->number_in_original_mesh()*DIM]/DIM+nb_nodes_tot;
       }
       I.number[e.number]=I.num;
-      int type=0;
-      if (I.type=="Ext" and (I.comp=="depl" or I.comp=="vit" or I.comp=="depl_nul" or I.comp=="vit_nulle")){type=0;}
-      else if (I.type=="Ext" and I.comp=="effort"){type=1;}
-      else if (I.type=="Ext" and ( I.comp=="sym" )){type=2;}
-      else if (I.type=="Ext" and (I.comp=="depl_normal" or I.comp=="vit_normale")){type=3;}
-      else if (I.type=="Int" and I.comp=="Parfait"){type=4;}
-      else if (I.type=="Int" and (I.comp=="Contact" or I.comp=="Contact_jeu" or I.comp=="Contact_jeu_physique" or I.comp=="Contact_ep") ){type=5;}
-      else if (I.type=="Int" and I.comp=="Jeu_impose"){type=6;}
-      else if (I.type=="Ext" and I.comp=="periodique"){type=7;}
-      else {type=8;}
-      I.nature[e.number]=type;
+      I.nature[e.number]=I.get_type_elem();
    }
 };
 
@@ -445,16 +435,16 @@ void create_hdf_fields_data_SST(TSST &S, TINTER &Inter, Process &process ) {
         unsigned q=S.edge[j].internum;
         unsigned data=S.edge[j].datanum;
         if(data==0){
- /*       Vec<unsigned> &list1=(Inter[q].side[data].ddlcorresp);
-    Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
-    Vec<T> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vec<T> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vec<T> Fchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vec<T> Fchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vec<T> &Q1=Inter.side[0].t[imic].F[list1];
-    const Vec<T> &Q2=Inter.side[1].t[imic].F[list2];
-    const Vec<T> &WW1=Inter.side[0].t[imic].Wp[list1];
-    const Vec<T> &WW2=Inter.side[1].t[imic].Wp[list2];*/
+            /*Vec<unsigned> &list1=(Inter[q].side[data].ddlcorresp);
+            Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
+            Vec<T> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
+            Vec<T> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
+            Vec<T> Fchap1=Inter.side[0].t[imic].Fchap[list1];
+            Vec<T> Fchap2=Inter.side[1].t[imic].Fchap[list2];
+            const Vec<T> &Q1=Inter.side[0].t[imic].F[list1];
+            const Vec<T> &Q2=Inter.side[1].t[imic].F[list2];
+            const Vec<T> &WW1=Inter.side[0].t[imic].Wp[list1];
+            const Vec<T> &WW2=Inter.side[1].t[imic].Wp[list2];*/
             int nbnodeseq=Inter[q].side[data].t[1].F.size()/DIM;
             for(int d=0;d<DIM;d++){
                 Inter[q].F[d].resize(nbnodeseq);

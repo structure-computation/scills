@@ -9,7 +9,7 @@ density = Variable( interpolation='global', default_value='1', unit='kg/mm^3' )
 elastic_modulus = Variable( interpolation='global', default_value='15e3', unit='N/mm^2' )
 poisson_ratio = Variable( interpolation='global', default_value='0.3', unit='1' )
 #champ de temperature (normalement recopie du champ de temperature global sur la structure
-deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+deltaT = Variable( interpolation='elementary', default_value='0', unit='degC' )
 #coefficient de dilatation
 alpha = Variable( interpolation='global', default_value='0', unit='' )
 #booleen valant 1 pour une formulation en contrainte plane 0 pour deformation plane

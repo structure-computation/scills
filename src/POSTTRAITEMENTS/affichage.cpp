@@ -46,7 +46,7 @@ void fake_affichage() {
     affichage_resultats(SP3, process, data_user);
     affichage_depl_pt(SP3, process);
     affichage_var_inter(SP3,Inter3, process);
-    affichage_inter_data(Inter3, S3, process);
+    //affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process, data_user);
     affichage_energie(SP3,Inter3, process, data_user);
     
@@ -143,8 +143,8 @@ void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, Data
     if (process.affichage->affich_resultat==1)
         if (process.parallelisation->is_local_cpu()) {
             write_paraview_results(S,process, data_user);
-            create_file_pvd(process,data_user,"sst_bulk");
-            create_file_pvd(process,data_user,"sst_skin");
+            //create_file_pvd(process,data_user,"sst_bulk");    /// TMP, test sauvegarde a la fin de chaque pas de temps
+            //create_file_pvd(process,data_user,"sst_skin");    /// TMP, test sauvegarde a la fin de chaque pas de temps
         }
 };
 
@@ -158,7 +158,7 @@ void affichage_resultats_inter(Vec<VecPointedValues<Interface> > &Inter, Vec<Sst
   if (process.affichage->affich_resultat==1)
       if (process.parallelisation->is_local_cpu()) {
         affich_INTER_resultat(Inter,S,process);
-        create_file_pvd(process,data_user,"inter");
+        //create_file_pvd(process,data_user,"inter");   /// TMP, test sauvegarde a la fin de chaque pas de temps
       }
 };
 

@@ -285,7 +285,7 @@ void make_interface_inter::operator()(Interface &inter, GeometryUser &geometry_u
             inter.side[0].mesh=new InterfaceMesh;
             read_mesh_interface_geometry_user(*(inter.side[0].mesh), geometry_user, inter.id);
             std::cout << "Nombre de noeuds  : " << inter.side[0].mesh->node_list.size();
-            std::cout << "Nombre d'elements : " << inter.side[0].mesh->elem_list.size();
+            std::cout << "\tNombre d'elements : " << inter.side[0].mesh->elem_list.size() << std::endl;
             inter.side[0].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
             inter.side[0].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);
             inter.side[0].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *(inter.side[0].mesh),1);

@@ -1,7 +1,7 @@
 #ifndef PLASTICITE_H
 #define PLASTICITE_H
 
-#include "../../MAILLAGE/elements_variables_accessor.h"
+#include "../../MAILLAGE/mesh_data_accessors_sst.h"
 #include "../../DEFINITIONS/Process.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
