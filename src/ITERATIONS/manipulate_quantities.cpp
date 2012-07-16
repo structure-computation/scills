@@ -187,6 +187,7 @@ void rebuild_state(Sst &S,Sst::Time &t, Process &process){
     S.mesh.load();
     S.apply_behavior();
     process.Fvol->apply_on_sst(S);
+    process.Tload->apply_on_sst(S);
     S.f->set_mesh(S.mesh.m);
     upload_q(S,t);
     if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){

@@ -7,6 +7,7 @@
 #include "Boundary.h"
 #include "SstCarac_InterCarac.h"
 #include "VolumicForces.h"
+#include "ThermalLoad.h"
 
 
 typedef LMT::Vec<Sst> Substructures;

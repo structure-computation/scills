@@ -50,6 +50,7 @@ void Process::allocate(){
     SubI                    = new PointedInterfaces;
     CL                      = new Boundaries;
     Fvol                    = new VolumicForces;
+    Tload                   = new ThermalLoad;
     sst_materials           = new Materials;
     inter_materials         = new Links;
     #ifdef PRINT_ALLOC
@@ -82,6 +83,7 @@ void Process::free(){
     if (SubI                    != NULL) delete SubI;
     if (CL                      != NULL) delete CL;
     if (Fvol                    != NULL) delete Fvol;
+    if (Tload                   != NULL) delete Tload;
     if (sst_materials           != NULL) delete sst_materials;
     if (inter_materials         != NULL) delete inter_materials;
 }
@@ -525,6 +527,7 @@ void Process::read_data_user() {
         (*CL)[i].read_data_user(i,*data_user);
     }
     Fvol->read_data_user(*data_user);
+    Tload->read_data_user(*data_user);
     
     /// Creation des liens de parente entre groupes de parametres
     SstCarac::sst_materials_parameters.addParent(&(multiresolution->parameters));
@@ -532,6 +535,7 @@ void Process::read_data_user() {
     temps->parameters.addParent(&(multiresolution->parameters));
     Boundary::CL_parameters.addParent(&(temps->parameters));
     Fvol->parameters.addParent(&(temps->parameters));
+    Tload->parameters.addParent(&(temps->parameters));
     
     /// Preparation des parametres
     multiresolution->prepareParameters();
@@ -540,6 +544,7 @@ void Process::read_data_user() {
     InterCarac::prepareParameters();
     Boundary::prepareParameters();
     Fvol->prepareParameters();
+    Tload->prepareParameters();
     
     /// Debuggage
     multiresolution->affiche();
@@ -548,6 +553,7 @@ void Process::read_data_user() {
         (*CL)[i].affiche();
     }
     Fvol->affiche();
+    Tload->affiche();
 };
 
 void Process::print_title(int level,Sc2String title){
