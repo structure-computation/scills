@@ -4,6 +4,7 @@
 #include "../DEFINITIONS/Process.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/MultiResolutionData.h"
 #include "../COMPUTE/DataUser.h"
 
 #include "affichage_mesh_SST.h"
@@ -46,13 +47,13 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
     
     ///preparation des noms et des repertoires pour ecriture des resultats
     Sc2String name_multiresolution="";
-    if(data_user.options.Multiresolution_on==1)
-        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+    if(process.multiresolution->nb_calculs>1)
+        name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
     Vec<Sc2String,2> directory_names=Vec<Sc2String>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
     Vec<Sc2String,2> generic_names;
     for(int i=0;i<2;i++) {
         int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
-        generic_names[i]=directory_names[i]+"/"+name_multiresolution.c_str()+ process.affichage->name_data; //nom generique du fichier vtu
+        generic_names[i] = directory_names[i] + "/" + name_multiresolution + process.affichage->name_data; //nom generique du fichier vtu
     }
    
     ///eclatement de chaque sous-structure
@@ -61,12 +62,12 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
     
     for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
         ///creation du maillage global
-        Sst::TMESH::TM meshglob;
+        SstMesh::TM meshglob;
         for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic], data_user);
+                rebuild_state(S[i],S[i].t_post[imic], process);
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic], data_user);
+                rebuild_state(S[i],S[i].t[imic], process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -109,8 +110,8 @@ void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, Dat
  */
 template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, DataUser &data_user) {
     Sc2String name_multiresolution="";
-    if(data_user.options.Multiresolution_on==1)
-        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+    if(process.multiresolution->nb_calculs>1)
+        name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
    
     Sc2String typemail=process.affichage->type_affichage;
    
@@ -165,9 +166,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          typename TV1::template SubType<0>::T::TMESH::TM meshglob;
          for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic].q, data_user);
+                rebuild_state(S[i],S[i].t_post[imic].q, process);
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
@@ -197,9 +198,9 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          for(unsigned i=0;i<S.size();++i)
          {
             if(process.nom_calcul=="incr")
-                rebuild_state(S[i],S[i].t_post[imic].q, data_user); 
+                rebuild_state(S[i],S[i].t_post[imic].q, process); 
             else if(process.nom_calcul=="latin")
-                rebuild_state(S[i],S[i].t[imic].q, data_user);
+                rebuild_state(S[i],S[i].t[imic].q, process);
             else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);
@@ -447,7 +448,7 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
     unsigned pt=process.affichage->pt;
     unsigned data = process.affichage->side;// choix du cote
     DisplayParaview dp;
-    typename TV2::template SubType<0>::T::TMESH meshglob;
+    InterfaceMesh meshglob;
     if(find(process.affichage->num_inter_select,LMT::_1==-1)==1){
         for(unsigned q=0;q<Inter.size();q++){
             unsigned side = (Inter[q].type=="Ext")? 0 : data;

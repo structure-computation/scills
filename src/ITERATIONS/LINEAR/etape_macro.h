@@ -1,8 +1,9 @@
 #ifndef ETAPE_MACRO_H
 #define ETAPE_MACRO_H
 
-#include "../../DEFINITIONS/TimeParameters.h"
-//fonctions utilisees pour le probleme macro
+#include "../../DEFINITIONS/structure_typedef.h"
+#include "../../DEFINITIONS/TimeData.h"
+#include "../../DEFINITIONS/MacroProblem.h"
 
 /** \ingroup etape_lineaire
  \relates macroassemble
@@ -11,7 +12,7 @@
 Deux procedures sont ecrites pour le 2d et pour le 3d (en changeant l'argument Interface<>). On selectionne les composantes macro differentes de la resultante et moment selon la normale des efforts Fchap pour le pas de temps donne.
 */
 // Ajout des conditions aux limites pour le cas de CL symetriques dans le probleme macro
-void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &imic) {
+void add_bigF_CLsym(Vector &bigF, Interface &inter, unsigned &data,int &imic) {
     Vec<unsigned> rep=range(inter.side[data].MeM.nb_cols());
     Vec<unsigned> repnimp;
 #if DIM == 2
@@ -44,7 +45,7 @@ void add_bigF_CLsym(Vec<TYPEREEL> &bigF, Interface &inter, unsigned &data,int &i
  - Si l'interface est de type symetrie ou deplacement normal donne, on utilise la fonction add_bigF_CLsym().
  */
 struct macroassemble {
-    void operator()(Sst &S,Vec<Interface> &Inter,TimeParameters &temps, MacroProblem &Global) const {
+    void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps, MacroProblem &Global) const {
         int imic=temps.pt;   
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
@@ -74,7 +75,7 @@ struct macroassemble {
 Deux procedures sont ecrites pour le 2d et pour le 3d. \f$ \tilde{W}^M \f$ pour le pas de temps donne est impose egal à 0 puis on selectionne les composantes macro differentes de la translation et rotation autour de la normale à l'interface.
 */
 // Modification des multiplicateurs pour le cas de CL symetriques a la sortie du probleme macro
-void modif_WtildeM_CLsym(Interface &Inter,Vec<TYPEREEL> &bigW, unsigned &data,int &imic) {
+void modif_WtildeM_CLsym(Interface &Inter,Vector &bigW, unsigned &data,int &imic) {
     Vec<unsigned> rep=range(Inter.side[data].MeM.nb_cols());
     Vec<unsigned> repnimp;
 #if DIM == 2
@@ -105,7 +106,7 @@ void modif_WtildeM_CLsym(Interface &Inter,Vec<TYPEREEL> &bigW, unsigned &data,in
  
  */
 struct interextrmacro {
-    void operator()(Sst &S,Vec<Interface> &Inter,TimeParameters &temps, MacroProblem &Global) const {
+    void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps, MacroProblem &Global) const {
         int imic=temps.pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned data=S.edge[j].datanum;

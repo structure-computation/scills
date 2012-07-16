@@ -69,7 +69,8 @@ integration_totale=False
 f_vol = Variable( interpolation='global', nb_dim=[dim], default_value='0.0,'*(dim-1)+'0.0', unit='N/m^3' )
 
 #champ de temperature (normalement recopie du champ de temperature global sur la structure
-deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+#deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+deltaT = Variable( interpolation='elementary', default_value='0.0', unit='degC' )
 
 
 #champ de deplacement par noeud

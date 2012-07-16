@@ -17,11 +17,11 @@ using namespace LMT;
  * On procède enfin à l'assemblage de cette matrice elementaire.
  */
 struct add_elem_N{
-    template<typename Te> void operator()(Te &e,Sst::TMESHedge &m, Interface::TMATS &N, unsigned &incr) const {
+    template<typename Te> void operator()(Te &e,EdgeMesh &m, SparseMatrix &N, unsigned &incr) const {
         // recherche des elements de m (maillage de bord) pointes par e.elem
         for(unsigned i=0;i<e.elem.size();++i){
             
-            Sst::TMESHedge::EA *e2 =m.elem_list[e.elem[i]]; //ElementAncestor
+            EdgeMesh::EA *e2 =m.elem_list[e.elem[i]]; //ElementAncestor
             
             //creation du reperage dans la matrice N des inconnues nodales du cote de la SST considere (colonnes)
             Vec<unsigned > repNc;
@@ -37,9 +37,9 @@ struct add_elem_N{
             repNr=range(incr*DIM,(incr+1)*DIM);
             
             // assignation dans N[repNr,repNc] de Ne;
-            Mat<TYPEREEL,Gen<>, SparseLine<> > Ne;
+            SparseMatrix Ne;
             Ne.resize(repNr.size(),repNc.size());
-            Sst::TMESHedge::TElemList::apply_on_down_cast(e2,add_elem_Ne(),Ne);
+            EdgeMesh::TElemList::apply_on_down_cast(e2,add_elem_Ne(),Ne);
             
             N(repNr,repNc)+=Ne;
         }
@@ -53,7 +53,7 @@ struct add_elem_N{
  * 
  * Cette procedure cree la matrice N (1 de chaque cote de l'interface) pour chaque discretisation possible et chaque type d'element de la sous-structure. La discretisation de l'interface est necessairement P0. La matrice N est donc de la taille dim*(nbre de noeuds sur le cote de la sst) x dim*(nombre d'elements de l'interface). On appelle ici pour chaque element d'interface la procedure add_elem_N.
  */
-void calcN(Interface::TMESH &minter, Sst::TMESHedge &medge, Interface::TMATS &N){
+void calcN(InterfaceMesh &minter, EdgeMesh &medge, SparseMatrix &N){
     N.resize(minter.elem_list.size()*DIM,medge.node_list.size()*DIM);
     unsigned incr=0;
     apply(minter.elem_list,add_elem_N(),medge,N,incr); 
@@ -64,7 +64,7 @@ void calcN(Interface::TMESH &minter, Sst::TMESHedge &medge, Interface::TMATS &N)
  * \brief Creation de la matrice de masse par element.
  */
 struct add_elem_M{
-    template<typename Te> void operator()(Te &e, Interface::TMATS &M, Vec<unsigned> &indice,unsigned dim) const{
+    template<typename Te> void operator()(Te &e, SparseMatrix &M, Vec<unsigned> &indice,unsigned dim) const{
         for(unsigned l=0;l<indice.size();++l)
             M(indice[l],indice[l])=measure(e);
         indice+=dim;
@@ -76,7 +76,7 @@ struct add_elem_M{
  * 
  * Cette procedure n'est adaptee que pour le cas d'une discretisation P0 pour l'interface. La matrice de masse est donc diagonale et est constituee de la mesure des elements sur chaque terme de la diagonale. On appelle pour chaque element d'interface la procedure add_elem_M.
  */
-void calcM(Interface::TMESH &m, Interface::TMATS &M){
+void calcM(InterfaceMesh &m, SparseMatrix &M){
     M.resize(m.elem_list.size()*DIM,m.elem_list.size()*DIM);
     Vec<unsigned> indice;
     indice=range(0,(int) DIM);
@@ -84,9 +84,9 @@ void calcM(Interface::TMESH &m, Interface::TMATS &M){
 }
 
 
-void calcMinvN(Interface::TMATS &M, Interface::TMATS &N){
+void calcMinvN(SparseMatrix &M, SparseMatrix &N){
     // marche pour une matrice diagonale M ( P0 par element )
-    Interface::TMATS Minv;
+    SparseMatrix Minv;
     Minv.resize(M.nb_rows(),M.nb_cols());
     Minv.diag()=1./M.diag();
     N=Minv*N;

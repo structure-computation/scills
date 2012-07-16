@@ -5,10 +5,10 @@
 
 //fichiers de definition des variables
 #include "../../DEFINITIONS/Process.h"
-#include "../../DEFINITIONS/LatinParameters.h"
-#include "../../DEFINITIONS/MultiScaleParameters.h"
-#include "../../DEFINITIONS/ParallelisationParameters.h"
-#include "../../DEFINITIONS/TimeParameters.h"
+#include "../../DEFINITIONS/LatinData.h"
+#include "../../DEFINITIONS/MultiScaleData.h"
+#include "../../DEFINITIONS/ParallelisationData.h"
+#include "../../DEFINITIONS/TimeData.h"
 
 // fonctions speciales
 #include "../../UTILITAIRES/utilitaires.h"
@@ -42,7 +42,7 @@ using namespace LMT;
 /** \ingroup  Operateurs_sst
 \brief Procédure principale permettant la création des opérateurs par sous-structure.
  */
-void create_op_SST(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter,Vec<VecPointedValues<Sst> > &SubS,Vec<VecPointedValues<Interface> > &SubI,Process &process, DataUser &data_user) {
+void create_op_SST(PointedSubstructures &S, VecInterfaces &Inter,PointedSubstructures &SubS,PointedInterfaces &SubI,Process &process, DataUser &data_user) {
 
 /*#ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant Calc_SST_Correspddl : ").c_str(),1);

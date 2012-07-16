@@ -1,9 +1,10 @@
-#include "../../all_declarations.h"
-
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/structure_typedef.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
+#include "../../DEFINITIONS/LatinData.h"
 #include "../../DEFINITIONS/MacroProblem.h"
-#include "../../DEFINITIONS/meshmulti.h"
+#include "../../DEFINITIONS/MultiScaleData.h"
 #include "../../COMPUTE/DataUser.h"
 
 #include "../LOCAL/plasticite.h"
@@ -46,7 +47,7 @@ De la même manière on reconstruit les efforts, déplacements et vitesses d'interf
 Il est possible ici d'extraire les efforts macro ou micro, en utilisant le projecteur adéquat (cf : Interface).
 */
 struct reconstruction_quantites {
-    void operator()(Sst &S,ScInterVec &Inter,Process &process) const {
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process) const {
         unsigned  pt=process.temps->pt;
         
         if(process.multiscale->multiechelle==1) {
@@ -71,7 +72,7 @@ struct reconstruction_quantites {
     \brief Etape Lineaire : Reconstruction de la vitesse
  */
 struct derivation_quantites_sst {
-    void operator()(Sst &S,ScInterVec &Inter,Process &process) const{
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process) const{
         unsigned  pt=process.temps->pt;
         
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -95,7 +96,7 @@ où oldq est le déplacement solution à l'itération précédente.
 On effectue de même avec les quantités d'interfaces, puis on met à jour les anciennes quantités.
 */
 struct relaxation_quantites {
-    void operator()(Sst &S,ScInterVec &Inter,Process &process) const{
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process) const{
         TYPEREEL mu = process.latin->mu;
         unsigned pt = process.temps->pt;
         for(unsigned j=0;j<S.edge.size();++j) {
@@ -152,7 +153,9 @@ struct derivation_quantites {
 struct Calcul_2nd_membre_micro1_sst {
     void operator()(Sst &S, const Process &process, const DataUser &data_user) const{
         S.mesh.load();
-        S.assign_material_on_element(data_user);
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
         if(S.f == S.pb.formulation_plasticity_isotropy_stat_Qstat){
             upload_epsilon_p(S,process.temps->pt);
         }
@@ -166,7 +169,7 @@ struct Calcul_2nd_membre_micro1_sst {
 /** \ingroup etape_lineaire
 \brief Programme principal pour l'étape Linéaire
  */
-void etape_lineaire(ScSstRef &S, ScInterVec &Inter,Process &process,MacroProblem &Global,DataUser &data_user){
+void etape_lineaire(PointedSubstructures &S, VecInterfaces &Inter,Process &process,MacroProblem &Global,DataUser &data_user){
     
     bool get_durations = (process.temps->pt==2);    /// Faut-il chronometrer les operations?
     unsigned nb_threads=process.parallelisation->nb_threads;

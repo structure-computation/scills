@@ -1,11 +1,11 @@
 /// Modifie le comportement des interfaces cohesives en cas de rupture (comportement de type contact)
-void modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimeParameters &param_incr){
+void modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimeData &param_incr){
     TYPEREEL eps=1e-3;
     for(unsigned i=0;i<Inter.size();i++){
         if(Inter[i].comp=="Cohesive"){
             TYPEREEL mind = 1.0;
             for(unsigned j=0;j<Inter[i].side[0].nodeeq.size();j++)
-                mind=std::min(Inter[i].param_comp->t[1].d[j],mind);
+                mind=std::min(Inter[i].t[1].d[j],mind);
             
             if(mind<1.0-eps){
                 std::cout << "Interface " << i << " : pas de contact" << std::endl;
@@ -13,12 +13,12 @@ void modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimePa
                 Inter[i].comp="Contact";
                 std::cout << "Interface " << i << " : contact" << std::endl;
             }
-            std::cout<< "Endommagement : " <<  Inter[i].param_comp->t[1].d <<  std::endl;
+            std::cout<< "Endommagement : " <<  Inter[i].t[1].d <<  std::endl;
         }
     }
 }
 /*
-void modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimeParameters &param_incr){
+ v oid modification_sst_inter_behaviour(Vec<Sst> &S, Vec<Interface> &Inter, TimeData* &param_incr){
     TYPEREEL eps=1e-3;
     for(unsigned i=0;i<Inter.size();i++){
         if(Inter[i].comp=="Cohesive"){

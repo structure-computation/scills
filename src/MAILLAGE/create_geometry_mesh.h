@@ -29,7 +29,7 @@ using namespace std;
 /** \ingroup Maillage_geometrie
  \ b*rief Fonction principale de création des maillages et géométries
  
- - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class GeneralParameters (inclus dans Process) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
+ - Dans un premier temps on crée les sous-structures et interfaces à partir des informations contenues dans la class GeneralData (inclus dans Process) et des conditions aux limites CL. On obtient ainsi un vecteur de sous-structures \ref Sous_structures et d'interfaces \ref Interfaces.
  La creation des sous-structures et interfaces est effectuée de la facon indiquée dans la fonction create_SST_INTER() .
  
  On crée ensuite les données géométriques associées aux interfaces : calculate_measure_G_neq_INTER.

@@ -1,10 +1,11 @@
 #ifndef CREATE_FILE_PVD
 #define CREATE_FILE_PVD
 
-#include "../DEFINITIONS/SaveParameters.h"
-#include "../DEFINITIONS/TimeParameters.h"
+#include "../DEFINITIONS/SavingData.h"
+#include "../DEFINITIONS/TimeData.h"
+#include "../DEFINITIONS/LatinData.h"
+#include "../DEFINITIONS/MultiResolutionData.h"
 #include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/LatinParameters.h"
 
 #include <fstream>
 
@@ -124,8 +125,8 @@ inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2Stri
     //creation du nom et du fichier pvd
     std::ostringstream spvd;
     Sc2String name_multiresolution="";
-    if(data_user.options.Multiresolution_on==1)
-        name_multiresolution<<"resolution_"<<data_user.options.Multiresolution_current_resolution<<"_";
+    if(process.multiresolution->nb_calculs>1)
+        name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
     
     spvd<<process.affichage->repertoire_save<<"results/"<<name_multiresolution.c_str()<<prefix<<".pvd";
     Sc2String namepvd( spvd.str() );
@@ -148,7 +149,7 @@ inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2Stri
         for(unsigned i_pt = 0 ; i_pt < process.temps->time_step[i_step].nb_time_step; i_pt++){
             process.temps->time_step[i_step].pt_cur=i_pt;
             process.temps->pt_cur+=1;
-            process.temps->current_time=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
+            process.temps->t_cur=process.temps->time_step[i_step].t_ini+(i_pt+1)*process.temps->time_step[i_step].dt;
             for(unsigned i_proc=ini_proc;i_proc<process.parallelisation->size;++i_proc){
                 //nom du fichier a lire pour le piquet de temps et le processeur considere
                 std::ostringstream ss;
@@ -156,7 +157,7 @@ inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2Stri
                 Sc2String nom1( ss.str() );
                 //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
                 std::ostringstream ss2;
-                ss2 << " <DataSet timestep=\" " << process.temps->current_time << "\" group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+                ss2 << " <DataSet timestep=\" " << process.temps->t_cur << "\" group=\"\" part=\" "<<i_proc<<" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
                 Sc2String ligne1(ss2.str()); 
                 file_pvd << ligne1;
             }          

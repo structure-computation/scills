@@ -102,7 +102,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 
    //affichage
    DisplayParaview dp;
-   typename TV2::template SubType<0>::T::TMESH meshglob;
+   InterfaceMesh meshglob;
     for(unsigned i=0;i<Inter.size();++i) {
         if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
                 meshglob.append(*Inter[i].side[data].mesh);

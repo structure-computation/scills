@@ -1,6 +1,6 @@
-#include "LatinParameters.h"
+#include "LatinData.h"
 
-LatinParameters::LatinParameters(){
+LatinData::LatinData(){
     iter=0;
     nbitermax=100;
     mu=0.8;
@@ -12,15 +12,15 @@ LatinParameters::LatinParameters(){
     type_error="ddr";
     list_error=0;
     save_depl_SST=1;
-    alloc_quantites=1;
+    //alloc_quantites=1; PLUS UTILISE POUR LE MOMENT
 }
 
-void LatinParameters::read_data_user(DataUser &data_user){
-    nbitermax = data_user.options.LATIN_nb_iter_max;
+void LatinData::read_data_user(const DataUser &data_user){
+    nbitermax = data_user.options.convergence_method_LATIN.max_iteration;
     facteur_relaxation = 0.8;
-    critere_erreur = data_user.options.LATIN_crit_error;
+    critere_erreur = data_user.options.convergence_method_LATIN.convergence_rate;
     critere_erreur_diss = 0;
-    critere_erreur_auto_stop = data_user.options.LATIN_crit_error_auto_stop;
+    critere_erreur_auto_stop = 0.1*critere_erreur;
     type_error = "ddr";
     if (type_error=="dissipation")
         critere_erreur_diss = 0;

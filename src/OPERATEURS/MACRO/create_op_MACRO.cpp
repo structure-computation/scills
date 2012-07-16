@@ -1,3 +1,8 @@
+#include "create_op_MACRO.h"
+#include "../../DEFINITIONS/ParallelisationData.h"
+#include "../../DEFINITIONS/MultiScaleData.h"
+#include "../../UTILITAIRES/utilitaires.h"
+
 using namespace LMT;
 
 void renum_loc(Vec<VecPointedValues<Sst> > &S, Vec<unsigned> &repSloc, Vec<unsigned> &repSglob, Vec<unsigned> &numI){
@@ -215,6 +220,35 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
     else if (process.rbm.bloq==1){
         std::cout << "\t Blocage mvts corps rigide selon mvts_bloques"  << endl;
         bloqrbm(Inter, process,repddlMbloq);
+    }
+}
+
+void create_op_MACRO(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process,  MacroProblem &Global) {
+    ///Reperage des ddls macro dans le probleme macro pour tous le monde
+    process.print("\t Reperage ddl macro");
+    Repere_ddl_Inter(S,Inter,process);
+    
+    /// Puis seul le master (processeur 0) se charge du pb macro
+    if(process.parallelisation->is_master_cpu()){
+        
+        /// Creation de la matrice de raideur macroscopique
+        SymetricMatrix bigK;
+        process.print("\t Assemblage probleme macro");
+        Assem_prob_macro(S,Inter,process,bigK);
+        
+        /// Blocage des ddls imposes du probleme macro
+        process.print("\t Blocage du probleme macro");
+        macro_CL(Inter,process,Global.repddlMbloq);
+        
+        /// Penalisation de la matrice macro
+        process.print("\t Penalisation du probleme macro");
+        penalisation(bigK,Global.repddlMbloq,Global.coefpenalisation);
+        
+        process.print_data("Taille du probleme macro : ",bigK.nb_rows());
+        
+        /// Factorisation de la matrice macro
+        process.print("\t Factorisation matrice macro");
+        Global.l.get_factorization( bigK, true, true );
     }
 }
 

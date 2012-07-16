@@ -1,33 +1,30 @@
-#ifndef PARAM_SC2LATIN_H
-#define PARAM_SC2LATIN_H
+#ifndef LATINDATA_H
+#define LATINDATA_H
 
-
-#include "../UTILS/Sc2String.h"
+#include "main_typedef.h"
 #include "../COMPUTE/DataUser.h"
-#include "../../LMT/include/containers/vec.h"
-using namespace LMT;
 
 /** \ingroup Parametres
 \brief Paramètres associes à la strategie LATIN
 */
-struct LatinParameters{
+struct LatinData{
     //attributs==============================================================================================
     int iter;               ///< numero de l'iteration courante
     int nbitermax;          ///< nombre d'iterations max
     
-    TYPEREEL facteur_relaxation;    ///< facteur de relaxation entre par l'utilisateur
-    TYPEREEL mu;                    ///< facteur de relaxation courant  (1 à la première iteration puis facteur_relaxation)
+    Scalar facteur_relaxation;    ///< facteur de relaxation entre par l'utilisateur
+    Scalar mu;                    ///< facteur de relaxation courant  (1 à la première iteration puis facteur_relaxation)
     
-    TYPEREEL critere_erreur;              ///< valeur du critère d'erreur à atteindre
-    TYPEREEL critere_erreur_diss;         ///< valeur du critère d'erreur en dissipation à atteindre (si = 0 on ne la calcule pas)
-    TYPEREEL critere_erreur_auto_stop;    ///< valeur pour laquelle l'algorithme s'arrete si la variation d'erreur est inferieure 5 fois de suite à celle ci (si = 0 on ne fait pas d'arret automatique))
+    Scalar critere_erreur;              ///< valeur du critère d'erreur à atteindre
+    Scalar critere_erreur_diss;         ///< valeur du critère d'erreur en dissipation à atteindre (si = 0 on ne la calcule pas)
+    Scalar critere_erreur_auto_stop;    ///< valeur pour laquelle l'algorithme s'arrete si la variation d'erreur est inferieure 5 fois de suite à celle ci (si = 0 on ne fait pas d'arret automatique))
     
     bool list_error;        ///< listage de l'erreur a l'ecran au cours des iterations
     Sc2String type_error;   ///< type d'erreur : choix possible entre "ddr" : erreur basee sur les directions de recherche, "energie" : erreur basee sur un calcul d'energie par interface 
-    Vec<TYPEREEL> error;    ///< erreurs au cours des iterations
+    Vector error;           ///< erreurs au cours des iterations
     
     bool save_depl_SST;             ///< booleen pour sauvegarder le vecteur de deplacement à chaque pas de temps
-    bool alloc_quantites;           ///< booleen indiquant s'il est necessaire d'allouer les quantites et de realiser une etape prelocale (defaut 1)
+    //bool alloc_quantites;           ///< booleen indiquant s'il est necessaire d'allouer les quantites et de realiser une etape prelocale (defaut 1) PLUS UTILISE POUR LE MOMENT
 
     /** Parametres pour les directions de recherche
     \brief Type de direction de recherche (utilise kfact)
@@ -46,13 +43,13 @@ struct LatinParameters{
     - pour les interfaces de type Contact, on multiplie par la coefficient de frottement \f$ k_t = f * k_n \f$   
     */
     Sc2String ktype;        ///< type de direction de recherche
-    TYPEREEL kfact;         ///< facteur multiplicatif de la direction de recherche 
+    Scalar kfact;           ///< facteur multiplicatif de la direction de recherche 
     unsigned copydirection; ///< copie de la direction de recherche de part et d'autre d'une interface
     
     //methodes===============================================================================================
-    LatinParameters(); ///< Constructeur : valeurs par defaut pour les parametres
-    void read_data_user(DataUser &data_user); ///< Charge les donnees depuis le DataUser
+    LatinData(); ///< Constructeur : valeurs par defaut pour les parametres
+    void read_data_user(const Metil::DataUser &data_user); ///< Charge les donnees depuis le DataUser
 };
 
-#endif //SC2PARAM_LATIN_H
+#endif //LATINDATA_H
 

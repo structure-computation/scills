@@ -1,6 +1,6 @@
 #include "../../../LMT/include/containers/matcholamd.h"
 #include "../../DEFINITIONS/Sst.h"
-#include "../../DEFINITIONS/Interface.h"
+#include "../../DEFINITIONS/structure_typedef.h"
 
 //Fonctions utilisees a l'etape micro 2
 /** \ingroup etape_lineaire
@@ -16,9 +16,9 @@
  - Reconstruction de l'effort \f$ F_2 \f$ à partir de la direction de recherche : \f$ F_2 = Q_d - k*\frac{W_2}{\Delta t} \f$ en quasistatique ou \f$ F_2 = Q_d - k*W_2 \f$ en statique
  */
 struct semilinstage2 {
-    void operator()(Sst &S,Vec<Interface> &Inter,Process &process) const {
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process) const {
         unsigned pt=process.temps->pt;
-        Vec<TYPEREEL> droitm,Qd,W2 ;
+        Vector droitm,Qd,W2 ;
         droitm.resize(DIM*S.mesh.node_list_size);
         
         // mise a  zero du second membre
@@ -33,7 +33,7 @@ struct semilinstage2 {
         }
         
         // resolution du probleme : choix lors de la compilation
-        Vec<TYPEREEL> Sq;
+        Vector Sq;
 #if LDL
         Sq=droitm;
         S.l.solve(Sq);
@@ -54,6 +54,8 @@ struct semilinstage2 {
             Inter[q].side[data].t[pt].F += Qd - Inter[q].side[data].kglo * W2/process.temps->dt;
             //Inter[q].side[data].t[pt].Wp2=(Inter[q].side[data].t[pt].W2-Inter[q].side[data].t[pt-1].W2)/temps.dt;
         }
+        //std::cout << "etape lineaire, pb micro 2, solide " << S.id << " :" << std::endl;
+        //PRINT(S.t[pt].q);
     }
 };
 

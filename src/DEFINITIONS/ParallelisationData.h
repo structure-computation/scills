@@ -1,15 +1,14 @@
-#ifndef PARALLELISATIONPARAMETERS_H
-#define PARALLELISATIONPARAMETERS_H
+#ifndef PARALLELISATIONDATA_H
+#define PARALLELISATIONDATA_H
 
-#include "../../LMT/include/containers/vec.h"
-using namespace LMT;
-
+#include "main_typedef.h"
+#include "../COMPUTE/DataUser.h"
 #include "../MPI/mpi_lmt_functions.h"
 
 /** \ingroup Parametres
 \brief Parmamètres associes aux donnees MPI
 */
-struct ParallelisationParameters{
+struct ParallelisationData{
     //attributs==============================================================================================
     
     int size;                           /// Nombre de processeurs alloues au calcul
@@ -38,7 +37,8 @@ struct ParallelisationParameters{
 
     //methodes===============================================================================================
     /// Constructeur (par defaut)
-    ParallelisationParameters():size(1),rank(0),nb_threads(1){}
+    ParallelisationData():size(1),rank(0),nb_threads(1){}
+    void read_data_user(const Metil::DataUser &data_user);
     /// Synchronise les differentes instances MPI du programme (si necessaire)
     void synchronisation(){if(size>1) {MPI_Barrier(MPI_COMM_WORLD);}}
     /// Indique si cette instance du programme gere des problemes locaux
@@ -49,5 +49,5 @@ struct ParallelisationParameters{
     bool is_multi_cpu() const {return size>1;}
 };
 
-#endif //PARALLELISATIONPARAMETERS_H
+#endif //PARALLELISATIONDATA_H
 

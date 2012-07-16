@@ -1,26 +1,26 @@
-#include "MultiScaleParameters.h"
+#include "MultiScaleData.h"
 #include "../UTILS/utils_2.h"
 
 
-MultiScaleParameters::MultiScaleParameters(){
+MultiScaleData::MultiScaleData(){
     multiechelle=1;
     type_base_macro=3;
     sizeM=0;
-    erreur_macro=1e-8;
+    erreur_macro=1e-6;
     opti_multi=1;
 }
 
-void MultiScaleParameters::read_data_user(DataUser &data_user) {
-    multiechelle = data_user.options.multiechelle;
+void MultiScaleData::read_data_user(const DataUser &data_user) {
+    multiechelle = (data_user.mesh.nb_groups_elem > 2); /// Uniquement si 3 pieces ou plus
     type_base_macro = 3;
     opti_multi = 0;
     erreur_macro = 0.000001;
 }
 
-void MultiScaleParameters::display_all_data(){
+void MultiScaleData::display_all_data(){
     std::cout << std::endl;
     std::cout << "*************************************************************" << std::endl;
-    std::cout << "**************** Debug MultiScaleParameters : ***************" << std::endl;
+    std::cout << "******************* Debug MultiScaleData : ******************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
     debug("int multiechelle         ",multiechelle);
     debug("unsigned type_base_macro ",type_base_macro);
@@ -29,7 +29,7 @@ void MultiScaleParameters::display_all_data(){
     debug("Vec<unsigned> inter_correspondantes ",inter_correspondantes);
     debug("bool nbmacro_identique ",nbmacro_identique);
     debug("bool opti_multi        ",opti_multi);
-    debug("TYPEREEL erreur_macro    ",erreur_macro);
+    debug("TYPEREEL erreur_macro  ",erreur_macro);
     std::cout << "*************************************************************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
 }

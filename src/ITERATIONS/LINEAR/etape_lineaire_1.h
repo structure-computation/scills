@@ -1,5 +1,7 @@
 #include "../../DEFINITIONS/Process.h"
 #include "../../DEFINITIONS/Interface.h"
+#include "../../DEFINITIONS/TimeData.h"
+#include "../../DEFINITIONS/LatinData.h"
 
 #include "../../../LMT/include/containers/vec.h"
 #include "../../../LMT/include/containers/evaluate_nb_cycles.h"
@@ -22,11 +24,11 @@
  Pour la partie multiechelle, on construit enfin le terme a ajouter au second membre macro \f$ \int_{\partial \Omega_E} \hat{F}_d \tilde{W}^* \f$ , provenant des differents cotes des interfaces. Ici, \f$ \hat{F}_d = F_1 \f$ et on effectue simplement l'integrale et la multiplication par la base macro pour extraire les composantes macro a assembler.
  */
 struct semilinstage1 {
-    void operator()(Sst &S,Vec<Interface> &Inter,Process &process) const {
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process) const {
         unsigned pt=process.temps->pt;
         
         /// assemblage du second membre : droitm
-        Vec<TYPEREEL> droitm,Qd ;
+        Vector droitm,Qd ;
         droitm.resize(DIM*S.mesh.node_list_size,0.);
         
         ///second membre prenant en compte le comportement thermique et les quantites chapeau:
@@ -41,7 +43,7 @@ struct semilinstage1 {
         };
         
         ///calcul du deplacement q1
-        Vec<TYPEREEL> Sq;
+        Vector Sq;
 #if LDL
         Sq=droitm;
         S.l.solve(Sq);
@@ -73,6 +75,8 @@ struct semilinstage1 {
                 S.Fadd[S.edge[j].repLE]=trans(Inter[q].side[data].MeM) * Inter[q].side[data].t[pt].F;
             }
         }
+        //std::cout << "etape lineaire, pb micro 1, solide " << S.id << " :" << std::endl;
+        //PRINT(S.t[pt].q);
     }
 };
 

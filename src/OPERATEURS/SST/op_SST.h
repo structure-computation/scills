@@ -18,12 +18,13 @@ using namespace LMT;
 //********************************************
 // calcul matrice de rigidite par SST
 //********************************************
-/*\ingroup Operateurs_sst
- \brief Fonction permettant de determiner la matrice de raideur d'une SST. 
-  
- Pour modifier le comportement creer des fichiers formulation_... .py (ex orthotropy)
+/** \ingroup Operateurs_sst
+ * \brief Fonction permettant de determiner la matrice de raideur d'une SST. 
+ * 
+ * Pour modifier le comportement creer des fichiers formulation_... .py (ex orthotropy)
  */
-/*struct Calc_SST_rigidite_K0 {
+/* A VOIR
+struct Calc_SST_rigidite_K0 {
     template<class SST>
     void operator()(SST &S) const {
         S.mesh.load();
@@ -38,11 +39,11 @@ using namespace LMT;
 
 
 struct efface_mesh_edge{
-    void operator()(Sst &S, Vec<Interface> &Inter) const {
+    void operator()(Sst &S, VecInterfaces &Inter) const {
         for( unsigned i=0;i<S.edge.size() ;i++ ){
             if (S.edge[i].datanum == 0 or Inter[S.edge[i].internum].comp=="Contact_jeu_physique" or Inter[S.edge[i].internum].comp=="periodique") {
 #ifdef PRINT_ALLOC
-                if (S.edge[i].mesh != NULL) total_allocated[ typeid(typename SST::TMESHedge).name() ] -= sizeof(typename SST::TMESHedge);
+                if (S.edge[i].mesh != NULL) total_allocated[ typeid(EdgeMesh).name() ] -= sizeof(EdgeMesh);
 #endif
                delete S.edge[i].mesh;
             }
@@ -69,22 +70,24 @@ struct efface_mesh_edge{
  */
 
 struct Calc_SST_rigidite_K0_k {
-    void operator()(Sst &S, Vec<Interface> &Inter,Process &process, DataUser &data_user) const {
+    void operator()(Sst &S, VecInterfaces &Inter,Process &process, DataUser &data_user) const {
         S.f->free_matrices();
         //reperage des ddl de bords (chargement du maillage + non effacement)
-        Calc_SST_Correspddl(S,process);
-        S.assign_material_on_element(data_user);
+        S.calc_SST_Correspddl();
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
         S.f->set_mesh(S.mesh.m);
         S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
 #if LDL
-        Mat<TYPEREEL, Sym<>,SparseLine<> > *Kl;
+        SymetricMatrix *Kl;
         S.f->get_mat(Kl);
-        Mat<TYPEREEL, Sym<>,SparseLine<> > &K = *Kl;
+        SymetricMatrix &K = *Kl;
 #else
         S.f->get_mat( S.K );
-        Sst::TMATS &K = *S.K;
+        Sst::CholModMatrix &K = *S.K;
 #endif
         
 #ifdef PRINT_ALLOC
@@ -166,6 +169,7 @@ struct repere_ind_interface_LE {
 // repddl : reperage des ddls dans les ddls globaux du maillage
 // ddlb : relation entre les ddls , equations supplementaires
 //**************************************************************
+/* PAS UTILISE
 template<class TM,class TD,class TOP>
 void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigned,9> &repddl) {
     typedef typename TM::Tpos T;
@@ -204,10 +208,12 @@ void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigne
     //blocage noeud3 : ddl.n
     ddlb.row(5)[range(6,9)]=normale1;
 };
+//*/
 
 //***********************
 // blocage ddl en 2d
 //***********************
+/* PAS UTILISE
 template<class TM,class TD,class TOP>
 void ddlbloq(TM &m, Mat<typename TM::Tpos,Gen<3,4>,TD,TOP> &ddlb,Vec<unsigned,4> &repddl) {
     typedef typename TM::Tpos T;
@@ -230,8 +236,8 @@ void ddlbloq(TM &m, Mat<typename TM::Tpos,Gen<3,4>,TD,TOP> &ddlb,Vec<unsigned,4>
         ddlb(i,i)=1.0;
     // blocage noeud2 : ddl.n
     ddlb.row(2)[range(2,4)]=normale1;
-
 };
+//*/
 
 //*************************************************
 // calcul operateur homogeneise en temps
@@ -249,9 +255,9 @@ On résout donc ce problème pour en extraire les déplacements sur le bord de la s
  
 */
 struct Calc_SST_LE {
-    void operator()(Sst &S, Vec<Interface> &Inter, Process &process) const {
+    void operator()(Sst &S, VecInterfaces &Inter, Process &process) const {
         // initialisation de LE : operateur homogeneise
-        Mat<TYPEREEL, Gen<>, Dense<> > LE;
+        DenseMatrix LE;
         LE.resize(S.nb_macro);
         // creation des colonnes de LE en appliquant successivement des chargements macro en deplacement (multiplicateur) sur chaque cote
         unsigned repg= 0, repgj= 0;
@@ -264,7 +270,7 @@ struct Calc_SST_LE {
             for(unsigned k=0;k<nbmacro;++k) {
                 repg=repgj+k;
                 //calcul du second membre Qd associe a une deplacement macro d'un cote donnee et assemblage du second membre
-                Vec<TYPEREEL> droitm,Wd;
+                Vector droitm,Wd;
                 droitm.resize(DIM*S.mesh.node_list_size);
                 droitm.set(0.0);
                 for(unsigned j=0;j<S.edge.size();++j) {
@@ -293,7 +299,7 @@ struct Calc_SST_LE {
                     droitm[S.edge[j].repddledge] += Inter[q].side[data].Nt * Inter[q].side[data].M * Inter[q].side[data].kglo * Wd;
                 }
                 // resolution
-                Vec<TYPEREEL> Sq;
+                Vector Sq;
 
 #if LDL
                 Sq=droitm;
@@ -303,7 +309,7 @@ struct Calc_SST_LE {
 #endif
 
                 // construction des colonnes de LE
-                Vec<TYPEREEL> colonneg;
+                Vector colonneg;
 
                 colonneg.resize(LE.nb_rows());
                 for(unsigned j=0;j<S.edge.size();++j) {

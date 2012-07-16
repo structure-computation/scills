@@ -9,20 +9,19 @@ using namespace LMT;
 // Optimisation des directions de recherche
 //**********************************************
 
-//Calcul les composantes normale et tangentielle du module d'elasticite
+/// Calcul les composantes normale et tangentielle du module d'elasticite
 void calcul_En_Et(Sst &S, TYPEREEL &En, TYPEREEL &Et){
     //formulation isotrope ou viscoelastique 
-    if (S.matprop.type.find("isotrope") < S.matprop.type.size()){
-        En = S.matprop.elastic_modulus;
+    if (S.matprop->type.find("isotrope") < S.matprop->type.size()){
+        En = S.matprop->elastic_modulus;
         Et = En;
-    }
-    if(S.matprop.type.find("orthotrope") < S.matprop.type.size()) {
-        En = (S.matprop.elastic_modulus_1 + 2.*S.matprop.elastic_modulus_2)/3.;
+    }else if(S.matprop->type.find("orthotrope") < S.matprop->type.size()) {
+        En = (S.matprop->elastic_modulus_1 + 2.*S.matprop->elastic_modulus_2)/3.;
         Et = En;
     }
 }
 
-// recherche des SST a prendre en compte pour la raideur du domaine complementaire
+/// Recherche des SST a prendre en compte pour la raideur du domaine complementaire
 void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> &G, TYPEREEL &rayon, Vec<unsigned> &vois) {
     for(unsigned k=0;k<vois.size();++k) {
         unsigned ii=vois[k];
@@ -40,6 +39,7 @@ void find_SST_in_box(Vec<Sst> &S, Vec<TYPEREEL,DIM> &normale, Vec<TYPEREEL,DIM> 
 void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYPEREEL &hn, TYPEREEL &ht) {
     TYPEREEL facteur = 1000.;
     if(Inter.type=="Ext") {
+        PRINT(Inter.comp);
         if(Inter.comp=="depl" or Inter.comp=="depl_nul" or Inter.comp=="vit" or Inter.comp=="vit_nulle") {
             kn = kn * facteur;
             hn = hn / facteur;
@@ -65,8 +65,8 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
         if(Inter.comp!="Parfait" and Inter.comp!="Jeu_impose" and Inter.comp!="Cohesive" and Inter.comp!="Contact_ep") {
             TYPEREEL facteur_frottement;
             TYPEREEL eps=1e-6;
-            if(Inter.param_comp->coeffrottement<=eps){facteur_frottement=1e-3;}
-            else{facteur_frottement=Inter.param_comp->coeffrottement;}
+            if(Inter.coeffrottement<=eps){facteur_frottement=1e-3;}
+            else{facteur_frottement=Inter.coeffrottement;}
             //facteur_frottement=1;
             kt = kt * facteur_frottement;
             ht = ht / facteur_frottement;
@@ -78,7 +78,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
 /** \ingroup  Interfaces
 \brief Application des directions de recherche par coté d'interface
  
-   Plusieurs choix de directions sont possibles selon le paramètre LatinParameters::ktype.
+ Plusieurs choix de directions sont possibles selon le paramètre LatinData::ktype.
    Dans tous les cas une matrice globale sur l'interface Interface::Side::kglob et son inverse 
  Interface::Side::hglob est déterminée à partir des directions normale et tangentielle. 
    La matrice est constituée de bloc 3x3 ou 2x2 du type 
@@ -91,8 +91,7 @@ void modification_direction_CL(Interface &Inter, TYPEREEL &kn, TYPEREEL &kt, TYP
  concaténé des quantités sur l'interface en chaque point.
 */
 struct optimise_direction {
-    void operator()(Interface &inter, Vec<VecPointedValues<Sst> > &S, LatinParameters &latin) const {
-        typedef Interface::TMATS TMAT;
+    void operator()(Interface &inter, Vec<VecPointedValues<Sst> > &S, LatinData &latin) const {
         for(unsigned q=0;q<inter.side.size();++q) {
             // recherche des ssts complementaires
             unsigned ii=0,jj=0;
@@ -120,11 +119,11 @@ struct optimise_direction {
             TYPEREEL kn=0, kt=0, hn=0, ht=0;
 
 
-            TMAT k, h;
+            SparseMatrix k, h;
             k.resize(DIM);
             h.resize(DIM);
 
-            TMAT Id;
+            SparseMatrix Id;
             Id.resize(DIM);
             Id.diag()=Vec<TYPEREEL,DIM>(1);
 
@@ -170,7 +169,7 @@ struct optimise_direction {
             for(unsigned i=0;i<inter.side[q].nodeeq.size();i++) {
                 Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
                 Vec<TYPEREEL,DIM> n=inter.side[q].neq[rep];
-                TMAT nn;
+                SparseMatrix nn;
                 tens(n,n,nn);
 
                 inter.side[q].kglo(rep,rep) = kn * nn + kt * (Id - nn);
@@ -181,7 +180,7 @@ struct optimise_direction {
         //copie des directions de recherche
         if(latin.copydirection==1) {
             TYPEREEL kn=0,kt=0,hn=0,ht=0;
-            TMAT kglo, hglo;
+            SparseMatrix kglo, hglo;
             kglo.resize(inter.side[0].nodeeq.size()*DIM);
             hglo.resize(inter.side[0].nodeeq.size()*DIM);
             for(unsigned q=0;q<inter.side.size();q++) {

@@ -23,7 +23,7 @@
 
 
 //lecture des parametres
-#include "DEFINITIONS/Structure.h"
+#include "DEFINITIONS/Process.h"
 
 using namespace Metil;
 
@@ -31,7 +31,7 @@ using namespace Metil;
 #define INFO_TIME
 #endif 
 
-
+#include "../LMT/include/io/ioexception.h"
 using namespace LMT;
 Crout crout;
 #ifdef PRINT_ALLOC
@@ -40,11 +40,11 @@ namespace LMT {
 };
 #endif
 
+
 //*********************************************************************
 // procedure multiechelle quasistatique ou statique (2 ou 3d)
 //*********************************************************************
 int main(int argc,char **argv) {
-    //*
     /// lecture du fichier de donnees
     if ( argc!=3 and argc !=4 ) {
         std::cerr << "usage : nom_executable + dimension +  nom_complet_du_fichier_de_donnees. (+ mpi)" << std::endl;
@@ -55,27 +55,26 @@ int main(int argc,char **argv) {
         Sc2String id_model = argv[ 1 ];
         Sc2String id_calcul = argv[ 2 ];
         
-        Structure structure;
-        structure.initialisation_MPI(argc, argv);
-        structure.lecture_fichiers(id_model, id_calcul);
+        Process process;
+        process.initialisation_MPI(argc, argv);
+        process.lecture_fichiers(id_model, id_calcul);
         
         
-        if(structure.data_user.options.mode=="visu_CL"){
-            if(structure.process.parallelisation->is_master_cpu()) std::cout << "Mode de visualisation des bords" << std::endl;
-            structure.geometry_user.visualize_group_edges_within_geometry(structure.data_user);
+        if(process.data_user->options.mode=="visu_CL"){
+            if(process.parallelisation->is_master_cpu()) std::cout << "Mode de visualisation des bords" << std::endl;
+            process.geometry_user->visualize_group_edges_within_geometry(*process.data_user);
         }
         else{
-            structure.geometry_user.split_group_edges_within_geometry(structure.data_user);
-            structure.chargement_donnees();
-            structure.boucle_multi_resolution();
+            process.geometry_user->split_group_edges_within_geometry(*process.data_user);
+            process.preparation_calcul();
+            process.boucle_multi_resolution();
         }
-        structure.finalisation_MPI();
-        if(structure.process.parallelisation->is_master_cpu()) std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
+        process.finalisation_MPI();
+        if(process.parallelisation->is_master_cpu()) std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
         
     } catch ( const IoException &e ) {
         std::cerr << e.what() << std::endl;
     }
-    //*/
     return 0;
 }
 
@@ -119,17 +118,17 @@ Les champs du fichier xml doivent être inclus dans  :
 \section Lecture_calcul Lecture des donnees liees au calcul.
 La lecture du xml permet d'assigner les differents champs de l'instance process de la class Process.
 Les champs xml suivants sont lus (cliquer sur les liens pour voir le detail des sous-champs à remplir):
-- paramètres assignes à la classe MultiScaleParameters et Process \ref parametres_xml    
+- paramètres assignes à la classe MultiScaleData et Process \ref parametres_xml    
 \code <parametres /> \endcode               
-- paramètres temporels assignes à la classe TimeParameters. \ref parametres_temporels_xml
+- paramètres temporels assignes à la classe TimeData. \ref parametres_temporels_xml
 \code <parametres_temporels /> \endcode  
-- parametres d'affichage (classe SaveParameters). \ref parametres_affichage_xml
+- parametres d'affichage (classe SavingData). \ref parametres_affichage_xml
 \code <parametres_affichage /> \endcode  
-- paramètres pour les directions de recherche (classe MultiScaleParameters). \ref parametres_recherche_xml 
+- paramètres pour les directions de recherche (classe MultiScaleData). \ref parametres_recherche_xml 
 \code <parametres_recherche /> \endcode  
  
 \section Lecture_structure Lecture des donnees associees à la geometrie et au maillage 
-On lit ensuite la ligne suivante correspondant aux maillages et nombre de maillages à lire que l'on assigne à l'instance de la classe GeneralParameters contenue dans Process :\ref mesh
+On lit ensuite la ligne suivante correspondant aux maillages et nombre de maillages à lire que l'on assigne à l'instance de la classe GeneralData contenue dans Process :\ref mesh
 \code 
     <mesh />
 \endcode

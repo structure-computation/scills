@@ -11,10 +11,10 @@
 
 // fichiers de definition des variables
 #include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/SaveParameters.h"
+#include "../DEFINITIONS/SavingData.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
-#include "../DEFINITIONS/TimeParameters.h"
+#include "../DEFINITIONS/TimeData.h"
 
 #include "../ITERATIONS/manipulate_quantities.h"
 
@@ -103,6 +103,9 @@ void affichage_inter_temps(Process &process) {
  */
 template <class TV3,class TV4, class TV1> 
 void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser &data_user){
+    PRINT(process.affichage->type_affichage);
+    PRINT(process.affichage->affich_mesh);
+    PRINT(process.parallelisation->is_local_cpu());
     if (process.affichage->affich_mesh==1) {
         if (process.parallelisation->is_local_cpu()){
             std::cout << "type " << process.affichage->type_affichage << std::endl;
@@ -112,8 +115,10 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
                 affich_INTER(Inter,Stot, process);
             }else if (process.affichage->type_affichage=="all") { 
                 process.affichage->type_affichage="Sbord";
+                PRINT(process.affichage->type_affichage);
                 affich_SST(S,process);
                 process.affichage->type_affichage="Inter";
+                PRINT(process.affichage->type_affichage);
                 affich_INTER(Inter,Stot, process);
             } else {
                 std::cout << "erreur d'affichage" << endl;
@@ -133,6 +138,8 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
+    PRINT(process.affichage->affich_resultat);
+    
     if (process.affichage->affich_resultat==1)
         if (process.parallelisation->is_local_cpu()) {
             write_paraview_results(S,process, data_user);
@@ -179,7 +186,7 @@ void affichage_depl_pt(TV3 &S, Process &process){
 /** \ingroup Post_Traitement
 \brief Affichage de l'évolution de l'énergie dissipée ou de l'énergie imposée au cours du temps à partir des quantités chapeaux ou des quantités n de l'interface
  
- Selon les parametres du champ SaveParameters::param_ener, on sélectionne le type d'énergie et les quantités retenues.
+ Selon les parametres du champ SavingData::param_ener, on sélectionne le type d'énergie et les quantités retenues.
 0 - 0 : energie dissipee sur les quantites chapeau
 0 - 1 : energie dissipee sur les quantites n
 1 - 0 : energie imposee sur les quantites chapeau

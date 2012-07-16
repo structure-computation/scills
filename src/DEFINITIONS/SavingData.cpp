@@ -1,10 +1,10 @@
-#include "SaveParameters.h"
+#include "SavingData.h"
 
 // Pour les fonctions de debuggage
 #include "../UTILS/utils_2.h"
 
 
-SaveParameters::SaveParameters(){    
+SavingData::SavingData(){    
     affich_resultat=0;
     affich_mesh=0;
     display_error=0;
@@ -22,7 +22,7 @@ SaveParameters::SaveParameters(){
     trac_ener_diss = 0;
 }
 
-void SaveParameters::read_data_user(DataUser &data_user){
+void SavingData::read_data_user(DataUser &data_user){
     interactivite= 0;
     affich_resultat= 1;
     if(data_user.options.mode == "test"){
@@ -70,15 +70,15 @@ void SaveParameters::read_data_user(DataUser &data_user){
     repertoire_save= data_user.calcul_path + "/";
     name_data= "result";
     command_file= "No";
-    trac_ener_imp  = data_user.options.trac_ener_imp;
-    trac_ener_diss = data_user.options.trac_ener_diss;
+    //trac_ener_imp  = data_user.options.trac_ener_imp;     A REVOIR : N'EXISTE PLUS DANS LE DATAUSER
+    //trac_ener_diss = data_user.options.trac_ener_diss;    A REVOIR : IDEM
 }
 
 
-void SaveParameters::display_all_data(){
+void SavingData::display_all_data(){
     std::cout << std::endl;
     std::cout << "*************************************************************" << std::endl;
-    std::cout << "******************* Debug SaveParameters : ******************" << std::endl;
+    std::cout << "******************* Debug SavingData : ******************" << std::endl;
     std::cout << "*************************************************************" << std::endl;
     debug("bool affich_resultat    ",affich_resultat);
     debug("bool affich_mesh        ",affich_mesh);

@@ -1,6 +1,7 @@
 #include "../ITERATIONS/manipulate_quantities.h"
-#include <boost/concept_check.hpp>
 #include "../COMPUTE/FieldStructureUser.h"
+#include "../../LMT/include/mesh/calculate_measure.h"
+#include "../MAILLAGE/correspondance_ddl_sst.h"
 
 
 //Assignation des champs de geometrie d'elements sur la peau à partir des champs des elements parents correspondant
@@ -50,10 +51,10 @@ template<class TSST>
 void calcul_fields_on_sst(TSST &S, Process &process, DataUser &data_user) {
      //assignation des deplacements a partir du deplacement au piquet de temps imic + calcul des champs a partir de ce deplacement
     if(process.nom_calcul=="incr")
-        rebuild_state(S,S.t[1], data_user); 
+        rebuild_state(S,S.t[1],process); 
     else if(process.nom_calcul=="latin"){
         std::cout << "calcul_fields_on_sst non defini pour strategie latin pure " << std::endl; assert(0);
-        //rebuild_state(S,S.t[1].q);
+        //rebuild_state(S,S.t[1].q,process);
     }
     else{std::cout << "Type de calcul non reconnu dans save_geometry_sst " << std::endl;assert(0);}
     
@@ -244,8 +245,6 @@ void test_nb_elements_with_type(TSST &S) {
     }
 }
 
-#include "correspondance_ddl_sst.h"
-
 
 template<class TSST,class TV2>
 void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, int nb_previous_nodes) {
@@ -286,7 +285,7 @@ void create_hdf_geometry_data_SST_INTER(TSST &S, TV2 &Inter, Process &process, i
     //extraction
     apply(S.mesh->skin.elem_list,Extract_connectivities_on_element_sst_skin(), S, nb_previous_nodes);
 
-    Calc_SST_Correspddl(S,process);
+    S.calc_SST_Correspddl();
 
    //sauvegarde des connectivites des elements d'interface
     for(unsigned j=0;j<S.edge.size();++j) {
