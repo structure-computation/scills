@@ -1,74 +1,55 @@
 //librairie Hugo
-#include "containers/mat.h"
+#include "../../LMT/include/containers/mat.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../../LMT/include/mesh/mesh.h"
+#include "../../LMT/include/containers/gnuplot.h"
 
-#include "mesh/mesh.h"
 #include "displayparaview2.h"
+
 #include <fstream>
 #include <map>
-#include "containers/gnuplot.h"
 
 // fichiers de definition des variables
-#include "definition_PARAM_MICRO_INTER.h"
-#include "definition_PARAM.h"
-#include "definition_PARAM_AFFICHAGE.h"
-#include "definition_SST_time.h"
-#include "definition_INTER_time.h"
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/SavingData.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/TimeData.h"
 
-#include "mise_a_jour_quantites.h"
+#include "../ITERATIONS/manipulate_quantities.h"
 
 #include "affichage_mesh_SST.h"
 #include "affichage_mesh_INTER.h"
 
-#include "definition_PARAM_TEMPS.h"
 #include "affichage_resultats_time.h"
 #include "create_file_pvd.h"
 
 #include "calculs_energies.h"
 #include "extraction_quantites.h"
 
-#include "containers/vecpointedvalues.h"
 #include "mpi.h"
 
 //#include "calcul_dep3d_defPG.h"
 using namespace LMT;
-using namespace std;
 
 
 #include "affichage.h"
 void fake_affichage() {
-    XmlNode n;
-    Param process;
-
-#ifdef DIMENSION3
-    Vec<Sst<3,TYPEREEL> > S3;
-    Vec<VecPointedValues<Sst<3,TYPEREEL> > > SP3;
-    Vec<Interface<3,TYPEREEL> > Inter3;
-    Vec<VecPointedValues<Interface<3,TYPEREEL> > > InterP3;
+    Process process;
+    DataUser data_user;
+    Vec<Sst> S3;
+    Vec<VecPointedValues<Sst> > SP3;
+    Vec<Interface> Inter3;
+    Vec<VecPointedValues<Interface> > InterP3;
     
-    affichage_maillage(SP3, InterP3,S3, process);
-    affichage_resultats(SP3, process);
+    affichage_maillage(SP3, InterP3,S3, process, data_user);
+    affichage_resultats(SP3, process, data_user);
     affichage_depl_pt(SP3, process);
     affichage_var_inter(SP3,Inter3, process);
     affichage_inter_data(Inter3, S3, process);
-    affichage_resultats_inter(InterP3, S3 , process);
-    affichage_energie(SP3,Inter3, process);
-#endif
-
-#ifdef DIMENSION2
-    Vec<Sst<2,TYPEREEL> > S2;
-    Vec<VecPointedValues<Sst<2,TYPEREEL> > > SP2;
-    Vec<Interface<2,TYPEREEL> > Inter2;
-    Vec<VecPointedValues<Interface<2,TYPEREEL> > > InterP2;
+    affichage_resultats_inter(InterP3, S3 , process, data_user);
+    affichage_energie(SP3,Inter3, process, data_user);
     
-    affichage_maillage(SP2, InterP2,S2, process);
-    affichage_resultats(SP2, process);
-    affichage_depl_pt(SP2, process);
-    affichage_var_inter(SP2,Inter2, process);
-    affichage_inter_data(Inter2, S2, process);
-    affichage_resultats_inter(InterP2, S2 , process);
-    affichage_energie(SP2,Inter2, process);
-#endif
-
 }
 
 
@@ -85,13 +66,13 @@ Plusieurs fonctions sont accessibles dans tous les fichiers, en incluant le fich
 /** \ingroup Post_Traitement
 \brief Creation d'un fichier pvd regroupant les differentes solutions pour chaque pas de temps et lancement de paraview avec ce fichier
 */
-void affichage_resultats_temps(Param &process) {
+void affichage_resultats_temps(Process &process) {
       create_file_pvd(process,"sst_");
-      string namepvd = process.affichage->repertoire_save+"sst_"+process.affichage->name_data+".pvd";
-      cout << "nom pvd : " << namepvd << endl;
-      //string cmd = process.affichage->repertoire_save+"paraview --data="+namepvd;
-      string cmd = "paraview";
-      if (process.affichage->command_file=="") system(cmd.c_str());
+      Sc2String namepvd = process.affichage->repertoire_save+"sst_"+process.affichage->name_data+".pvd";
+      std::cout << "nom pvd : " << namepvd << endl;
+      //Sc2String cmd = process.affichage->repertoire_save+"paraview --data="+namepvd;
+      Sc2String cmd = "paraview";
+      if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 };
 
 /** \ingroup Post_Traitement
@@ -99,13 +80,13 @@ void affichage_resultats_temps(Param &process) {
  
 Possibilité de choisir une interface donnée ou toutes les interfaces.
 */
-void affichage_inter_temps(Param &process) {
+void affichage_inter_temps(Process &process) {
     create_file_pvd(process,"inter_");
-    string namepvd = process.affichage->repertoire_save+"inter_"+process.affichage->name_data+".pvd";
-    cout << "nom pvd : " << namepvd << endl;
-    //string cmd = "paraview --data="+namepvd;
-    string cmd = "paraview";
-    if (process.affichage->command_file=="") system(cmd.c_str());
+    Sc2String namepvd = process.affichage->repertoire_save+"inter_"+process.affichage->name_data+".pvd";
+    std::cout << "nom pvd : " << namepvd << endl;
+    //Sc2String cmd = "paraview --data="+namepvd;
+    Sc2String cmd = "paraview";
+    if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 }
 
 
@@ -121,18 +102,32 @@ void affichage_inter_temps(Param &process) {
  - si le champ type_affichage est "Inter", on appelle affich_INTER()
  */
 template <class TV3,class TV4, class TV1> 
-void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
+void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser &data_user){
+    PRINT(process.affichage->type_affichage);
+    PRINT(process.affichage->affich_mesh);
+    PRINT(process.parallelisation->is_local_cpu());
     if (process.affichage->affich_mesh==1) {
-      if (process.size==1 or process.rank>0){
-        if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" or process.affichage->type_affichage=="all")
-            affich_SST(S,process);
-        else if (process.affichage->type_affichage=="Inter" or process.affichage->type_affichage=="all") {
-            affich_INTER(Inter,Stot, process);
-        } else
-            cout << "erreur d'affichage" << endl;
-      }
-      if (process.size>1) MPI_Barrier(MPI_COMM_WORLD);
-      if (process.size>1 and process.rank==0){create_file_pvtu(process,process.affichage->type_affichage); string cmd = "paraview"; if (process.affichage->command_file=="") system(cmd.c_str());}
+        if (process.parallelisation->is_local_cpu()){
+            std::cout << "type " << process.affichage->type_affichage << std::endl;
+            if (process.affichage->type_affichage=="Sinterieur" or process.affichage->type_affichage=="Sbord" ){
+                affich_SST(S,process);
+            }else if (process.affichage->type_affichage=="Inter" ) {
+                affich_INTER(Inter,Stot, process);
+            }else if (process.affichage->type_affichage=="all") { 
+                process.affichage->type_affichage="Sbord";
+                PRINT(process.affichage->type_affichage);
+                affich_SST(S,process);
+                process.affichage->type_affichage="Inter";
+                PRINT(process.affichage->type_affichage);
+                affich_INTER(Inter,Stot, process);
+            } else {
+                std::cout << "erreur d'affichage" << endl;
+            }
+        }
+        process.parallelisation->synchronisation();
+        //if (process.parallelisation->is_local_cpu()){create_file_pvtu(process,process.affichage->type_affichage); Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
+        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
+        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 
     }
 }
@@ -142,11 +137,15 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Param &process){
  
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
-template <class TV3> 
-void affichage_resultats(TV3 &S,  Param &process) {
+void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
+    PRINT(process.affichage->affich_resultat);
+    
     if (process.affichage->affich_resultat==1)
-      if (process.size == 1 or process.rank > 0) 
-        affich_SST_resultat_latin(S,process);
+        if (process.parallelisation->is_local_cpu()) {
+            write_paraview_results(S,process, data_user);
+            create_file_pvd(process,data_user,"sst_bulk");
+            create_file_pvd(process,data_user,"sst_skin");
+        }
 };
 
 
@@ -155,11 +154,12 @@ void affichage_resultats(TV3 &S,  Param &process) {
  
  On appelle affich_resultats_inter() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
-template <class TV1,class TV4> 
-void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process) {
+void affichage_resultats_inter(Vec<VecPointedValues<Interface> > &Inter, Vec<Sst> &S , Process &process, DataUser &data_user) {
   if (process.affichage->affich_resultat==1)
-      if (process.size == 1 or process.rank > 0) 
+      if (process.parallelisation->is_local_cpu()) {
         affich_INTER_resultat(Inter,S,process);
+        create_file_pvd(process,data_user,"inter");
+      }
 };
 
 /** \ingroup Post_Traitement
@@ -168,7 +168,7 @@ void affichage_resultats_inter(TV4 &Inter, TV1 &S , Param &process) {
 Possibilité de choisir une interface donnée ou toutes les interfaces.
 */
 template <class TV1,class TV2> 
-void affichage_inter_data(TV2 &Inter, TV1 &S, Param &process){
+void affichage_inter_data(TV2 &Inter, TV1 &S, Process &process){
     if (process.affichage->affich_inter_data==1) {
         affich_inter_data_time(Inter,S,process);
     }
@@ -179,14 +179,14 @@ void affichage_inter_data(TV2 &Inter, TV1 &S, Param &process){
 \brief Affichage de l'evolution du déplacement d'un point donné par ses coordonnées 
 */
 template <class TV3> 
-void affichage_depl_pt(TV3 &S, Param &process){
+void affichage_depl_pt(TV3 &S, Process &process){
     if(process.affichage->affich_depl_pt==1) extraction_depl_pt(S, process);
 }
 
 /** \ingroup Post_Traitement
 \brief Affichage de l'évolution de l'énergie dissipée ou de l'énergie imposée au cours du temps à partir des quantités chapeaux ou des quantités n de l'interface
  
-Selon les parametres du champ AFFICHAGE::param_ener, on sélectionne le type d'énergie et les quantités retenues.
+ Selon les parametres du champ SavingData::param_ener, on sélectionne le type d'énergie et les quantités retenues.
 0 - 0 : energie dissipee sur les quantites chapeau
 0 - 1 : energie dissipee sur les quantites n
 1 - 0 : energie imposee sur les quantites chapeau
@@ -195,69 +195,69 @@ Selon les parametres du champ AFFICHAGE::param_ener, on sélectionne le type d'én
 Faux en MPI pour certaine fonction qui necessite d avoir les W des deux cotes et ils sont pas transferes pour le posttraitement : est-ce utile de le faire ? non pour le moment
 */
 template <class TV3,class TV2> 
-void affichage_energie(TV3 &S,TV2 &Inter, Param &process){
+void affichage_energie(TV3 &S,TV2 &Inter, Process &process, DataUser &data_user){
     Vec<double> energie,temp;
     energie.resize(process.temps->nbpastemps + 1);temp.resize(process.temps->nbpastemps + 1);energie.set(0.);temp.set(0.);
     if(process.affichage->param_ener[0]==0 and process.affichage->param_ener[1]==0) {
-        if (process.rank>0 or process.size==1) calcul_ener_dissi_chap(S,Inter,energie,process);
-        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-        if (process.rank==0) cout << "Dissipation (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_ener_dissi_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Dissipation (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==0 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_ener_dissi_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Dissipation (n) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_ener_dissi_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Dissipation (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==1 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_ener_imp_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Energie imposee (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_ener_imp_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Energie imposee (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==1 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_ener_imp_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Energie imposee (n) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_ener_imp_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Energie imposee (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==2 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Ft2_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Effort tangent carre (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Ft2_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Effort tangent carre (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==2 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Ft2_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Effort tangent carre (n) faux en mpi : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Ft2_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Effort tangent carre (n) faux en mpi : " << energie << endl;
     } else if(process.affichage->param_ener[0]==3 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Fn_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Effort normal (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Fn_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Effort normal (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==3 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Fn_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Effort normal (n) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Fn_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Effort normal (n) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==4 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Un_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Deplacement normal (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Un_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Deplacement normal (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==4 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Un_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Deplacement normal (n) faux en mpi  : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Un_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Deplacement normal (n) faux en mpi  : " << energie << endl;
     } else if(process.affichage->param_ener[0]==5 and process.affichage->param_ener[1]==0) {
-      if (process.rank>0 or process.size==1) calcul_Ut_chap(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Deplacement tangent (c) : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Ut_chap(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Deplacement tangent (c) : " << energie << endl;
     } else if(process.affichage->param_ener[0]==5 and process.affichage->param_ener[1]==1) {
-      if (process.rank>0 or process.size==1) calcul_Ut_lin(S,Inter,energie,process);
-      if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-      if (process.rank==0) cout << "Deplacement tanget (n) faux en mpi  : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_Ut_lin(S,Inter,energie,process);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Deplacement tanget (n) faux en mpi  : " << energie << endl;
     }  else if(process.affichage->param_ener[0]==6) {
-        if (process.rank>0 or process.size==1) calcul_energie_elastique(S,Inter,energie,process);
-        if (process.size>1) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
-        if (process.rank==0) cout << "Energie elastique : " << energie << endl;
+        if (process.parallelisation->is_local_cpu()) calcul_energie_elastique(S,Inter,energie,process, data_user);
+        if (process.parallelisation->is_multi_cpu()) {MPI_Reduce(energie.ptr(),temp.ptr(),temp.size(),MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);energie=temp;}
+        if (process.parallelisation->is_master_cpu()) std::cout << "Energie elastique : " << energie << endl;
     } else {
-        cout << "Mauvais choix d'energie" << endl;
+        std::cout << "Mauvais choix d'energie" << endl;
         assert(0);
     }
-    if (process.affichage->command_file=="" and process.rank==0){
-      GnuPlot gp;
-      gp.plot(energie);
-      gp.wait();
+    if (process.affichage->command_file=="" and process.parallelisation->is_master_cpu()){
+        GnuPlot gp;
+        gp.plot(energie);
+        gp.wait();
     }
 }
 

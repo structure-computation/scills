@@ -1,29 +1,29 @@
 #ifndef CALCUL_ERREUR
 #define CALCUL_ERREUR
 using namespace LMT;
-using namespace std;
 #include "types_erreurs.h"
-#include "assign_quantities_current_to_old.h"
+#include "../manipulate_quantities.h"
+#include "../../DEFINITIONS/LatinData.h"
 
 /** \defgroup calcul_erreur Calcul de l'erreur
 \ingroup LATIN
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LATIN::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LATIN::type_error == "ddr") : calcerror_ddr
-Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\sqrt{num}}{\sqrt{den}} \f$
+- erreur en énergie : (LatinData::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinData::type_error == "ddr") : calcerror_ddr
+Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 
 /** \ingroup   calcul_erreur
 \brief Fonction principale pour le calcul de l'erreur
 */
 template<class TV1, class TV2,class GLOB>
-void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
+void calcul_erreur_latin(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     TYPEREEL num=0.0,den=0.0,eps=1e-9;
     Vec<TYPEREEL> frac;frac.resize(2+Inter.size());frac.set(0.);
     Vec<TYPEREEL> fracfin;fracfin.resize(2+Inter.size());fracfin.set(0.);
-    if (process.size == 1 or process.rank >0) {
+    if (process.parallelisation->is_local_cpu()) {
         if(process.nom_calcul=="latin") {
             for(unsigned imic=1;imic<=process.temps->nbpastemps;imic++) {
                 process.temps->pt=imic;
@@ -39,9 +39,9 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
                 } else if(process.latin->type_error=="residu_depl") {
                     //indicateur d'erreur sur la dissipation
                     apply(S,calcerror_residu_depl(),Inter,frac,process);
-                    if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+                    if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
                 } else {
-                    cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << endl;
+                    std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
                     apply(S,calcerror_ddr(),Inter,frac,process);
                 }
             }
@@ -65,25 +65,25 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
                 } else if(process.latin->type_error=="residu_depl") {
                     //indicateur d'erreur sur la dissipation
                     apply(S,calcerror_residu_depl_post(),Inter,frac,process);
-                    if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+                    if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
                 } else {
-                    cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << endl;
+                    std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
                     apply(S,calcerror_ddr_post(),Inter,frac,process);
                 }
             }
         }
     }
 
-    if (process.size>1) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+    if (process.parallelisation->is_multi_cpu()) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
     else fracfin=frac;
         den=fracfin[1];
         num=fracfin[0]; 
-        if (abs(den)>=eps)
+        if (std::abs(den)>=eps)
           if (process.latin->type_error!="dissipation") {
-            process.latin->error[process.latin->iter] =sqrt(num)/sqrt(den);
-//             if (process.rank == 0) cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)] << endl;
+            process.latin->error[process.latin->iter] =std::sqrt(num)/std::sqrt(den);
+//             if (process.parallelisation->is_master_cpu()) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)] << std::endl;
           }
-          else process.latin->error[process.latin->iter] =abs(num-den)/abs(num);
+          else process.latin->error[process.latin->iter] =std::abs(num-den)/std::abs(num);
         else
             process.latin->error[process.latin->iter] =1;
 };
@@ -93,16 +93,16 @@ void calcul_erreur_latin(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
 \brief Description des phases du calcul de l'erreur
  
 Pour chaque pas de temps, on détermine l'erreur permettant de savoir si la stratégie converge. Plusieurs types d'erreurs ou indicateurs sont disponibles :
-- erreur en énergie : (LATIN::type_error == "energie") : calcerror_ener
-- erreur en direction de recherche : (LATIN::type_error == "ddr") : calcerror_ddr
-Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\sqrt{num}}{\sqrt{den}} \f$
+- erreur en énergie : (LatinData::type_error == "energie") : calcerror_ener
+- erreur en direction de recherche : (LatinData::type_error == "ddr") : calcerror_ddr
+Pour l'erreur choisie on détermine le numérateur et dénominateur que l'on somme sur tous les pas de temps puis on calcule l'erreur pour l'itération latin donnée : \f$ erreur = \frac{\std::sqrt{num}}{\std::sqrt{den}} \f$
 */
 
 /** \ingroup   calcul_erreur_incr
 \brief Fonction principale pour le calcul de l'erreur
 */
 template<class TV1, class TV2,class GLOB>
-void calcul_erreur_incr(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
+void calcul_erreur_incr(TV1 &S, TV2 &Inter,Process &process, GLOB &Global) {
     TYPEREEL num=0.0,den=0.0,eps=1e-9;
     Vec<TYPEREEL> frac;frac.resize(2+Inter.size());frac.set(0.);
     Vec<TYPEREEL> fracfin;fracfin.resize(2+Inter.size());fracfin.set(0.);
@@ -119,26 +119,26 @@ void calcul_erreur_incr(TV1 &S, TV2 &Inter,Param &process, GLOB &Global) {
     } else if(process.latin->type_error=="residu_depl") {
         //indicateur d'erreur sur la dissipation
         apply(S,calcerror_residu_depl(),Inter,frac,process);
-        if (process.size == 1 or process.rank == 1) frac[1]=1.0;
+        if (process.parallelisation->is_master_cpu()) frac[1]=1.0;
     } else {
-        cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << endl;
+        std::cout << process.latin->type_error << " : Type d'erreur non reconnu : par defaut erreur sur les ddr" << std::endl;
         apply(S,calcerror_ddr(),Inter,frac,process);
     }
     
 
-    if (process.size>1) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+    if (process.parallelisation->is_multi_cpu()) MPI_Allreduce(frac.ptr(),fracfin.ptr(),frac.size(),MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
     else fracfin=frac;
     den=fracfin[1];
     num=fracfin[0]; 
-    if (abs(den)>=eps)
+    if (std::abs(den)>=eps)
       if (process.latin->type_error!="dissipation") {
-      process.latin->error[process.latin->iter] =sqrt(num)/sqrt(den);
-//       if (process.rank == 0) cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)]/num*100 << endl;
+      process.latin->error[process.latin->iter] =std::sqrt(num)/std::sqrt(den);
+//       if (process.parallelisation->is_master_cpu()) std::cout << "\tParticipation des interfaces : " << fracfin[range(2,(int)Inter.size()+2)]/num*100 << std::endl;
       }
-      else process.latin->error[process.latin->iter] =abs(num-den)/abs(num);
+      else process.latin->error[process.latin->iter] =std::abs(num-den)/std::abs(num);
     else
       process.latin->error[process.latin->iter] =1;
-
-
 };
+
+
 #endif //CALCUL_ERREUR

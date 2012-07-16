@@ -1,73 +1,49 @@
+#ifndef OP_SST_H
+#define OP_SST_H
+
+#include "../../COMPUTE/DataUser.h"
+
+#include "../../DEFINITIONS/Process.h"
+#include "../../DEFINITIONS/Sst.h"
+#include "../../DEFINITIONS/Interface.h"
+
+#include "../../MAILLAGE/correspondance_ddl_sst.h"
+
+#include "../../../LMT/include/containers/vec.h"
+#include "../../../LMT/include/containers/mat.h"
+#include "../../../LMT/include/util/solveLDL.h"
 using namespace LMT;
-using namespace std;
 
 
 //********************************************
 // calcul matrice de rigidite par SST
 //********************************************
-/*\ingroup Operateurs_sst
- \brief Fonction permettant de determiner la matrice de raideur d'une SST. 
-  
- Pour modifier le comportement creer des fichiers formulation_... .py (ex orthotropy)
+/** \ingroup Operateurs_sst
+ * \brief Fonction permettant de determiner la matrice de raideur d'une SST. 
+ * 
+ * Pour modifier le comportement creer des fichiers formulation_... .py (ex orthotropy)
  */
-/*struct Calc_SST_rigidite_K0 {
+/* A VOIR
+struct Calc_SST_rigidite_K0 {
     template<class SST>
     void operator()(SST &S) const {
         S.mesh.load();
         S.f->set_mesh(S.mesh.m); 
-	S.f->want_amd=false;
+        S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
     }
 };
  */
 
-//********************************************
-// calcul des correspondance ddlbord -> ddl
-//********************************************
-/**\ingroup Operateurs_sst
- *  \brief Fonction permettant de retrouver la correspondance entre les ddl de bord des SST et les ddl de la SST
- 
- En faisant l'intersection du maillage de bord correspondant au maillage d'interface du coté correspondant avec le maillage de la sous-structure, on détermine la correspondance entre les noeuds. On vérifie si l'intersection trouvée est de la taille du maillage de bord. Si tel n'est pas le cas, une erreur est envoyée (arrive souvent quand on oublie de donner les fichiers de maillages). 
- 
- Connaissant les numéros des noeuds dans le maillage de la sous-structure, on détermine les ddls correspondant que l'on stocke dans Sst::Edge::repddledge.
- */
-// struct Calc_SST_Correspddl {
-/*    template<class SST>
-    void operator()(SST &S, Param &process) const {*/
-template<class SST>
-void Calc_SST_Correspddl(SST &S, Param &process) {
-    for(unsigned j=0;j<S.edge.size();++j) {
-        S.edge[j].repddledge.resize(S.edge[j].mesh->node_list.size()*SST::dim);
-        typename IntersectionCarac<typename SST::TMESHedge::TNodeList, typename SST::TMESH::TM::TNodeList >::T inter=
-            intersection_ptr(S.edge[j].mesh->node_list,S.mesh->node_list,Function<DistBetweenNodes>() < 0.0001);
-
-        Vec<unsigned> repnode;
-        repnode.resize(S.edge[j].mesh->node_list.size());
-
-        if (inter.size() != repnode.size()) {
-            cout<< "Calc_SST_Correspddl - attention noeud non repere - probleme de correspondance - cote " << j << endl;
-            cout << "meshini - size node " <<S.mesh.node_list_size << " numero " << S.num << endl;
-            cout << "intersize "<< inter.size() << " edge size "  << S.edge[j].mesh->node_list.size()<< " internum " << S.edge[j].internum << endl;
-            assert(0);
-        }
-
-        for(unsigned i=0;i<inter.size();++i)
-            repnode[inter[i].first->number_in_original_mesh()]=inter[i].second->number_in_original_mesh();
-        for(unsigned i=0;i<repnode.size();++i)
-            S.edge[j].repddledge[range(i*SST::dim,(i+1)*SST::dim)]=range(repnode[i]*SST::dim,(repnode[i]+1)*SST::dim);
-    }
-//     S.mesh.unload();
-}
 
 
 struct efface_mesh_edge{
-    template <class SST, class TV2>
-    void operator()(SST &S, TV2 &Inter) const {
+    void operator()(Sst &S, VecInterfaces &Inter) const {
         for( unsigned i=0;i<S.edge.size() ;i++ ){
             if (S.edge[i].datanum == 0 or Inter[S.edge[i].internum].comp=="Contact_jeu_physique" or Inter[S.edge[i].internum].comp=="periodique") {
 #ifdef PRINT_ALLOC
-                if (S.edge[i].mesh != NULL) total_allocated[ typeid(typename SST::TMESHedge).name() ] -= sizeof(typename SST::TMESHedge);
+                if (S.edge[i].mesh != NULL) total_allocated[ typeid(EdgeMesh).name() ] -= sizeof(EdgeMesh);
 #endif
                delete S.edge[i].mesh;
             }
@@ -92,75 +68,77 @@ struct efface_mesh_edge{
  \f$ K(repddlbord,repddlbord) + \frac{N^t M k N}{\Delta t} \f$
  car \f$ \int_{\partial \Omega_E} k W W* \f$ correspond à \f$ W*^t M k W \f$ et \f$ W = N U[repddlbord] \f$
  */
-#include "util/solveLDL.h"
-#include "assign_material.h"
 
 struct Calc_SST_rigidite_K0_k {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter,Param &process) const {
-        
+    void operator()(Sst &S, VecInterfaces &Inter,Process &process, DataUser &data_user) const {
+        S.f->free_matrices();
         //reperage des ddl de bords (chargement du maillage + non effacement)
-        Calc_SST_Correspddl(S,process);
-        
-//         S.mesh.load();
-        assign_material_on_element(S);
-        S.f->set_mesh(S.mesh.m); 
+        S.calc_SST_Correspddl();
+        S.apply_behavior();
+        process.Fvol->apply_on_sst(S);
+        process.Tload->apply_on_sst(S);
+        S.f->set_mesh(S.mesh.m);
         S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
 #if LDL
-        Mat<typename SST::T, Sym<>,SparseLine<> > *Kl;
+        SymetricMatrix *Kl;
         S.f->get_mat(Kl);
-        Mat<typename SST::T, Sym<>,SparseLine<> > &K = *Kl;
+        SymetricMatrix &K = *Kl;
 #else
-
         S.f->get_mat( S.K );
-        typename SST::TMATS &K = *S.K;
+        Sst::CholModMatrix &K = *S.K;
 #endif
-
+        
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
 #endif
 
-//    ofstream f(("K_"+to_string(S.num)).c_str());
-//    f << K.nb_cols() << endl;
-//    for(unsigned i=0;i<K.data.size();++i) {
-//        for(unsigned j=0;j<K.data[i].indices.size();j++){
-//            f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//        ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
+//        f << K.nb_cols() << endl;
+//        for(unsigned i=0;i<K.data.size();++i) {
+//            for(unsigned j=0;j<K.data[i].indices.size();j++){
+//                f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//            }
 //        }
-//    }
 
         // ajout des directions de recherche sur chaque cote
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
-            unsigned data=S.edge[j].datanum;
+            unsigned data=S.edge[j].datanum;            
             K[S.edge[j].repddledge] += Inter[q].side[data].Nt*(Inter[q].side[data].M*(Inter[q].side[data].kglo*Inter[q].side[data].N))/process.temps->dt; // a optimiser
         }
         
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres ajout ddr : ").c_str(),1);
 #endif
 
-//    ofstream f2(("Kk0_"+to_string(S.num)).c_str());
-//    f2 << K.nb_cols() << endl;
-//    for(unsigned i=0;i<K.data.size();++i) {
-//    for(unsigned j=0;j<K.data[i].indices.size();j++){
-//      f2 << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
-//    }
-//    }
+//      ofstream f2(("Kk0_"+to_string(S.num)).c_str());
+//      f2 << K.nb_cols() << endl;
+//      for(unsigned i=0;i<K.data.size();++i) {
+//          for(unsigned j=0;j<K.data[i].indices.size();j++){
+//              f2 << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//          }
+//      }
 
-
+//      ofstream f(("K_sst"+to_string(S.num)+"_"+to_string(data_user.options.Multiresolution_current_resolution)).c_str());
+//      f << K.nb_cols() << endl;
+//      for(unsigned i=0;i<K.data.size();++i) {
+//          for(unsigned j=0;j<K.data[i].indices.size();j++){
+//              f << (i+1) << " " << (K.data[i].indices[j]+1) << " " << K.data[i].data[j] << "\n" ;
+//          }
+//      }
+        
 #if LDL
         S.l.get_factorization( K, true, true );
 #else
-
         K.get_factorization();
 #endif
 
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres factorisation : ").c_str(),1);
 #endif
-     S.mesh.unload();
+        S.mesh.unload();
     }
 };
 
@@ -173,8 +151,7 @@ struct Calc_SST_rigidite_K0_k {
 On détermine le vecteur d'indice permettant de repérer le coté de la sous-structure (ou l'interface) dans l'opérateur homogénéisé selon le nombre de composante macro des interfaces entourant la sous-structure.
  */
 struct repere_ind_interface_LE {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter, Param &process) const {
+    void operator()(Sst &S, Vec<Interface> &Inter, Process &process) const {
         unsigned nbmacroS=0;
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
@@ -192,6 +169,7 @@ struct repere_ind_interface_LE {
 // repddl : reperage des ddls dans les ddls globaux du maillage
 // ddlb : relation entre les ddls , equations supplementaires
 //**************************************************************
+/* PAS UTILISE
 template<class TM,class TD,class TOP>
 void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigned,9> &repddl) {
     typedef typename TM::Tpos T;
@@ -203,7 +181,7 @@ void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigne
     Vec<T,3> V1,V2;
     V1=m.node_list[1].pos-m.node_list[0].pos;
     V2=m.node_list[ind].pos-m.node_list[0].pos;
-    while( find(abs(vect_prod(V1,V2)),_1>=eps)==0 ) {
+    while( find(abs(vect_prod(V1,V2)),LMT::_1>=eps)==0 ) {
         ind+=1;
         V2=m.node_list[ind].pos-m.node_list[0].pos;
     }
@@ -230,10 +208,12 @@ void ddlbloq(TM &m,  Mat<typename TM::Tpos, Gen<6,9>, TD,TOP> &ddlb, Vec<unsigne
     //blocage noeud3 : ddl.n
     ddlb.row(5)[range(6,9)]=normale1;
 };
+//*/
 
 //***********************
 // blocage ddl en 2d
 //***********************
+/* PAS UTILISE
 template<class TM,class TD,class TOP>
 void ddlbloq(TM &m, Mat<typename TM::Tpos,Gen<3,4>,TD,TOP> &ddlb,Vec<unsigned,4> &repddl) {
     typedef typename TM::Tpos T;
@@ -256,8 +236,8 @@ void ddlbloq(TM &m, Mat<typename TM::Tpos,Gen<3,4>,TD,TOP> &ddlb,Vec<unsigned,4>
         ddlb(i,i)=1.0;
     // blocage noeud2 : ddl.n
     ddlb.row(2)[range(2,4)]=normale1;
-
 };
+//*/
 
 //*************************************************
 // calcul operateur homogeneise en temps
@@ -275,14 +255,10 @@ On résout donc ce problème pour en extraire les déplacements sur le bord de la s
  
 */
 struct Calc_SST_LE {
-    template<class SST,class TV2>
-    void operator()(SST &S, TV2 &Inter, Param &process) const {
-        typedef Mat<TYPEREEL, Gen<>, Dense<> > TMAT;
-
-        unsigned nbincmacro=S.nb_macro;
+    void operator()(Sst &S, VecInterfaces &Inter, Process &process) const {
         // initialisation de LE : operateur homogeneise
-        TMAT LE;
-        LE.resize(nbincmacro);
+        DenseMatrix LE;
+        LE.resize(S.nb_macro);
         // creation des colonnes de LE en appliquant successivement des chargements macro en deplacement (multiplicateur) sur chaque cote
         unsigned repg= 0, repgj= 0;
         
@@ -294,20 +270,36 @@ struct Calc_SST_LE {
             for(unsigned k=0;k<nbmacro;++k) {
                 repg=repgj+k;
                 //calcul du second membre Qd associe a une deplacement macro d'un cote donnee et assemblage du second membre
-                Vec<TYPEREEL> droitm,Wd;
-                droitm.resize(SST::dim*S.mesh.node_list_size);
+                Vector droitm,Wd;
+                droitm.resize(DIM*S.mesh.node_list_size);
                 droitm.set(0.0);
                 for(unsigned j=0;j<S.edge.size();++j) {
                     unsigned q=S.edge[j].internum;
                     unsigned data=S.edge[j].datanum;
                     Wd.resize(Inter[q].side[data].M.nb_cols());
                     if(j==jj) Wd=Inter[q].side[data].eM.col(k);
-                    else Wd.set(0);
-                    
+                    else Wd.set(0.0);
+                    /*
+                    std::cout << "********** CREATION LE **********" << std::endl;
+                    std::cout << "jj   : " << jj << std::endl;
+                    std::cout << "k    : " << k << std::endl;
+                    std::cout << "j    : " << j << std::endl;
+                    std::cout << "q    : " << q << std::endl;
+                    std::cout << "data : " << data << std::endl;
+                    std::cout << "kglo : " << Inter[q].side[data].kglo.nb_rows() << "," << Inter[q].side[data].kglo.nb_cols() << std::endl;
+                    std::cout << "Nt : " << Inter[q].side[data].Nt.nb_rows() << "," << Inter[q].side[data].Nt.nb_cols() << std::endl;
+                    //display(std::cout,Inter[q].side[data].Nt,0);
+                    std::cout << "M  : " << Inter[q].side[data].M.nb_rows()  << "," << Inter[q].side[data].M.nb_cols()  << std::endl;
+                    std::cout << "eM : " << Inter[q].side[data].eM.nb_rows() << "," << Inter[q].side[data].eM.nb_cols() << std::endl;
+                    //display(std::cout,Inter[q].side[data].M,0);
+                    std::cout << "Wd  : " << Wd.size() << std::endl;
+                    //for(int toto = 0; toto < Wd.size(); toto++)
+                    //    std::cout << "    " << toto << " : " << Wd[toto];
+                    //*/
                     droitm[S.edge[j].repddledge] += Inter[q].side[data].Nt * Inter[q].side[data].M * Inter[q].side[data].kglo * Wd;
                 }
                 // resolution
-                Vec<TYPEREEL> Sq;
+                Vector Sq;
 
 #if LDL
                 Sq=droitm;
@@ -317,7 +309,7 @@ struct Calc_SST_LE {
 #endif
 
                 // construction des colonnes de LE
-                Vec<TYPEREEL> colonneg;
+                Vector colonneg;
 
                 colonneg.resize(LE.nb_rows());
                 for(unsigned j=0;j<S.edge.size();++j) {
@@ -334,7 +326,7 @@ struct Calc_SST_LE {
             repgj += nbmacro;
         }
         S.LE=LE;
-
     }
 };
 
+#endif //OP_SST_H

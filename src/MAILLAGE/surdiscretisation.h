@@ -1,5 +1,4 @@
 using namespace LMT;
-using namespace std;
 
 
 //******************************************************************************
@@ -13,12 +12,12 @@ struct DivideOnSkin {
         bool is_on_skin = false;
         typename TM::TNode *nn[ NbChildrenElement<typename TE::NE,1>::res ];
         for(unsigned i=0;i<NbChildrenElement<typename TE::NE,1>::res;++i) {
-            if ( m->sub_mesh(Number<1>()).get_parents_of_EA( m->get_children_of(e,Number<1>())[i] ).size()==1 ) {
+            if ( m->sub_mesh(LMT::Number<1>()).get_parents_of_EA( m->get_children_of(e,LMT::Number<1>())[i] ).size()==1 ) {
                 is_on_skin = true;
                 
                 nn[i] = m->add_node();
                 
-                typename TM::EA *child_elem = m->get_children_of(e,Number<1>())[i];
+                typename TM::EA *child_elem = m->get_children_of(e,LMT::Number<1>())[i];
                 
                 Vec<std::pair<typename TM::Tpos,const typename TM::TNode *> > pond_list;
                 for(unsigned j=0;j<child_elem->nb_nodes_virtual();++j)
@@ -51,7 +50,7 @@ struct MarkPos {
 \brief Sur-discretisation du maillage des Ssts.
 */
 template<class TM> void surdiscretise(TM &m) {
-    m.update_elem_parents(Number<1>());
+    m.update_elem_parents(LMT::Number<1>());
     DivideOnSkin<TM> dos; dos.m = &m;
     m.remove_elements_if( dos );
 }
@@ -109,7 +108,7 @@ struct createelem
   // Par defaut
   template<class TE,class TM> void operator()(TE &e, TM &m) const
   {
-   cout << "Surdiscretisation de type h non implementee pour les triangle_6 quad quad_8 et bar_3" << endl;
+   std::cout << "Surdiscretisation de type h non implementee pour les triangle_6 quad quad_8 et bar_3" << endl;
    assert(0); 
   }
 };
@@ -174,9 +173,9 @@ struct copy_INTER{
 #endif
       S[ii].edge[jj].mesh=new typename TV1::template SubType<0>::T::TMESHedge;
       S[ii].edge[jj].mesh->append(*inter.side[j].mesh);
-      S[ii].edge[jj].mesh->sub_mesh(Number<1>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
-      S[ii].edge[jj].mesh->sub_mesh(Number<2>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
-      S[ii].edge[jj].mesh->sub_mesh(Number<0>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
+      S[ii].edge[jj].mesh->sub_mesh(LMT::Number<0>()).elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);
       S[ii].edge[jj].mesh->elem_list.change_hash_size( *S[ii].edge[jj].mesh,1);*/
       
       //on copie via le pointeur

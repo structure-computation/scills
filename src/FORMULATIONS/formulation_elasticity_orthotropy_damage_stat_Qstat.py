@@ -16,7 +16,8 @@ shear_modulus_12 = Variable( interpolation='global', default_value='5800' , unit
 shear_modulus_13 = Variable( interpolation='global', default_value='5800' , unit='N/mm^2')
 shear_modulus_23 = Variable( interpolation='global', default_value='5800', unit='N/mm^2' )
 #champ de temperature (normalement recopie du champ de temperature global sur la structure
-deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+#deltaT = Variable( interpolation='global', default_value='0', unit='degC' )
+deltaT = Variable( interpolation='elementary', default_value='0.0', unit='degC' )
 #coefficient de dilatation
 alpha_1 = Variable( interpolation='global', default_value='2.3e-6', unit='' )
 alpha_2 = Variable( interpolation='global', default_value='30e-6', unit='' )
@@ -40,6 +41,7 @@ epsilon = Variable( interpolation='der_nodal', default_value='0', nb_dim=[dim*(d
 ener = Variable( interpolation='elementary', default_value='0', unit='N*mm' )
 sigma_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 epsilon_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='' )
+sigma_mises_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=1, unit='N/mm^2' )
 sigma_local_skin = Variable( interpolation='skin_elementary', default_value='0', nb_dim=[dim*(dim+1)/2], unit='N/mm^2' )
 sigma_von_mises = Variable( interpolation='elementary', default_value='0',unit='N/mm^2' )
 
@@ -108,7 +110,7 @@ def apply_on_elements_after_solve(unk_subs): # return a string
   ener = e.integration( ener, 2 )/2
   
   sigmalocal = mul(P,sigma) 
-  sigma_3d,epsilon_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
+  epsilon_3d,sigma_3d = reconstruction_quantites_3d(epsilon,K0,H0,epsth0,deltaT.expr,dim,type_stress_2D='plane stress')
   sigma_von_mises=von_mises( sigma_3d )
   
   #TODO dans le cas ou l'on a plusieurs points de gauss.......

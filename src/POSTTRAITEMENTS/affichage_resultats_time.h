@@ -1,20 +1,39 @@
-#include "mesh/remove_doubles.h"
+#ifndef AFFICHAGE_RESULTATS_TIME_H
+#define AFFICHAGE_RESULTATS_TIME_H
+
+#include "../DEFINITIONS/Process.h"
+#include "../DEFINITIONS/Sst.h"
+#include "../DEFINITIONS/Interface.h"
+#include "../DEFINITIONS/MultiResolutionData.h"
+#include "../COMPUTE/DataUser.h"
+
+#include "affichage_mesh_SST.h"
+#include "displayparaview2.h"
+#include "../ITERATIONS/manipulate_quantities.h"
+#include "../UTILS/Sc2String.h"
+
+#include "../../LMT/include/containers/vec.h"
+#include "../../LMT/include/containers/vecpointedvalues.h"
+#include "../../LMT/include/mesh/remove_doubles.h"
 
 using namespace LMT;
-using namespace std;
 
 struct Projection_sigma_epsilon_on_skin{
-   template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
-      const typename TM::EA *ea = mskin.get_parents_of(e)[0];
-      typedef typename TM::TElemList::template SubType<0>::T TypeParent;
-      const TypeParent &parent = static_cast<const TypeParent &>( *ea );
-      e.sigma_skin = parent.sigma[0];
-      e.epsilon_skin = parent.epsilon[0];
-      e.numsst_skin = parent.numsst;
-      e.num_proc_skin = parent.num_proc;
-      e.typmat_skin = parent.typmat;
-      //e.epsilon_skin[0] =parent.Yde[0];
-      //e.epsilon_skin[1] =parent.Yde[1];
+    template<class TE, class TMS, class TM> void operator()(TE &e, const TMS &mskin, const TM &m) const{
+        const typename TM::EA *ea = mskin.get_parents_of(e)[0];
+        typedef typename TM::TElemList::template SubType<0>::T TypeParent;
+        const TypeParent &parent = static_cast<const TypeParent &>( *ea );
+        e.sigma_skin = parent.sigma[0];
+        e.epsilon_skin = parent.epsilon[0];
+        e.numsst_skin = parent.numsst;
+        e.num_proc_skin = parent.num_proc;
+        e.typmat_skin = parent.typmat;
+        e.numsst_skin = parent.numsst;
+        e.num_proc_skin = parent.num_proc;
+        e.typmat_skin = parent.typmat;
+        
+        //e.epsilon_skin[0] =parent.Yde[0];
+        //e.epsilon_skin[1] =parent.Yde[1];
 
 //#warning A modifier pour les comportements orthotrope
       #ifdef FORMUORTHO
@@ -23,55 +42,151 @@ struct Projection_sigma_epsilon_on_skin{
    }
 };
 
+///procedure permettant de sortir les fichiers paraview pour le volume et la peau des sst en une seule passe.
+void write_paraview_results(Vec<VecPointedValues<Sst> > &S,Process &process, DataUser &data_user) {
+    
+    ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String name_multiresolution="";
+    if(process.multiresolution->nb_calculs>1)
+        name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
+    Vec<Sc2String,2> directory_names=Vec<Sc2String>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
+    Vec<Sc2String,2> generic_names;
+    for(int i=0;i<2;i++) {
+        int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
+        generic_names[i] = directory_names[i] + "/" + name_multiresolution + process.affichage->name_data; //nom generique du fichier vtu
+    }
+   
+    ///eclatement de chaque sous-structure
+    double ecl=1;
+    eclat_SST(S,ecl);
+    
+    for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
+        ///creation du maillage global
+        SstMesh::TM meshglob;
+        for(unsigned i=0;i<S.size();++i){
+            if(process.nom_calcul=="incr")
+                rebuild_state(S[i],S[i].t_post[imic], process);
+            else if(process.nom_calcul=="latin")
+                rebuild_state(S[i],S[i].t[imic], process);
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
+            meshglob.append(*S[i].mesh.m);
+            S[i].mesh.unload();
+        }
+    
+        ///extraction des quantites pour la peau
+        meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+        //remove_doubles(meshglob,1e-8, true);
+        meshglob.update_skin();
+        apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
+
+        ///ecriture des fichiers vtu
+        for(unsigned i=0;i<2;i++){
+            DisplayParaview dp;
+            ///ecriture fichier paraview generique de tous les champs (volume ou peau)
+            ostringstream sp;
+            sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+            Sc2String strp(sp.str());
+            if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
+            if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
+            else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
+            
+            if(process.affichage->save=="display") dp.exec();
+            ///modification du nom et deplacement du fichier generique
+            ostringstream ss;
+            ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+            Sc2String namefile(ss.str());
+            int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+        }
+    }
+}
+
+
+
 /**\ingroup Post_traitement 
  \brief Procedure permettant d'afficher les champs après calcul sur les sous-structures pour un calcul itératif (statique ou quasistatique)
  
  Pour un calcul quasistatique en latin, on a stocké dans le vecteur t la solution a convergence pour chaque pas de temps, c'est donc celle ci qui est affichée et pour laquelle on calcule contrainte déformation et autre quantité.
  */
-template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
-
-   string typemail=process.affichage->type_affichage;
-   string save=process.affichage->save;
-   string nom_generique = process.affichage->repertoire_save +"sst_"+ process.affichage->name_data;
+template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, DataUser &data_user) {
+    Sc2String name_multiresolution="";
+    if(process.multiresolution->nb_calculs>1)
+        name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
+   
+    Sc2String typemail=process.affichage->type_affichage;
+   
+    if(process.affichage->type_affichage== "Sinterieur"){
+        process.affichage->display_fields.resize(10);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma";
+        process.affichage->display_fields[3]= "epsilon";
+        process.affichage->display_fields[4]= "ener";
+        process.affichage->display_fields[5]= "sigma_mises";
+        process.affichage->display_fields[6]= "numsst";
+        process.affichage->display_fields[7]= "f_vol_e";
+        process.affichage->display_fields[8]= "num_proc";
+    }
+    else if(process.affichage->type_affichage== "Sbord"){
+        process.affichage->display_fields.resize(8);
+        process.affichage->display_fields[0]= "dep";
+        process.affichage->display_fields[1]= "qtrans";
+        process.affichage->display_fields[2]= "sigma_skin";
+        process.affichage->display_fields[3]= "epsilon_skin";
+        process.affichage->display_fields[5]= "sigma_mises_skin";
+        process.affichage->display_fields[6]= "numsst_skin";
+        process.affichage->display_fields[7]= "num_proc_skin";
+    }
+   
+   
+   Sc2String name_directory;   
+   if(typemail=="Sinterieur") name_directory=process.affichage->repertoire_save +"results/sst_bulk";
+   else name_directory=process.affichage->repertoire_save +"results/sst_skin";
+   int tmp=system(("mkdir -p "+name_directory).c_str());
+   Sc2String nom_generique = name_directory+"/"+name_multiresolution.c_str()+ process.affichage->name_data;
+   Sc2String save=process.affichage->save;
      
-   system(("mkdir -p "+process.affichage->repertoire_save).c_str());
+   //int tmp=system(("mkdir -p "+process.affichage->repertoire_save).c_str());
    
    //eclatement de chaque sous-structure
    double ecl=1;
    eclat_SST(S,ecl);
-   if (process.rank == 0 or process.rank == 1) cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<endl;
+   if (process.parallelisation->is_local_cpu()) std::cout << "Champs affiches pour les resultats : " << process.affichage->display_fields <<std::endl;
    
 /*   for(unsigned i=0;i<S.size();++i){
       //mise a zeros des quantites sigma_old et epsilon_old (visco uniquement)
       //apply(S[i].mesh.elem_list,mise_a_zero_old_quantities());
    }*/
-   
+
+
+
    if (typemail=="Sinterieur") {
       for(unsigned imic=1;imic<process.temps->nbpastemps+1;imic++){
          DisplayParaview dp;
          typename TV1::template SubType<0>::T::TMESH::TM meshglob;
          for(unsigned i=0;i<S.size();++i){
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q);
+                rebuild_state(S[i],S[i].t_post[imic].q, process);
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q);
-            else{cout << "Type de calcul non reconnu dans affich_SST_resultat " << endl;assert(0);}
+                rebuild_state(S[i],S[i].t[imic].q, process);
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
          }
+             
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_"<<imic<<".vtu";
-         else ss<<nom_generique << "_"<<S[0].num_proc<<"_"<<imic<<".vtu";
-         string namefile(ss.str());
+         if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+         Sc2String namefile(ss.str());
          
          ostringstream sp;
-         sp<<"./tmp/paraview_"<<process.rank<<"_";
-         string strp(sp.str());
+         sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+         Sc2String strp(sp.str());
          //ecriture fichier paraview
-         if(process.size > 1) process.affichage->save="save";
+         if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
          dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         system(("mv "+strp+"0.vtu "+namefile).c_str());
+         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }   
    }
@@ -83,45 +198,45 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Param &process) {
          for(unsigned i=0;i<S.size();++i)
          {
             if(process.nom_calcul=="incr")
-               assign_dep_cont_slave(S[i],S[i].t_post[imic].q); 
+                rebuild_state(S[i],S[i].t_post[imic].q, process); 
             else if(process.nom_calcul=="latin")
-               assign_dep_cont_slave(S[i],S[i].t[imic].q);
-            else{cout << "Type de calcul non reconnu dans affich_SST_resultat " << endl;assert(0);}
+                rebuild_state(S[i],S[i].t[imic].q, process);
+            else{std::cout << "Type de calcul non reconnu dans affich_SST_resultat " << std::endl;assert(0);}
 //             S[i].mesh->update_skin();
             meshglob.append(*S[i].mesh.m);
             S[i].mesh.unload();
          }
-         meshglob.sub_mesh(Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-         meshglob.sub_mesh(Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-/*         remove_doubles(meshglob,1e-8, true);*/
+         meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
+         meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
          meshglob.update_skin();
          apply(meshglob.skin.elem_list,Projection_sigma_epsilon_on_skin(),meshglob.skin,meshglob);
          
          ostringstream ss;
-         if (process.size == 1) ss<<nom_generique << "_"<<imic<<".vtu";
-         else ss<<nom_generique << "_"<<S[0].num_proc<<"_"<<imic<<".vtu";
-         string namefile(ss.str());
+         if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
+         else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+         Sc2String namefile(ss.str());
          
          ostringstream sp;
-         sp<<"./tmp/paraview_"<<process.rank<<"_";
-         string strp(sp.str());
+         sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+         Sc2String strp(sp.str());
          //ecriture fichier paraview
-         if(process.size > 1) process.affichage->save="save";
+         if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
          dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         system(("mv "+strp+"0.vtu "+namefile).c_str());
+         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }
    }
    
+
 /*   //Tri du vecteur display_fields de facon a le mettre dans le meme ordre que les donnees par noeud et par element pour que la creation des PVTU se fasse dans le bon ordre
    typedef typename TV1::template SubType<0>::T::TMESH TM;
    const char *names[TM::TNode::nb_params+(TM::TNode::nb_params==0)];
    DM::get_names<typename TM::TNode>( names );
-   Vec<string> display_fields_temp,display_fields=process.affichage->display_fields;
+   Vec<Sc2String> display_fields_temp,display_fields=process.affichage->display_fields;
    for(unsigned i=0;i<TM::TNode::nb_params;++i)
-     if ( std::find(display_fields.begin(),display_fields.end(),std::string(names[i]))!=display_fields.end())
-       display_fields_temp.push_back(std::string(names[i]));
+     if ( std::find(display_fields.begin(),display_fields.end(),Sc2String(names[i]))!=display_fields.end())
+       display_fields_temp.push_back(Sc2String(names[i]));
    
      Data_vtk_extract_elem<true> dve;
      S[0].mesh.elem_list.apply_static(dve);
@@ -189,22 +304,22 @@ Cette procédure s'applique pour une interface seulement.
 */
 template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV1 &S,unsigned data=0,unsigned pt=1,double dt=1.0){
 
-   Vec<typename INTER::T, INTER::dim> normale = Inter.G-S[Inter.vois[data*2]].G;
+   Vec<TYPEREEL, DIM> normale = Inter.G-S[Inter.vois[data*2]].G;
    double sign=1.;
-   if (dot(Inter.side[data].neq[range(0,(int)INTER::dim)],normale)<=0.00001)   sign=-1.;
+   if (dot(Inter.side[data].neq[range(0,(int)DIM)],normale)<=0.00001)   sign=-1.;
    //assignation des deplacements et contraintes      
    unsigned numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_effort<INTER::dim>(),numelem,sign*Inter.side[data].t[pt].Fchap);
+   apply(Inter.side[data].mesh->elem_list,assign_effort<DIM>(),numelem,sign*Inter.side[data].t[pt].Fchap);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_deplacement<INTER::dim>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
+   apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit" or Inter.comp=="depl_nul" or Inter.comp=="vit_nulle")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
-   else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
+   else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
-   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") ){type=5;}
+   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
    else if (Inter.type=="Ext" and Inter.comp=="periodique"){type=7;}
    else {type=8;}
@@ -213,7 +328,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    numelem1=0;
    if ( Inter.comp=="Contact_jeu_physique" or Inter.comp=="periodique") apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
 
-   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
+   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") {
    Vec<double> Un,Ut,tmp1,tmp0;
    Un.resize(Inter.side[0].nodeeq.size());Un.set(0.);
    Ut.resize(Inter.side[0].nodeeq.size());Ut.set(0.);
@@ -225,16 +340,16 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
    tmp0=Inter.side[0].Pt(Inter.side[0].t[pt].Wchap);
    tmp1=Inter.side[1].Pt(Inter.side[1].t[pt].Wchap);
    Ut=tmp0[Inter.side[0].ddlcorresp]-tmp1[Inter.side[1].ddlcorresp];
-   Vec<double,INTER::dim> a0;a0.set(0.);
-   for( unsigned k=0;k< Un.size()/INTER::dim; k++){
-      if (norm_2(Un[range(k*INTER::dim,(k+1)*INTER::dim)]) > 1e-8 or norm_2(Ut[range(k*INTER::dim,(k+1)*INTER::dim)]) < 1e-8) {
-        Ut[range(k*INTER::dim,(k+1)*INTER::dim)]=a0;
+   Vec<double,DIM> a0;a0.set(0.);
+   for( unsigned k=0;k< Un.size()/DIM; k++){
+      if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) > 1e-8 or norm_2(Ut[range(k*DIM,(k+1)*DIM)]) < 1e-8) {
+        Ut[range(k*DIM,(k+1)*DIM)]=a0;
       }
    }
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<INTER::dim>(),numelem,Un);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<DIM>(),numelem,Un);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<INTER::dim>(),numelem,Ut);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<DIM>(),numelem,Ut);
    
    
    //calcul de la dissipation par element puis assignation
@@ -248,29 +363,31 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
     }*/
    dissi_inter= Inter.side[0].Pt(Inter.side[0].t[pt].Fchap)*(Inter.side[0].M*(Inter.side[0].Pt(Inter.side[0].t[pt].Wpchap)-Inter.side[1].Pt(Inter.side[1].t[pt].Wpchap)));
    numelem=0;
-    apply(Inter.side[data].mesh->elem_list,assign_dissipation<INTER::dim>(),numelem,dissi_inter);
+    apply(Inter.side[data].mesh->elem_list,assign_dissipation<DIM>(),numelem,dissi_inter);
 
    }
 
 }
 template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1 &S,unsigned data=0,unsigned pt=1,double dt=1.0){
 
-   Vec<typename INTER::T, INTER::dim> normale = Inter.G-S[Inter.vois[data*2]].G;
+   Vec<TYPEREEL, DIM> normale = Inter.G-S[Inter.vois[data*2]].G;
    double sign=1.;
-   if (dot(Inter.side[data].neq[range(0,(int)INTER::dim)],normale)<=0.00001)   sign=-1.;
-   //assignation des deplacements et contraintes      
+   if (dot(Inter.side[data].neq[range(0,(int)DIM)],normale)<=0.00001)   sign=-1.;
+   //assignation des deplacements et contraintes  
+   //PRINT("affichage des champs par interfaces");
+   
    unsigned numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_effort<INTER::dim>(),numelem,sign*Inter.side[data].t_post[pt].Fchap);
+   apply(Inter.side[data].mesh->elem_list,assign_effort<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Fchap);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_deplacement<INTER::dim>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
+   apply(Inter.side[data].mesh->elem_list,assign_deplacement<DIM>(),numelem,sign*Inter.side[data].t_post[pt].Wpchap);
 
    int type=0;
-   if (Inter.type=="Ext" and Inter.comp=="depl"){type=0;}
+   if (Inter.type=="Ext" and (Inter.comp=="depl" or Inter.comp=="vit" or Inter.comp=="depl_nul" or Inter.comp=="vit_nulle")){type=0;}
    else if (Inter.type=="Ext" and Inter.comp=="effort"){type=1;}
    else if (Inter.type=="Ext" and ( Inter.comp=="sym" )){type=2;}
-   else if (Inter.type=="Ext" and ( Inter.comp=="depl_normal")){type=3;}
+   else if (Inter.type=="Ext" and (Inter.comp=="depl_normal" or Inter.comp=="vit_normale")){type=3;}
    else if (Inter.type=="Int" and Inter.comp=="Parfait"){type=4;}
-   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") ){type=5;}
+   else if (Inter.type=="Int" and (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") ){type=5;}
    else if (Inter.type=="Int" and Inter.comp=="Jeu_impose"){type=6;}
    else if (Inter.type=="Ext" and Inter.comp=="periodique"){type=7;}
    else {type=8;}
@@ -279,7 +396,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    numelem1=0;
    if ( Inter.comp=="Contact_jeu_physique" or Inter.comp=="periodique") apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
 
-   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
+   if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique" or Inter.comp=="Contact_ep") {
    Vec<double> Un,Ut,tmp1,tmp0;
    Un.resize(Inter.side[0].nodeeq.size());Un.set(0.);
    Ut.resize(Inter.side[0].nodeeq.size());Ut.set(0.);
@@ -291,17 +408,17 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
    tmp0=Inter.side[0].Pt(Inter.side[0].t_post[pt].Wchap);
    tmp1=Inter.side[1].Pt(Inter.side[1].t_post[pt].Wchap);
    Ut=tmp0[Inter.side[0].ddlcorresp]-tmp1[Inter.side[1].ddlcorresp];
-   Vec<double,INTER::dim> a0;a0.set(0.);
-   for( unsigned k=0;k< Un.size()/INTER::dim; k++){
-      if (norm_2(Un[range(k*INTER::dim,(k+1)*INTER::dim)]) > 1e-8 or norm_2(Ut[range(k*INTER::dim,(k+1)*INTER::dim)]) < 1e-8) {
-        Ut[range(k*INTER::dim,(k+1)*INTER::dim)]=a0;
+   Vec<double,DIM> a0;a0.set(0.);
+   for( unsigned k=0;k< Un.size()/DIM; k++){
+      if (norm_2(Un[range(k*DIM,(k+1)*DIM)]) > 1e-8 or norm_2(Ut[range(k*DIM,(k+1)*DIM)]) < 1e-8) {
+        Ut[range(k*DIM,(k+1)*DIM)]=a0;
       }
    }
 
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<INTER::dim>(),numelem,Un);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_normal<DIM>(),numelem,Un);
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<INTER::dim>(),numelem,Ut);
+   apply(Inter.side[data].mesh->elem_list,assign_saut_tangent<DIM>(),numelem,Ut);
    
    //calcul de la dissipation par element puis assignation
    Vec<double> dissi_inter;
@@ -313,7 +430,7 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
                (Inter.side[1].Pt(Inter.side[1].t_post[j+1].Fchap)+Inter.side[1].Pt(Inter.side[1].t_post[j].Fchap))*Inter.side[1].Pt(Inter.side[1].t_post[j+1].Wpchap));
    }
    numelem=0;
-   apply(Inter.side[data].mesh->elem_list,assign_dissipation<INTER::dim>(),numelem,dissi_inter);
+   apply(Inter.side[data].mesh->elem_list,assign_dissipation<DIM>(),numelem,dissi_inter);
    }
   
 }
@@ -326,92 +443,94 @@ template<class TV2> int find_inter_in_subi(TV2 &Inter, int &num){
     return -1;
 }
 
-template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Param &process){
+template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Process &process){
 
-      unsigned pt=process.affichage->pt;
-      unsigned data = process.affichage->side;// choix du cote
-      DisplayParaview dp;
-      typename TV2::template SubType<0>::T::TMESH meshglob;
-      if(find(process.affichage->num_inter_select,_1==-1)==1){
-         for(unsigned q=0;q<Inter.size();q++){
-            unsigned side;
-            if(Inter[q].type=="Ext") side=0;
-            else side=data;
-            if (S[Inter[q].vois[data*2]].num_proc==process.rank){
-            if(process.nom_calcul=="incr")
-                assignation_INTER_F_W_incr(Inter[q],S,side,pt,process.temps->dt);
-            else if(process.nom_calcul=="latin")
-                assignation_INTER_F_W_latin(Inter[q],S,side,pt,process.temps->dt);
-               
-            meshglob.append(*Inter[q].side[side].mesh);
-            if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="periodique") {
+    unsigned pt=process.affichage->pt;
+    unsigned data = process.affichage->side;// choix du cote
+    DisplayParaview dp;
+    InterfaceMesh meshglob;
+    if(find(process.affichage->num_inter_select,LMT::_1==-1)==1){
+        for(unsigned q=0;q<Inter.size();q++){
+            unsigned side = (Inter[q].type=="Ext")? 0 : data;
+            if (S[Inter[q].vois[data*2]].num_proc==process.parallelisation->rank){
                 if(process.nom_calcul=="incr")
-                    assignation_INTER_F_W_incr(Inter[q],S,1-side,pt,process.temps->dt);
+                    assignation_INTER_F_W_incr(Inter[q],S,side,pt,process.temps->dt);
                 else if(process.nom_calcul=="latin")
-                    assignation_INTER_F_W_latin(Inter[q],S,1-side,pt,process.temps->dt); 
-                meshglob.append(*Inter[q].side[1-side].mesh);
+                    assignation_INTER_F_W_latin(Inter[q],S,side,pt,process.temps->dt);
+                    
+                meshglob.append(*Inter[q].side[side].mesh);
+                if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="periodique") {
+                    if(process.nom_calcul=="incr")
+                        assignation_INTER_F_W_incr(Inter[q],S,1-side,pt,process.temps->dt);
+                    else if(process.nom_calcul=="latin")
+                        assignation_INTER_F_W_latin(Inter[q],S,1-side,pt,process.temps->dt); 
+                    meshglob.append(*Inter[q].side[1-side].mesh);
+                }
             }
-            }
-         }
-      }
-      else {
-         for(unsigned q=0;q<process.affichage->num_inter_select.size();q++){
+        }
+    } else {
+        for(unsigned q=0;q<process.affichage->num_inter_select.size();q++){
             int testinter = find_inter_in_subi(Inter, process.affichage->num_inter_select[q]);
             if (testinter != -1) {
-            unsigned qs = testinter;
-            cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << endl;
-            unsigned side;
-            if(Inter[qs].type=="Ext") side=0;
-            else side=data;
-            if (S[Inter[qs].vois[data*2]].num_proc==process.rank){
-              if(process.nom_calcul=="incr")
-                  assignation_INTER_F_W_incr(Inter[qs],S,side,pt,process.temps->dt);
-            else if(process.nom_calcul=="latin")
-                assignation_INTER_F_W_latin(Inter[qs],S,side,pt,process.temps->dt); 
-            meshglob.append(*Inter[qs].side[side].mesh);
-            if ( Inter[qs].comp=="Contact_jeu_physique" or Inter[qs].comp=="periodique") {
-                if(process.nom_calcul=="incr")
-                    assignation_INTER_F_W_incr(Inter[qs],S,1-side,pt,process.temps->dt);
-                else if(process.nom_calcul=="latin")
-                    assignation_INTER_F_W_latin(Inter[qs],S,1-side,pt,process.temps->dt); 
-                meshglob.append(*Inter[qs].side[1-side].mesh);
+                unsigned qs = testinter;
+                std::cout << qs << " " << Inter[qs].num << " " << process.affichage->num_inter_select[q] << std::endl;
+                unsigned side = (Inter[qs].type=="Ext")? 0 : data;
+                if (S[Inter[qs].vois[data*2]].num_proc==process.parallelisation->rank){
+                    if(process.nom_calcul=="incr")
+                        assignation_INTER_F_W_incr(Inter[qs],S,side,pt,process.temps->dt);
+                    else if(process.nom_calcul=="latin")
+                        assignation_INTER_F_W_latin(Inter[qs],S,side,pt,process.temps->dt); 
+                    meshglob.append(*Inter[qs].side[side].mesh);
+                    if ( Inter[qs].comp=="Contact_jeu_physique" or Inter[qs].comp=="periodique") {
+                        if(process.nom_calcul=="incr")
+                            assignation_INTER_F_W_incr(Inter[qs],S,1-side,pt,process.temps->dt);
+                        else if(process.nom_calcul=="latin")
+                            assignation_INTER_F_W_latin(Inter[qs],S,1-side,pt,process.temps->dt); 
+                        meshglob.append(*Inter[qs].side[1-side].mesh);
+                    }
+                }
             }
-            }
-            }
-         }
-      }
+        }
+    }
 
-      ostringstream sp;
-      sp<<"./tmp/paraview_"<<process.rank<<"_";
-      string strp(sp.str());
-      dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
-      if(process.affichage->save=="display") dp.exec();
+    ostringstream sp;
+    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+    Sc2String strp(sp.str());
+    //dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
+    dp.add_mesh(meshglob,strp.c_str(),Vec<Sc2String>("num","type","qtrans","F","W","d"));
+    if(process.affichage->save=="display")
+        dp.exec();
 
 }
 
 /**\ingroup Post_traitement 
  \brief Procedure permettant d'afficher les champs après calcul sur les interfaces pour chaque piquet de temps
  */
-template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Param &process) {
+template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Process &process) {
    
+    Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
 
-   system(("mkdir -p "+process.affichage->repertoire_save).c_str());
-   
-   if(process.size > 1) process.affichage->save="save";
+    int tmp=system(("mkdir -p "+save_directory).c_str());
 
-   for(unsigned i=1;i<process.temps->nbpastemps+1;i++){
-      process.temps->pt=i;
-      process.affichage->pt=i;
-      affich_inter_data_time(Inter, S, process);
-      string nom_generique = process.affichage->repertoire_save + "inter_"+process.affichage->name_data;
-      ostringstream sp;
-      sp<<"./tmp/paraview_"<<process.rank<<"_";
-      string strp(sp.str());
-      ostringstream ss;
-      if (process.size == 1) ss<<nom_generique << "_"<<i<<".vtu";
-      else ss<<nom_generique << "_"<<process.rank<<"_"<<i<<".vtu";
-      string namefile(ss.str());
-      system(("mv "+strp+"0.vtu "+namefile).c_str());
-   }
+    if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
+
+    for(unsigned i=1;i<process.temps->nbpastemps+1;i++){
+        process.temps->pt=i;
+        process.affichage->pt=i;
+        affich_inter_data_time(Inter, S, process);
+        Sc2String nom_generique = save_directory + process.affichage->name_data;
+        ostringstream sp;
+        sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+        Sc2String strp(sp.str());
+        ostringstream ss;
+        /*if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<i<<".vtu";
+        else */
+        ss<<nom_generique << "_proc_"<<process.parallelisation->rank<<"_time_"<<i<<".vtu";
+        Sc2String namefile(ss.str());
+        int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+    }
 
 };
+
+#endif //AFFICHAGE_RESULTATS_TIME_H
+

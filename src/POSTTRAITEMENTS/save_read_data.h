@@ -1,11 +1,13 @@
+#include "../ITERATIONS/manipulate_quantities.h"
+
 
 /** \ingroup  PostTraitements
-\brief Sauvegarde des quantites désirées pour les interfaces
+\brief Sauvegarde des quantites desirees pour les interfaces
  
-L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
+L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nomme save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque cote de l'interface selectionnee tous les pas de temps.
 */
 template<class TV2, class TV1>
-void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<string> &fields_to_save) {
+void save_data_inter(TV2 &Inter,TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
     
     //nom du fichier de sauvegarde
@@ -13,74 +15,74 @@ void save_data_inter(TV2 &Inter,TV1 &S, Param &process, Vec<string> &fields_to_s
 
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
-    string name(ss1.str());
+    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
+    Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << endl;
-    if (process.size==1 or process.rank>0)
+    os << process.parallelisation->size << std::endl;
+    if (process.parallelisation->is_local_cpu())
       for( unsigned i=0;i<S.size() ;i++ ){
       for( unsigned kk=0;kk<S[i].edge.size() ;kk++ ){
         unsigned q=S[i].edge[kk].internum;
         unsigned j=S[i].edge[kk].datanum;
 //    for(unsigned q=0;q<Inter.size();q++) {
-        os<< "Inter " << Inter[q].num <<endl;
+        os<< "Inter " << Inter[q].num <<std::endl;
 //        for(unsigned j=0;j<Inter[q].side.size();j++) {
-            os << "Side " << j << endl;
+            os << "Side " << j << std::endl;
             for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-                os << "Pastemps " << pt<<endl;
+                os << "Pastemps " << pt<<std::endl;
                 for(unsigned k=0;k<fields_to_save.size();k++) {
                     if(fields_to_save[k]=="Fchap") {
-                        os << "Fchap" <<endl;
+                        os << "Fchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Fchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Fchap.size() );
-                        //if (pt == 2) cout << process.rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << endl;
+                        //if (pt == 2) std::cout << process.parallelisation->rank << " inter " << q << " pas de temps" << pt << " " << norm_2(Inter[q].side[j].t[pt].Fchap) << " " << Inter[q].side[j].t[pt].Fchap.size() << std::endl;
                     } else if(fields_to_save[k]=="F") {
-                        os << "F" <<endl;
+                        os << "F" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t[pt].F.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].F.size() );
                     } else if(fields_to_save[k]=="Wchap") {
-                        os << "Wchap" <<endl;
+                        os << "Wchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wchap.size() );
                     } else if(fields_to_save[k]=="Wpchap") {
-                        os << "Wpchap" <<endl;
+                        os << "Wpchap" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wpchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wpchap.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wpchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wpchap.size() );
                     } else if(fields_to_save[k]=="W") {
-                        os << "W" <<endl;
+                        os << "W" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].W.ptr(), sizeof(T)*Inter[q].side[j].t[pt].W.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].W.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].W.size() );
                     } else if(fields_to_save[k]=="Wp") {
-                        os << "Wp" <<endl;
+                        os << "Wp" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].Wp.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wp.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].Wp.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wp.size() );
                     } else if(fields_to_save[k]=="WtildeM") {
-                        os << "WtildeM" <<endl;
+                        os << "WtildeM" <<std::endl;
                         if(process.nom_calcul=="latin") os.write( (char *)Inter[q].side[j].t[pt].WtildeM.ptr(), sizeof(T)*Inter[q].side[j].t[pt].WtildeM.size() );
                         if(process.nom_calcul=="incr") os.write( (char *)Inter[q].side[j].t_post[pt].WtildeM.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].WtildeM.size() );
                     } else {
-                        cout << "Erreur dans le choix des champs a sauvegarder " << endl;
+                        std::cout << "Erreur dans le choix des champs a sauvegarder " << std::endl;
                         assert(0);
                     }
                 }
-                os << "finchamps"<<endl;
+                os << "finchamps"<<std::endl;
             }
-            os << "finPastemps" <<endl;
-         os << "finSide" <<endl;
+            os << "finPastemps" <<std::endl;
+         os << "finSide" <<std::endl;
          }
     }
-    os << "fin"<<endl;
+    os << "fin"<<std::endl;
     os.close();
 }
 
 /** \ingroup  PostTraitements
-\brief Lecture des quantites désirées pour les interfaces
+\brief Lecture des quantites desirees pour les interfaces
  
-L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nommé save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque coté de l'interface sélectionnée tous les pas de temps.
+L'utilisateur choisi les quantites qu'il souhaite sauvegarder dans un fichier nomme save_inter. On boucle sur les interfaces et  on indique tout d'abord le nom puis on sauvegarde pour chaque cote de l'interface selectionnee tous les pas de temps.
 */
 template<class TV2>
-void read_data_inter(TV2 &Inter, Param &process) {
+void read_data_inter(TV2 &Inter, Process &process) {
     //typedef typename TV2::template SubType<0>::T T;
     typedef TYPEREEL T;
     
@@ -88,22 +90,22 @@ void read_data_inter(TV2 &Inter, Param &process) {
     //nom du fichier de sauvegarde
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
-    string name(ss1.str());
+    ss1<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
+    Sc2String name(ss1.str());
     is.open( name.c_str() );
 
 
     unsigned toutlire=1;
-    string str;
+    Sc2String str;
     if (is ) {
       getline(is,str);
-      if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
-        cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << endl;
+      if ((not process.parallelisation->is_multi_cpu()) and process.parallelisation->size != atoi(str.c_str()) ) {//ca va pas aller
+        std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
-      } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
+      } else if (process.parallelisation->size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
-        cout << "Aucun fichier de sauvegarde a lire" << endl;
+        std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
         assert(0);
     }
     is.close();
@@ -111,9 +113,9 @@ void read_data_inter(TV2 &Inter, Param &process) {
     
     for( unsigned i=0;i<toutlire ;i++ ){
       std::ostringstream ss2;
-      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_inter_"<<process.rank;
+      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_inter_"<<process.parallelisation->rank;
       else ss2<<process.affichage->repertoire_save<<"save_inter_"<<i;
-      string name2(ss2.str());
+      Sc2String name2(ss2.str());
       is.open( name2.c_str() );
       getline(is,str);
 
@@ -125,41 +127,41 @@ void read_data_inter(TV2 &Inter, Param &process) {
             break;
         } else {
             istringstream s(str);
-            string nom; //nom = inter
+            Sc2String nom; //nom = inter
             s >> nom;
             unsigned q; //numero de l'interface
             s >> q ;
 
             while(true) {
                 //lecture numero du cote
-                string str2;
+                Sc2String str2;
                 getline(is,str2);
-                //cout << str2 << endl;
+                //std::cout << str2 << std::endl;
                 if(str2=="finSide") {
                     break;
                 } else {
                     istringstream s2(str2);
-                    string nom2; //nom = Side
+                    Sc2String nom2; //nom = Side
                     s2 >> nom2;
                     unsigned j; //numero du cote
                     s2 >> j ;
 
                     while(true) {
                         //lecture du pas de temps
-                        string str3;
+                        Sc2String str3;
                         getline(is,str3);
                         if(str3=="finPastemps") {
                             break;
                         } else {
                             istringstream s3(str3);
-                            string nom3; //nom = Pastemps
+                            Sc2String nom3; //nom = Pastemps
                             s3 >> nom3;
                             unsigned pt; //numero du pas de temps
                             s3 >> pt ;
 
                             while(true) {
                                 //lecture nom du champ
-                                string str4;
+                                Sc2String str4;
                                 getline(is,str4);
                                 if(str4=="Fchap") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].Fchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Fchap.size() );
@@ -167,7 +169,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
                                 } else if(str4=="F") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t[pt].F.size() );
                                   if(process.nom_calcul=="incr") is.read( (char *)Inter[q].side[j].t_post[pt].F.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].F.size() );
-                                  //cout << Inter[q].side[j].t_post[pt].F << endl;
+                                  //std::cout << Inter[q].side[j].t_post[pt].F << std::endl;
                                 } else if(str4=="Wchap") {
                                   if(process.nom_calcul=="latin") is.read( (char *)Inter[q].side[j].t[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t[pt].Wchap.size() );
                                   if(process.nom_calcul=="incr") is.read( (char *)Inter[q].side[j].t_post[pt].Wchap.ptr(), sizeof(T)*Inter[q].side[j].t_post[pt].Wchap.size() );
@@ -186,7 +188,7 @@ void read_data_inter(TV2 &Inter, Param &process) {
                                 } else if(str4=="finchamps") {
                                     break;
                                 }  else {
-                                    cout << "Erreur dans le choix des champs a lire " << endl;
+                                    std::cout << "Erreur dans le choix des champs a lire " << std::endl;
                                     assert(0);
                                 }
                             }
@@ -202,11 +204,11 @@ void read_data_inter(TV2 &Inter, Param &process) {
 
 
 /** \ingroup  PostTraitements
-\brief Sauvegarde des quantites désirées pour les sous-structures
+\brief Sauvegarde des quantites desirees pour les sous-structures
  
 */
 template<class TV1>
-void save_data_sst(TV1 &S, Param &process, Vec<string> &fields_to_save) {
+void save_data_sst(TV1 &S, Process &process, Vec<Sc2String> &fields_to_save) {
     typedef TYPEREEL T;
 
     //nom du fichier de sauvegarde
@@ -214,60 +216,60 @@ void save_data_sst(TV1 &S, Param &process, Vec<string> &fields_to_save) {
 
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
-    string name(ss1.str());
+    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
+    Sc2String name(ss1.str());
     ofstream os( name.c_str() );
 
-    os << process.size << endl;
+    os << process.parallelisation->size << std::endl;
     if (process.latin->save_depl_SST ==1)
     for(unsigned q=0;q<S.size();q++) {
-        os<< "S " << S[q].num <<endl;
+        os<< "S " << S[q].num <<std::endl;
         for(unsigned pt=1;pt<=process.temps->nbpastemps;pt++) {
-            os << "Pastemps " << pt <<endl;
+            os << "Pastemps " << pt <<std::endl;
             for(unsigned k=0;k<fields_to_save.size();k++) {
                 if(fields_to_save[k]=="q") {
-                    os << "q" << endl;
+                    os << "q" << std::endl;
                     if(process.nom_calcul=="latin") os.write( (char *)S[q].t[pt].q.ptr(), sizeof(T)*S[q].t[pt].q.size() );
                     if(process.nom_calcul=="incr")  os.write( (char *)S[q].t_post[pt].q.ptr(), sizeof(T)*S[q].t_post[pt].q.size() );
-                    //cout << process.rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << endl;
+                    //std::cout << process.parallelisation->rank << " sst " << q << " pas de temps" << pt << " " << norm_2(S[q].t[pt].q) << " " << S[q].t[pt].q.size() << std::endl;
                 } else {
-                    cout << "Erreur dans le choix des champs a sauvegarder " << endl;
+                    std::cout << "Erreur dans le choix des champs a sauvegarder " << std::endl;
                     assert(0);
                 }
             }
-            os << "finchamps"<<endl;
+            os << "finchamps"<<std::endl;
         }
-        os << "finPastemps" <<endl;
+        os << "finPastemps" <<std::endl;
     }
-    os << "fin"<<endl;
+    os << "fin"<<std::endl;
     os.close();
 }
 
 /** \ingroup  PostTraitements
-\brief Lecture des quantites désirées pour les interfaces
+\brief Lecture des quantites desirees pour les interfaces
  */
 template<class TV1>
-void read_data_sst(TV1 &S, Param &process) {
+void read_data_sst(TV1 &S, Process &process) {
     typedef TYPEREEL T;
     //nom du fichier de sauvegarde
     ifstream is;
     std::ostringstream ss1;
-    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
-    string name(ss1.str());
+    ss1<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
+    Sc2String name(ss1.str());
     is.open( name.c_str() );
 
 
     unsigned toutlire=1;
-    string str;
+    Sc2String str;
     if (is) {
       getline(is,str);
-      if (process.size != 1 and process.size != atoi(str.c_str()) ) {//ca va pas aller
-        cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << endl;
+      if (not(process.parallelisation->is_multi_cpu()) and process.parallelisation->size != atoi(str.c_str()) ) {//ca va pas aller
+        std::cout << "Pour lire les donnees soit on le fait monoprocesseur soit on doit avoir le meme nombre de pro que le calcul initial" << std::endl;
         assert(0);
-      } else if (process.size != atoi(str.c_str()))//le master doit lire tout les fichiers
+      } else if (process.parallelisation->size != atoi(str.c_str()))//le master doit lire tout les fichiers
         toutlire=atoi(str.c_str());
     } else {
-      cout << "Aucun fichier de sauvegarde a lire" << endl;
+      std::cout << "Aucun fichier de sauvegarde a lire" << std::endl;
       assert(0);
     }
     is.close();
@@ -275,15 +277,15 @@ void read_data_sst(TV1 &S, Param &process) {
     
     for( unsigned i=0;i<toutlire ;i++ ){
       std::ostringstream ss2;
-      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_sst_"<<process.rank;
+      if (toutlire==1) ss2<<process.affichage->repertoire_save<<"save_sst_"<<process.parallelisation->rank;
       else ss2<<process.affichage->repertoire_save<<"save_sst_"<<i;
-      string name2(ss2.str());
+      Sc2String name2(ss2.str());
       is.open( name2.c_str() );
       getline(is,str);
 
       while(true) {
         //lecture numero de la sst
-        string str;
+        Sc2String str;
         getline(is,str);
 
         if(str=="fin") {
@@ -291,36 +293,36 @@ void read_data_sst(TV1 &S, Param &process) {
           break;
         } else {
             istringstream s(str);
-            string nom; //nom = Sst
+            Sc2String nom; //nom = Sst
             s >> nom;
             unsigned q; //numero de la sst
             s >> q ;
 
             while(true) {
                 //lecture du pas de temps
-                string str3;
+                Sc2String str3;
                 getline(is,str3);
                 if(str3=="finPastemps") {
                     break;
                 } else {
                     istringstream s3(str3);
-                    string nom3; //nom = Pastemps
+                    Sc2String nom3; //nom = Pastemps
                     s3 >> nom3;
                     unsigned pt; //numero du pas de temps
                     s3 >> pt ;
 
                     while(true) {
                         //lecture nom du champ
-                        string str4;
+                        Sc2String str4;
                         getline(is,str4);
-                        //cout << str4 << endl;
+                        //std::cout << str4 << std::endl;
                         if(str4=="q") {
                           if(process.nom_calcul=="latin") is.read( (char *)S[q].t[pt].q.ptr(), sizeof(T)*S[q].t[pt].q.size() );
                           if(process.nom_calcul=="incr") is.read( (char *)S[q].t_post[pt].q.ptr(), sizeof(T)*S[q].t_post[pt].q.size() );
                          } else if(str4=="finchamps") {
                             break;
                         } else {
-                            cout << "Erreur dans le choix des champs a lire " << endl;
+                            std::cout << "Erreur dans le choix des champs a lire " << std::endl;
                             assert(0);
                         }
                     }

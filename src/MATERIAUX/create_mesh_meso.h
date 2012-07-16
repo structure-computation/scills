@@ -1,11 +1,11 @@
-#include "definition_PARAM_DAMAGE_SST.h"
-
+//#include "definition_PARAM_DAMAGE_SST.h"
+/*
 using namespace LMT;
 using namespace std;
 
 struct find_elem_vois {
    template<class TE,class TV> void operator() (TE &e , TV &G, unsigned &num, bool &flag) const{
-      double eps=1e-5;
+      TYPEREEL eps=1e-5;
       typedef typename TE::Pvec Pvec;
       if (flag==0){
          Pvec G_i = center(e);
@@ -139,7 +139,7 @@ On assigne enfin les propriétés matériaux pour le maillage représentatif et on c
 */
 template<class TV1, class TV2,class TV3> void initialisation_mesh_meso(TV1 &S, TV2 &Inter, TV3 &matprop){
    for(unsigned i=0;i<S.size();i++)
-      S[i].param_damage = new PARAM_DAMAGE_SST<TV1::template SubType<0>::T::dim,TYPEREEL>;
+      S[i].param_damage ;//= new PARAM_DAMAGE_SST<TV1::template SubType<0>::T::dim,TYPEREEL>;
    
    create_mesh_meso(S,Inter);
    
@@ -153,8 +153,8 @@ template<class TV1, class TV2,class TV3> void initialisation_mesh_meso(TV1 &S, T
 //    DisplayParaview dp;
 //    for(unsigned i=0;i<S.size();i++){
 //       dp.add_mesh(S[i].param_damage->mesh);
-//       dp.add_mesh(S[i].mesh,"tmp/paraview",Vec<string>("d"));
+//       dp.add_mesh(S[i].mesh,"tmp/paraview",Vec<Sc2String>("d"));
 //    }
 //    dp.exec();
 }
-
+*/
