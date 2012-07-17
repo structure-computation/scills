@@ -196,7 +196,9 @@ void read_matprop(Vec<SstCarac> &matprops, Process &process, DataUser &data_user
 
 
 void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool &plasticite,bool &endommagement) const{ 
+    
     S.matprop = &matprops[S.typmat];
+    PRINT("ok 1");
     /// Type du materiau
     bool isotrope = matprops[S.typmat].type.find("isotrope")<matprops[S.typmat].type.size();
     bool orthotrope = matprops[S.typmat].type.find("orthotrope")<matprops[S.typmat].type.size();
@@ -205,23 +207,26 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         assert(0);
     }
     /// Comportement du materiau
-
+    PRINT("ok 2");
     bool elastique = matprops[S.typmat].comp.find("el")<matprops[S.typmat].comp.size() ;
     bool plastique = matprops[S.typmat].comp.find("pl")<matprops[S.typmat].comp.size() ;
     bool endommageable = matprops[S.typmat].comp.find("en")<matprops[S.typmat].comp.size();
     bool mesomodele = matprops[S.typmat].comp.find("mesomodele")<matprops[S.typmat].comp.size();
-
+    
+    PRINT("ok 3");
     /// Assignation de la formulation
     ///formulation elastique isotrope 
     if (isotrope and elastique) {
         S.f = S.pb.formulation_elasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="isotrope"; 
     }
+    PRINT("ok 4");
     ///formulation elastique orthotrope
     if (orthotrope and elastique) {
         S.f = S.pb.formulation_elasticity_orthotropy_stat_Qstat;
         S.mesh.type_formulation="orthotrope"; 
     }
+    PRINT("ok 5");
     ///formulation elasto-plastique isotrope 
     if (isotrope and elastique and plastique) {
         plasticite = true;      /// Informe le Process qu'au moins un des materiaux est plastifiable
@@ -229,6 +234,7 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         S.f = S.pb.formulation_plasticity_isotropy_stat_Qstat;
         S.mesh.type_formulation="plastique"; 
     }
+    PRINT("ok 6");
     ///formulation elastique endommageable isotrope 
     if (isotrope and elastique and endommageable) {
         endommagement = true;   /// Informe le Process qu'au moins un des materiaux est endommeageable
@@ -236,6 +242,7 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         S.f = S.pb.formulation_elasticity_damageable_isotropy_stat_Qstat;
         S.mesh.type_formulation="endommageable"; 
     }
+    PRINT("ok 7");
     ///formulation mesomodele 
     if ((orthotrope  and elastique and plastique) or mesomodele) { //TODO formulation plastique orthotrope
         plasticite = true;      /// Informe le Process qu'au moins un des materiaux est plastifiable
@@ -245,6 +252,7 @@ void assignation_material_to_SST::operator()(Sst &S,Vec<SstCarac> &matprops,bool
         S.f = S.pb.formulation_mesomodele;
         S.mesh.type_formulation="mesomodele"; 
     }
+    PRINT("ok 8");
     if(not S.f){
         std::cerr << "Aucune formulation ne correspond aux type et comportement de materiau demandes!" << std::endl;
         assert(0);

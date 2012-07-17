@@ -248,7 +248,10 @@ void Process::preparation_calcul(){
     }
     
     /// Creation des liens vers les materiaux et les formulations
+    print("assignation des comportements matériaux");
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
+    
+    print("assignation des comportements liaisons");
     for(unsigned i = 0; i < Inter->size(); i++){
         //PRINT((*Inter)[i].id_link);
         if((*Inter)[i].id_link >= 0){

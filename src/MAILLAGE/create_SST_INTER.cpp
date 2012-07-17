@@ -352,7 +352,9 @@ void create_SST_INTER(DataUser              &data_user,
     process.print(" - Creation des Interfaces : ");
     /// ... interieures ...
     process.print("     - Interieures parfaites : ... ",true);
+    PRINT("ok");
     create_perfect_interfaces(data_user, geometry_user, S, Inter, process);     // to be TEST
+    PRINT("ok");
     #ifdef INFO_TIME
     process.print_duration(tic1);
     #endif
