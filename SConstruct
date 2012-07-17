@@ -33,7 +33,6 @@ formuisop  = 1
 formuendo  = 1
 formumeso  = 1
 
-
 #pour avoir les cout dans un ficher ...
 crout=1
 
