@@ -142,7 +142,7 @@ void Interface::affiche(){
     PRINT(edge_id);
     PRINT(id_bc);
     PRINT(id_link);
-    
+    PRINT(vois);
     std::cout << "------------------- fin interface ------------------------" << std::endl;
 }
 

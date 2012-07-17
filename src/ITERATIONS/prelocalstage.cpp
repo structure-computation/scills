@@ -92,15 +92,15 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_effort_normal) {
                 assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],step);
-                std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
-                std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
-                std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul 
                    or Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],step);
-                std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
-                std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
-                std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_symetrie) {
                 if(process.temps->pt_cur==1) {
                     if(process.reprise_calcul==0){

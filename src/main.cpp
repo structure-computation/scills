@@ -45,15 +45,15 @@ namespace LMT {
 // procedure multiechelle quasistatique ou statique (2 ou 3d)
 //*********************************************************************
 int main(int argc,char **argv) {
-    /// lecture du fichier de donnees
-    if ( argc!=3 and argc !=4 ) {
+    /// Verification des arguments
+    if ( argc != 3 and argc != 4 ) {
         std::cerr << "usage : nom_executable + dimension +  nom_complet_du_fichier_de_donnees. (+ mpi)" << std::endl;
         std::cerr << "ex : ./SC_multi_2 num_model num_calcul  (+ mpi)" << std::endl;
         return 1;
     }
     try {
-        Sc2String id_model = argv[ 1 ];
-        Sc2String id_calcul = argv[ 2 ];
+        Sc2String id_model = argv[1];
+        Sc2String id_calcul = argv[2];
         
         Process process;
         process.initialisation_MPI(argc, argv);

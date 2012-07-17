@@ -73,24 +73,27 @@ void Repere_ddl_Inter(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Pro
  
  En bouclant sur les sous-structures et connaissant les interfaces adjacentes et leur position dans le problème macro, on ajoute l'opérateur homogénéisé par sous-structure à la bonne place dans la matrice macro. Celle ci est ensuite directement factorisé après pénalisation (on ne la stocke pas la matrice macro dans MacroProblem)
  */
-void Assem_prob_macro(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Process &process,Mat<TYPEREEL, Sym<>, SparseLine<> > &bigK){
-   bigK.resize(process.multiscale->sizeM);
-   for(unsigned i=0;i<S.size();++i){
-      Vec<unsigned> LErep,Krep;
-      for(unsigned j=0;j<S[i].edge.size();++j){
-         unsigned q=S[i].edge[j].internum;
-         //reperage des inconnues dans LE 
-         LErep.append(S[i].edge[j].repLE);
-         //reperage des inconnues dans bigK
-         Krep.append(Inter[q].repddl);
-      }
-      //TODO macro adaptation des signes de LE pour approche en effort
-      bigK[Krep]+=S[i].LE(LErep,LErep);
-      //std::cout << "SST " << i << endl;
-      //std::cout << LErep << endl;
-      //std::cout << Krep << endl;
-      //std::cout << S[i].LE(LErep,LErep).diag() << endl;
-   }     
+void Assem_prob_macro(PointedSubstructures &S, VecInterfaces &Inter, Process &process,SymetricMatrix &bigK){
+    //process.print_data("process.multiscale->sizeM = ",process.multiscale->sizeM);
+    //process.print_data("S.size() = ",S.size());
+    
+    bigK.resize(process.multiscale->sizeM);
+    for(unsigned i=0;i<S.size();++i){
+        Vec<unsigned> LErep,Krep;
+        for(unsigned j=0;j<S[i].edge.size();++j){
+            unsigned q=S[i].edge[j].internum;
+            /// reperage des inconnues dans LE 
+            LErep.append(S[i].edge[j].repLE);
+            /// reperage des inconnues dans bigK
+            Krep.append(Inter[q].repddl);
+        }
+        //TODO macro adaptation des signes de LE pour approche en effort
+        bigK[Krep]+=S[i].LE(LErep,LErep);
+        //std::cout << "SST " << i << endl;
+        //std::cout << LErep << endl;
+        //std::cout << Krep << endl;
+        //std::cout << S[i].LE(LErep,LErep).diag() << endl;
+    }
 }
 
 //************************************
@@ -237,7 +240,6 @@ void create_op_MACRO(Vec<VecPointedValues<Sst> > &S, Vec<Interface> &Inter, Proc
     
     /// Puis seul le master (processeur 0) se charge du pb macro
     if(process.parallelisation->is_master_cpu()){
-        
         /// Creation de la matrice de raideur macroscopique
         SymetricMatrix bigK;
         process.print("\t Assemblage probleme macro");

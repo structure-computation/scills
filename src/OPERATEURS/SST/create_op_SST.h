@@ -81,20 +81,19 @@ void create_op_SST(PointedSubstructures &S, VecInterfaces &Inter,PointedSubstruc
     if (process.multiscale->multiechelle ==1) {///cas multiechelle
         if (process.parallelisation->is_multi_cpu()) {
             for( unsigned i=0;i<S.size() ;i++ ) {
-                for( unsigned k1=0;k1 <process.parallelisation->repartition_sst.size()  ;k1++ )
+                for( unsigned k1=0;k1 <process.parallelisation->repartition_sst.size()  ;k1++ ){
                     if (find(process.parallelisation->repartition_sst[k1],LMT::_1==(int)i)) {
-                    for( unsigned jj=0;jj<S[i].edge.size() ;jj++ ){
-                        if (S[i].edge[jj].datanum == 0){
-                            MPI_Bcast(&Inter[S[i].edge[jj].internum].nb_macro_espace,1,MPI_INT, k1 ,MPI_COMM_WORLD);
+                        for( unsigned jj=0;jj<S[i].edge.size() ;jj++ ){
+                            if (S[i].edge[jj].datanum == 0){
+                                MPI_Bcast(&Inter[S[i].edge[jj].internum].nb_macro_espace,1,MPI_INT, k1 ,MPI_COMM_WORLD);
+                            }
                         }
+                        break;
                     }
-
-                    break;
-                    }
+                }
             }
         }
-        if (process.parallelisation->is_master_cpu())
-                std::cout << "\t Operateurs homogeneises" << endl;
+        process.print("\t Operateurs homogeneises");
         if (process.parallelisation->is_multi_cpu() and process.parallelisation->is_master_cpu()) {
             apply_mt(S,process.parallelisation->nb_threads,repere_ind_interface_LE(), Inter, process);
         } else {

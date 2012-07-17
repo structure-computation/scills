@@ -250,12 +250,12 @@ void Process::preparation_calcul(){
     /// Creation des liens vers les materiaux et les formulations
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
     for(unsigned i = 0; i < Inter->size(); i++){
-        PRINT((*Inter)[i].id_link);
+        //PRINT((*Inter)[i].id_link);
         if((*Inter)[i].id_link >= 0){
             int index_link = (*data_user).find_links_index((*Inter)[i].id_link);
             (*Inter)[i].matprop = &((*inter_materials)[index_link]);
-            PRINT((*Inter)[i].matprop->comp);
-            PRINT((*Inter)[i].matprop->type_num);
+            //PRINT((*Inter)[i].matprop->comp);
+            //PRINT((*Inter)[i].matprop->type_num);
             if((*Inter)[i].matprop->type_num == 0) {(*Inter)[i].comp = Interface::comp_parfait;}
             else if((*Inter)[i].matprop->type_num == 2) {(*Inter)[i].comp = Interface::comp_contact_ep;}
             else if((*Inter)[i].matprop->type_num == 3) {(*Inter)[i].comp = Interface::comp_cohesive;}
@@ -274,6 +274,18 @@ void Process::preparation_calcul(){
     #ifdef PRINT_ALLOC
     disp_alloc(to_string(parallelisation->rank)+" : Memoire apres allocations : ",1);
     #endif
+    print("Repartition des solides");
+    if(parallelisation->is_master_cpu()){
+        for(int i = 0; i < parallelisation->repartition_sst.size(); i++){
+            std::cout << "\t" << i << " :";
+            unsigned nb_nodes = 0;
+            for(int j = 0; j < parallelisation->repartition_sst[i].size(); j++){
+                std::cout << "\t" << parallelisation->repartition_sst[i][j];
+                nb_nodes += (*S)[parallelisation->repartition_sst[i][j]].mesh.elem_list_size;
+            }
+            std::cout << "\t" << nb_nodes << std::endl;
+        }
+    }
 }
 
 
@@ -325,7 +337,7 @@ void Process::boucle_temporelle(){
                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
                 #endif
                 for(int i = 0; i < (*sst_materials).size(); i++){
-                    (*sst_materials)[i].affiche();
+                    //(*sst_materials)[i].affiche();
                 }
                 multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
                 if(temps->pt_cur == 1){Global->allocations(multiscale->sizeM);}
@@ -547,13 +559,13 @@ void Process::read_data_user() {
     Tload->prepareParameters();
     
     /// Debuggage
-    multiresolution->affiche();
-    temps->affiche();
-    for(int i = 0; i < CL->size(); i++){
-        (*CL)[i].affiche();
-    }
-    Fvol->affiche();
-    Tload->affiche();
+    //multiresolution->affiche();
+    //temps->affiche();
+    //for(int i = 0; i < CL->size(); i++){
+    //    (*CL)[i].affiche();
+    //}
+    //Fvol->affiche();
+    //Tload->affiche();
 };
 
 void Process::print_title(int level,Sc2String title){

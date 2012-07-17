@@ -126,8 +126,8 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
         }
         process.parallelisation->synchronisation();
         //if (process.parallelisation->is_local_cpu()){create_file_pvtu(process,process.affichage->type_affichage); Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
-        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
-        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
+        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
+        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 
     }
 }
@@ -138,7 +138,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
-    PRINT(process.affichage->affich_resultat);
+    //PRINT(process.affichage->affich_resultat);
     
     if (process.affichage->affich_resultat==1)
         if (process.parallelisation->is_local_cpu()) {
