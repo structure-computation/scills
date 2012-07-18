@@ -27,6 +27,7 @@ list_repertoires_cppflags = map( lambda x: os.getcwd()+'/'+x, list_repertoires)
 
 #choix des formulations a compiler
 formuortho = 1
+
 formuiso   = 1
 formuisop  = 1
 formuendo  = 1
