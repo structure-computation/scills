@@ -188,12 +188,13 @@ void etape_lineaire(PointedSubstructures &S, VecInterfaces &Inter,Process &proce
     if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,semilinstage1(),Inter,process);
     if (get_durations) {crout << process.parallelisation->rank<<" : lineaire1 :"; tic1.stop();tic1.start();}
     
+    
+    process.parallelisation->synchronisation();
     if (process.multiscale->multiechelle ==1) {
         /// Assemblage du probleme macro
         Global.bigF.set(0.0);
         if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
         if (get_durations) {crout << process.parallelisation->rank<<" : macroassemble :"; tic1.stop();}
-        process.parallelisation->synchronisation();
         
         /// Deploiement de bigF sur le master
         if (get_durations) {tic1.start();}
@@ -203,20 +204,17 @@ void etape_lineaire(PointedSubstructures &S, VecInterfaces &Inter,Process &proce
         /// Resolution du probleme macro
         if (process.parallelisation->is_master_cpu()) {
           Global.resolmacro();
-          PRINT("résolution problème macro");
-          PRINT(process.parallelisation->size);
-          PRINT(process.parallelisation->rank);
-          std::cout << std::endl;
         }
         //if (process.parallelisation->rank != 0)
 //         {
 //             PRINT(process.parallelisation->size);
 //             PRINT(process.parallelisation->rank);
 //             PRINT(Global.bigW.size());
-//             PRINT(Global.bigW);
+//             PRINT(Global.bigW.ptr());
 //             std::cout << std::endl;
 //         }
         if (get_durations) {crout << process.parallelisation->rank<<" : resolmacro :"; tic1.stop();}
+        
         //process.parallelisation->synchronisation();
         /// Deploiement de bigW sur toutes les machines
         if (get_durations) {tic1.start();}
