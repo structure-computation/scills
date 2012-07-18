@@ -108,6 +108,40 @@ void Process::initialisation_MPI(int argc,char **argv){
     #endif
 }
 
+void Process::test_MPI(){
+    // ceci est un test ----------
+    sleep(2);
+    parallelisation->synchronisation();
+    if(parallelisation->size > 1){ 
+      std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl; 
+    }
+    sleep(2);
+    parallelisation->synchronisation();
+    Vec<double> test;
+    test.resize(10,0.0);
+    if(parallelisation->is_master_cpu()) test.set(1.0);
+    
+    PRINT(parallelisation->rank);
+    PRINT(test);
+    std::cout << endl;
+    
+    if(parallelisation->is_master_cpu()) sleep(5);
+    //if (process.parallelisation->size > 1) MPI_Barrier( MPI_COMM_WORLD );
+    if (parallelisation->size > 1) MPI_Bcast(test.ptr(),test.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
+    PRINT(parallelisation->rank);
+    PRINT(test);
+    std::cout << endl;
+    
+    sleep(2);
+    parallelisation->synchronisation();
+    if(parallelisation->size > 1){ 
+      std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl;
+    }
+    sleep(5);
+    parallelisation->synchronisation();
+    // ceci est un test ----------
+}
 
 
 void Process::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
@@ -248,7 +282,10 @@ void Process::preparation_calcul(){
     }
     
     /// Creation des liens vers les materiaux et les formulations
+    print("assignation des comportements matériaux");
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
+    
+    print("assignation des comportements liaisons");
     for(unsigned i = 0; i < Inter->size(); i++){
         //PRINT((*Inter)[i].id_link);
         if((*Inter)[i].id_link >= 0){
@@ -301,8 +338,9 @@ void Process::boucle_multi_resolution() {
         SstCarac::updateParameters();           /// Mise a jour des parametres materiaux des sst
         boucle_temporelle();
         print_data("******************************************************** Fin Calcul : ",multiresolution->calcul_cur);
+        parallelisation->synchronisation();
     }
-    parallelisation->synchronisation();
+    
     
     memory_free(*S,*Inter,*CL,*sst_materials,*inter_materials,*this);
 }
@@ -329,6 +367,7 @@ void Process::boucle_temporelle(){
         Boundary::updateParameters();           /// Mise a jour des CL (PENSER A ENLEVER PLUS BAS LORSQUE PRET)
         InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         
+        
         /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
         print_title(2,"Mise a jour des operateurs");
         for(int i_sst = 0; i_sst < S->size(); i_sst++){
@@ -340,7 +379,7 @@ void Process::boucle_temporelle(){
                     //(*sst_materials)[i].affiche();
                 }
                 multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
-                if(temps->pt_cur == 1){Global->allocations(multiscale->sizeM);}
+                Global->allocations(multiscale->sizeM);
                 #ifdef PRINT_ALLOC
                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
                 #endif
@@ -350,7 +389,9 @@ void Process::boucle_temporelle(){
         #ifdef INFO_TIME
         print_duration(tic2);
         #endif
+        print_title(2,"Initialisation des Conditions");
         
+        parallelisation->synchronisation();
         if(nom_calcul=="incr") {
             /// Presence d'interface Breakable ?
             int nb_breakable=0;
@@ -359,13 +400,12 @@ void Process::boucle_temporelle(){
                     if ((*Inter)[q].comp =="Breakable"){
                         nb_breakable++;
                     }
-                    if (parallelisation->is_multi_cpu()){
-                        MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
-                    }
-                    nb_breakable = nb_breakable ;
                 }
             }
-            
+            if (parallelisation->is_multi_cpu()){
+                MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+            }
+            nb_breakable = nb_breakable ;
             /// Mise a jour des conditions aux limites
             if(temps->pt_cur == 1 and parallelisation->is_local_cpu()){
                 print_title(2,"Initialisation des Conditions aux limites :");
@@ -381,6 +421,7 @@ void Process::boucle_temporelle(){
                     (*SubI)[i].init();
                 }
             }
+            
             
             /// Calcul sur le pas de temps
             if (nb_breakable>0) {

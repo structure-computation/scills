@@ -353,13 +353,16 @@ void create_SST_INTER(DataUser              &data_user,
     /// ... interieures ...
     process.print("     - Interieures parfaites : ... ",true);
     create_perfect_interfaces(data_user, geometry_user, S, Inter, process);     // to be TEST
+
     #ifdef INFO_TIME
     process.print_duration(tic1);
     #endif
     //create_other_interfaces(structure,S,Inter);
     /// ... et exterieures
     process.print("     - Exterieures avec CL : ... ",true);
+    PRINT("ok1");
     create_interfaces_CL(data_user, geometry_user, S,Inter,CL, process);        // to be TEST
+    PRINT("ok2");
     #ifdef INFO_TIME
     process.print_duration(tic1);
     #endif

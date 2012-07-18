@@ -59,7 +59,7 @@ int main(int argc,char **argv) {
         process.initialisation_MPI(argc, argv);
         process.lecture_fichiers(id_model, id_calcul);
         
-        
+
         if(process.data_user->options.mode=="visu_CL"){
             if(process.parallelisation->is_master_cpu()) std::cout << "Mode de visualisation des bords" << std::endl;
             process.geometry_user->visualize_group_edges_within_geometry(*process.data_user);

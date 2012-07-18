@@ -34,6 +34,7 @@ PRG_multi_debug = SC_multi_$(DIM)_$(ARCHITECTURE)_debug.exe
 DIR_build_debug = --comp-dir build/SC_multi_$(DIM)_$(ARCHITECTURE)_debug
 OPT_DBG = -ne -j$(NB_COMP_PROC) -g -g3 -ffast-math -fexpensive-optimizations
 
+
 # option pour le test de chargement des donnees
 PRG_test_load_data = SC_test_load_data_$(DIM).exe
 
