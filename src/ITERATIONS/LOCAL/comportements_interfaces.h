@@ -37,6 +37,8 @@ void compt_CL_sym (Interface &Inter,int &imic) {
     Scalar kn = Inter.side[0].kn;
 
     Vector neq = Inter.side[0].neq;
+    
+//     PRINT(Inter.side[0].t[imic].Wp);
 
     for(unsigned i = 0; i < Inter.side[0].nodeeq.size(); ++i) {
         Vec<unsigned> rep = range(i*DIM,(i+1)*DIM);
@@ -60,6 +62,8 @@ void compt_CL_sym (Interface &Inter,int &imic) {
 
     Inter.side[0].t[imic].Wpchap=WWchap1;
     Inter.side[0].t[imic].Fchap=QQchap1;
+    
+//     PRINT(Inter.side[0].t[imic].Wpchap);
 }
 
 

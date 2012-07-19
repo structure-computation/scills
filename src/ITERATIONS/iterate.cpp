@@ -55,6 +55,7 @@ void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inte
         tic.start();
         
         /// Echange des grandeurs macro calculees
+        process.parallelisation->synchronisation();
         if (process.parallelisation->is_multi_cpu())
             SendRecvInter(process.parallelisation->intertoexchangebypro,Inter,process);
         crout << process.parallelisation->rank<< " : envoie des vecteurs d interface : ";
@@ -72,6 +73,7 @@ void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inte
         }
         
         /// Etape locale
+        process.parallelisation->synchronisation();
         if (process.parallelisation->is_local_cpu())
             etape_locale(SubI,S,process);
         crout << process.parallelisation->rank<< " : etape locale : ";

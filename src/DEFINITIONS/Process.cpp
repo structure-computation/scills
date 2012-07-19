@@ -357,6 +357,30 @@ void Process::boucle_temporelle(){
     /// Boucle sur les steps temporels
     print_title(1,"DEBUT DU CALCUL ITERATIF ");
     print_data("Nombre de pas de temps total : ",temps->nbpastemps);
+    /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
+    print_title(2,"Mise a jour des operateurs");
+    for(int i_sst = 0; i_sst < S->size(); i_sst++){
+        if((*S)[i_sst].update_operator){
+            #ifdef PRINT_ALLOC
+            disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
+            #endif
+            for(int i = 0; i < (*sst_materials).size(); i++){
+                //(*sst_materials)[i].affiche();
+            }
+            multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
+            Global->allocations(multiscale->sizeM);
+            #ifdef PRINT_ALLOC
+            disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
+            #endif
+            break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
+        }
+    }
+    #ifdef INFO_TIME
+    print_duration(tic2);
+    #endif
+    
+    
+    
     for(temps->init();temps->has_next();temps->next()){
         if(temps->step_changed()){
             print_data("****************************** Step : ",temps->step_cur);
@@ -368,27 +392,27 @@ void Process::boucle_temporelle(){
         InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         
         
-        /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
-        print_title(2,"Mise a jour des operateurs");
-        for(int i_sst = 0; i_sst < S->size(); i_sst++){
-            if((*S)[i_sst].update_operator){
-                #ifdef PRINT_ALLOC
-                disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
-                #endif
-                for(int i = 0; i < (*sst_materials).size(); i++){
-                    //(*sst_materials)[i].affiche();
-                }
-                multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
-                Global->allocations(multiscale->sizeM);
-                #ifdef PRINT_ALLOC
-                disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
-                #endif
-                break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
-            }
-        }
-        #ifdef INFO_TIME
-        print_duration(tic2);
-        #endif
+//         /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
+//         print_title(2,"Mise a jour des operateurs");
+//         for(int i_sst = 0; i_sst < S->size(); i_sst++){
+//             if((*S)[i_sst].update_operator){
+//                 #ifdef PRINT_ALLOC
+//                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
+//                 #endif
+//                 for(int i = 0; i < (*sst_materials).size(); i++){
+//                     //(*sst_materials)[i].affiche();
+//                 }
+//                 multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
+//                 Global->allocations(multiscale->sizeM);
+//                 #ifdef PRINT_ALLOC
+//                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
+//                 #endif
+//                 break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
+//             }
+//         }
+//         #ifdef INFO_TIME
+//         print_duration(tic2);
+//         #endif
         print_title(2,"Initialisation des Conditions");
         
         parallelisation->synchronisation();
@@ -414,8 +438,10 @@ void Process::boucle_temporelle(){
                 //}
                 initialise_CL_values(*SubI, *CL);
             }
+            parallelisation->synchronisation();
             print_title(2,"Mise a jour des Conditions aux limites :");
             if (parallelisation->is_local_cpu()){
+                PRINT("ok");
                 update_CL_values(*SubI, *CL, *this, *data_user);
                 for(int i = 0; i < SubI->size(); i++){
                     (*SubI)[i].init();
@@ -446,10 +472,13 @@ void Process::boucle_temporelle(){
             } else {
                 iterate_incr(*this,*SubS,*Inter,*SubI,*Global,*data_user);
             }
+            
             ///assignation ptcur au ptold
+            parallelisation->synchronisation();
             print_title(2,"Reactualisation des valeurs pour le pas de temps suivant");
             assign_quantities_current_to_old(*SubS,*SubI,*this);
             
+            parallelisation->synchronisation();
             affichage_resultats(*SubS,*this, *data_user);
             affichage_resultats_inter(*SubI, *S ,*this, *data_user);
             /// Sauvegarde des resultats
