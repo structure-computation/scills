@@ -7,6 +7,8 @@
 
 #include "main_typedef.h"
 #include "../COMPUTE/DataUser.h"
+#include "Sst.h"
+#include "Interface.h"
 
 
 /**\ingroup Parametres
@@ -47,9 +49,17 @@ struct SavingData{
     
     
     //methodes===============================================================================================
-    SavingData();     ///< Constructeur
-    void read_data_user(DataUser &data_user);   ///< Chargement des donnees depuis le DataUser
-    void display_all_data();   ///< Affiche toutes les informations stockees dans cet objet
+    SavingData();                               /// Constructeur
+    void read_data_user(DataUser &data_user);   /// Chargement des donnees depuis le DataUser
+    Sc2String get_vtu_filename_sst_bulk(const Sst &S, int pt, int m = -1) const;
+    Sc2String get_vtu_filename_sst_skin(const Sst &S, int pt, int m = -1) const;
+    Sc2String get_vtu_filename_inter(const Interface &I, int pt, int m = -1) const;
+    Sc2String get_pvd_filename_sst_bulk(const Sst &S, int pt, int m = -1) const;
+    Sc2String get_pvd_filename_sst_skin(const Sst &S, int pt, int m = -1) const;
+    Sc2String get_pvd_filename_inter(const Interface &I, int pt, int m = -1) const;
+    Sc2String get_hdf_filename(const Sst &S, int pt, int m = -1) const;
+    
+    void display_all_data();                    /// Affiche toutes les informations stockees dans cet objet
 };
 
 #endif // SAVINGDATA_H

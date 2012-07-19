@@ -12,7 +12,7 @@
  * toutes les expressions d'efforts volumiques y sont concatenees.
  */
 struct VolumicForces{
-    struct AssigneOnElement {
+    struct AssignOnElement {
         template<class TE>
         void operator() (TE &e, Scalar density, VolumicForces &Fvol,Codegen::Ex::MapExNum &values) const {
             Point G = LMT::center(e);
@@ -34,8 +34,14 @@ struct VolumicForces{
     void updateParameters();
     
     void apply_on_sst(Sst &S){
+        /*
+        std::cout << "Application des efforts volumiques sur S (id " << S.id << "):" << std::endl;
+        for(int i = 0; i < DIM; i++){
+            std::cout << "\t" << force[i].str_expr << std::endl;
+        }
+        //*/
         Codegen::Ex::MapExNum values = parameters.getParentsValues();
-        LMT::apply(S.mesh->elem_list,AssigneOnElement(),S.mesh->density,*this, values);
+        LMT::apply(S.mesh->elem_list,AssignOnElement(),S.mesh->density,*this, values);
     }
     
     void affiche() const;

@@ -1,7 +1,6 @@
 #include "endommagement.h"
 #include "../../DEFINITIONS/TimeData.h"
-#include "../../MAILLAGE/elements_variables_accessor.h"
-#include "../../../LMT/include/containers/mat.h"
+#include "../../MAILLAGE/mesh_data_accessors_sst.h"
 
 using namespace LMT;
 
@@ -29,7 +28,8 @@ void calcul_endommagement(Sst &S, Process &process){
     download_epsilon(S,all_epsilon);
     
     /// CALCUL DE L'ENDOMMAGEMENT
-    for(unsigned i_elem = 0; i_elem < S.mesh.elem_list_size; i_elem++){
+    const unsigned max_i_elem = S.mesh.elem_list_size;
+    for(unsigned i_elem = 0; i_elem < max_i_elem; i_elem++){
         VoigtVector &sigma = all_sigma[i_elem];
         VoigtVector &epsilon = all_epsilon[i_elem];
         Scalar &d_old = t_old.d1[i_elem];
@@ -37,16 +37,16 @@ void calcul_endommagement(Sst &S, Process &process){
         /// Evaluation de la fonction seuil
         Scalar energie,f;
 #if DIM == 2
-        energie = 0.5*(sigma[0]*epsilon[0]
-                      +sigma[1]*epsilon[1]
-                      +2*sigma[2]*epsilon[2]);  /// Energie de deformation en 2D
+        energie = 0.5*(sigma[0]*epsilon[0]+
+                       sigma[1]*epsilon[1]+
+                       2*sigma[2]*epsilon[2]);  /// Energie de deformation en 2D
 #else
-        energie = 0.5*(sigma[0]*epsilon[0]
-                      +sigma[1]*epsilon[1]
-                      +sigma[2]*epsilon[2]
-                      +2*sigma[3]*epsilon[3]
-                      +2*sigma[4]*epsilon[4]
-                      +2*sigma[5]*epsilon[5]);  /// Energie de deformation en 3D
+        energie = 0.5*(sigma[0]*epsilon[0]+
+                       sigma[1]*epsilon[1]+
+                       sigma[2]*epsilon[2]+
+                       2*sigma[3]*epsilon[3]+
+                       2*sigma[4]*epsilon[4]+
+                       2*sigma[5]*epsilon[5]);  /// Energie de deformation en 3D
 #endif
         f = energie - Yo/(1-d_old/(1+b_c))/(1-d_old/(1+b_c));
         

@@ -150,8 +150,8 @@ void TimeData::init(){
     step_cur = 0;
     pt = 1;
     pt_cur = 1;
-    t_cur.value = time_step[0].t_ini;
     dt = time_step[0].dt;
+    t_cur.value = time_step[step_cur].t_ini + (time_step[step_cur].pt_cur+1) *dt;
     for(int i = 0; i < time_step.size(); i++){
         time_step[i].pt_cur = 0;
     }
@@ -195,4 +195,12 @@ void TimeData::updateParameters(){
         parameters.prepareParameters();
     }
     parameters.updateParameters();
+    /* DEBUG : affichage des parametres temporels apres mise a jour
+    std::cout << "Mise a jour des parametres temporels *****************************************" << std::endl;
+    std::cout << t_cur.symbol << " = " << t_cur.value << std::endl;
+    for(int i = 0; i < parameters.user_parameters.size(); i++){
+        std::cout << parameters.user_parameters[i]->symbol << " = " << parameters.user_parameters[i]->value << std::endl;
+    }
+    std::cout << "******************************************************************************" << std::endl;
+    //*/
 }

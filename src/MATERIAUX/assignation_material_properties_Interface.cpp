@@ -45,7 +45,6 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
                 assert(0);
         }
         propinter[i].f_coeffrottement = data_user.links_vec[i].f;   /// coeff frottement analytique
-        //propinter[i].coeffrottement   = data_user.links_vec[i].f;   /// coeff frottement A REVOIR (evaluation numerique ???)
         propinter[i].f_jeu            = data_user.links_vec[i].Ep;  /// jeux ou epaisseur negative        
         propinter[i].Gcrit            = data_user.links_vec[i].Lr;  /// limite en rupture    
         propinter[i].f_raideur        = data_user.links_vec[i].R;   /// coeff frottement analytique

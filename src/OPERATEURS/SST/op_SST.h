@@ -130,6 +130,8 @@ struct Calc_SST_rigidite_K0_k {
 //      }
         
 #if LDL
+        std::cout << "K : " << K.nb_rows() << "," << K.nb_cols() << std::endl;
+        //LMT::display(std::cout,K,0);
         S.l.get_factorization( K, true, true );
 #else
         K.get_factorization();

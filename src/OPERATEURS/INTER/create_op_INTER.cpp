@@ -33,13 +33,13 @@ Enfin la véritable matrice N est telle que W = N U, on multiplie donc N par \f$ 
 struct CalcMN {
     void operator()(Interface &Inter, Vec<VecPointedValues<Sst> > &S) const {
         for(unsigned j=0;j<Inter.side.size();++j) {
-            int ii=Inter.side[j].vois[0];
-            int jj=Inter.side[j].vois[1];
+            int i_sst = Inter.side[j].vois[0];
+            int i_edge = Inter.side[j].vois[1];
             calcM(*Inter.side[j].mesh,Inter.side[j].M);
-            calcN(*Inter.side[j].mesh,*S[ii].edge[jj].mesh , Inter.side[j].N);
+            calcN(*Inter.side[j].mesh,*S[i_sst].edge[i_edge].mesh , Inter.side[j].N);
             calcMinvN(Inter.side[j].M,Inter.side[j].N);
             Inter.side[j].Nt=trans(Inter.side[j].N);
-            //testMN(Inter.side[j].N,S[ii].edge[jj].mesh,Inter.side[j].nodeeq,Inter);
+            //testMN(Inter.side[j].N,S[i_sst].edge[i_edge].mesh,Inter.side[j].nodeeq,Inter);
         }
     }
 };
@@ -48,17 +48,17 @@ void testMN(SparseMatrix &N,EdgeMesh &mesh,Vec<Point> &nodeeq, Interface &inter)
 
     Vector xbord;
     xbord.resize(N.nb_cols(),0.0);
-    for(unsigned i=0;i<mesh.node_list.size();++i) {
-        xbord[range(i*DIM,(i+1)*DIM)]=mesh.node_list[i].pos;
+    for(unsigned i = 0; i < mesh.node_list.size(); ++i) {
+        xbord[range(i*DIM,(i+1)*DIM)] = mesh.node_list[i].pos;
         std::cout << mesh.node_list[i].pos << std::endl;
     }
-    std::cout << "\n" << std::endl;
+    std::cout << "\nb_nodes" << std::endl;
     std::cout << "xbord" << xbord <<std::endl;
 
     Vector xinter;
     xinter.resize(N.nb_rows(),0.0);
-    for(unsigned i=0;i<nodeeq.size();++i) {
-        xinter[range(i*DIM,(i+1)*DIM)]=nodeeq[i];
+    for(unsigned i = 0; i < nodeeq.size(); ++i) {
+        xinter[range(i*DIM,(i+1)*DIM)] = nodeeq[i];
     }
     //
     std::cout << "xinter " << xinter << std::endl;
@@ -80,9 +80,9 @@ Cette fonction est par contre nécessairement utile pour des maillages d'interfac
 struct  Corresp_ddlinter {
     void operator()(Interface &Inter) const {
         //std::cout << Inter.vois << std::endl;
-        if (Inter.side.size()==2) {
+        if (Inter.side.size() == 2) {
             if (Inter.side[0].nodeeq.size() != Inter.side[1].nodeeq.size()) {
-              std::cout << "attention maillages incompatibles - non implemente (nbnodeeq) - inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
+                std::cout << "attention maillages incompatibles - non implemente (nbnodeeq) - inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
                 assert(0);
             }
 
@@ -103,29 +103,33 @@ struct  Corresp_ddlinter {
                     Point g2 = center(*e2);
                     if ( (length(vect_prod(g2-g1,n1)) <= 1E-3 )and (dot(g2-g1,n1)  >= -1E-6)) {
                         test=1;
-                        //on rentre le jeu physique :)
-                        if (Inter.comp=="Contact_jeu_physique" )
+                        /// on rentre le jeu physique :)
+                        if (Inter.comp == "Contact_jeu_physique" ){
                             Inter.jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
-                        //on ecrit la correspondance entre les elements du cote 0 et cote 1
-                            Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
+                        }
+                        /// on ecrit la correspondance entre les elements du cote 0 et cote 1
+                        Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);
                         break;
-                    } else if (Inter.comp=="periodique" and (length(vect_prod(g2-g1,n1)) <= 1E-6 ) and (dot(g2-g1,n1)  <= 1E-6)) {
+                    } else if (Inter.comp == "periodique" and (length(vect_prod(g2-g1,n1)) <= 1E-6 ) and (dot(g2-g1,n1)  <= 1E-6)) {
                         Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);
                         break;
                     }
-//                    std::cout << "Num elem correspondant " << i << " " << candidats[j] << " " << length(g2-g1)<< " "  << dot(g2-g1,n1) << " " << length(vect_prod(g2-g1,n1)) << " " << g1 << " " << g2 << " " << n1 << std::endl;
+                    //std::cout << "Num elem correspondant " << i << " " << candidats[j] << " " << length(g2-g1)<< " "  << dot(g2-g1,n1) << " " << length(vect_prod(g2-g1,n1)) << " " << g1 << " " << g2 << " " << n1 << std::endl;
                 }
             }
-            //if (test==0) std::cout << "On n'a jamais atteind le critere qui va bien" << std::endl;
-            if (Inter.comp=="Contact_jeu_physique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) std::cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << std::endl;
-            if (Inter.comp=="periodique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6) std::cout << "Numero : " << Inter.num << "\n" << Inter.side[0].ddlcorresp << "\n" << Inter.side[1].ddlcorresp << std::endl;
+            //if (test==0) std::cout << "On nb_nodes'a jamais atteind le critere qui va bien" << std::endl;
+            if (Inter.comp=="Contact_jeu_physique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6){
+                std::cout << "Numero : " << Inter.num << "\nb_nodes" << Inter.side[0].ddlcorresp << "\nb_nodes" << Inter.side[1].ddlcorresp << std::endl;
+            }
+            if (Inter.comp=="periodique" and norm_2(Inter.side[0].ddlcorresp-Inter.side[1].ddlcorresp)>1e-6){
+                std::cout << "Numero : " << Inter.num << "\nb_nodes" << Inter.side[0].ddlcorresp << "\nb_nodes" << Inter.side[1].ddlcorresp << std::endl;
+            }
             if (candidats.size() != 0) {
-              std::cout << "attention maillages incompatibles - non implemente - jeu inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
+                std::cout << "attention maillages incompatibles - non implemente - jeu inter : " << Inter.num << " voisin " << Inter.vois << std::endl;
                 assert(0);
             }
-
             //std::cout << "Correspondance terminee" << std::endl;
         }
     }
@@ -152,49 +156,51 @@ struct Apply_nb_macro {
     //cas 3d
     void operator()(Interface &Inter, Process &process) const {
 #if DIM == 2
-        if(process.multiscale->type_base_macro==1) {
+        if(process.multiscale->type_base_macro == 1) {
             //resultantes :
-            Inter.nb_macro_espace=2;
-        } else if(process.multiscale->type_base_macro==2) {
+            Inter.nb_macro_espace = 2;
+        } else if(process.multiscale->type_base_macro == 2) {
             //resultantes + moment :
-            Inter.nb_macro_espace=3;
-        } else if(process.multiscale->type_base_macro==3) {
+            Inter.nb_macro_espace = 3;
+        } else if(process.multiscale->type_base_macro == 3) {
             //resultantes + moment + extension :
-            if (Inter.side[0].mesh->elem_list.size()==0) {
-                Inter.nb_macro_espace=0;
+            if (Inter.side[0].mesh->elem_list.size() == 0) {
+                Inter.nb_macro_espace = 0;
                 std::cerr << "WARNING !! Aucun element dans l'interface " << Inter.id << std::endl;
             } else if(min(abs(Inter.Moments_inertie))<=eps) {
-                Inter.nb_macro_espace=4;
+                Inter.nb_macro_espace = 4;
             } else {
-                Inter.nb_macro_espace=6;
+                Inter.nb_macro_espace = 6;
             }
         } else {
             std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
             assert(0);
         }
 #elif DIM == 3
-        if(process.multiscale->type_base_macro==1) {
+        if(process.multiscale->type_base_macro == 1) {
             //resultantes :
-            Inter.nb_macro_espace=3;
-        } else if(process.multiscale->type_base_macro==2) {
+            Inter.nb_macro_espace = 3;
+        } else if(process.multiscale->type_base_macro == 2) {
             //resultantes + moments:
-            Inter.nb_macro_espace=6;
-        } else if(process.multiscale->type_base_macro==3) {
+            Inter.nb_macro_espace = 6;
+        } else if(process.multiscale->type_base_macro == 3) {
             //resultantes + moments + extensions:
-            unsigned nb_null=0;
-            for(unsigned i=0;i<Inter.Moments_inertie.size();i++)
-                if (std::abs(Inter.Moments_inertie[i])< eps)
+            unsigned nb_null = 0;
+            for(unsigned i=0;i<Inter.Moments_inertie.size();i++){
+                if (std::abs(Inter.Moments_inertie[i])< eps){
                     nb_null++;
-            if (Inter.side[0].mesh->elem_list.size()==0){
-                Inter.nb_macro_espace=0;
+                }
+            }
+            if (Inter.side[0].mesh->elem_list.size() == 0){
+                Inter.nb_macro_espace = 0;
                 std::cerr << "WARNING !! Aucun element dans l'interface " << Inter.id << std::endl;
             } /*else if(nb_null>1) {
                 Inter.nb_macro_espace=0;
                 std::cerr << "WARNING !! Base macro nulle dans l'interface " << Inter.id << std::endl;
             }*/ else if(min(abs(Inter.Moments_inertie))<=eps) {
-                Inter.nb_macro_espace=9;
+                Inter.nb_macro_espace = 9;
             } else {
-                Inter.nb_macro_espace=12;
+                Inter.nb_macro_espace = 12;
             }
         } else {
             std::cout << "Nbre de fct non implemente : a modifier" << std::endl;
@@ -214,34 +220,41 @@ Connaissant le centre de gravité et la position des noeuds équivalents de l'inte
 */
 struct CalcBPI {
     void operator()(Interface &inter) const {
-        Vec<Vec<TYPEREEL,DIM> > nodeeq;
-        nodeeq=inter.side[0].nodeeq;
-        //calcul de la distance GM (entre G et un noeud de l'interface)
-        Mat<TYPEREEL, Gen<>, Dense<> > GM;
-        GM.resize(nodeeq.size(),DIM);
-        for(unsigned m=0 ;m<GM.nb_rows() ;++m)
-            GM.row(m)=nodeeq[m]-inter.G;
-        //calcul matrice de masse
-            Mat<TYPEREEL, Gen<>, SparseLine<> > M1;
-        M1.resize(nodeeq.size(),nodeeq.size());
+        const Vec<Point > &nodeeq = inter.side[0].nodeeq;
+        const unsigned nb_nodes = nodeeq.size();
+        
+        /// Calcul de la distance GM (entre G et un noeud de l'interface)
+        DenseMatrix GM;
+        GM.resize(nb_nodes,DIM);
+        for(unsigned m = 0; m < nb_nodes; ++m){
+            GM.row(m) = nodeeq[m] - inter.G;
+        }
+        
+        /// Calcul matrice de masse
+        SparseMatrix M1;
+        M1.resize(nb_nodes,nb_nodes);
         M1=inter.side[0].M(range(0,(int)DIM,(int)inter.side[0].M.nb_rows()),range(0,(int)DIM,(int)inter.side[0].M.nb_rows()));
-        //calcul matrice d'inertie secondaire int(X'X);
-        Mat<TYPEREEL, Gen<DIM>, Dense<> > I1;
-        for(unsigned i=0;i<DIM;++i)
-            for(unsigned j=0;j<DIM;++j)
-                I1(i,j)=dot(GM.col(i),M1*GM.col(j));
-        //calcul valeurs et vecteurs propres
-        Vec<Vec<TYPEREEL> > V;
-        Vec<TYPEREEL> D;
+        
+        /// Calcul matrice d'inertie secondaire int(X'X);
+        Mat<Scalar, Gen<DIM>, Dense<> > I1;
+        for(unsigned i = 0; i < DIM; ++i){
+            for(unsigned j = 0; j < DIM; ++j){
+                I1(i,j) = dot(GM.col(i),M1*GM.col(j));
+            }
+        }
+        
+        /// Calcul valeurs et vecteurs propres
+        Vec<Vector > V;
+        Vector D;
         eig_jacobi(I1,V,D);
 
-        // classement par ordre decroissant des valeurs propres
+        /// Classement par ordre decroissant des valeurs propres
         Vec<unsigned,DIM> ind;
-        D*=-1.0;
-        ind=sort_with_index(D);
-        inter.BPI=V[ind];
+        D *= -1.0;
+        ind = sort_with_index(D);
+        inter.BPI = V[ind];
         orthonormalisation_schmidt(inter.BPI);
-        inter.Moments_inertie=-1.0*D;
+        inter.Moments_inertie = -1.0*D;
     }
 };
 
@@ -257,86 +270,86 @@ On détermine à nouveau le vecteur position GM et en utilisant la base principale
 Par défaut, 4 fonctions de base macro sont construites en 2D (résultantes, moment extension) et 9 en 3D. Procédure à modifier pour prendre en compte d'autre fonctions de base macro (+ Repere_ddl_Inter() pour le répérage des ddls macro)
 */
 struct CreateProjMacro {
-    static const TYPEREEL eps=1e-6;
+    static const Scalar eps=1e-6;
     void operator()(Interface &inter, Process &process) const {
-        for(unsigned q=0;q<inter.side.size();++q) {
+        for(unsigned q = 0; q < inter.side.size(); ++q) {
             /// Nombre de noeuds sur l'interface
-            unsigned n=inter.side[q].nodeeq.size();
-            ///calcul de la distance GM (entre G et un noeud de l'interface)
-            Vec<Vec<TYPEREEL,DIM> > GM;
-            GM.resize(n);
-            for(unsigned m=0 ;m<n ;++m)
+            unsigned nb_nodes = inter.side[q].nodeeq.size();
+            /// Calcul de la distance GM (entre G et un noeud de l'interface)
+            Vec<Point> GM;
+            GM.resize(nb_nodes);
+            for(unsigned m = 0; m < nb_nodes; ++m){
                 GM[m]=inter.side[q].nodeeq[m]-inter.G;
-            
+            }
             /// Initialisation des vecteurs de base
-            Vec<Vec<TYPEREEL> > T;
+            Vec<Vector> T;
             T.resize(inter.nb_macro_espace);
-            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
-                T[i].resize(n*DIM);
-            
+            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i){
+                T[i].resize(nb_nodes*DIM);
+            }
             /// Generation des vecteurs
 #if DIM == 2
-            for(unsigned i=0;i<n;++i) {
+            for(unsigned i = 0; i < nb_nodes; ++i) {
                 /// Attention : ordre decroissant et pas de break aux cas 12, 9 et 6 pour que les cas suivants (jusqu'au 3) soit egalement executes
                 switch(inter.nb_macro_espace){
                     case 6:
                         // cisaillement selon N1,N2
-                        T[5][range(i*2,(i+1)*2)]=(dot(inter.BPI[0],GM[i])*inter.BPI[1]+dot(inter.BPI[1],GM[i])*inter.BPI[0])/2.;
+                        T[5][range(i*2,(i+1)*2)] = (dot(inter.BPI[0],GM[i])*inter.BPI[1]+dot(inter.BPI[1],GM[i])*inter.BPI[0])/2.;
                         // Extension selon N2
-                        T[4][range(i*2,(i+1)*2)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
+                        T[4][range(i*2,(i+1)*2)] = dot(inter.BPI[1],GM[i])*inter.BPI[1];
                     case 4:
                         // Extension selon N1
-                        T[3][range(i*2,(i+1)*2)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                        T[3][range(i*2,(i+1)*2)] = dot(inter.BPI[0],GM[i])*inter.BPI[0];
                     case 3:
                         // Moment selon N3
-                        T[2][range(i*2,(i+1)*2)]=dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
+                        T[2][range(i*2,(i+1)*2)] = dot(GM[i],inter.BPI[0])*inter.BPI[1]-dot(GM[i],inter.BPI[1])*inter.BPI[0];
                     case 2:
                         // resultante selon N2
-                        T[1][range(i*2,(i+1)*2)]=inter.BPI[1];
+                        T[1][range(i*2,(i+1)*2)] = inter.BPI[1];
                         // resultante selon N1
-                        T[0][range(i*2,(i+1)*2)]=inter.BPI[0];
+                        T[0][range(i*2,(i+1)*2)] = inter.BPI[0];
                         break;
                     default:
                         assert(0);  /// Dimension de la base macro incorrecte
                 }
             }
 #elif DIM == 3
-            for(unsigned i=0;i<n;++i) {
+            for(unsigned i = 0; i < nb_nodes; ++i) {
                 /// Attention : ordre decroissant et pas de break aux cas 12, 9 et 6 pour que les cas suivants (jusqu'au 3) soit egalement executes
                 switch(inter.nb_macro_espace){
                     case 12:
                         //cisaillement selon N2, N3
-                        T[11][range(i*3,(i+1)*3)]=(inter.BPI[1]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[1],GM[i]))/2.;
+                        T[11][range(i*3,(i+1)*3)] = (inter.BPI[1]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[1],GM[i]))/2.;
                         //cisaillement selon N1, N3
-                        T[10][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[0],GM[i]))/2.;
+                        T[10][range(i*3,(i+1)*3)] = (inter.BPI[0]*dot(inter.BPI[2],GM[i])+inter.BPI[2]*dot(inter.BPI[0],GM[i]))/2.;
                         //cisaillement selon N1, N2
-                        T[9][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
+                        T[9][range(i*3,(i+1)*3)] = (inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
                         // Extension selon N3
-                        T[8][range(i*3,(i+1)*3)]=dot(inter.BPI[2],GM[i])*inter.BPI[2];
+                        T[8][range(i*3,(i+1)*3)] = dot(inter.BPI[2],GM[i])*inter.BPI[2];
                     case 9:
                         /// Pour eviter les conflits avec le cas 12
                         if(inter.nb_macro_espace == 9){
                             // Cisaillement selon N1, N2
-                            T[8][range(i*3,(i+1)*3)]=(inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
+                            T[8][range(i*3,(i+1)*3)] = (inter.BPI[0]*dot(inter.BPI[1],GM[i])+inter.BPI[1]*dot(inter.BPI[0],GM[i]))/2.;
                         }
                         // Extension selon N2
-                        T[7][range(i*3,(i+1)*3)]=dot(inter.BPI[1],GM[i])*inter.BPI[1];
+                        T[7][range(i*3,(i+1)*3)] = dot(inter.BPI[1],GM[i])*inter.BPI[1];
                         // Extension selon N1
-                        T[6][range(i*3,(i+1)*3)]=dot(inter.BPI[0],GM[i])*inter.BPI[0];
+                        T[6][range(i*3,(i+1)*3)] = dot(inter.BPI[0],GM[i])*inter.BPI[0];
                     case 6:
                         // Moment selon N3
-                        T[5][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[2],GM[i]);
+                        T[5][range(i*3,(i+1)*3)] = vect_prod(inter.BPI[2],GM[i]);
                         // Moment selon N2
-                        T[4][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[1],GM[i]);
+                        T[4][range(i*3,(i+1)*3)] = vect_prod(inter.BPI[1],GM[i]);
                         // Moment selon N1
-                        T[3][range(i*3,(i+1)*3)]=vect_prod(inter.BPI[0],GM[i]);
+                        T[3][range(i*3,(i+1)*3)] = vect_prod(inter.BPI[0],GM[i]);
                     case 3:
                         // resultante selon N3
-                        T[2][range(i*3,(i+1)*3)]=inter.BPI[2];
+                        T[2][range(i*3,(i+1)*3)] = inter.BPI[2];
                         // resultante selon N2
-                        T[1][range(i*3,(i+1)*3)]=inter.BPI[1];
+                        T[1][range(i*3,(i+1)*3)] = inter.BPI[1];
                         // resultante selon N1
-                        T[0][range(i*3,(i+1)*3)]=inter.BPI[0];
+                        T[0][range(i*3,(i+1)*3)] = inter.BPI[0];
                         break;
                     default:
                         std::cerr << "ERREUR : Interface (id " << inter.id << ") nb_macro_espace = " << inter.nb_macro_espace << std::endl; 
@@ -345,18 +358,20 @@ struct CreateProjMacro {
             }
 #endif
             /// Orthonormalisation des vecteurs
-            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;i++) {
-                Vec<TYPEREEL> Tsupp;
+            for(unsigned i = 0; i < (unsigned)inter.nb_macro_espace; i++){
+                Vector Tsupp;
                 Tsupp=T[i];
-                for(unsigned j=0;j<i;j++)
-                    Tsupp-=dot(T[j],inter.side[q].M*T[i])*T[j];
-                T[i] = Tsupp/std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp ) );
+                for(unsigned j = 0; j < i; j++){
+                    Tsupp -= dot(T[j],inter.side[q].M*T[i])*T[j];
+                }
+                T[i] = Tsupp / std::sqrt(dot( Tsupp,inter.side[q].M*Tsupp));
             }
             
             /// stockage matrice de la base macro
-            inter.side[q].eM.resize(DIM*n,inter.nb_macro_espace);
-            for(unsigned i=0;i<(unsigned)inter.nb_macro_espace;++i)
-                inter.side[q].eM.col(i)=T[i];
+            inter.side[q].eM.resize(DIM*nb_nodes,inter.nb_macro_espace);
+            for(unsigned i = 0; i < (unsigned)inter.nb_macro_espace; ++i){
+                inter.side[q].eM.col(i) = T[i];
+            }
             inter.side[q].MeM=inter.side[q].M*inter.side[q].eM;
         }
     }
@@ -364,23 +379,23 @@ struct CreateProjMacro {
 
 void create_op_INTER(Vec<VecPointedValues<Sst> > &S,Vec<Interface> &Inter,Vec<VecPointedValues<Interface> > &SubI,Process &process)
 {
-    // calcul des matrices de masse et de sousintegration pour chaque interface
-    if (process.parallelisation->is_master_cpu()) std::cout << "\t Matrice de masse et sous-integration " << std::endl;
+    /// Calcul des matrices de masse et de sous-integration pour chaque interface
+    process.print("\t Matrice de masse et sous-integration ");
     apply_mt(SubI,process.parallelisation->nb_threads,CalcMN(),S);
     
-    if (process.parallelisation->is_master_cpu()) std::cout << "\t Correspondance ddl de chaque cote de l'interface" << std::endl;       
+    process.print("\t Correspondance des ddl de chaque cote des interfaces");
     apply_mt(SubI,process.parallelisation->nb_threads,Corresp_ddlinter());
     
-    if (process.parallelisation->is_master_cpu()) std::cout << "\t Centre de gravite des interfaces" << std::endl;
+    //process.print("\t Centre de gravite des interfaces"); // A REVOIR : inutile ou destruction involontaire
     
-    if (process.multiscale->multiechelle==1){  
-        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des BPI" << std::endl;
-        // calcul Base Principale d'Inertie
+    if (process.multiscale->multiechelle == 1){  
+        /// Calcul de la Base Principale d'Inertie
+        process.print("\t Calcul des BPI");
         apply_mt(SubI,process.parallelisation->nb_threads,CalcBPI());
-        // Application du nombre de fct de base macro par interface 
+        /// Application du nombre de fct de base macro par interface 
         apply_mt(SubI,process.parallelisation->nb_threads,Apply_nb_macro(),process);
-        // creation des projecteurs macro et micro
-        if (process.parallelisation->is_master_cpu()) std::cout << "\t Calcul des projecteurs macro " << std::endl;
+        /// Creation des projecteurs macro et micro
+        process.print("\t Calcul des projecteurs macro ");
         apply_mt(SubI,process.parallelisation->nb_threads,CreateProjMacro(),process);
     }
 }

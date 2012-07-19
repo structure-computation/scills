@@ -9,17 +9,20 @@ MPI_LIB = /usr/include/openmpi
 # type de machine
 ARCHITECTURE = CPU
 
+
 LOC_MC = metil_comp 
 
 #dossiers sources
 DIR_SOURCES_SC = -Ibuild -Ibuild/problem_pb_elast -Isrc -Isrc/DEFINITIONS -Isrc/FORMULATIONS -Isrc/ITERATIONS -Isrc/ITERATIONS/LINEAR -Isrc/ITERATIONS/LOCAL -Isrc/ITERATIONS/ERROR -Isrc/MAILLAGE -Isrc/MATERIAUX -Isrc/MPI -Isrc/OPERATEURS -Isrc/OPERATEURS/INTER -Isrc/OPERATEURS/MACRO -Isrc/OPERATEURS/SST -Isrc/POSTTRAITEMENTS -Isrc/PROBMICRO -Isrc/UTILITAIRES 
 DIR_SOURCES_GEOMETRY = -Isrc -Isrc/GEOMETRY -Isrc/COMPUTE -Isrc/UTILS -Isrc/UTILS/hdf -Isrc/UTILS/xdmf -Isrc/UTILS/json_spirit 
 
+
 # options communes
 GLOB_VAR = -DDIM=$(DIM) -D$(ARCHITECTURE)  -DTYPE=double -DTYPEREEL=double  -DLDL -Dcrout_alain
 CFLAGS= -LUTIL/metis -lmetis -L$(MPI_LIB)/lib -lmpi -lmpi_cxx
 DIR_SOURCES_LMT =  -ILMT -ILMT/include -Iusr/include/suitesparse
 DIR_SOURCES_CUDA = -Iusr/local/cuda/include -Ihome/ubuntu/driver_toolkit/NVIDIA_GPU_Computing_SDK/C/common/inc 
+
 DIR_SOURCES_MPI = -I$(MPI_LIB) -I$(MPI_LIB)/include
 
 # options pour la version release
@@ -45,6 +48,7 @@ metil_comp_test_load_data :
 	$(LOC_MC)  -o  $(PRG_test_load_data) $(GLOB_VAR) $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_release_cpu) $(CFLAGS) $(LIBS) $(OPT)  test/test_load_data.cpp
 
 metil_comp_multi :
+
 	$(LOC_MC)  -o  $(PRG_multi_release) $(GLOB_VAR) $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(DIR_build_release) $(CFLAGS) $(LIBS) $(OPT)  src/main.cpp
 
 metil_comp_multi_dbg :
@@ -60,3 +64,4 @@ clean:
 
 codegen_json:
 	$(LOC_MC) -o DataUserUpdater.exe $(DIR_SOURCES_LMT) -Ihome/scproduction/code_dev/Metil-test/src $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) --comp-dir build/DataUserUpdater $(CFLAGS) src/SCJSONREADER/run.cpp
+

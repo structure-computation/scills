@@ -40,7 +40,11 @@ struct ParallelisationData{
     ParallelisationData():size(1),rank(0),nb_threads(1){}
     void read_data_user(const Metil::DataUser &data_user);
     /// Synchronise les differentes instances MPI du programme (si necessaire)
-    void synchronisation(){if(size>1) {MPI_Barrier(MPI_COMM_WORLD);}}
+    void synchronisation(){
+        if(size > 1){ 
+            MPI_Barrier( MPI_COMM_WORLD );
+        }
+    }
     /// Indique si cette instance du programme gere des problemes locaux
     bool is_local_cpu() const {return (rank>0 or size==1);}
     /// Indique si cette instance du programme est le master

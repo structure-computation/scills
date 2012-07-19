@@ -62,6 +62,14 @@ void MultiResolutionData::updateParameters(){
         std::cerr << "Mauvais type de calcul parametrique : '" << type << "'" << std::endl;
         assert(0);
     }
+    /* DEBUG : affichage des parametres multi-resolution apres mise a jour
+    std::cout << "Mise a jour des parametres de multi-resolution *******************************" << std::endl;
+    std::cout << m.symbol << " = " << m.value << std::endl;
+    for(int i = 0; i < parameters.user_parameters.size(); i++){
+        std::cout << parameters.user_parameters[i]->symbol << " = " << parameters.user_parameters[i]->value << std::endl;
+    }
+    std::cout << "******************************************************************************" << std::endl;
+    //*/
 }
 
 void MultiResolutionData::init(){

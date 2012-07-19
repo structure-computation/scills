@@ -36,7 +36,7 @@ void Process::allocate(){
     latin                   = new LatinData;
     multiscale              = new MultiScaleData();
     temps                   = new TimeData;
-    //properties       = new PROPERTY;
+    //properties              = new PROPERTY;
     parallelisation         = new ParallelisationData;
     multiresolution         = new MultiResolutionData;
     data_user               = new DataUser;
@@ -108,6 +108,40 @@ void Process::initialisation_MPI(int argc,char **argv){
     #endif
 }
 
+void Process::test_MPI(){
+    // ceci est un test ----------
+    sleep(2);
+    parallelisation->synchronisation();
+    if(parallelisation->size > 1){ 
+      std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl; 
+    }
+    sleep(2);
+    parallelisation->synchronisation();
+    Vec<double> test;
+    test.resize(10,0.0);
+    if(parallelisation->is_master_cpu()) test.set(1.0);
+    
+    PRINT(parallelisation->rank);
+    PRINT(test);
+    std::cout << endl;
+    
+    if(parallelisation->is_master_cpu()) sleep(5);
+    //if (process.parallelisation->size > 1) MPI_Barrier( MPI_COMM_WORLD );
+    if (parallelisation->size > 1) MPI_Bcast(test.ptr(),test.size() , MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    
+    PRINT(parallelisation->rank);
+    PRINT(test);
+    std::cout << endl;
+    
+    sleep(2);
+    parallelisation->synchronisation();
+    if(parallelisation->size > 1){ 
+      std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl;
+    }
+    sleep(5);
+    parallelisation->synchronisation();
+    // ceci est un test ----------
+}
 
 
 void Process::lecture_fichiers(Sc2String id_model, Sc2String id_calcul){
@@ -248,18 +282,22 @@ void Process::preparation_calcul(){
     }
     
     /// Creation des liens vers les materiaux et les formulations
+    print("assignation des comportements matériaux");
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
+    
+    print("assignation des comportements liaisons");
     for(unsigned i = 0; i < Inter->size(); i++){
-        PRINT((*Inter)[i].id_link);
+        //PRINT((*Inter)[i].id_link);
         if((*Inter)[i].id_link >= 0){
             int index_link = (*data_user).find_links_index((*Inter)[i].id_link);
             (*Inter)[i].matprop = &((*inter_materials)[index_link]);
-            PRINT((*Inter)[i].matprop->comp);
-            PRINT((*Inter)[i].matprop->type_num);
-            if((*Inter)[i].matprop->type_num == 0) {(*Inter)[i].comp = "Parfait";}
-            else if((*Inter)[i].matprop->type_num == 2) {(*Inter)[i].comp = "Contact_ep";}
+            //PRINT((*Inter)[i].matprop->comp);
+            //PRINT((*Inter)[i].matprop->type_num);
+            if((*Inter)[i].matprop->type_num == 0) {(*Inter)[i].comp = Interface::comp_parfait;}
+            else if((*Inter)[i].matprop->type_num == 2) {(*Inter)[i].comp = Interface::comp_contact_ep;}
+            else if((*Inter)[i].matprop->type_num == 3) {(*Inter)[i].comp = Interface::comp_cohesive;}
+            else if((*Inter)[i].matprop->type_num == 4) {(*Inter)[i].comp = Interface::comp_cassable;}
         }
-        
     }
     
     //     for(unsigned i = 0; i < Inter->size(); i++){
@@ -273,6 +311,18 @@ void Process::preparation_calcul(){
     #ifdef PRINT_ALLOC
     disp_alloc(to_string(parallelisation->rank)+" : Memoire apres allocations : ",1);
     #endif
+    print("Repartition des solides");
+    if(parallelisation->is_master_cpu()){
+        for(int i = 0; i < parallelisation->repartition_sst.size(); i++){
+            std::cout << "\t" << i << " :";
+            unsigned nb_nodes = 0;
+            for(int j = 0; j < parallelisation->repartition_sst[i].size(); j++){
+                std::cout << "\t" << parallelisation->repartition_sst[i][j];
+                nb_nodes += (*S)[parallelisation->repartition_sst[i][j]].mesh.elem_list_size;
+            }
+            std::cout << "\t" << nb_nodes << std::endl;
+        }
+    }
 }
 
 
@@ -286,11 +336,11 @@ void Process::boucle_multi_resolution() {
         print_data("************************************************************ Calcul : ",multiresolution->calcul_cur);
         multiresolution->updateParameters();    /// Mise a jour des parametres de multi-resolution
         SstCarac::updateParameters();           /// Mise a jour des parametres materiaux des sst
-        //InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         boucle_temporelle();
         print_data("******************************************************** Fin Calcul : ",multiresolution->calcul_cur);
+        parallelisation->synchronisation();
     }
-    parallelisation->synchronisation();
+    
     
     memory_free(*S,*Inter,*CL,*sst_materials,*inter_materials,*this);
 }
@@ -307,6 +357,30 @@ void Process::boucle_temporelle(){
     /// Boucle sur les steps temporels
     print_title(1,"DEBUT DU CALCUL ITERATIF ");
     print_data("Nombre de pas de temps total : ",temps->nbpastemps);
+    /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
+    print_title(2,"Mise a jour des operateurs");
+    for(int i_sst = 0; i_sst < S->size(); i_sst++){
+        if((*S)[i_sst].update_operator){
+            #ifdef PRINT_ALLOC
+            disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
+            #endif
+            for(int i = 0; i < (*sst_materials).size(); i++){
+                //(*sst_materials)[i].affiche();
+            }
+            multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
+            Global->allocations(multiscale->sizeM);
+            #ifdef PRINT_ALLOC
+            disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
+            #endif
+            break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
+        }
+    }
+    #ifdef INFO_TIME
+    print_duration(tic2);
+    #endif
+    
+    
+    
     for(temps->init();temps->has_next();temps->next()){
         if(temps->step_changed()){
             print_data("****************************** Step : ",temps->step_cur);
@@ -317,25 +391,31 @@ void Process::boucle_temporelle(){
         Boundary::updateParameters();           /// Mise a jour des CL (PENSER A ENLEVER PLUS BAS LORSQUE PRET)
         InterCarac::updateParameters();         /// Mise a jour des parametres materiaux des interfaces
         
-        /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
-        print_title(2,"Mise a jour des operateurs");
-        for(int i_sst = 0; i_sst < S->size(); i_sst++){
-            if((*S)[i_sst].update_operator){
-                #ifdef PRINT_ALLOC
-                disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
-                #endif
-                multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
-                if(temps->pt_cur == 1){Global->allocations(multiscale->sizeM);}
-                #ifdef PRINT_ALLOC
-                disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
-                #endif
-                break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
-            }
-        }
-        #ifdef INFO_TIME
-        print_duration(tic2);
-        #endif
         
+//         /// Calcul des operateurs  A DEPLACER VERS LE DEBUT DE LA BOUCLE ITERATIVE
+//         print_title(2,"Mise a jour des operateurs");
+//         for(int i_sst = 0; i_sst < S->size(); i_sst++){
+//             if((*S)[i_sst].update_operator){
+//                 #ifdef PRINT_ALLOC
+//                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire avant construction : ").c_str(),1);
+//                 #endif
+//                 for(int i = 0; i < (*sst_materials).size(); i++){
+//                     //(*sst_materials)[i].affiche();
+//                 }
+//                 multiscale_operateurs(*Stot,*SubS,*Inter,*SubI,*this,*Global, *data_user);
+//                 Global->allocations(multiscale->sizeM);
+//                 #ifdef PRINT_ALLOC
+//                 disp_alloc((to_string(parallelisation->rank)+" : Verifie memoire apres construction : ").c_str(),1);
+//                 #endif
+//                 break;  /// multiscale_operateurs a remis a jour les operateurs de tout le monde
+//             }
+//         }
+//         #ifdef INFO_TIME
+//         print_duration(tic2);
+//         #endif
+        print_title(2,"Initialisation des Conditions");
+        
+        parallelisation->synchronisation();
         if(nom_calcul=="incr") {
             /// Presence d'interface Breakable ?
             int nb_breakable=0;
@@ -344,28 +424,30 @@ void Process::boucle_temporelle(){
                     if ((*Inter)[q].comp =="Breakable"){
                         nb_breakable++;
                     }
-                    if (parallelisation->is_multi_cpu()){
-                        MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
-                    }
-                    nb_breakable = nb_breakable ;
                 }
             }
-            
+            if (parallelisation->is_multi_cpu()){
+                MPI_Bcast(&nb_breakable,1, MPI_INT, 0, MPI_COMM_WORLD);
+            }
+            nb_breakable = nb_breakable ;
             /// Mise a jour des conditions aux limites
             if(temps->pt_cur == 1 and parallelisation->is_local_cpu()){
                 print_title(2,"Initialisation des Conditions aux limites :");
-                //                 for(int i = 0; i < SubI->size(); i++){
-                //                     (*SubI)[i].init();
-                //                 }
+                //for(int i = 0; i < SubI->size(); i++){
+                //    (*SubI)[i].init();
+                //}
                 initialise_CL_values(*SubI, *CL);
             }
+            parallelisation->synchronisation();
             print_title(2,"Mise a jour des Conditions aux limites :");
             if (parallelisation->is_local_cpu()){
+                PRINT("ok");
                 update_CL_values(*SubI, *CL, *this, *data_user);
                 for(int i = 0; i < SubI->size(); i++){
                     (*SubI)[i].init();
                 }
             }
+            
             
             /// Calcul sur le pas de temps
             if (nb_breakable>0) {
@@ -390,10 +472,15 @@ void Process::boucle_temporelle(){
             } else {
                 iterate_incr(*this,*SubS,*Inter,*SubI,*Global,*data_user);
             }
+            
             ///assignation ptcur au ptold
+            parallelisation->synchronisation();
             print_title(2,"Reactualisation des valeurs pour le pas de temps suivant");
             assign_quantities_current_to_old(*SubS,*SubI,*this);
             
+            parallelisation->synchronisation();
+            affichage_resultats(*SubS,*this, *data_user);
+            affichage_resultats_inter(*SubI, *S ,*this, *data_user);
             /// Sauvegarde des resultats
             if(save_data){
                 print_title(2,"Sauvegarde des resultats au format HDF"); 
@@ -433,6 +520,22 @@ void Process::boucle_temporelle(){
             std::cerr << "Nom de calcul non defini : incremental uniquement" << std::endl;
             assert(0);
         }
+        /*
+        std::cout << "******************************************************************************" << std::endl;
+        const int side = affichage->side;
+        const int pt = temps->pt_cur;
+        for(int i = 0; i < (*Inter).size(); i++){
+            std::cout << "Interface " << (*Inter)[i].id;
+            std::cout << std::endl << "\tFchap : ";
+            for(int j = 0; j < (*Inter)[i].side[side].t_post[pt].Fchap.size(); j++){
+                std::cout << "\t" << (*Inter)[i].side[side].t_post[pt].Fchap[j] << std::endl;
+            }
+            std::cout << std::endl << "\tWpchap : ";
+            for(int j = 0; j < (*Inter)[i].side[side].t_post[pt].Wpchap.size(); j++){
+                std::cout << "\t" << (*Inter)[i].side[side].t_post[pt].Wpchap[j] << std::endl;
+            }
+        }
+        std::cout << "******************************************************************************" << std::endl;*/
     }
     #ifdef INFO_TIME
     print_duration(tic2);
@@ -443,8 +546,8 @@ void Process::boucle_temporelle(){
         //write_xdmf_file_compute(*this, data_user);
     }
     
-    affichage_resultats(*SubS,*this, *data_user);            ///sortie paraview pour les sst (volumes et peaux)
-    affichage_resultats_inter(*SubI, *S ,*this, *data_user); ///sortie paraview pour les interfaces
+    //affichage_resultats(*SubS,*this, *data_user);            ///sortie paraview pour les sst (volumes et peaux)   /// TMP, test sauvegarde a la fin de chaque pas de temps
+    //affichage_resultats_inter(*SubI, *S ,*this, *data_user); ///sortie paraview pour les interfaces               /// TMP, test sauvegarde a la fin de chaque pas de temps
 }
 
 
@@ -526,13 +629,13 @@ void Process::read_data_user() {
     Tload->prepareParameters();
     
     /// Debuggage
-    multiresolution->affiche();
-    temps->affiche();
-    for(int i = 0; i < CL->size(); i++){
-        (*CL)[i].affiche();
-    }
-    Fvol->affiche();
-    Tload->affiche();
+    //multiresolution->affiche();
+    //temps->affiche();
+    //for(int i = 0; i < CL->size(); i++){
+    //    (*CL)[i].affiche();
+    //}
+    //Fvol->affiche();
+    //Tload->affiche();
 };
 
 void Process::print_title(int level,Sc2String title){

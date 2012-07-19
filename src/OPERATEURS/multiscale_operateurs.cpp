@@ -79,8 +79,7 @@ void multiscale_operateurs(PointedSubstructures &Stot,
 #endif
 
     if(process.multiresolution->type=="Off" or process.multiresolution->m==0){  
-        if (process.parallelisation->is_master_cpu())
-            std::cout << "Calcul des Quantites d'interfaces" << endl;
+        process.print("Calcul des Quantites d'interfaces");
         create_op_INTER(Stot,Inter,SubI,process);
         crout << process.parallelisation->rank << " : Inter.size :" <<Inter.size() << "  :  Op inter : " ;
         tic.stop();
@@ -111,18 +110,18 @@ void multiscale_operateurs(PointedSubstructures &Stot,
         tic1.start();
     }
 #endif
-
+    
     crout << process.parallelisation->rank << " : Op SST : "  ;
     tic.stop();
     tic.start();
-
+    
+    if (process.multiscale->multiechelle==1) {
+        /// Si le multiechelle est active
 #ifdef PRINT_ALLOC
-    disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_MACRO : ").c_str(),1);
+        disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant create_op_MACRO : ").c_str(),1);
 #endif
-
-    if (process.multiscale->multiechelle==1) { //cas multiechelle
-        if (process.parallelisation->is_master_cpu()) std::cout << "Creation du probleme macro" << endl;
-        if (process.parallelisation->is_local_cpu()){
+        process.print("Creation du probleme macro");
+        if (not process.parallelisation->is_local_cpu()){
             create_op_MACRO(Stot,Inter,process,Global);
         } else {
             create_op_MACRO(SubS,Inter,process,Global);//juste pour faire repddl pour savoir où on balance le macro dans bigF...

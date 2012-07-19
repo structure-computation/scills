@@ -91,19 +91,19 @@ void SstCarac::read_data_user(int index, Metil::DataUser& data_user){
     density.setExpression(new_material.rho);
     
     if(type.find("isotrope")<type.size()) {/// comportement thermo-elastique isotrope
-            elastic_modulus.setExpression(new_material.E_1);    /// E
-            poisson_ratio.setExpression(new_material.nu_12);    /// nu
-            alpha.setExpression(new_material.alpha_1);          /// alpha
-            deltaT          = 0;                                /// deltaT
+            elastic_modulus = new_material.E_1;         /// E
+            poisson_ratio   = new_material.nu_12;       /// nu
+            alpha           = new_material.alpha_1;     /// alpha
+            deltaT          = 0;                        /// deltaT
     } else if (type.find("orthotrope")<type.size()) {/// comportement thermo-elastique orthotrope
             /// coefficients d'elasticite
-            elastic_modulus_1.setExpression(new_material.E_1);      /// E1
-            elastic_modulus_2.setExpression(new_material.E_2);      /// E2
-            elastic_modulus_3.setExpression(new_material.E_3);      /// E3
+            elastic_modulus_1 = new_material.E_1;      /// E1
+            elastic_modulus_2 = new_material.E_2;      /// E2
+            elastic_modulus_3 = new_material.E_3;      /// E3
             
-            poisson_ratio_12.setExpression(new_material.nu_12);     /// nu12
-            poisson_ratio_13.setExpression(new_material.nu_13);     /// nu13
-            poisson_ratio_23.setExpression(new_material.nu_23);     /// nu23
+            poisson_ratio_12 = new_material.nu_12;     /// nu12
+            poisson_ratio_13 = new_material.nu_13;     /// nu13
+            poisson_ratio_23 = new_material.nu_23;     /// nu23
             
             shear_modulus_12.setExpression(new_material.cis_1);    /// G12
             shear_modulus_13.setExpression(new_material.cis_2);    /// G13
@@ -112,11 +112,11 @@ void SstCarac::read_data_user(int index, Metil::DataUser& data_user){
             /// directions d'orthotropie TODO version parametrique
             v1[0]=new_material.dir_1_x;
             v2[0]=new_material.dir_2_x;
-            v1[1]=new_material.dir_1_x;
-            v2[1]=new_material.dir_2_x;
+            v1[1]=new_material.dir_1_y;
+            v2[1]=new_material.dir_2_y;
             if(DIM == 3){
-                v1[2]=new_material.dir_1_x;
-                v2[2]=new_material.dir_2_x;
+                v1[2]=new_material.dir_1_z;
+                v2[2]=new_material.dir_2_z;
             }
             v1=v1/norm_2(v1);
             v2=v2/norm_2(v2);
@@ -125,7 +125,7 @@ void SstCarac::read_data_user(int index, Metil::DataUser& data_user){
             alpha_1.setExpression(new_material.alpha_1);           ///alpha_1
             alpha_2.setExpression(new_material.alpha_2);           ///alpha_2
             alpha_3.setExpression(new_material.alpha_3);           ///alpha_3
-            deltaT  = 0;                                            /// deltaT
+            deltaT  = 0;                                           /// deltaT
     }
     
     if(comp.find("visqueux")<comp.size()){/// Comportement visqueux
@@ -177,6 +177,8 @@ void SstCarac::affiche(){
         std::cout << "poisson_ratio : " << poisson_ratio << std::endl;
         std::cout << "alpha : " << alpha << std::endl;
     } else if (type == "orthotrope"){
+        std::cout << "v1 : " << v1[0] << "," << v1[1] << "," << v1[2] << std::endl;
+        std::cout << "v2 : " << v2[0] << "," << v2[1] << "," << v2[2] << std::endl;
         std::cout << "elastic_modulus_1 : " << elastic_modulus_1 << std::endl;
         std::cout << "elastic_modulus_2 : " << elastic_modulus_2 << std::endl;
         std::cout << "elastic_modulus_3 : " << elastic_modulus_3 << std::endl;
@@ -207,6 +209,7 @@ void SstCarac::affiche(){
         std::cout << "a            : " << a << std::endl;
         std::cout << "tau_c        : " << tau_c << std::endl;
     }
+    std::cout << "*****************************************************" << std::endl;
 }
 
 
@@ -240,6 +243,7 @@ void InterCarac::read_data_user(int index,Metil::DataUser &data_user){
     const DataUser::Json_links &link = data_user.links_vec[index];
     id = link.id_in_calcul;
     type_num = link.type_num;
+    degradable = (type_num == 3);
     name = link.name;
     //type = link.;
     comp = link.comp_generique + link.comp_complexe;

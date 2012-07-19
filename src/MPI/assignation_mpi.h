@@ -251,7 +251,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
         std::cout<< &Inter[i] ;
     std::cout << std::endl;*/
     ///Affichage de la repartion des SST et Interface en terme de nombre de noeuds par pro et à echanger
-    if (process.parallelisation->is_local_cpu()) {
+    if (not process.parallelisation->is_local_cpu()) {
         for( unsigned k=0;k<(unsigned) Inter.size() ;k++ ) {
             if (Inter[k].type=="Int") {
                 int numsst1= Inter[k].vois[0];
@@ -297,7 +297,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
         std::cout << "Nb noeud interface equivalent par processeur : " << nodeinterparpro << std::endl;
         std::cout << "Nb noeud interface a envoye   par processeur : " << nodeinterparprotoexchange << std::endl;
     }
-    if (process.parallelisation->is_local_cpu()) {
+    if (not process.parallelisation->is_local_cpu()) {
         process.parallelisation->listinter.resize(0);
     }
 
@@ -381,7 +381,7 @@ template<class TV1,class TV2,class TV3,class TV4,class TV5>
 void memory_free(TV1 &S,TV2 &Inter,TV3 &CL,TV4 &SstMat,TV5 &InterMat,Process &process) {
     std::cout << process.parallelisation->rank << " : " << process.parallelisation->listsst.size() << std::endl;
     int nbedge=0,nbvois=0;
-    for(unsigned i=0;i<S.size();i++)
+    for(unsigned i=0;i<S.size();i++){
         if(!find(process.parallelisation->listsst,LMT::_1==i)) {
             if(not process.parallelisation->is_master_cpu()) {
                 nbedge+=S[i].edge.size();
@@ -391,42 +391,54 @@ void memory_free(TV1 &S,TV2 &Inter,TV3 &CL,TV4 &SstMat,TV5 &InterMat,Process &pr
                 S[i].free();
             }
         }
-//         std::cout << process.parallelisation->rank << " : nbedge " << nbedge << " et nbvois " << nbvois << std::endl;
+    }
+//    std::cout << process.parallelisation->rank << " : nbedge " << nbedge << " et nbvois " << nbvois << std::endl;
+    
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage SST : ").c_str(),1);
 #endif
-
-
-        for(unsigned i=0;i<S.size();i++)
-            S[i].mesh.unload();
+    
+    for(unsigned i=0;i<S.size();i++){
+        S[i].mesh.unload();
+    }
+    
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage SST maillage : ").c_str(),1);
 #endif
       
-//     std::cout << process.parallelisation->rank << " : " << process.parallelisation->listinter.size() << std::endl;
-    for(unsigned i=0;i<Inter.size();i++)
-        if(!find(process.parallelisation->listinter,LMT::_1==i))
+//    std::cout << process.parallelisation->rank << " : " << process.parallelisation->listinter.size() << std::endl;
+    for(unsigned i=0;i<Inter.size();i++){
+        if(!find(process.parallelisation->listinter,LMT::_1==i)){
             if(not process.parallelisation->is_master_cpu()) {
                 Inter[i].free();
                 //std::cout << process.parallelisation->rank << " : On efface l interface " << i << std::endl;
             }
-
+        }
+    }
+    
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage Inter : ").c_str(),1);
 #endif
-     if (process.parallelisation->is_local_cpu())
-        for(unsigned i=0;i<S.size();i++)
+    if (process.parallelisation->is_local_cpu()){
+        for(unsigned i=0;i<S.size();i++){
             S[i].free();
+        }
+    }
+    
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage SST proc 0 : ").c_str(),1);
 #endif
-     if (process.parallelisation->is_local_cpu())
-        for(unsigned i=0;i<Inter.size();i++)
+    
+    if (process.parallelisation->is_local_cpu()){
+        for(unsigned i=0;i<Inter.size();i++){
             Inter[i].free();
+        }
+    }
 
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Vidage Inter proc 0 : ").c_str(),1);
 #endif
+    
     /*
     for(unsigned i=0;i<CL.size();i++)
         CL[i].free();

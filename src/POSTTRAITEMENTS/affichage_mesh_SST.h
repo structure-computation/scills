@@ -12,31 +12,30 @@ using namespace LMT;
 // eclatement des SST
 //***********************
 
-// modification du champ permettant une visu avec eclatement des SST
+/// modification du champ permettant une visu avec eclatement des SST
 struct modif_qtrans {
     template<class TN>
-    void operator()(TN &node, typename TN::Pvec &trans) const {
+    void operator()(TN &node, Point &trans) const {
         node.qtrans=node.pos-trans;
     }
 };
 
 struct eclat_SST_struct {
     template<class SST>
-    void operator()(SST &S, TYPEREEL ecl) const {
-        typedef Vec<TYPEREEL,DIM> TV;
-        // calcul cdg du maillage
+    void operator()(SST &S, Scalar ecl) const {
+        /// calcul cdg du maillage
         S.mesh.load();
-        TV G=barycenter_constant_rho(*S.mesh.m);
-        // translation du maillage
-        TV trans=G*ecl;
-        // modification du champ qtrans
+        Point G=barycenter_constant_rho(*S.mesh.m);
+        /// translation du maillage
+        Point trans=G*ecl;
+        /// modification du champ qtrans
         apply(S.mesh->node_list,modif_qtrans(),trans);
     }
 };
 
 
 template<class TV1>
-void eclat_SST(TV1 &S,TYPEREEL ecl) {
+void eclat_SST(TV1 &S,Scalar ecl) {
     apply(S,eclat_SST_struct(),ecl);
 };
 

@@ -183,7 +183,7 @@ struct calcerror_dissi {
             data=S.edge[i].datanum;
             TYPEREEL temp1=0;
             TYPEREEL temp2=0;
-            if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
+            if (Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<process.temps->nbpastemps ;j++ ) {
                     temp1+=process.temps->dt*(
                         dot((Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t[j+1].Wpchap)));
@@ -209,7 +209,7 @@ struct calcerror_dissi_post {
             data=S.edge[i].datanum;
             TYPEREEL temp1=0;
             TYPEREEL temp2=0;
-            if (Inter[q].comp=="Contact" or Inter[q].comp=="Contact_jeu" or Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
+            if (Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp=="Contact_ep"){
                 for(unsigned j=0 ;j<(unsigned)process.temps->pt_cur ;j++ ) {
                     temp1+=process.temps->dt*(
                         dot((Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Fchap)+Inter[q].side[data].Pt(Inter[q].side[data].t_post[j].Fchap))/2.0,Inter[q].side[data].M*Inter[q].side[data].Pt(Inter[q].side[data].t_post[j+1].Wpchap)));

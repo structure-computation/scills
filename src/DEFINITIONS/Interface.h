@@ -16,23 +16,42 @@ Classe de stockage des variables associees a une interface
 */
 struct Interface
 {
+    static Sc2String type_ext;  /// Nom pour le type interface exterieure (CL)
+    static Sc2String type_int;  /// Nom pour le type interface interieure (liaison)
+    
+    static Sc2String comp_parfait;      /// Nom pour le comportement parfait
+    static Sc2String comp_contact_ep;   /// Nom pour le comportement contact avec epaisseur
+    static Sc2String comp_cohesive;     /// Nom pour le comportement cohesif
+    static Sc2String comp_cassable;     /// Nom pour le comportement cassable
+    
+    static Sc2String comp_deplacement;          /// Nom pour le comportement deplacement impose
+    static Sc2String comp_deplacement_normal;   /// Nom pour le comportement deplacement normal
+    static Sc2String comp_deplacement_nul;      /// Nom pour le comportement deplacement nul
+    static Sc2String comp_vitesse;              /// Nom pour le comportement vitesse imposee
+    static Sc2String comp_vitesse_normale;      /// Nom pour le comportement vitesse normale
+    static Sc2String comp_vitesse_nulle;        /// Nom pour le comportement vitesse nulle
+    static Sc2String comp_effort;               /// Nom pour le comportement effort impose
+    static Sc2String comp_effort_normal;        /// Nom pour le comportement effort normal (pression)
+    static Sc2String comp_symetrie;             /// Nom pour le comportement symetrie
+    static Sc2String comp_periodique;           /// Nom pour le comportement periodique
+    
     /// Geometrie
     int id;     /// id du group d'interface de geometry_user
     int num;    /// numero de l'interface 
     
-    Point G;                             /// centre de gravite
-    Vec<Point, DIM> BPI;                 /// Base principale d'inertie de l'interface
+    Point G;                /// centre de gravite
+    Vec<Point, DIM> BPI;    /// Base principale d'inertie de l'interface
     Point Moments_inertie;  /// Moments d'inertie pour savoir si l'interface est plane ou non
-    Vec<int> vois;                      /// sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
-    Scalar measure;                   /// mesure de l'interface (aire ou longueur)
+    Vec<int> vois;          /// sous-structures voisines + cote correspondant (ex: sst 0 cote 1 sst 3 cote 2 - > 0 1 3 2)
+    Scalar measure;         /// mesure de l'interface (aire ou longueur)
 
     /// comportement de l'interface
-    Sc2String type; /// type d'interface (exterieure : Ext ou interieure : Int )
-    Sc2String comp; /// comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, contact epais : Contact_ep
-    int refCL;      /// numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
-    int edge_id;    /// identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
-    int id_link;    /// identite du behaviour_links dans le data_user issu du json
-    int id_bc;      /// identite du behaviour_bc dans le data_user issu du json
+    Sc2String type;         /// type d'interface (exterieure : Ext ou interieure : Int )
+    Sc2String comp;         /// comportement d'interface (effort : effort, deplacement : depl, symetrie : sym, deplacement normal : depl_normal parfaite : Parfait, contact : Contact, contact epais : Contact_ep
+    int refCL;              /// numero de la condition aux limites concernee pour les interfaces exterieures (index dans la liste)
+    int edge_id;            /// identite du group edge equivalent dans le json. Ce numero peut être commun a plusieurs interfaces de bord "ext"
+    int id_link;            /// identite du behaviour_links dans le data_user issu du json
+    int id_bc;              /// identite du behaviour_bc dans le data_user issu du json
     InterCarac* matprop;    /// Caracteristiques materiaux de l'interface
     
     
@@ -74,52 +93,42 @@ struct Interface
         Vector Pt(Vector &f);
 
         /// scalaire pour direction de recherche normale tangentielle, ou direction unique
-        TYPEREEL kn,kt,hn,ht,h,k;
+        Scalar kn,kt,hn,ht,h,k;
 
         Vec<unsigned> ddlcorresp; /// correspondance des ddls des deux cotes de l'interface (pas encore bien teste)
 
         /// Structure temporelle contenant les vecteurs nodaux
         struct Time{
-            Vector F;        /// efforts sur la face (etape )
-            Vector W;        /// deplacements sur la face (etape )
-            Vector Wp;       /// vitesses sur la face (etape )
-            Vector Fchap;    /// efforts sur la face (etape )
-            Vector Wchap;    /// deplacements sur la face (etape )
-            Vector Wpchap;   /// vitesses sur la face (etape )
-            Vector WtildeM;  /// pseudo multiplicateur de
-            Vector oldF;     /// efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vector oldW;     /// deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vector oldWp;    /// vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            void allocations(unsigned sizenodeeq);
+            Vector F;       /// efforts sur la face (etape )
+            Vector W;       /// deplacements sur la face (etape )
+            Vector Wp;      /// vitesses sur la face (etape )
+            Vector Fchap;   /// efforts sur la face (etape )
+            Vector Wchap;   /// deplacements sur la face (etape )
+            Vector Wpchap;  /// vitesses sur la face (etape )
+            Vector WtildeM; /// pseudo multiplicateur de
+            Vector oldF;    /// efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vector oldW;    /// deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vector oldWp;   /// vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vector d;       /// endommagement des elements de l'interface
+            void allocations(unsigned sizenodeeq,bool endommageable);
         };
         Vec<Time> t;        /// Vecteurs piquet de temps
         Vec<Time> t_post;   /// Vecteurs piquet de temps pour sauvegarder les donnees pour chaque piquet de temps (en incremental, non utile en latin)
         
         BasicVec<BasicVec<int> > mesh_connectivities; /// connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
-        BasicVec<int> nature; /// type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
+        BasicVec<int> nature; /// type d'interface, c.f. int get_type_elem()
         BasicVec<int> number; /// numéro de l'interface
-        BasicVec< BasicVec<TYPEREEL>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; /// champs de déplacement et contrainte
+        BasicVec< BasicVec<Scalar>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; /// champs de déplacement et contrainte
     };
     Vec<Side> side; ///< cotes de l'interface
 
-    Scalar coeffrottement;      /// coefficient de frottement de l'interface
-    Vector coeffrottement_vec;  ///
+    Scalar coeffrottement;      /// coefficient de frottement global
+    Vector coeffrottement_vec;  /// vecteur des valeurs du coefficient de frottement
     Vector jeu ;                /// vecteur des valeurs de jeu sur l'interface
     Vector raideur;             /// vecteur des valeurs de raideur sur l'interface
-    Vec<bool> comportement;     /// indique s'il y a modification du comportement d'un element
+    Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
                                 ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
-    
-    struct Time{
-        Vector d;    /// endommagement des elements de l'interface
-        void allocate(const Interface& interface){
-            //if(interface.matprop->degradable){ //DESACTIVATION LE TEMPS DE TRANSFERER TOUT DANS MATPROP
-                d.resize(interface.side[0].nodeeq.size());
-            //}
-        }
-        void free(){d.free();}
-    };
-    Vec<Time> t;
     
     
     #if DIM==2
@@ -127,11 +136,11 @@ struct Interface
     #else
     static const   int nb_nodes_by_element=3;
     #endif  
-    BasicVec<BasicVec<TYPEREEL>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
+    BasicVec<BasicVec<Scalar>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
     BasicVec<int> nature; ///< type d'interface : 0 : deplacement imposé, 1 : effort imposé, 2 : symetrie, 3 : depl normal imposé, 4 : parfait, 5 : contact
     BasicVec<int> number; ///< numéro de l'interface
-    BasicVec< BasicVec<TYPEREEL>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
+    BasicVec< BasicVec<Scalar>, DIM > F, Fchap, W, Wchap, Wp, Wpchap; ///< champs de déplacement et contrainte
     
     //*******************************************************************************************
     // methodes de la class
@@ -140,6 +149,9 @@ struct Interface
     void init();
     void affiche();
     void read_data_user(int index,const DataUser &data_user, const GeometryUser &geometry_user);
+    
+    /// Retourne le type d'element de l'interface sous forme d'un entier
+    int get_type_elem() const;
 
     Interface();
     ~Interface();
@@ -147,3 +159,5 @@ struct Interface
 
 
 #endif // INTERFACE_H
+
+class stat;

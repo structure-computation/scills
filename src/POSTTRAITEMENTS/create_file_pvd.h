@@ -121,7 +121,7 @@ inline void create_file_pvd(Process &process,const Sc2String prefix="sst_",unsig
 //creation d'un fichier unique permettant d'acceder a tous les pas de temps et toutes les donnees par processeur pour une resolution
 inline void create_file_pvd(Process &process, DataUser &data_user, const Sc2String prefix="sst_bulk"){
     Sc2String save_directory=process.affichage->repertoire_save+"results/"+prefix+"/";
-        
+    
     //creation du nom et du fichier pvd
     std::ostringstream spvd;
     Sc2String name_multiresolution="";

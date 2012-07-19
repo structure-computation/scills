@@ -102,18 +102,18 @@ struct InterCarac
     static ParameterGroup inter_materials_parameters;
     
     unsigned id;                    /// numero d'identification de cette caracteristique
-    unsigned type_num;                 /// numero d'identification du comportement d'interface
-    Sc2String name;                    /// nom de la caracteristique d'interface (informatif)
-    Sc2String type;                    /// type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
-    Sc2String comp;                    /// comportement des interfaces incluses
+    unsigned type_num;              /// numero d'identification du comportement d'interface
+    Sc2String name;                 /// nom de la caracteristique d'interface (informatif)
+    Sc2String type;                 /// type d'interfaces : contact_box, contact_sst, contact_jeu_box, contact_jeu_sst, contact_jeu_physique, jeu_impose_sst, jeu_impose_box, cohesive, discrete, contact_ep
+    Sc2String comp;                 /// comportement des interfaces incluses
     LMT::Vec<unsigned,2> num_sst;   /// numero des sous-structures adjacentes
     bool degradable;                /// indique si l'interface est degradable
     
-    UserParameter f_jeu ;               /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
-    UserParameter f_coeffrottement;     /// parametre representant le coefficient de frottement
+    UserParameter f_jeu ;           /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
+    UserParameter f_coeffrottement; /// parametre representant le coefficient de frottement
     //Scalar coeffrottement;        /// coefficient de frottement sur l'interface
-    UserParameter f_raideur;            /// parametre donnant la raideur d'une interface elastique
-    UserParameter Gcrit;                /// valeur de taux de restitution critique pour les interfaces cassables
+    UserParameter f_raideur;        /// parametre donnant la raideur d'une interface elastique
+    UserParameter Gcrit;            /// valeur de taux de restitution critique pour les interfaces cassables
     
     UserParameter kn;       /// raideur normale (en traction si knc definie)
     UserParameter kt;       /// raideur tangentielle

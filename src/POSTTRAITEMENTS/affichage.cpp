@@ -46,7 +46,7 @@ void fake_affichage() {
     affichage_resultats(SP3, process, data_user);
     affichage_depl_pt(SP3, process);
     affichage_var_inter(SP3,Inter3, process);
-    affichage_inter_data(Inter3, S3, process);
+    //affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process, data_user);
     affichage_energie(SP3,Inter3, process, data_user);
     
@@ -126,8 +126,8 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
         }
         process.parallelisation->synchronisation();
         //if (process.parallelisation->is_local_cpu()){create_file_pvtu(process,process.affichage->type_affichage); Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
-        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
-        if (process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
+        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
+        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 
     }
 }
@@ -138,13 +138,13 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
 void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
-    PRINT(process.affichage->affich_resultat);
+    //PRINT(process.affichage->affich_resultat);
     
     if (process.affichage->affich_resultat==1)
         if (process.parallelisation->is_local_cpu()) {
             write_paraview_results(S,process, data_user);
-            create_file_pvd(process,data_user,"sst_bulk");
-            create_file_pvd(process,data_user,"sst_skin");
+            //create_file_pvd(process,data_user,"sst_bulk");    /// TMP, test sauvegarde a la fin de chaque pas de temps
+            //create_file_pvd(process,data_user,"sst_skin");    /// TMP, test sauvegarde a la fin de chaque pas de temps
         }
 };
 
@@ -158,7 +158,7 @@ void affichage_resultats_inter(Vec<VecPointedValues<Interface> > &Inter, Vec<Sst
   if (process.affichage->affich_resultat==1)
       if (process.parallelisation->is_local_cpu()) {
         affich_INTER_resultat(Inter,S,process);
-        create_file_pvd(process,data_user,"inter");
+        //create_file_pvd(process,data_user,"inter");   /// TMP, test sauvegarde a la fin de chaque pas de temps
       }
 };
 
