@@ -130,6 +130,7 @@ void assign_quantities_current_to_old(PointedSubstructures &SubS, PointedInterfa
         SubS[i].t[0]=SubS[i].t[1];
     }
     for(unsigned i=0;i<SubI.size();i++){
+        SubI[i].jeu_old = SubI[i].jeu_cur;
         for(unsigned j=0;j<SubI[i].side.size();j++){
             SubI[i].side[j].t[0].F=SubI[i].side[j].t[1].F;
             SubI[i].side[j].t[0].Wp=SubI[i].side[j].t[1].Wp;
@@ -156,27 +157,32 @@ void assign_t_post(PointedSubstructures &SubS, PointedInterfaces &SubI, Process 
 }
 
 
-void recopie_old_from_new(PointedInterfaces &SubI,Process &process) {
+void recopie_old_from_new(PointedInterfaces &SubI,Process &process) {/* PAS UTILISEE
     unsigned nbpastemps=0;
     if (process.nom_calcul=="incr") nbpastemps=1;
     if (process.nom_calcul=="latin") nbpastemps=process.temps->nbpastemps;
-    for(unsigned pt=1;pt<=nbpastemps;pt++)
-        for( unsigned q=0;q<SubI.size() ;q++ )
+    for(unsigned pt=1;pt<=nbpastemps;pt++){
+        for( unsigned q=0;q<SubI.size() ;q++ ){
             for( unsigned data=0;data<SubI[q].side.size() ;data++ ) {
                 SubI[q].side[data].t[pt].oldF=SubI[q].side[data].t[pt].F;
                 SubI[q].side[data].t[pt].oldWp=SubI[q].side[data].t[pt].Wp;
                 SubI[q].side[data].t[pt].oldW=SubI[q].side[data].t[pt].W;
             }
+        }
+    }
+    //*/
 }
 
 
-void recopie_old_from_new_post(PointedInterfaces &SubI,Process &process) {
-    for( unsigned q=0;q<SubI.size() ;q++ )
+void recopie_old_from_new_post(PointedInterfaces &SubI,Process &process) {/* A REVOIR UTILISEE UNIQUEMENT POUR LES REPRISES DE CALCUL
+    for( unsigned q=0;q<SubI.size() ;q++ ){
         for( unsigned data=0;data<SubI[q].side.size() ;data++ ) {
             SubI[q].side[data].t[1].oldF=SubI[q].side[data].t_post[1].F;
             SubI[q].side[data].t[1].oldWp=SubI[q].side[data].t_post[1].Wp;
             SubI[q].side[data].t[1].oldW=SubI[q].side[data].t_post[1].W;
         }
+    }
+    //*/
 }
 
 

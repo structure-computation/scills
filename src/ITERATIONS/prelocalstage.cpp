@@ -50,8 +50,9 @@ void initialise_CL_values(PointedInterfaces &Inter, Boundaries &CL){
         if(Inter[i_inter].type != Interface::type_ext or (Inter[i_inter].comp != Interface::comp_deplacement and Inter[i_inter].comp != Interface::comp_deplacement_normal)){
             continue;   /// Si inutile, passer a l'interface suivante
         }
-        bool depl = Inter[i_inter].comp == Interface::comp_deplacement;
-        bool depl_normal = Inter[i_inter].comp == Interface::comp_deplacement_normal;
+        /// Cas particulier des deplacements imposes
+        bool depl = (Inter[i_inter].comp == Interface::comp_deplacement);
+        bool depl_normal = (Inter[i_inter].comp == Interface::comp_deplacement_normal);
         for(unsigned i=0;i<Inter[i_inter].side[0].nodeeq.size();++i){
             for(unsigned i_dir = 0; i_dir < DIM; ++i_dir){
                 values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = Inter[i_inter].side[0].nodeeq[i][i_dir];
@@ -64,7 +65,7 @@ void initialise_CL_values(PointedInterfaces &Inter, Boundaries &CL){
                 }
                 Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)]=data;
             }else if(depl_normal){
-                /// Cas d'un deplacement normal
+                /// Cas d'un deplacement impose normal
                 Scalar data = (Scalar)CL[Inter[i_inter].refCL].fcts_spatiales[0].updateValue(values);
                 Point neq = Inter[i_inter].side[0].neq[range(i*DIM,(i+1)*DIM)];
                 Point temp=Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)];
@@ -131,14 +132,57 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique") {
-            ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2 et impose uniquement pour le premier pas de temps
-            if(process.temps->pt_cur==1) {
-                Inter[i_inter].side[1].t[0].Wchap[Inter[i_inter].side[1].ddlcorresp]=Inter[i_inter].jeu/2.;
-                Inter[i_inter].side[0].t[0].Wchap=-1.*Inter[i_inter].jeu/2.;
-                //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
-                //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
+        }
+        ///Reactualisation du jeu/epaisseur des interface
+        if(Inter[i_inter].type == Interface::type_int) {
+            /// Recuperation des grandeurs d'interet
+            LMT::Vec<Point> &nodes = Inter[i_inter].side[0].nodeeq;
+            unsigned nb_nodes = nodes.size();
+            LMT::Vec<unsigned> list1 = Inter[i_inter].side[0].ddlcorresp;
+            LMT::Vec<unsigned> list2 = Inter[i_inter].side[1].ddlcorresp;
+            
+            /// Reactualisation du jeu
+            Vector jeu_temp;
+            jeu_temp.resize(nb_nodes*DIM,0.0);
+            /// Recuperation des parametres temporels et de multiresolution
+            Ex::MapExNum values = InterCarac::inter_materials_parameters.getParentsValues();
+            for(unsigned i=0;i<nb_nodes;++i){
+                for(unsigned i_dir=0;i_dir<DIM;++i_dir){
+                    /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
+                    values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodes[i][i_dir];
+                }
+                /// Evaluation des composantes du jeu
+                jeu_temp[LMT::range(DIM*i,DIM*(i+1))] = Inter[i_inter].matprop->f_jeu.updateValue(values);
             }
+            Inter[i_inter].jeu_cur = Inter[i_inter].side[0].Pn(jeu_temp);
+            
+            /// Creation des operateurs locaux
+            Interface::Kloc kloc1;
+            kloc1.kn=Inter[i_inter].side[0].kn;
+            kloc1.kt=Inter[i_inter].side[0].kt;
+            
+            Interface::Kloc kloc2;
+            kloc2.kn=Inter[i_inter].side[1].kn;
+            kloc2.kt=Inter[i_inter].side[1].kt;
+            
+            Interface::Kloc hloc;
+            hloc.kn=1./(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
+            hloc.kt=1./(Inter[i_inter].side[1].kt+Inter[i_inter].side[0].kt);
+            
+            for(unsigned i = 0; i < nb_nodes; i++) {
+                /// Recuperation des valeurs locales (noeud)
+                LMT::Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
+                Point n1 = Inter[i_inter].side[0].neq[list1][rep];
+                Point jeu = Inter[i_inter].jeu_cur[list1][rep];
+                kloc1.n = n1;
+                kloc2.n = n1;
+                hloc.n = n1;
+                /// Assignation du jeu
+                Inter[i_inter].side[0].t[0].Wpchap[list1][rep] -= hloc*(kloc1*jeu);
+                Inter[i_inter].side[1].t[0].Wpchap[list2][rep] += hloc*(kloc2*jeu);
+            }
+            //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
+            //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
         }
         std::cout << std::endl;
     }

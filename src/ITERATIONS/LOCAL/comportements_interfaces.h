@@ -63,83 +63,71 @@ void compt_CL_sym (Interface &Inter,int &imic) {
 }
 
 
-/// Structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
-/// S'utilise ensuite comme une matrice
-struct Kloc{
-    /// Rigidites normale (kn) et tangentielle (kt)
-    Scalar kn,kt;
-    /// Vecteur normal
-    Point n;
-    /// Surcharge pour la multiplication d'un vecteur W
-    template<class TV> Point operator*(TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
-    /// Surcharge pour la multiplication d'un vecteur W constant
-    template<class TV> Point operator*(const TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
-};
-
-
 //interface interieure de type parfaite
 /** \ingroup  etape_locale
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures parfaites
 */
-void compt_parfait (Interface &Inter,int &imic) {
-    LMT::Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
-    LMT::Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
-    Vector Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vector Wchap_temp=Inter.side[0].t[imic].Wpchap[list1];
-    Vector Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vector Fchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vector Fchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vector &Q1=Inter.side[0].t[imic].F[list1];
-    const Vector &Q2=Inter.side[1].t[imic].F[list2];
-    const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
-    const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &neq1=(Inter.side[0].neq)[list1];
-    const Vector &JJ=Inter.jeu[list1];
-    //const Vector &neq2=(Inter.side[1].neq)[list2];
+void compt_parfait (Interface &Inter,TimeData &temps) {
+    const int imic = temps.pt;
+    const unsigned pt_cur = temps.pt_cur;
+    const Scalar dt = temps.dt;
+    const unsigned nb_nodes = Inter.side[0].nodeeq.size();
+    const LMT::Vec<unsigned> &list1 = Inter.side[0].ddlcorresp;
+    const LMT::Vec<unsigned> &list2 = Inter.side[1].ddlcorresp;
+    Vector Wpchap1 = Inter.side[0].t[imic].Wpchap[list1];
+    Vector Wpchap2 = Inter.side[1].t[imic].Wpchap[list2];
+    Vector Fchap1 = Inter.side[0].t[imic].Fchap[list1];
+    Vector Fchap2 = Inter.side[1].t[imic].Fchap[list2];
+    const Vector &F1_all = Inter.side[0].t[imic].F[list1];
+    const Vector &F2_all = Inter.side[1].t[imic].F[list2];
+    const Vector &Wp1_all = Inter.side[0].t[imic].Wp[list1];
+    const Vector &Wp2_all = Inter.side[1].t[imic].Wp[list2];
+    const Vector &n1_all = Inter.side[0].neq[list1];
+    const Vector &jeu_old_all = Inter.jeu_old[list1];
+    const Vector &jeu_cur_all = Inter.jeu_cur[list1];
 
     /// Creation des operateurs locaux de direction de recherche
-    Kloc kloc1;
+    Interface::Kloc kloc1;
     kloc1.kn=Inter.side[0].kn;
     kloc1.kt=Inter.side[0].kt;
     
-    Kloc kloc2;
+    Interface::Kloc kloc2;
     kloc2.kn=Inter.side[1].kn;
     kloc2.kt=Inter.side[1].kt;
     
-    Kloc hloc;
+    Interface::Kloc hloc;
     hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
     hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
     
     /// Travail point par point
-    for(unsigned i=0;i<Inter.side[0].nodeeq.size();i++) {
+    for(unsigned i = 0; i < nb_nodes; i++) {
         /// Creation du reperage du point
         LMT::Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
         
         /// Recuperation des vecteurs locaux
-        Point n1 = neq1[rep];
-        Point F1 = Q1[rep];
-        Point F2 = Q2[rep];
-        Point W1 = WW1[rep];
-        Point W2 = WW2[rep];
-        Point jeu = JJ[rep];
+        Point n1 = n1_all[rep];
+        Point F1 = F1_all[rep];
+        Point F2 = F2_all[rep];
+        Point Wp1 = Wp1_all[rep];
+        Point Wp2 = Wp2_all[rep];
+        Point jeu_old = jeu_old_all[rep];
+        Point jeu_cur = jeu_cur_all[rep];
         
-        /// Creation des matrices elementaires de direction de recherche
+        /// Mise a jour des operateurs locaux
         kloc1.n = n1;
         kloc2.n = n1;
         hloc.n = n1;
         
         /// Calcul des grandeurs
-        Wchap1[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        W1 += jeu;
-        Wchap_temp[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        Fchap1[rep]=F1+kloc1*(Wchap_temp[rep]-W1);
+        Wpchap1[rep] = hloc*(kloc1*Wp1+kloc2*Wp2-(F1+F2)-kloc2*(jeu_cur-jeu_old)/dt);
+        Fchap1[rep] = F1+kloc1*(Wpchap1[rep]-Wp1);
     }
 
-    Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
-    Inter.side[1].t[imic].Wpchap[list2]=Wchap1;
-    Inter.side[0].t[imic].Fchap[list1]=Fchap1;
-    Inter.side[1].t[imic].Fchap[list2]=-1.0*Fchap1;
+    Inter.side[0].t[imic].Wpchap[list1] = Wpchap1;
+    Inter.side[1].t[imic].Wpchap[list2] = Wpchap1;
+    Inter.side[0].t[imic].Fchap[list1] = Fchap1;
+    Inter.side[1].t[imic].Fchap[list2] = -1.0*Fchap1;
     
 }
 
@@ -162,20 +150,20 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
     const Vector &Q2=Inter.side[1].t[imic].F[list2];
     const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
     const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &JJ=Inter.jeu[list1];
+    const Vector &JJ=Inter.jeu_cur[list1];
     const Vector &neq1=(Inter.side[0].neq)[list1];
     //const Vector &neq2=(Inter.side[1].neq)[list2];
 
     /// Creation des operateurs locaux de direction de recherche
-    Kloc kloc1;
+    Interface::Kloc kloc1;
     kloc1.kn=Inter.side[0].kn;
     kloc1.kt=Inter.side[0].kt;
     
-    Kloc kloc2;
+    Interface::Kloc kloc2;
     kloc2.kn=Inter.side[1].kn;
     kloc2.kt=Inter.side[1].kt;
     
-    Kloc hloc;
+    Interface::Kloc hloc;
     hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
     hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
 
@@ -460,7 +448,7 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
     Vector WWchap1 = Inter.side[0].t[imic].Wchap[list1];
     Vector WWchap2 = Inter.side[1].t[imic].Wchap[list2];
     
-    const Vector &JJ = Inter.jeu[list1];
+    const Vector &JJ = Inter.jeu_cur[list1];
     const Vector &neq = Inter.side[1].neq[list1];
     
     Scalar f = Inter.coeffrottement;
@@ -705,17 +693,17 @@ void compt_breakable (Interface &Inter,TimeData &temps) {
         } else {
             /// interface parfaite...
             /// creation des operateurs locaux de direction de recherche
-            Kloc kloc1;
+            Interface::Kloc kloc1;
             kloc1.kn = side_0.kn;
             kloc1.kt = side_0.kt;
             kloc1.n = n;
             
-            Kloc kloc2;
+            Interface::Kloc kloc2;
             kloc2.kn = side_1.kn;
             kloc2.kt = side_1.kt;
             kloc2.n = n;
             
-            Kloc hloc;
+            Interface::Kloc hloc;
             hloc.kn = 1.0/(side_1.kn+side_0.kn);
             hloc.kt = 1.0/(side_1.kt+side_0.kt);
             hloc.n  = n;

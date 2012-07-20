@@ -51,11 +51,11 @@ struct etape_locale_inter {
             } else if (Inter.comp==Interface::comp_vitesse_normale or Inter.comp==Interface::comp_deplacement_normal) {
                 compt_CL_sym(Inter,process.temps->pt);
             } else if (Inter.comp==Interface::comp_periodique) {
-                compt_parfait(Inter,process.temps->pt);
+                compt_parfait(Inter,*process.temps);
             }
         } else if (Inter.type==Interface::type_int) {
             if (Inter.comp==Interface::comp_parfait) {
-                compt_parfait(Inter,process.temps->pt);
+                compt_parfait(Inter,*process.temps);
             } else if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
                 compt_contact(Inter,*process.temps);
             } else if (Inter.comp==Interface::comp_contact_ep ) {

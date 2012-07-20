@@ -2,7 +2,7 @@
 
 MultiResolutionData::MultiResolutionData():
 parameters(),
-m("m")
+m("n")
 {
     parameters.addParameter(&m);
 }
@@ -24,6 +24,7 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
         nb_calculs = multiresolution_parameters.resolution_number;
         for(unsigned i = 0; i < multiresolution_parameters.collection_vec.size(); i++){
             /// Creation de la fonction parametrique (pour le moment...)
+            /*
             Sc2String function,minvalue,maxvalue,nbvalues;
             minvalue << multiresolution_parameters.collection_vec[i].min_value;
             maxvalue << multiresolution_parameters.collection_vec[i].max_value;
@@ -32,7 +33,8 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
                 function = minvalue + "+(" + maxvalue + "-" + minvalue + ")*m/(" + nbvalues + "-1)";
             }else{
                 function << multiresolution_parameters.collection_vec[i].nominal_value;
-            }
+            }*/
+            Sc2String function = multiresolution_parameters.collection_vec[i].parametric_function;
             /// Creation du parametre
             UserParameter *PM = new UserParameter(multiresolution_parameters.collection_vec[i].name,&parameters);
             PM->setExpression(function);

@@ -59,8 +59,20 @@ struct Interface
     Vec<int> repddl;        /// reperage des ddls dans le probleme macro
     int nb_macro_total;     /// nombre de fct macro total
     int nb_macro_espace;    /// nombre de fct de base macro en espace
-
-
+    
+    
+    /// Structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
+    /// S'utilise ensuite comme une matrice
+    struct Kloc{
+        /// Rigidites normale (kn) et tangentielle (kt)
+        Scalar kn,kt;
+        /// Vecteur normal
+        Point n;
+        /// Surcharge pour la multiplication d'un vecteur W
+        template<class TV> Point operator*(TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
+        /// Surcharge pour la multiplication d'un vecteur W constant
+        template<class TV> Point operator*(const TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
+    };
 
     /// classe decrivant les grandeurs ou champs d'un cote d'une interface
     struct Side
@@ -124,7 +136,8 @@ struct Interface
 
     Scalar coeffrottement;      /// coefficient de frottement global
     Vector coeffrottement_vec;  /// vecteur des valeurs du coefficient de frottement
-    Vector jeu ;                /// vecteur des valeurs de jeu sur l'interface
+    Vector jeu_cur;             /// vecteur des valeurs courantes de jeu sur l'interface
+    Vector jeu_old;             /// vecteur des anciennes valeurs de jeu sur l'interface
     Vector raideur;             /// vecteur des valeurs de raideur sur l'interface
     Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
@@ -132,9 +145,9 @@ struct Interface
     
     
     #if DIM==2
-    static const   int nb_nodes_by_element=2;
+    static const int nb_nodes_by_element = 2;
     #else
-    static const   int nb_nodes_by_element=3;
+    static const int nb_nodes_by_element = 3;
     #endif  
     BasicVec<BasicVec<Scalar>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)

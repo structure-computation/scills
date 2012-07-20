@@ -110,7 +110,8 @@ void Interface::free(){
 void Interface::init(){
     const LMT::Vec<Point> &nodes = side[0].nodeeq;
     const int nb_nodes = nodes.size();
-    jeu.resize(nb_nodes*DIM,0.0);
+    jeu_cur.resize(nb_nodes*DIM,0.0);
+    jeu_old.resize(nb_nodes*DIM,0.0);
     Vector jeu_temp;
     jeu_temp.resize(nb_nodes*DIM,0.0);
     coeffrottement_vec.resize(nb_nodes,0.0);
@@ -127,8 +128,8 @@ void Interface::init(){
         coeffrottement_vec[i] = matprop->f_coeffrottement.updateValue(values);  /// Evaluation des composantes du frottement
         coeffrottement += coeffrottement_vec[i];                                /// incrementation du coefficient de frottement global
     }
-    jeu = side[0].Pn(jeu_temp);
-    PRINT(jeu[LMT::range(0,DIM*1)]);
+    jeu_cur = side[0].Pn(jeu_temp);
+    //PRINT(jeu_cur[LMT::range(0,DIM*1)]);
     coeffrottement /= nb_nodes;
 }
 

@@ -105,7 +105,7 @@ struct  Corresp_ddlinter {
                         test=1;
                         /// on rentre le jeu physique :)
                         if (Inter.comp == "Contact_jeu_physique" ){
-                            Inter.jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
+                            Inter.jeu_cur[range(DIM*i,DIM*(i+1))]=g2-g1;
                         }
                         /// on ecrit la correspondance entre les elements du cote 0 et cote 1
                         Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
