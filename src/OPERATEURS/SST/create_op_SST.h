@@ -68,16 +68,17 @@ void create_op_SST(PointedSubstructures &S, VecInterfaces &Inter,PointedSubstruc
 
     if (process.parallelisation->is_master_cpu())
         std::cout << "\t Rigidite totale par SST" << endl;
+    
     if (process.parallelisation->is_local_cpu())
         apply_mt(SubS,process.parallelisation->nb_threads,Calc_SST_rigidite_K0_k(), Inter,process, data_user);
 
     if (process.sousint == 1) apply_mt(S,process.parallelisation->nb_threads,efface_mesh_edge(),Inter);
+    
     process.parallelisation->synchronisation();//a virer
 
 #ifdef PRINT_ALLOC
     disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire avant LE : ").c_str(),1);
 #endif
-
     if (process.multiscale->multiechelle ==1) {///cas multiechelle
         if (process.parallelisation->is_multi_cpu()) {
             for( unsigned i=0;i<S.size() ;i++ ) {

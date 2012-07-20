@@ -99,14 +99,23 @@ struct calcerror_ddr {
             Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
             Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t[imic].Fchap;
             const Vec<TYPEREEL> &JJ=Inter[q].jeu;
+            
+//             if(JJ[0] != 0){
+//                 PRINT(JJ[LMT::range(0,DIM*1)]);
+//                 PRINT(tempW[LMT::range(0,DIM*1)]);
+//                 PRINT(tempWchap[LMT::range(0,DIM*1)]);
+//                 PRINT(tempF[LMT::range(0,DIM*1)]);
+//                 PRINT(tempFchap[LMT::range(0,DIM*1)]);
+//             }
+
             Vec<TYPEREEL> temp=tempF-tempFchap;
             TYPEREEL temp0=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
             temp=tempW-tempWchap;
             TYPEREEL temp1=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             temp=tempF+tempFchap;
-            errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp));
-            //temp=tempW-JJ+tempWchap;  // TEST
+            errF[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].hglo*(temp)); 
             temp=tempW+tempWchap;  // TEST
+
             errW[1] +=dot(temp,Inter[q].side[data].M*Inter[q].side[data].kglo*(temp));
             frac[2+q]+=temp0+temp1;
             errF[0]+=temp0;

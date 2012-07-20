@@ -56,10 +56,12 @@ struct etape_locale_inter {
         } else if (Inter.type==Interface::type_int) {
             if (Inter.comp==Interface::comp_parfait) {
                 compt_parfait(Inter,process.temps->pt);
+                //compt_jeu_impose(Inter,*process.temps);
             } else if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
                 compt_contact(Inter,*process.temps);
             } else if (Inter.comp==Interface::comp_contact_ep ) {
-                compt_contact_ep(Inter,*process.temps);
+                //compt_contact_ep(Inter,*process.temps);
+                compt_contact(Inter,*process.temps);
             } else if (Inter.comp==Interface::comp_cohesive) {
                 compt_cohesif(Inter,*process.temps);
             } else if (Inter.comp=="Jeu_impose") {

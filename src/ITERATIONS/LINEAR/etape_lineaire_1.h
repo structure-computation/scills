@@ -39,6 +39,17 @@ struct semilinstage1 {
             unsigned data=S.edge[j].datanum;
             unsigned q=S.edge[j].internum;
             Qd = Inter[q].side[data].t[pt].Fchap + Inter[q].side[data].kglo * (Inter[q].side[data].t[pt].Wpchap + Inter[q].side[data].t[pt-1].W/process.temps->dt);
+//             if(Inter[q].id==8){
+//                 PRINT("  ");
+//                 PRINT("avant lineaire 1  ");
+//                 PRINT(Inter[q].id);
+//                 PRINT(data);
+//                 PRINT(Inter[q].side[data].t[pt-1].W[LMT::range(0,DIM*1)]);
+//                 PRINT(Inter[q].side[data].t[pt].Wpchap[LMT::range(0,DIM*1)]);
+//                 PRINT(Inter[q].side[data].t[pt].Fchap[LMT::range(0,DIM*1)]);
+//                 PRINT(Qd[LMT::range(0,DIM*1)]);
+//                 PRINT("  ");
+//             }
             droitm[S.edge[j].repddledge] +=  Inter[q].side[data].Nt * Inter[q].side[data].M * Qd ;
         };
         
@@ -63,6 +74,16 @@ struct semilinstage1 {
             Qd = Inter[q].side[data].t[pt].Fchap + Inter[q].side[data].kglo * (Inter[q].side[data].t[pt].Wpchap + Inter[q].side[data].t[pt-1].W/process.temps->dt);
             Inter[q].side[data].t[pt].F = Qd - Inter[q].side[data].kglo * Inter[q].side[data].t[pt].W/process.temps->dt;
             //Inter[q].side[data].t[pt].Wp1=(Inter[q].side[data].t[pt].W1-Inter[q].side[data].t[pt-1].W)/process.temps->dt;
+            
+//             if(Inter[q].id==8){
+//                 PRINT("  ");
+//                 PRINT("après lineaire 1  ");
+//                 PRINT(Inter[q].id);
+//                 PRINT(data);
+//                 PRINT(Inter[q].side[data].t[pt].W[LMT::range(0,DIM*1)]);
+//                 PRINT(Inter[q].side[data].t[pt].F[LMT::range(0,DIM*1)]);
+//                 PRINT("  ");
+//             }
         }
         
         /// etape non utile en monoechelle

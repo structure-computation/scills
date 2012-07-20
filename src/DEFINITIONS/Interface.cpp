@@ -62,6 +62,10 @@ Vector Interface::Side::Pt(Vector &f) {
 }
 
 void Interface::Side::Time::allocations(unsigned sizenodeeq,bool endommageable){
+    jeu_interne.resize(sizenodeeq);
+    jeu_interne.set(0.0);
+    precharge.resize(sizenodeeq);
+    precharge.set(0.0);
     F.resize(sizenodeeq);
     F.set(0.0);
     Wp.resize(sizenodeeq);
@@ -111,6 +115,9 @@ void Interface::init(){
     const LMT::Vec<Point> &nodes = side[0].nodeeq;
     const int nb_nodes = nodes.size();
     jeu.resize(nb_nodes*DIM,0.0);
+    if(oldjeu.size()!=jeu.size()){
+      oldjeu.resize(nb_nodes*DIM,0.0);
+    }
     Vector jeu_temp;
     jeu_temp.resize(nb_nodes*DIM,0.0);
     coeffrottement_vec.resize(nb_nodes,0.0);
@@ -123,13 +130,15 @@ void Interface::init(){
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodes[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
         }
-        jeu_temp[LMT::range(DIM*i,DIM*(i+1))] = matprop->f_jeu.updateValue(values);  /// Evaluation des composantes du jeu
+        LMT::Vec<int,DIM> rep=range(i*DIM,(i+1)*DIM);
+        jeu_temp[rep] = matprop->f_jeu.updateValue(values)*side[0].neq[rep];    /// Evaluation des composantes du jeu
         coeffrottement_vec[i] = matprop->f_coeffrottement.updateValue(values);  /// Evaluation des composantes du frottement
         coeffrottement += coeffrottement_vec[i];                                /// incrementation du coefficient de frottement global
     }
     jeu = side[0].Pn(jeu_temp);
-    PRINT(jeu[LMT::range(0,DIM*1)]);
     coeffrottement /= nb_nodes;
+    
+    PRINT(jeu[LMT::range(0,DIM*1)]);
 }
 
 void Interface::affiche(){

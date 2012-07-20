@@ -441,11 +441,10 @@ void Process::boucle_temporelle(){
             parallelisation->synchronisation();
             print_title(2,"Mise a jour des Conditions aux limites :");
             if (parallelisation->is_local_cpu()){
-                PRINT("ok");
-                update_CL_values(*SubI, *CL, *this, *data_user);
                 for(int i = 0; i < SubI->size(); i++){
                     (*SubI)[i].init();
                 }
+                update_CL_values(*SubI, *CL, *this, *data_user);
             }
             
             

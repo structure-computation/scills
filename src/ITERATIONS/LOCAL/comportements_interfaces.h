@@ -135,7 +135,7 @@ void compt_parfait (Interface &Inter,int &imic) {
         
         /// Calcul des grandeurs
         Wchap1[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        W1 += jeu;
+        //W1 += jeu;
         Wchap_temp[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
         Fchap1[rep]=F1+kloc1*(Wchap_temp[rep]-W1);
     }
@@ -154,23 +154,24 @@ void compt_parfait (Interface &Inter,int &imic) {
 \brief Procedure pour les interfaces interieures de type jeu impose
 */
 void compt_jeu_impose (Interface &Inter,TimeData &temps) {
-    const int imic = temps.pt;
+int imic = temps.pt;
     unsigned pt_cur=temps.pt_cur;
-    LMT::Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
-    LMT::Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
-    Vector Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vector Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vector Fchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vector Fchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vector &Q1=Inter.side[0].t[imic].F[list1];
-    const Vector &Q2=Inter.side[1].t[imic].F[list2];
-    const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
-    const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &JJ=Inter.jeu[list1];
-    const Vector &neq1=(Inter.side[0].neq)[list1];
-    //const Vector &neq2=(Inter.side[1].neq)[list2];
+    typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
+    Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
+    Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
+    Vec<TYPEREEL> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
+    Vec<TYPEREEL> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
+    Vec<TYPEREEL> Fchap1=Inter.side[0].t[imic].Fchap[list1];
+    Vec<TYPEREEL> Fchap2=Inter.side[1].t[imic].Fchap[list2];
+    const Vec<TYPEREEL> &Q1=Inter.side[0].t[imic].F[list1];
+    const Vec<TYPEREEL> &Q2=Inter.side[1].t[imic].F[list2];
+    const Vec<TYPEREEL> &WW1=Inter.side[0].t[imic].Wp[list1];
+    const Vec<TYPEREEL> &WW2=Inter.side[1].t[imic].Wp[list2];
+    const Vec<TYPEREEL> &JJ=Inter.jeu[list1];
+    const Vec<TYPEREEL> &neq1=(Inter.side[0].neq)[list1];
+    //const Vec<TYPEREEL> &neq2=(Inter.side[1].neq)[list2];
 
-    /// Creation des operateurs locaux de direction de recherche
+    //creation des operateurs locaux de direction de recherche
     Kloc kloc1;
     kloc1.kn=Inter.side[0].kn;
     kloc1.kt=Inter.side[0].kt;
@@ -183,40 +184,31 @@ void compt_jeu_impose (Interface &Inter,TimeData &temps) {
     hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
     hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
 
-    /// Travail point par point
-    const unsigned nbpts = Inter.side[0].nodeeq.size();
-    for(unsigned i = 0;i < nbpts; i++) {
-        /// Creation du reperage du point
-        LMT::Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
-        
-        /// Recuperation des vecteurs locaux
-        Point n1 = neq1[rep];
-        Point F1 = Q1[rep];
-        Point F2 = Q2[rep];
-        Point W1 = WW1[rep];
-        Point W2 = WW2[rep];
-        Point jeu = JJ[rep]  ;
-        
-        /// Creation des matrices elementaires de direction de recherche
-        kloc1.n = n1;
-        kloc2.n = n1;
-        hloc.n = n1;
-        
-        /// Calcul des grandeurs
-        if (pt_cur==1){
+    //travail point par point    
+    for(unsigned i=0;i<Inter.side[0].nodeeq.size();i++) {
+        //creation du reperage du point
+        Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
+        //creation des matrices elementaires de direction de recherche
+        Vec<TYPEREEL,DIM> n1=neq1[rep];
+        kloc1.n=n1;
+        kloc2.n=n1;
+        hloc.n=n1;
+
+        // travail point par point
+        Vec<TYPEREEL,DIM> F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep],jeu=JJ[rep]  ;
+        if (pt_cur==1)
             Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) -kloc2*jeu/temps.dt);
-        }else{
+        else
             Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2));
-        }
+
         Fchap1[rep]=F1+kloc1*(Wchap1[rep]-W1);
 
     }
 
-    if(pt_cur<=Inter.matprop->nbpastempsimpos){
-        Wchap2=Wchap1;//+JJ/(temps.dt*Inter.matprop->nbpastempsimpos);
-    }else{
+    if(pt_cur<=3)
+        Wchap2=Wchap1+JJ/(temps.dt*3);
+    else
         Wchap2=Wchap1;
-    }
 
     Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
     Inter.side[1].t[imic].Wpchap[list2]=Wchap2;
