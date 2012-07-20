@@ -98,7 +98,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
             } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul 
                    or Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],step);
-                PRINT(Inter[i_inter].side[0].t[1].Wpchap);
+                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
@@ -125,7 +125,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                     assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],step);
                     Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
-                PRINT(Inter[i_inter].side[0].t[1].Wpchap);
+                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
@@ -133,14 +133,33 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique") {
-            ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2 et impose uniquement pour le premier pas de temps
-            if(process.temps->pt_cur==1) {
-                Inter[i_inter].side[1].t[0].Wchap[Inter[i_inter].side[1].ddlcorresp]=Inter[i_inter].jeu/2.;
-                Inter[i_inter].side[0].t[0].Wchap=-1.*Inter[i_inter].jeu/2.;
+        } else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
+          //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
+            ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
+            //if(process.temps->pt_cur==1) {
+                Vector dep_jeu = Inter[i_inter].jeu - Inter[i_inter].oldjeu ;
+                Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
+                Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
+              
+                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] = Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] + R1 * dep_jeu;
+                Inter[i_inter].side[0].t[process.temps->pt-1].W = Inter[i_inter].side[0].t[process.temps->pt-1].W - 1. * R0 * dep_jeu;
+                
+                Inter[i_inter].oldjeu = Inter[i_inter].jeu;
+                
+                if(Inter[i_inter].id==8){
+                    PRINT("  ");
+                    PRINT(R0);
+                    PRINT(R1);
+                    PRINT(dep_jeu[LMT::range(0,DIM*1)]);
+                    PRINT("on est dans prélocal stage");
+                    PRINT(Inter[i_inter].id);
+                    PRINT(Inter[i_inter].side[0].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
+                    PRINT(Inter[i_inter].side[1].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
+                    PRINT("  ");
+                }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
-            }
+            //}
         }
         std::cout << std::endl;
     }

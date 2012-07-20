@@ -99,6 +99,8 @@ struct Interface
 
         /// Structure temporelle contenant les vecteurs nodaux
         struct Time{
+            Vector jeu_interne;       /// jeu ou epaisseur interne
+            Vector precharge;         /// précharge due au jeu ou epaisseur interne
             Vector F;       /// efforts sur la face (etape )
             Vector W;       /// deplacements sur la face (etape )
             Vector Wp;      /// vitesses sur la face (etape )
@@ -125,6 +127,7 @@ struct Interface
     Scalar coeffrottement;      /// coefficient de frottement global
     Vector coeffrottement_vec;  /// vecteur des valeurs du coefficient de frottement
     Vector jeu ;                /// vecteur des valeurs de jeu sur l'interface
+    Vector oldjeu ;             /// vecteur des valeurs de jeu au pas de temps précédent sur l'interface
     Vector raideur;             /// vecteur des valeurs de raideur sur l'interface
     Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon

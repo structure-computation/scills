@@ -81,14 +81,20 @@ struct Calc_SST_rigidite_K0_k {
         S.f->want_amd=false;
         S.f->allocate_matrices();
         S.f->assemble(true,true);
+        
+        
 #if LDL
         SymetricMatrix *Kl;
         S.f->get_mat(Kl);
         SymetricMatrix &K = *Kl;
+        //std::cout << "Kldl : " << K.nb_rows() << "," << K.nb_cols() << std::endl;
 #else
         S.f->get_mat( S.K );
         Sst::CholModMatrix &K = *S.K;
+        //std::cout << "Kchol : " << K.nb_rows() << "," << K.nb_cols() << std::endl;
 #endif
+        
+        
         
 #ifdef PRINT_ALLOC
         disp_alloc((to_string(process.parallelisation->rank)+" : Verifie memoire apres get_mat : ").c_str(),1);
@@ -130,7 +136,7 @@ struct Calc_SST_rigidite_K0_k {
 //      }
         
 #if LDL
-        std::cout << "K : " << K.nb_rows() << "," << K.nb_cols() << std::endl;
+        //std::cout << "K : " << K.nb_rows() << "," << K.nb_cols() << std::endl;
         //LMT::display(std::cout,K,0);
         S.l.get_factorization( K, true, true );
 #else
