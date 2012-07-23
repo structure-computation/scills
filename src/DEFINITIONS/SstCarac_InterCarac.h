@@ -110,6 +110,7 @@ struct InterCarac
     bool degradable;                /// indique si l'interface est degradable
     
     UserParameter f_jeu ;           /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
+    UserParameter f_precharge ;     /// parametre donnant la precharge en fonction des variables d'espace par une fonction analytique
     UserParameter f_coeffrottement; /// parametre representant le coefficient de frottement
     //Scalar coeffrottement;        /// coefficient de frottement sur l'interface
     UserParameter f_raideur;        /// parametre donnant la raideur d'une interface elastique

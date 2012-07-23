@@ -218,6 +218,7 @@ ParameterGroup InterCarac::inter_materials_parameters;
 /// Constructeur. Les symboles des parametres materiaux ne sont pas important
 InterCarac::InterCarac():
 f_jeu("jeu",&inter_materials_parameters),
+f_precharge("precharge",&inter_materials_parameters),
 f_coeffrottement("frottement",&inter_materials_parameters),
 f_raideur("raideur",&inter_materials_parameters),
 Gcrit("Gcrit",&inter_materials_parameters),
@@ -248,6 +249,7 @@ void InterCarac::read_data_user(int index,Metil::DataUser &data_user){
     //type = link.;
     comp = link.comp_generique + link.comp_complexe;
     f_jeu.setExpression(link.Ep);
+    //f_precharge.setExpression(link.precharge);
 }
 
 void InterCarac::prepareParameters(){
@@ -263,6 +265,7 @@ void InterCarac::affiche(){
     std::cout << "id = " << id << std::endl;
     std::cout << "coeffrottement = " << f_coeffrottement << std::endl;
     std::cout << "jeu = " << f_jeu << std::endl;
+    std::cout << "precharge = " << f_precharge << std::endl;
     std::cout << "Gcrit = " << Gcrit << std::endl;
     std::cout << "type = " << type << std::endl;
     std::cout << "comp = " << comp << std::endl;
