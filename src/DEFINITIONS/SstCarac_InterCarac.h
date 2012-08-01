@@ -145,6 +145,7 @@ struct InterCarac
     UserParameter alpha;            /// coefficients pour le calcul de l'effort thermodynamique equivalent :
     UserParameter gamma;            /// Y = ( Yn^alpha + gamma*Yt^alpha )^(1/alpha)
     
+    
     InterCarac();
     void allocate();
     void free();
