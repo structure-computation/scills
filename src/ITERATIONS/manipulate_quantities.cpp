@@ -61,6 +61,8 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
                             SubI[i].Ep_elastique.set(0.0);
                             SubI[i].precharge.resize(sizenodeeq);
                             SubI[i].precharge.set(0.0);
+                            SubI[i].old_precharge.resize(sizenodeeq);
+                            SubI[i].old_precharge.set(0.0);
                             /// Si les bords peuvent se dissocier
                             if(SubI[i].comp == Interface::comp_cassable_parfait or 
                                SubI[i].comp == Interface::comp_cassable_elastique or 
