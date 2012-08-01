@@ -54,24 +54,25 @@ struct etape_locale_inter {
                 compt_parfait(Inter,process.temps->pt);
             }
         } else if (Inter.type==Interface::type_int) {
-            if (Inter.comp==Interface::comp_parfait) {
+            comportement_local_interface(Inter,process.temps->pt,process.temps->dt);
+            /*if (Inter.comp==Interface::comp_parfait) {
                 compt_parfait(Inter,process.temps->pt);
                 //compt_jeu_impose(Inter,*process.temps);
             } else if (Inter.comp=="Contact" or Inter.comp=="Contact_jeu" or Inter.comp=="Contact_jeu_physique") {
                 compt_contact(Inter,*process.temps);
-            } else if (Inter.comp==Interface::comp_contact_ep ) {
+            } else if (Inter.comp==Interface::comp_contact_parfait ) {
                 //compt_contact_ep(Inter,*process.temps);
                 compt_contact(Inter,*process.temps);
             } else if (Inter.comp==Interface::comp_cohesive) {
                 compt_cohesif(Inter,*process.temps);
             } else if (Inter.comp=="Jeu_impose") {
                 compt_jeu_impose(Inter,*process.temps);
-            } else if (Inter.comp==Interface::comp_cassable) {
+            } else if (Inter.comp==Interface::comp_cassable_parfait) {
                 compt_breakable(Inter,*process.temps);
             } else {
                 std::cout<< "Erreur : comportement interface non reconnu" << std::endl;
                 assert(0);
-            }
+            }*/
         } else {
             std::cout<< "Erreur : comportement interface non reconnu" << std::endl;
             assert(0);

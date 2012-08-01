@@ -17,6 +17,8 @@
 
 Process::Process()
 {
+    std::cout << "\\a:" << "\a" << "..." << std::endl;
+    std::cout << "\\b:" << "\b" << "..." << std::endl;
     // initialisation des valeurs
     sousint=1;
     type_sousint="p";
@@ -293,10 +295,29 @@ void Process::preparation_calcul(){
             (*Inter)[i].matprop = &((*inter_materials)[index_link]);
             //PRINT((*Inter)[i].matprop->comp);
             //PRINT((*Inter)[i].matprop->type_num);
-            if((*Inter)[i].matprop->type_num == 0) {(*Inter)[i].comp = Interface::comp_parfait;}
-            else if((*Inter)[i].matprop->type_num == 2) {(*Inter)[i].comp = Interface::comp_contact_ep;}
-            else if((*Inter)[i].matprop->type_num == 3) {(*Inter)[i].comp = Interface::comp_cohesive;}
-            else if((*Inter)[i].matprop->type_num == 4) {(*Inter)[i].comp = Interface::comp_cassable;}
+            /// Assignation du type de comportement
+            switch((*Inter)[i].matprop->type_num){
+                case 0:
+                    (*Inter)[i].comp = Interface::comp_parfait;
+                    break;
+                case 1:
+                    (*Inter)[i].comp = Interface::comp_elastique;
+                    break;
+                case 2:
+                    (*Inter)[i].comp = Interface::comp_contact_parfait;
+                    break;
+                case 3:
+                    (*Inter)[i].comp = Interface::comp_cassable_parfait;
+                    break;
+                case 4:
+                    (*Inter)[i].comp = Interface::comp_cassable_elastique;
+                    break;
+                case 5:
+                    (*Inter)[i].comp = Interface::comp_cohesive;
+                    break;
+                default:
+                    break;
+            }
         }
     }
     
@@ -413,7 +434,7 @@ void Process::boucle_temporelle(){
 //         #ifdef INFO_TIME
 //         print_duration(tic2);
 //         #endif
-        print_title(2,"Initialisation des Conditions");
+        print_title(2,"Mise a jour des Conditions d'interface");
         
         parallelisation->synchronisation();
         if(nom_calcul=="incr") {
@@ -432,21 +453,21 @@ void Process::boucle_temporelle(){
             nb_breakable = nb_breakable ;
             /// Mise a jour des conditions aux limites
             if(temps->pt_cur == 1 and parallelisation->is_local_cpu()){
-                print_title(2,"Initialisation des Conditions aux limites :");
+                print_title(2,"    Initialisation des Conditions aux limites :");
                 //for(int i = 0; i < SubI->size(); i++){
                 //    (*SubI)[i].init();
                 //}
                 initialise_CL_values(*SubI, *CL);
             }
             parallelisation->synchronisation();
-            print_title(2,"Mise a jour des Conditions aux limites :");
             if (parallelisation->is_local_cpu()){
+                print_title(2,"    Mise a jour des Caracteristiques des interfaces :");
                 for(int i = 0; i < SubI->size(); i++){
-                    (*SubI)[i].init();
+                    (*SubI)[i].init(temps->pt);
                 }
+                print_title(2,"    Mise a jour des Conditions aux limites :");
                 update_CL_values(*SubI, *CL, *this, *data_user);
             }
-            
             
             /// Calcul sur le pas de temps
             if (nb_breakable>0) {
@@ -455,20 +476,23 @@ void Process::boucle_temporelle(){
                 while(nb_change != 0 or sous_iter == 1) {
                     if (parallelisation->is_local_cpu()){
                         for(unsigned q=0; q < SubI->size();q++){
-                            if ((*SubI)[q].comp == "Breakable")
-                                (*SubI)[q].convergence = -1; 
+                            if ((*SubI)[q].comp == "Breakable") {
+                                (*SubI)[q].convergence = -1;
+                            }
                         }
                     }
-                    if (parallelisation->is_master_cpu()) std::cout << "          Sous iteration interface cassable : " << sous_iter << std::endl;
+                    print_data("          Sous iteration interface cassable : ",sous_iter);
                     iterate_incr(*this,*SubS,*Inter,*SubI,*Global,*data_user);
-                    if (parallelisation->is_local_cpu()){
-                        for(unsigned q=0; q < SubI->size();q++){
-                            if ((*SubI)[q].comp == "Breakable")
-                                nb_change += (*SubI)[q].convergence ; 
+                    if (parallelisation->is_local_cpu()) {
+                        for(unsigned q=0; q < SubI->size();q++) {
+                            if ((*SubI)[q].comp == "Breakable") {
+                                nb_change += (*SubI)[q].convergence ;
+                            }
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 iterate_incr(*this,*SubS,*Inter,*SubI,*Global,*data_user);
             }
             
@@ -630,8 +654,11 @@ void Process::read_data_user() {
     /// Debuggage
     //multiresolution->affiche();
     //temps->affiche();
+    //for(int i = 0; i < inter_materials->size(); i++){
+    //    (*inter_materials)[i].affiche();
+    //}
     //for(int i = 0; i < CL->size(); i++){
-    //    (*CL)[i].affiche();
+        //    (*CL)[i].affiche();
     //}
     //Fvol->affiche();
     //Tload->affiche();

@@ -62,7 +62,7 @@ void modification_direction_CL(Interface &Inter, Scalar &kn, Scalar &kt, Scalar 
         }
     } else if(Inter.type == Interface::type_int) {
         /// Pour une interface de type contact
-        if(Inter.comp == Interface::comp_contact_ep) {
+        if(Inter.comp == Interface::comp_contact_parfait) {
             Scalar facteur_frottement;
             Scalar eps=1e-6;
             if(Inter.coeffrottement<=eps){

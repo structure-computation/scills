@@ -287,8 +287,10 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
     if(Inter.comp == "Contact" or
        Inter.comp == "Contact_jeu" or
        Inter.comp == "Contact_jeu_physique" or
-       Inter.comp == Interface::comp_contact_ep or
-       Inter.comp == Interface::comp_cassable or
+       Inter.comp == Interface::comp_contact_parfait or
+       Inter.comp == Interface::comp_contact_elastique or
+       Inter.comp == Interface::comp_cassable_parfait or
+       Inter.comp == Interface::comp_cassable_elastique or
        Inter.comp == Interface::comp_cohesive) {
         /// Calcul des sauts en deplacement normal et tangentiel
         Vector Un,Ut,tmp1,tmp0;
@@ -370,8 +372,10 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
     if(Inter.comp == "Contact" or
        Inter.comp == "Contact_jeu" or
        Inter.comp == "Contact_jeu_physique" or
-       Inter.comp == Interface::comp_contact_ep or
-       Inter.comp == Interface::comp_cassable or
+       Inter.comp == Interface::comp_contact_parfait or
+       Inter.comp == Interface::comp_contact_elastique or
+       Inter.comp == Interface::comp_cassable_parfait or
+       Inter.comp == Interface::comp_cassable_elastique or
        Inter.comp == Interface::comp_cohesive) {
         /// Calcul des sauts en deplacement normal et tangentiel
         Vector Un,Ut,tmp1,tmp0;

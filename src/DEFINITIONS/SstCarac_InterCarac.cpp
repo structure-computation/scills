@@ -217,18 +217,28 @@ ParameterGroup InterCarac::inter_materials_parameters;
 
 /// Constructeur. Les symboles des parametres materiaux ne sont pas important
 InterCarac::InterCarac():
-f_jeu("jeu",&inter_materials_parameters),
-f_coeffrottement("frottement",&inter_materials_parameters),
-f_raideur("raideur",&inter_materials_parameters),
-Gcrit("Gcrit",&inter_materials_parameters),
-kn("kn",&inter_materials_parameters),
-kt("kt",&inter_materials_parameters),
-knc("knc",&inter_materials_parameters),
-gamma("gamma",&inter_materials_parameters),
-alpha("alpha",&inter_materials_parameters),
-Yc("Yc",&inter_materials_parameters),
+Ep_n("Ep_n",&inter_materials_parameters),
+Ep_x("Ep_x",&inter_materials_parameters),
+Ep_y("Ep_y",&inter_materials_parameters),
+Ep_z("Ep_z",&inter_materials_parameters),
+Preload_n("Preload_n",&inter_materials_parameters),
+Preload_x("Preload_x",&inter_materials_parameters),
+Preload_y("Preload_y",&inter_materials_parameters),
+Preload_z("Preload_z",&inter_materials_parameters),
+f("f",&inter_materials_parameters),
+Fcr_n("Fcr_n",&inter_materials_parameters),
+Fcr_t("Fcr_t",&inter_materials_parameters),
+Kn("Kn",&inter_materials_parameters),
+Kt("Kt",&inter_materials_parameters),
+Knc("Knc",&inter_materials_parameters),
+Rop("Rop",&inter_materials_parameters),
+kp("kp",&inter_materials_parameters),
+mp("mp",&inter_materials_parameters),
+n("n",&inter_materials_parameters),
 Yo("Yo",&inter_materials_parameters),
-n("n",&inter_materials_parameters)
+Yc("Yc",&inter_materials_parameters),
+alpha("alpha",&inter_materials_parameters),
+gamma("gamma",&inter_materials_parameters)
 {
 }
 
@@ -239,15 +249,76 @@ void InterCarac::free(){
 }
 
 
-void InterCarac::read_data_user(int index,Metil::DataUser &data_user){
+void InterCarac::read_data_user(int index,const DataUser &data_user){
     const DataUser::Json_links &link = data_user.links_vec[index];
     id = link.id_in_calcul;
-    type_num = link.type_num;
-    degradable = (type_num == 3);
     name = link.name;
-    //type = link.;
-    comp = link.comp_generique + link.comp_complexe;
-    f_jeu.setExpression(link.Ep);
+    type_num = link.type_num;
+    degradable = (type_num == 5);
+    name = link.name;
+    switch(type_num){
+        case 0:
+            type = "parfait";
+            comp = "Parfait";
+            break;
+        case 1:
+            type = "elastique";
+            comp = "Elastique";
+            break;
+        case 2:
+            type = "contact parfait";
+            comp="Contact Parfait";
+            break;
+        case 3:
+            type = "parfait cassable";
+            comp = "Parfait Cassable";
+            break;
+        case 4:
+            type = "elastique cassable";
+            comp = "Elastique Cassable";
+            break;
+        case 5:
+            type = "cohesive";
+            comp = "Cohesive";
+            break;
+        default:
+            std::cerr  << "comportement d'interface non reconnu : type_num = " << link.type_num << std::endl;
+            assert(0);
+    }
+    /// Caracteristique du prechargement
+    Ep_Type   = link.Ep_type;     /// Type de condition interne (epaisseur/precharge impose(e)/normal(e))
+    Ep_n      = link.Ep_n;        /// jeux ou epaisseur normal
+    Ep_x      = link.Ep_x;        /// jeux ou epaisseur selon x
+    Ep_y      = link.Ep_y;        /// jeux ou epaisseur selon y
+    Ep_z      = link.Ep_z;        /// jeux ou epaisseur selon z
+    Preload_n = link.Preload_n;   /// precharge normale
+    Preload_x = link.Preload_x;   /// precharge selon x
+    Preload_y = link.Preload_y;   /// precharge selon y
+    Preload_z = link.Preload_z;   /// precharge selon z
+    
+    /// Caracteristiques pour le contact avec frottement
+    f         = link.f;           /// coefficient de frottement
+    
+    /// Caracteristiques pour le comportement cassable
+    Fcr_n     = link.Fcr_n;       /// limite en rupture normale
+    Fcr_t     = link.Fcr_t;       /// limite en rupture tangentielle
+    
+    /// Caracteristiques pour le comportement elastique
+    Kn        = link.Kn;          /// Raideur normale (globale ou en traction) de l'interface
+    Kt        = link.Kt;          /// Raideur tangentielle de l'interface
+    Knc       = link.Knc;         /// Raideur normale en compression de l'interface
+    
+    /// Caracteristiques pour le comportement plastique
+    Rop       = link.Rop;         /// Contrainte initiale de plastification
+    kp        = link.kp;          /// Multiplicateur de la loi d'ecrouissage
+    mp        = link.np;          /// Exposant de la loi d'ecrouissage
+    
+    /// Caracteristiques pour les interfaces cohesives (type mesomodele)
+    Yo        = link.Yo;          /// Valeur minimale d'effort thermodynamique equivalent pour amorcer l'endommagement
+    Yc        = link.Yc;          /// Valeur critique d'effort thermodynamique equivalent pour l'endommagement
+    alpha     = link.alpha;       /// exposant dans le calcul de l'effort thermodynamique equivalent
+    gamma     = link.gamma;       /// couplage normal/tangentiel dans le calcul de l'effort thermodynamique equivalent
+    n         = link.n;           /// coefficient dans le calcul de l'endommagement associe a un effort thermodynamique
 }
 
 void InterCarac::prepareParameters(){
@@ -260,11 +331,47 @@ void InterCarac::updateParameters(){
 
 void InterCarac::affiche(){
     std::cout << "----------------------------------------------------------------------"<< std::endl;
-    std::cout << "id = " << id << std::endl;
-    std::cout << "coeffrottement = " << f_coeffrottement << std::endl;
-    std::cout << "jeu = " << f_jeu << std::endl;
-    std::cout << "Gcrit = " << Gcrit << std::endl;
-    std::cout << "type = " << type << std::endl;
-    std::cout << "comp = " << comp << std::endl;
+    PRINT(id);
+    PRINT(name);
+    PRINT(type);
+    PRINT(comp);
+    PRINT(Ep_Type);
+    switch(Ep_Type){
+        case 0:
+            PRINT(Ep_n.str_expr);
+            break;
+        case 1:
+            PRINT(Ep_x.str_expr);
+            PRINT(Ep_y.str_expr);
+            #if DIM == 3
+            PRINT(Ep_z.str_expr);
+            #endif
+            break;
+        case 2:
+            PRINT(Preload_n.str_expr);
+            break;
+        case 3:
+            PRINT(Preload_x.str_expr);
+            PRINT(Preload_y.str_expr);
+            #if DIM == 3
+            PRINT(Preload_z.str_expr);
+            #endif
+            break;
+            break;
+    }
+    PRINT(f.str_expr);
+    PRINT(Fcr_n.str_expr);
+    PRINT(Fcr_t.str_expr);
+    PRINT(Kn.str_expr);
+    PRINT(Knc.str_expr);
+    PRINT(Kt.str_expr);
+    PRINT(Rop.str_expr);
+    PRINT(kp.str_expr);
+    PRINT(mp.str_expr);
+    PRINT(Yo.str_expr);
+    PRINT(Yc.str_expr);
+    PRINT(alpha.str_expr);
+    PRINT(gamma.str_expr);
+    PRINT(n);
     std::cout << "----------------------------------------------------------------------"<< std::endl;
 }

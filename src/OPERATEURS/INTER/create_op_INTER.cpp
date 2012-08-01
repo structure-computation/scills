@@ -104,9 +104,9 @@ struct  Corresp_ddlinter {
                     if ( (length(vect_prod(g2-g1,n1)) <= 1E-3 )and (dot(g2-g1,n1)  >= -1E-6)) {
                         test=1;
                         /// on rentre le jeu physique :)
-                        if (Inter.comp == "Contact_jeu_physique" ){
-                            Inter.jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
-                        }
+                        //if (Inter.comp == "Contact_jeu_physique" ){
+                        //    Inter.jeu[range(DIM*i,DIM*(i+1))]=g2-g1;
+                        //}
                         /// on ecrit la correspondance entre les elements du cote 0 et cote 1
                         Inter.side[1].ddlcorresp[range(i*DIM,(i+1)*DIM)]=range(candidats[j]*DIM,(candidats[j]+1)*DIM);
                         candidats.erase_elem_nb(j);

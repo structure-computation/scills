@@ -101,6 +101,7 @@ struct InterCarac
 {
     static ParameterGroup inter_materials_parameters;
     
+    /// Informations de base
     unsigned id;                    /// numero d'identification de cette caracteristique
     unsigned type_num;              /// numero d'identification du comportement d'interface
     Sc2String name;                 /// nom de la caracteristique d'interface (informatif)
@@ -109,29 +110,45 @@ struct InterCarac
     LMT::Vec<unsigned,2> num_sst;   /// numero des sous-structures adjacentes
     bool degradable;                /// indique si l'interface est degradable
     
-    UserParameter f_jeu ;           /// parametre donnant le jeu en fonction des variables d'espace par une fonction analytique
-    UserParameter f_coeffrottement; /// parametre representant le coefficient de frottement
-    //Scalar coeffrottement;        /// coefficient de frottement sur l'interface
-    UserParameter f_raideur;        /// parametre donnant la raideur d'une interface elastique
-    UserParameter Gcrit;            /// valeur de taux de restitution critique pour les interfaces cassables
+    /// Caracteristique du prechargement
+    int Ep_Type;                    /// Type de condition interne (epaisseur/precharge, impose(e)/normal(e))
+    UserParameter Ep_n;             /// jeux ou epaisseur normal
+    UserParameter Ep_x;;            /// jeux ou epaisseur selon x
+    UserParameter Ep_y;             /// jeux ou epaisseur selon y
+    UserParameter Ep_z;             /// jeux ou epaisseur selon z
+    UserParameter Preload_n;        /// precharge normale
+    UserParameter Preload_x;        /// precharge selon x
+    UserParameter Preload_y;        /// precharge selon y
+    UserParameter Preload_z;        /// precharge selon z
     
-    UserParameter kn;       /// raideur normale (en traction si knc definie)
-    UserParameter kt;       /// raideur tangentielle
-    UserParameter knc;      /// raideur normale en compression
+    /// Caracteristiques de contact
+    UserParameter f;                /// coefficient de frottement
     
-    UserParameter gamma;    /// coefficients pour le calcul des efforts associes a l'endommagement
-    UserParameter alpha;    /// Y(t) = sup[tau < t]{ ( Y3(tau)^alpha + (gamma*Y1(tau))^alpha + (gamma*Y2(tau))^alpha )^(1/alpha) } si la normale est le vecteur indice 3
+    /// Caracteristiques cassables
+    UserParameter Fcr_n;            /// limite en rupture normale
+    UserParameter Fcr_t;            /// limite en rupture tangentielle
     
-    UserParameter n;        /// coefficients pour le calcul de l'endommagement:
-    UserParameter Yc;       /// d = min( (n/(n+1))*abs(Y-Yo)/(Yc-Yo) , 1 )
-    UserParameter Yo;       /// Yo et Yc sont les seuils limite de l'endommagement
+    /// Caracteristiques elastiques
+    UserParameter Kn;               /// Raideur normale (globale ou en traction) de l'interface
+    UserParameter Kt;               /// Raideur tangentielle de l'interface
+    UserParameter Knc;              /// Raideur normale en compression de l'interface
     
-    unsigned nbpastempsimpos;   /// Voir comportement "jeu impose"
+    /// Caracteristiques plastiques
+    UserParameter Rop;              /// Contrainte initiale de plastification
+    UserParameter kp;               /// Multiplicateur de la loi d'ecrouissage
+    UserParameter mp;               /// Exposant de la loi d'ecrouissage
+    
+    /// Caracteristiques pour les interfaces cohesives (type mesomodele)
+    UserParameter n;                /// coefficients pour le calcul de l'endommagement:
+    UserParameter Yo;               /// d = min( (n/(n+1))*abs(Y-Yo)/(Yc-Yo) , 1 )
+    UserParameter Yc;               /// Yo et Yc sont les seuils limite de l'endommagement
+    UserParameter alpha;            /// coefficients pour le calcul de l'effort thermodynamique equivalent :
+    UserParameter gamma;            /// Y = ( Yn^alpha + gamma*Yt^alpha )^(1/alpha)
     
     InterCarac();
     void allocate();
     void free();
-    void read_data_user(int index,DataUser &data_user);
+    void read_data_user(int index,const DataUser &data_user);
     static void prepareParameters();
     static void updateParameters();
     void affiche();

@@ -78,7 +78,6 @@ void initialise_CL_values(PointedInterfaces &Inter, Boundaries &CL){
 
 
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration incrementale)
-//*
 void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process, DataUser &data_user ) {
     unsigned step = process.temps->step_cur;
     std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
@@ -133,18 +132,18 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
+        }/* else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
-                Vector dep_jeu = Inter[i_inter].jeu - Inter[i_inter].oldjeu ;
+                Vector dep_jeu = Inter[i_inter].Ep_impose - Inter[i_inter].oldEp_impose ;
                 Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
-              
+                
                 Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] = Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] + R1 * dep_jeu;
                 Inter[i_inter].side[0].t[process.temps->pt-1].W = Inter[i_inter].side[0].t[process.temps->pt-1].W - 1. * R0 * dep_jeu;
                 
-                Inter[i_inter].oldjeu = Inter[i_inter].jeu;
+                Inter[i_inter].oldEp_impose = Inter[i_inter].Ep_impose;
                 
                 if(Inter[i_inter].id==8){
                     PRINT("  ");
@@ -160,7 +159,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
-        }
+        }*/
         std::cout << std::endl;
     }
 }

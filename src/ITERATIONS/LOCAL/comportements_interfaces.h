@@ -66,6 +66,7 @@ void compt_CL_sym (Interface &Inter,int &imic) {
 //     PRINT(Inter.side[0].t[imic].Wpchap);
 }
 
+void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt);
 
 /// Structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
 /// S'utilise ensuite comme une matrice
@@ -86,7 +87,7 @@ struct Kloc{
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures parfaites
 */
-void compt_parfait (Interface &Inter,int &imic) {
+void compt_parfait (Interface &Inter,int &imic) {/*
     LMT::Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
     LMT::Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
     Vector Wchap1=Inter.side[0].t[imic].Wpchap[list1];
@@ -144,7 +145,7 @@ void compt_parfait (Interface &Inter,int &imic) {
     Inter.side[1].t[imic].Wpchap[list2]=Wchap1;
     Inter.side[0].t[imic].Fchap[list1]=Fchap1;
     Inter.side[1].t[imic].Fchap[list2]=-1.0*Fchap1;
-    
+    */
 }
 
 //interface interieure de type jeu impose = idem interface parfaite avec prise en compte du jeu
@@ -153,7 +154,7 @@ void compt_parfait (Interface &Inter,int &imic) {
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures de type jeu impose
 */
-void compt_jeu_impose (Interface &Inter,TimeData &temps) {
+void compt_jeu_impose (Interface &Inter,TimeData &temps) {/*
 int imic = temps.pt;
     unsigned pt_cur=temps.pt_cur;
     typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
@@ -258,6 +259,7 @@ int imic = temps.pt;
     //     Inter.side[1].t[imic].Wpchap[list2]=Wchap2;
     //     Inter.side[0].t[imic].Fchap[list1]=Qchap1;
     //     Inter.side[1].t[imic].Fchap[list2]=Qchap2;
+    */
 }
 
 
@@ -435,7 +437,7 @@ void compt_contact (Interface &Inter,TimeData &temps) {
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures de type defaut de forme
 */
-void compt_contact_ep (Interface &Inter,TimeData &temps) {
+void compt_contact_ep (Interface &Inter,TimeData &temps) {/*
 
     const int imic = temps.pt;
     const Scalar dt=temps.dt;
@@ -507,9 +509,9 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
             Fchap2 = 0.0;
             Wpchap1 = Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
             Wpchap2 = Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
-/*#ifdef LOOK_CONTACT_ZONE
-            status[i*DIM]=0;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//            status[i*DIM]=0;
+//#endif
         } else {
             /// contact
             Scalar Fchap1n = N;
@@ -532,18 +534,18 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
                 Fchap2t = -1.0*Fchap1t;
                 Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t = Wpchap1t;
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*INTER::dim]=1;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//                status[i*INTER::dim]=1;
+//#endif
             } else if (normT > g) {
                 /// glissement
                 Fchap1t = Test*g/normT;
                 Fchap2t = -1.0*Fchap1t;
                 Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t = ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*INTER::dim]=2;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//                status[i*INTER::dim]=2;
+//#endif
             }
 
             Wpchap1 = Wpchap1n*n + Wpchap1t - jeu;
@@ -571,7 +573,7 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
     Inter.side[1].t[imic].Wchap[list2] = WWchap2;
     Inter.side[0].t[imic].Fchap[list1] = Qchap1;
     Inter.side[1].t[imic].Fchap[list2] = Qchap2;
-}
+*/}
 
 
 
@@ -636,7 +638,7 @@ void compt_breakable (Interface &Inter,TimeData &temps) {
         
         /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
         if (Inter.convergence >= 0 and Inter.comportement[i] == false){
-            if (N > 0.0 and std::abs(dot(n,F1)) > Inter.matprop->Gcrit){
+            if (N > 0.0 and std::abs(dot(n,F1)) > Inter.matprop->Fcr_n){
                 ///David dit de mettre 10% de plus
                 Inter.comportement[i] = true;
                 Inter.convergence++;

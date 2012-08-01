@@ -98,7 +98,7 @@ struct calcerror_ddr {
             Vec<TYPEREEL> &tempW=Inter[q].side[data].t[imic].Wp;
             Vec<TYPEREEL> &tempWchap=Inter[q].side[data].t[imic].Wpchap;
             Vec<TYPEREEL> &tempFchap=Inter[q].side[data].t[imic].Fchap;
-            const Vec<TYPEREEL> &JJ=Inter[q].jeu;
+            //const Vec<TYPEREEL> &JJ=Inter[q].Ep_imposee;
             
 //             if(JJ[0] != 0){
 //                 PRINT(JJ[LMT::range(0,DIM*1)]);

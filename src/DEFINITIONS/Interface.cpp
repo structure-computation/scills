@@ -2,22 +2,25 @@
 #include "Boundary.h"
 
 //---------------------------- Attributs statiques ----------------------------//
-Sc2String Interface::type_ext = "Ext";                          /// Nom pour le type interface exterieure (CL)
-Sc2String Interface::type_int = "Int";                          /// Nom pour le type interface interieure (liaison)
-Sc2String Interface::comp_parfait = "Parfait";                  /// Nom pour le comportement parfait
-Sc2String Interface::comp_contact_ep = "Contact_ep";            /// Nom pour le comportement contact avec epaisseur
-Sc2String Interface::comp_cohesive = "Cohesive";                /// Nom pour le comportement cohesif
-Sc2String Interface::comp_cassable = "Breakable";               /// Nom pour le comportement cassable
-Sc2String Interface::comp_deplacement = "depl";                 /// Nom pour le comportement deplacement impose
-Sc2String Interface::comp_deplacement_normal = "depl_normal";   /// Nom pour le comportement deplacement normal
-Sc2String Interface::comp_deplacement_nul = "depl_nul";         /// Nom pour le comportement deplacement nul
-Sc2String Interface::comp_vitesse = "vit";                      /// Nom pour le comportement vitesse imposee
-Sc2String Interface::comp_vitesse_normale = "vit_normale";      /// Nom pour le comportement vitesse normale
-Sc2String Interface::comp_vitesse_nulle = "vit_nulle";          /// Nom pour le comportement vitesse nulle
-Sc2String Interface::comp_effort = "effort";                    /// Nom pour le comportement effort impose
-Sc2String Interface::comp_effort_normal = "effort_normal";      /// Nom pour le comportement effort normal (pression)
-Sc2String Interface::comp_symetrie = "sym";                     /// Nom pour le comportement symetrie
-Sc2String Interface::comp_periodique = "periodique";            /// Nom pour le comportement periodique
+Sc2String Interface::type_ext = "Ext";                                  /// Nom pour le type interface exterieure (CL)
+Sc2String Interface::type_int = "Int";                                  /// Nom pour le type interface interieure (liaison)
+Sc2String Interface::comp_parfait = "Parfait";                          /// Nom pour le comportement parfait
+Sc2String Interface::comp_contact_parfait = "Contact";                  /// Nom pour le comportement contact de type parfait
+Sc2String Interface::comp_contact_elastique =  "Contact elastique";     /// Nom pour le comportement contact de type elastique
+Sc2String Interface::comp_elastique = "Elastique";                      /// Nom pour le comportement elastique
+Sc2String Interface::comp_cohesive = "Cohesive";                        /// Nom pour le comportement cohesif
+Sc2String Interface::comp_cassable_parfait = "Parfait Cassable";        /// Nom pour le comportement parfait cassable
+Sc2String Interface::comp_cassable_elastique = "Elastique Cassable";    /// Nom pour le comportement elastique cassable
+Sc2String Interface::comp_deplacement = "depl";                         /// Nom pour le comportement deplacement impose
+Sc2String Interface::comp_deplacement_normal = "depl_normal";           /// Nom pour le comportement deplacement normal
+Sc2String Interface::comp_deplacement_nul = "depl_nul";                 /// Nom pour le comportement deplacement nul
+Sc2String Interface::comp_vitesse = "vit";                              /// Nom pour le comportement vitesse imposee
+Sc2String Interface::comp_vitesse_normale = "vit_normale";              /// Nom pour le comportement vitesse normale
+Sc2String Interface::comp_vitesse_nulle = "vit_nulle";                  /// Nom pour le comportement vitesse nulle
+Sc2String Interface::comp_effort = "effort";                            /// Nom pour le comportement effort impose
+Sc2String Interface::comp_effort_normal = "effort_normal";              /// Nom pour le comportement effort normal (pression)
+Sc2String Interface::comp_symetrie = "sym";                             /// Nom pour le comportement symetrie
+Sc2String Interface::comp_periodique = "periodique";                    /// Nom pour le comportement periodique
 //-----------------------------------------------------------------------------//
 
 Interface::Side::Side(){
@@ -62,10 +65,6 @@ Vector Interface::Side::Pt(Vector &f) {
 }
 
 void Interface::Side::Time::allocations(unsigned sizenodeeq,bool endommageable){
-    jeu_interne.resize(sizenodeeq);
-    jeu_interne.set(0.0);
-    precharge.resize(sizenodeeq);
-    precharge.set(0.0);
     F.resize(sizenodeeq);
     F.set(0.0);
     Wp.resize(sizenodeeq);
@@ -111,15 +110,15 @@ void Interface::free(){
 }
 
 /// Initialisation des proprietes de l'interface
-void Interface::init(){
+void Interface::init(unsigned pt){
     const LMT::Vec<Point> &nodes = side[0].nodeeq;
     const int nb_nodes = nodes.size();
-    jeu.resize(nb_nodes*DIM,0.0);
-    if(oldjeu.size()!=jeu.size()){
-      oldjeu.resize(nb_nodes*DIM,0.0);
+    Ep_imposee.resize(nb_nodes*DIM,0.0);
+    if(old_Ep_imposee.size()!=Ep_imposee.size()){
+        old_Ep_imposee.resize(nb_nodes*DIM,0.0);
     }
-    Vector jeu_temp;
-    jeu_temp.resize(nb_nodes*DIM,0.0);
+    Vector preload_temp;
+    preload_temp.resize(nb_nodes*DIM,0.0);
     coeffrottement_vec.resize(nb_nodes,0.0);
     coeffrottement = 0;
     if(matprop == 0){
@@ -130,15 +129,65 @@ void Interface::init(){
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodes[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
         }
-        LMT::Vec<int,DIM> rep=range(i*DIM,(i+1)*DIM);
-        jeu_temp[rep] = matprop->f_jeu.updateValue(values)*side[0].neq[rep];    /// Evaluation des composantes du jeu
-        coeffrottement_vec[i] = matprop->f_coeffrottement.updateValue(values);  /// Evaluation des composantes du frottement
-        coeffrottement += coeffrottement_vec[i];                                /// incrementation du coefficient de frottement global
+        LMT::Vec<int,DIM> rep = range(i*DIM,(i+1)*DIM);
+        switch(matprop->Ep_Type){
+            case 0:
+                /// Jeu normal
+                preload_temp[rep] = matprop->Ep_n.updateValue(values)*side[0].neq[rep];
+                break;
+            case 1:
+                /// Jeu impose
+                preload_temp[rep[0]] = matprop->Ep_x.updateValue(values);
+                preload_temp[rep[1]] = matprop->Ep_y.updateValue(values);
+                #if DIM == 3
+                preload_temp[rep[2]] = matprop->Ep_z.updateValue(values);
+                #endif
+                break;
+            case 2:
+                /// Precharge normal
+                preload_temp[rep] = matprop->Preload_n.updateValue(values)*side[0].neq[rep];
+                break;
+            case 3:
+                /// Precharge imposee
+                preload_temp[rep[0]] = matprop->Preload_x.updateValue(values);
+                preload_temp[rep[1]] = matprop->Preload_y.updateValue(values);
+                #if DIM == 3
+                preload_temp[rep[2]] = matprop->Preload_z.updateValue(values);
+                #endif
+                break;
+            default:
+                break;
+        }
+        coeffrottement_vec[i] = matprop->f.updateValue(values);     /// Evaluation des composantes du frottement
+        coeffrottement += coeffrottement_vec[i];                    /// incrementation du coefficient de frottement global
     }
-    jeu = side[0].Pn(jeu_temp);
+    switch(matprop->Ep_Type){
+        case 0:
+            /// Jeu normal
+            Ep_imposee = side[0].Pn(preload_temp);
+            break;
+        case 1:
+            /// Jeu impose
+            Ep_imposee = preload_temp;
+            break;
+        case 2:
+            /// Precharge normal
+            precharge = side[0].Pn(preload_temp);
+            break;
+        case 3:
+            /// Precharge imposee
+            precharge = preload_temp;
+            break;
+        default:
+            break;
+    }
     coeffrottement /= nb_nodes;
-    
-    PRINT(jeu[LMT::range(0,DIM*1)]);
+    if(matprop->Ep_Type == 0 or matprop->Ep_Type == 1){
+        PRINT(Ep_imposee[LMT::range(0,DIM)]);
+    }
+    else if(matprop->Ep_Type == 2 or matprop->Ep_Type == 3){
+        PRINT(precharge[LMT::range(0,DIM)]);
+    }
 }
 
 void Interface::affiche(){
@@ -182,7 +231,7 @@ int Interface::get_type_elem() const {
         type_elem = 3;
     } else if (type == type_int and (comp == comp_parfait)){
         type_elem = 4;
-    } else if (type == type_int and (comp=="Contact_jeu_physique" or comp == comp_contact_ep) ){
+    } else if (type == type_int and (comp=="Contact_jeu_physique" or comp == comp_contact_parfait or comp == comp_contact_elastique) ){
         type_elem = 5;
     } else if (type == type_int and (comp=="Jeu_impose")){
         type_elem = 6;
@@ -196,3 +245,95 @@ int Interface::get_type_elem() const {
 
 Interface::Interface() {matprop = 0;id_link = -1;}
 Interface::~Interface() {free();}
+
+
+Interface::NodalState::NodalState(Interface &I,unsigned pt,Scalar dt_):
+interface(I),
+i_time(pt),
+dt(dt_)
+{}
+
+void Interface::NodalState::set_node(unsigned i_node){
+    id = i_node;
+    matprop = interface.matprop;
+    
+    Side::Time& side1 = interface.side[0].t[i_time];
+    Side::Time& side2 = interface.side[1].t[i_time];
+    Side::Time& old_side1 = interface.side[0].t[i_time-1];
+    Side::Time& old_side2 = interface.side[1].t[i_time-1];
+    LMT::Vec<unsigned> &list1 = interface.side[0].ddlcorresp;
+    LMT::Vec<unsigned> &list2 = interface.side[1].ddlcorresp;
+    LMT::Vec<unsigned> rep = LMT::range(id*DIM,(id+1)*DIM);
+    
+    coeffrottement = interface.coeffrottement_vec[i_node];
+    Ep_imposee = interface.Ep_imposee[list1][rep];
+    old_Ep_imposee = interface.old_Ep_imposee[list1][rep];
+    Precharge = interface.precharge[list1][rep];
+    old_Precharge = interface.old_precharge[list1][rep];
+    
+    n1 = interface.side[0].neq[list1][rep];
+    n2 = interface.side[0].neq[list2][rep];
+    F1 = side1.F[list1][rep];
+    F2 = side2.F[list2][rep];
+    Wp1 = side1.Wp[list1][rep];
+    Wp2 = side2.Wp[list2][rep];
+    Fchap1 = side1.Fchap[list1][rep];
+    Fchap2 = side2.Fchap[list2][rep];
+    Wpchap1 = side1.Wpchap[list1][rep];
+    Wpchap2 = side2.Wpchap[list2][rep];
+    
+    old_Wchap1 = old_side1.Wchap[list1][rep];
+    old_Wchap2 = old_side2.Wchap[list2][rep];
+    
+    /// Grandeurs pour le contact
+    if(interface.comportement.size()>0){
+        comportement = interface.comportement[i_node];
+    }
+    
+    /// Grandeurs pour l'elasticite
+    if(matprop != 0 and (interface.comp.find("Elastique") < interface.comp.size())){
+        K.kn = interface.matprop->Kn;
+        K.kt = interface.matprop->Kt;
+        K.n = n1;
+        Ep_elastique = interface.Ep_elastique[rep];
+        old_Ep_elastique = interface.old_Ep_elastique[rep];
+    }
+    
+    /// Grandeurs pour l'endommagement
+    if(matprop != 0 and matprop->degradable){
+        d = side1.d[i_node];
+        old_d = old_side1.d[i_node];
+    }
+    
+    k1.kn = interface.side[0].kn;
+    k1.kt = interface.side[0].kt;
+    k1.n = n1;
+    k2.kn = interface.side[1].kn;
+    k2.kt = interface.side[1].kt;
+    k2.n = n2;
+    h1.kn = interface.side[0].hn;
+    h1.kt = interface.side[0].ht;
+    h1.n = n1;
+    h2.kn = interface.side[1].hn;
+    h2.kt = interface.side[1].ht;
+    h2.n = n2;
+}
+
+void Interface::NodalState::store_results(){
+    LMT::Vec<unsigned> rep = LMT::range(id*DIM,(id+1)*DIM);
+    LMT::Vec<unsigned> &list1 = interface.side[0].ddlcorresp;
+    LMT::Vec<unsigned> &list2 = interface.side[1].ddlcorresp;
+    interface.side[0].t[i_time].Fchap[list1][rep] = Fchap1;
+    interface.side[1].t[i_time].Fchap[list2][rep] = Fchap2;
+    interface.side[0].t[i_time].Wpchap[list1][rep] = Wpchap1;
+    interface.side[1].t[i_time].Wpchap[list2][rep] = Wpchap2;
+    if(matprop != 0 and matprop->degradable){
+        interface.side[0].t[i_time].d[id] = d;
+    }
+    if(matprop != 0 and (interface.comp.find("Elastique") < interface.comp.size())){
+        interface.Ep_elastique[rep] = Ep_elastique;
+    }
+    if(interface.comportement.size()>0){
+        interface.comportement[id] = comportement;
+    }
+}
