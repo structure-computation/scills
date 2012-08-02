@@ -16,7 +16,7 @@ class ParameterGroup;
  *     - ParameterGroup* group     : Le groupe auquel il appartient
  *     - const Sc2String symbol    : Le symbol associe
  *     - const Codegen::Ex self_ex : L'expression associe au symbol
- *     - TYPEREEL value;           : La valeur courante
+ *     - Scalar value;             : La valeur courante
  *     - bool value_changed;       : Indique si la valeur du parametre a ete modifiee (variation relative de 1e-6 par rapport a la valeur precedente)
  */
 class ParameterAncestor{
@@ -31,22 +31,22 @@ public:
     /// Accesseur de value_changed: Indique si la valeur du parametre a ete modifiee (variation relative de 1e-6 par rapport a la valeur precedente)
     bool hasChanged() const;
     
-    /// Pour qu'il se comporte comme un TYPEREEL dans les calculs (Ex: TYPEREEL mu = 0.5*E/(1.0+nu))
-    operator TYPEREEL() const;
+    /// Pour qu'il se comporte comme un Scalar dans les calculs (Ex: Scalar mu = 0.5*E/(1.0+nu))
+    operator Scalar() const;
     
     /// Pour le debug et pour s'assurer que seules les classes filles sont instanciables
     virtual void affiche() = 0;
     
 //protected:
     /// Pour detecter les variations du parametre (utile pour la maj des operateurs)
-    TYPEREEL setValue(TYPEREEL val);
+    Scalar setValue(Scalar val);
     /// Voir setValue
-    static TYPEREEL epsilon(){return 1.e-6;}
+    static Scalar epsilon(){return 1.e-6;}
     
     ParameterGroup* group;      /// Le groupe auquel il appartient
     Sc2String symbol;     /// Le symbol associe
     Codegen::Ex self_ex;  /// L'expression associe au symbol
-    TYPEREEL value;             /// La valeur courante
+    Scalar value;             /// La valeur courante
     bool value_changed;         /// Indique si la valeur du parametre a ete modifiee
 };
 
@@ -64,7 +64,7 @@ public:
     void setGroup(ParameterGroup *group_);
     
     /// Surcharge pour modifier l'attribut 'value'
-    TYPEREEL operator=(TYPEREEL val);
+    Scalar operator=(Scalar val);
     
     /// Affichage de debug dans std::cout
     void affiche();

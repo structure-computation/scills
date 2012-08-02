@@ -36,24 +36,27 @@ struct etape_locale_inter {
     void operator()(Interface &Inter,Process &process) const {
         //std::cout << Inter.type << std::endl;
         //std::cout << Inter.comp << std::endl;
-        if (Inter.type==Interface::type_ext) {
-            if(Inter.comp==Interface::comp_deplacement_nul
-            or Inter.comp==Interface::comp_deplacement 
-            or Inter.comp==Interface::comp_vitesse_nulle 
-            or Inter.comp==Interface::comp_vitesse) {
+        if (Inter.type == Interface::type_ext) {
+            if(Inter.comp == Interface::comp_deplacement_nul
+            or Inter.comp == Interface::comp_deplacement 
+            or Inter.comp == Interface::comp_vitesse_nulle 
+            or Inter.comp == Interface::comp_vitesse) {
                 compt_CL_vit(Inter,process.temps->pt);
-            } else if (Inter.comp==Interface::comp_effort or Inter.comp==Interface::comp_effort_normal) {
+            } else if (Inter.comp == Interface::comp_effort or Inter.comp == Interface::comp_effort_normal) {
                 compt_CL_eff(Inter,process.temps->pt);
             /*} else if (Inter.comp=="effort_normal") {
                 compt_CL_eff_normal(Inter,process.temps->pt);*/
-            } else if (Inter.comp==Interface::comp_symetrie) {
+            } else if (Inter.comp == Interface::comp_symetrie) {
                 compt_CL_sym(Inter,process.temps->pt);
-            } else if (Inter.comp==Interface::comp_vitesse_normale or Inter.comp==Interface::comp_deplacement_normal) {
+            } else if (Inter.comp == Interface::comp_vitesse_normale or Inter.comp == Interface::comp_deplacement_normal) {
                 compt_CL_sym(Inter,process.temps->pt);
-            } else if (Inter.comp==Interface::comp_periodique) {
-                compt_parfait(Inter,process.temps->pt);
+            } else if (Inter.comp == Interface::comp_periodique) {
+                compt_parfait(Inter,*process.temps);
             }
-        } else if (Inter.type==Interface::type_int) {
+        } else if (Inter.type == Interface::type_int) {
+            if (Inter.comp == Interface::comp_periodique) {
+                compt_parfait(Inter,*process.temps);
+            } else
             comportement_local_interface(Inter,process.temps->pt,process.temps->dt);
             /*if (Inter.comp==Interface::comp_parfait) {
                 compt_parfait(Inter,process.temps->pt);

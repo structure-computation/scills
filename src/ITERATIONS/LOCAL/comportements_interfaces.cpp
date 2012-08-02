@@ -12,9 +12,9 @@ Scalar err_max = 1e-6;  /// Erreur maximale toleree sur la verification des equa
 void Interface::NodalState::check_ddr(){
     /// Erreur en equilibre des efforts
     CHECK(err_equilibre,Fchap1+Fchap2);
-    /// Erreur en direction de recherche sur le cote 1
+    /// Erreur en direction de recherche sur le cote 1     <--- A MODIFIER POUR PRISE EN COMPTE PRECHARGE
     CHECK(err_ddr1,Fchap1-F1-h1*(Wpchap1 - Wp1));
-    /// Erreur en direction de recherche sur le cote 2
+    /// Erreur en direction de recherche sur le cote 2     <--- IDEM
     CHECK(err_ddr2,Fchap2-F2-h2*(Wpchap2 - Wp2));
 }
 
@@ -27,9 +27,10 @@ void Interface::NodalState::comportement_parfait(){
     h.kt = 1.0/(k1.kt + k2.kt);
     h.n = n1;
     Wpchap1 = h*( (k1*Wp1 + k2*Wp2) - (F1 + F2) - k2*dEp_imposee);
-    Wpchap2 = Wpchap1 + dEp_imposee;
-    Fchap1 = F1 + k1*(Wpchap1-Wp1) - Precharge;
+    //Wpchap2 = Wpchap1 + dEp_imposee;
+    Fchap1 = F1 + k1*(Wpchap1 - Wp1) - (Precharge - old_Precharge);
     Fchap2 = -1.0*Fchap1;
+    Wpchap2 = Wp2 + h2*(Fchap2 - F2);
 }
 
 void Interface::NodalState::check_comportement_parfait(){
@@ -49,7 +50,7 @@ void Interface::NodalState::comportement_elastique(){
     /// Calcul de la variation d'epaisseur due a l'elasticite
     Ep_elastique = Htilde*( (Wp2 - Wp1) - (h2*F2 - h1*F1) - dEp_imposee + old_Ep_elastique/dt);
     /// Calcul des autres valeurs
-    Fchap1 = (1-d)*(K*Ep_elastique) - Precharge;
+    Fchap1 = (1-d)*(K*Ep_elastique) - (Precharge - old_Precharge);
     Fchap2 = -1.0*Fchap1;
     Wpchap1 = h1*(Fchap1 - F1) + Wp1;
     Wpchap2 = h2*(Fchap2 - F2) + Wp2;
@@ -152,6 +153,7 @@ void Interface::NodalState::check_comportement_cohesif(){
 
 
 void Interface::NodalState::comportement_cassable(){
+    /// !!! On suppose qu'un comportement parfait ou elastique a deja ete calcule
     /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
     if (interface.convergence >= 0 and comportement == false){
         /// test contact normal : apres le calcul en supposant la cohesion des 2 cotes (c.f. comportement_local_interface, plus bas)
@@ -184,6 +186,8 @@ void Interface::NodalState::comportement_contact_parfait(){
     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
     Scalar dEp_n = dot(dEp,n1);
     Point dEp_t = ProjT(dEp,n1);
+    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
@@ -210,7 +214,7 @@ void Interface::NodalState::comportement_contact_parfait(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t) / (h1.kt+h2.kt);
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t) / (h1.kt+h2.kt) - dPrecharge_t;
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
@@ -249,6 +253,8 @@ void Interface::NodalState::comportement_contact_elastique(){
     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
     Scalar dEp_n = dot(dEp,n1);
     Point dEp_t = ProjT(dEp,n1);
+    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
@@ -271,7 +277,7 @@ void Interface::NodalState::comportement_contact_elastique(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt));
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt)) - dPrecharge_t;
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
@@ -296,6 +302,11 @@ void Interface::NodalState::comportement_contact_elastique(){
         Wpchap2 = Wpchap2n*n1 + Wpchap2t;
         Fchap1 = Fchap1n*n1 + Fchap1t;
         Fchap2 = Fchap2n*n1 + Fchap2t;
+        /// Calcul de la deformation elastique
+        Interface::LocalOperator H; /// Operateur de souplesse
+        H.kn = 1/K.kn;
+        H.kt = 1/K.kt;
+        Ep_elastique = H*(Fchap1 + (Precharge - old_Precharge));
     }
 }
 
@@ -303,6 +314,7 @@ void Interface::NodalState::comportement_contact_elastique(){
 void Interface::NodalState::check_comportement_contact_elastique(){
     /// A definir
 }
+
 
 
 void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){

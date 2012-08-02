@@ -57,8 +57,12 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
                             unsigned sizenodeeq = SubI[i].side[j].nodeeq.size()*DIM;
                             SubI[i].Ep_imposee.resize(sizenodeeq);
                             SubI[i].Ep_imposee.set(0.0);
+                            SubI[i].old_Ep_imposee.resize(sizenodeeq);
+                            SubI[i].old_Ep_imposee.set(0.0);
                             SubI[i].Ep_elastique.resize(sizenodeeq);
                             SubI[i].Ep_elastique.set(0.0);
+                            SubI[i].old_Ep_elastique.resize(sizenodeeq);
+                            SubI[i].old_Ep_elastique.set(0.0);
                             SubI[i].precharge.resize(sizenodeeq);
                             SubI[i].precharge.set(0.0);
                             SubI[i].old_precharge.resize(sizenodeeq);
