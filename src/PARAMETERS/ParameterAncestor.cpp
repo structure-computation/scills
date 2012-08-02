@@ -23,12 +23,12 @@ bool ParameterAncestor::hasChanged() const{
     return value_changed;
 }
 
-/// Pour qu'il se comporte comme un TYPEREEL dans les calculs (Ex: TYPEREEL mu = 0.5*E/(1.0+nu))
-ParameterAncestor::operator TYPEREEL() const {return value;}
+/// Pour qu'il se comporte comme un Scalar dans les calculs (Ex: Scalar mu = 0.5*E/(1.0+nu))
+ParameterAncestor::operator Scalar() const {return value;}
 
 
 /// Pour detecter les variations du parametre (utile pour la maj des operateurs)
-TYPEREEL ParameterAncestor::setValue(TYPEREEL val){
+Scalar ParameterAncestor::setValue(Scalar val){
     value_changed = std::abs(value-val)/value < epsilon();
     value = val;
 }
@@ -55,7 +55,7 @@ void MainParameter::setGroup(ParameterGroup *group_){
 }
 
 /// Surcharge pour modifier l'attribut 'value'
-TYPEREEL MainParameter::operator=(TYPEREEL val){
+Scalar MainParameter::operator=(Scalar val){
     setValue(val);
 }
 
