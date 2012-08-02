@@ -22,6 +22,7 @@ extern Crout crout;
 void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inter,PointedInterfaces &SubI, MacroProblem &Global,DataUser &data_user) {
     
     //phase iterative
+    process.print_title(2,"    Début de la phase itérative :");
     bool flag_convergence=0;
     bool multiechelle=process.multiscale->multiechelle;
     process.latin->save_depl_SST=true;

@@ -175,6 +175,8 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
         }*/
+     
         std::cout << std::endl;
     }
+    std::cout << "Fin de la mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
 }
