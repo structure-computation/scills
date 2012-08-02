@@ -40,6 +40,7 @@ void Interface::NodalState::check_comportement_parfait(){
 
 void Interface::NodalState::comportement_elastique(){
     Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
+    PRINT(dEp_imposee);
     /// Construction de l'operateur (ne pas oublier que les normales sont identiques et que les matrices diagonales dans une base commune sont cools)
     Interface::LocalOperator Htilde;
     Htilde.kn = 1.0/(1.0/dt + K.kn*(h1.kn + h2.kn));
@@ -186,6 +187,11 @@ void Interface::NodalState::comportement_contact_parfait(){
     
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
+    Scalar N=( dot(n1,(Wp2-Wp1)) + dot(n1,(old_Wchap2-old_Wchap1)/dt) -h2.kn*dot(n1,F2) + h1.kn*dot(n1,F1) )/(h2.kn+h1.kn);
+    PRINT(N);
+    PRINT(dWchap_n);
+    PRINT(Ep_n);
+    
     if (dWchap_n > Ep_n) {
         /// separation des bords
         Fchap1 = 0.0;

@@ -40,6 +40,8 @@ void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inte
         tic.start();
         
         /// Etape lineaire
+        if (process.parallelisation->is_master_cpu()) 
+          std::cout << "    étape linéaire----------" << std::endl; 
         etape_lineaire(S,Inter,process,Global,data_user);
         crout << process.parallelisation->rank<< " : etape lineaire : " ;
         tic.stop();
@@ -74,6 +76,8 @@ void iterate_incr(Process &process, PointedSubstructures &S, VecInterfaces &Inte
         }
         
         /// Etape locale
+        if (process.parallelisation->is_master_cpu())
+          std::cout << "    étape locale----------" << std::endl; 
         process.parallelisation->synchronisation();
         if (process.parallelisation->is_local_cpu())
             etape_locale(SubI,S,process);

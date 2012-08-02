@@ -112,12 +112,12 @@ void Process::initialisation_MPI(int argc,char **argv){
 
 void Process::test_MPI(){
     // ceci est un test ----------
-    sleep(2);
+    //sleep(2);
     parallelisation->synchronisation();
     if(parallelisation->size > 1){ 
       std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl; 
     }
-    sleep(2);
+    //sleep(2);
     parallelisation->synchronisation();
     Vec<double> test;
     test.resize(10,0.0);
@@ -135,12 +135,12 @@ void Process::test_MPI(){
     PRINT(test);
     std::cout << endl;
     
-    sleep(2);
+    //sleep(2);
     parallelisation->synchronisation();
     if(parallelisation->size > 1){ 
       std::cout << "rank = " << parallelisation->rank << " ; size = " << parallelisation->size << endl;
     }
-    sleep(5);
+    //sleep(5);
     parallelisation->synchronisation();
     // ceci est un test ----------
 }
