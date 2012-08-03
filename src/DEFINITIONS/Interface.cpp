@@ -467,19 +467,10 @@ void Interface::NodalState::save_results(){
         side2.Wchap[list2] = _Wchap2;
     }
     
-    _Ep_imposee = interface.Ep_imposee[list1];
-    _old_Ep_imposee = interface.old_Ep_imposee[list1];
-    _Precharge = interface.precharge[list1];
-    _old_Precharge = interface.old_precharge[list1];
-    
-    k1.kn = interface.side[0].kn;
-    k1.kt = interface.side[0].kt;
-    k2.kn = interface.side[1].kn;
-    k2.kt = interface.side[1].kt;
-    h1.kn = interface.side[0].hn;
-    h1.kt = interface.side[0].ht;
-    h2.kn = interface.side[1].hn;
-    h2.kt = interface.side[1].ht;
+    interface.Ep_imposee[list1] = _Ep_imposee;
+    interface.old_Ep_imposee[list1] = _old_Ep_imposee;
+    interface.precharge[list1] = _Precharge;
+    interface.old_precharge[list1] = _old_Precharge;
     
     /// Grandeurs pour l'elasticite
     if(matprop != 0 and (interface.comp.find("Elastique") < interface.comp.size())){
