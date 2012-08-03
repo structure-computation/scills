@@ -220,20 +220,20 @@ void Interface::NodalState::comportement_contact_parfait(){
         Wpchap2 = Wp2 - h2*F2;
     }
     else{
-        if( interface.id == 3){
-            PRINT(F1);
-            PRINT(F2);
-            PRINT(Wp1);
-            PRINT(Wp2);
-            PRINT(Ep_elastique);
-            PRINT(Fchap1);
-            PRINT(Fchap2);
-            PRINT(Wpchap1);
-            PRINT(Wpchap2);
-            PRINT(old_Wchap1);
-            PRINT(old_Wchap2);
-            PRINT(dWchap_n);
-        }
+//         if( interface.id == 3){
+//             PRINT(F1);
+//             PRINT(F2);
+//             PRINT(Wp1);
+//             PRINT(Wp2);
+//             PRINT(Ep_elastique);
+//             PRINT(Fchap1);
+//             PRINT(Fchap2);
+//             PRINT(Wpchap1);
+//             PRINT(Wpchap2);
+//             PRINT(old_Wchap1);
+//             PRINT(old_Wchap2);
+//             PRINT(dWchap_n);
+//         }
         /// collision des bords
         /// Calcul des valeurs normales : on conserve la partie normale d'un calcul d'interface parfaite
         Scalar Fchap1n = (  dot(n1,(old_Wchap2-old_Wchap1)/dt) + dot(n1,(Wp2-Wp1)) -h2.kn*dot(n1,F2) + h1.kn*dot(n1,F1) )/(h2.kn+h1.kn);
