@@ -39,7 +39,7 @@ OPT_DBG = -ne -j$(NB_COMP_PROC) -g -g3 -ffast-math -fexpensive-optimizations
 PRG_test_load_data = SC_test_load_data_$(DIM).exe
 
 
-all: clean codegen_py metil_comp_multi metil_comp_multi_dbg
+all: clean codegen_py metil_comp_multi_dbg
 
 update: metil_comp_multi metil_comp_multi_dbg
 

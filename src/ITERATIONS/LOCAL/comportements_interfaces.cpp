@@ -145,6 +145,9 @@ void Interface::NodalState::comportement_cohesif(){
         Wpchap1 = h1*(Fchap1 - F1) + Wp1;
         Wpchap2 = h2*(Fchap2 - F2) + Wp2;
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -267,6 +270,9 @@ void Interface::NodalState::comportement_contact_parfait(){
         Fchap1 = Fchap1n*n1 + Fchap1t;
         Fchap2 = Fchap2n*n1 + Fchap2t;
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -336,6 +342,9 @@ void Interface::NodalState::comportement_contact_elastique(){
         H.kt = 1/K.kt;
         Ep_elastique = H*(Fchap1 + (Precharge - old_Precharge));
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -364,8 +373,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             /// On sauvegarde les resultats
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface elastique
     else if(Inter.comp == Interface::comp_elastique){
@@ -378,8 +386,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface parfaite cassable
     else if(Inter.comp == Interface::comp_cassable_parfait){
@@ -408,8 +415,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface elastique cassable
     else if(Inter.comp == Interface::comp_cassable_elastique){
@@ -439,8 +445,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface contact parfait
     else if(Inter.comp == Interface::comp_contact_parfait){
@@ -452,10 +457,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             node.check_comportement_contact_parfait();
             #endif
             node.store_results();
-            //integration
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface contact elastique
     else if(Inter.comp == Interface::comp_contact_elastique){
@@ -468,8 +471,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface cohesive
     else if(Inter.comp == Interface::comp_cohesive){
@@ -487,7 +489,6 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
 }

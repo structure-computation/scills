@@ -70,8 +70,9 @@ int main(int argc,char **argv) {
             process.boucle_multi_resolution();
         }
         process.finalisation_MPI();
-        if(process.parallelisation->is_master_cpu()) std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul << std::endl;
-        
+        if(process.parallelisation->is_master_cpu()) {
+            std::cout << "End of SC_multi_" << DIM << ".exe " << id_model << " " << id_calcul  << std::endl;
+        }
     } catch ( const IoException &e ) {
         std::cerr << e.what() << std::endl;
     }
