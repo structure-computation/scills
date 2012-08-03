@@ -220,21 +220,20 @@ void Interface::NodalState::comportement_contact_parfait(){
         Wpchap2 = Wp2 - h2*F2;
     }
     else{
-//         if( interface.id == 12){
-//             PRINT(F1);
-//             PRINT(F2);
-//             PRINT(Wp1);
-//             PRINT(Wp2);
-//             PRINT(Ep_elastique);
-//             PRINT(Fchap1);
-//             PRINT(Fchap2);
-//             PRINT(Wpchap1);
-//             PRINT(Wpchap2);
-//             PRINT(old_Wchap1);
-//             PRINT(old_Wchap2);
-//             PRINT(dWchap_n);
-//             PRINT(Ep_n);
-//         }
+        if( interface.id == 3){
+            PRINT(F1);
+            PRINT(F2);
+            PRINT(Wp1);
+            PRINT(Wp2);
+            PRINT(Ep_elastique);
+            PRINT(Fchap1);
+            PRINT(Fchap2);
+            PRINT(Wpchap1);
+            PRINT(Wpchap2);
+            PRINT(old_Wchap1);
+            PRINT(old_Wchap2);
+            PRINT(dWchap_n);
+        }
         /// collision des bords
         /// Calcul des valeurs normales : on conserve la partie normale d'un calcul d'interface parfaite
         Scalar Fchap1n = (  dot(n1,(old_Wchap2-old_Wchap1)/dt) + dot(n1,(Wp2-Wp1)) -h2.kn*dot(n1,F2) + h1.kn*dot(n1,F1) )/(h2.kn+h1.kn);
@@ -356,6 +355,7 @@ void Interface::NodalState::check_comportement_contact_elastique(){
 void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
     const unsigned nb_nodes = Inter.side[0].nodeeq.size();
     Interface::NodalState node(Inter,pt,dt);
+    int nb_iter_before_break = 3;
     
     /// Interface parfaite
     if(Inter.comp == Interface::comp_parfait){
@@ -392,7 +392,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(node.comportement <= 3){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -405,7 +405,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            else{
+            if(node.comportement > nb_iter_before_break){
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -421,7 +421,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(node.comportement <= 3){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_elastique();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -434,7 +434,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            else{
+            if(node.comportement > nb_iter_before_break){
                 //node.comportement_contact_elastique();
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
@@ -476,10 +476,10 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
     else if(Inter.comp == Interface::comp_cohesive){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
-            if(node.comportement <= 3){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_cohesif();
             }
-            else{
+            if(node.comportement > nb_iter_before_break){
                 node.comportement_contact_parfait();    /// L'interface est ruinee d'ou un contact parfait et non elastique
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
