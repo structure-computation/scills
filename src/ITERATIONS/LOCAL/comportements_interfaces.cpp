@@ -162,14 +162,25 @@ void Interface::NodalState::comportement_cassable(){
         /// que l'on reecrit k * N2 + T2 > R en multipliant par Fcr_t ^ 2
         Scalar N = dot(Fchap1,n1);  /// Effort normal (de 1 vers 2)
         Point T = ProjT(Fchap1,n1); /// Effort tangentiel
-        Scalar N2 = N*N*(N < 0);    /// norme au carre de l'effort normal en traction
+        Scalar N2 = N*N*(N > 0);    /// norme au carre de l'effort normal en traction
         Scalar T2 = dot(T,T);       /// norme au carre de l'effort tangentiel
         Scalar R = (matprop->Fcr_t*matprop->Fcr_t);
         Scalar k = R/(matprop->Fcr_n*matprop->Fcr_n);
+        
+        if(N>matprop->Fcr_n){
+          PRINT(N2);
+          PRINT(T2);
+          PRINT(dot(F1,n1));
+          PRINT(k * N2 + T2);
+          PRINT(R);
+        }
+        
+        
         if (k * N2 + T2 > R){
             ///David dit de mettre 10% de plus (A QUOI ???)
             /// on a franchi la limite de rupture
             comportement = true;
+            PRINT("on casse");
             interface.convergence++;
         }
     }
@@ -353,6 +364,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             /// On sauvegarde les resultats
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface elastique
     else if(Inter.comp == Interface::comp_elastique){
@@ -365,6 +378,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface parfaite cassable
     else if(Inter.comp == Interface::comp_cassable_parfait){
@@ -393,6 +408,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface elastique cassable
     else if(Inter.comp == Interface::comp_cassable_elastique){
@@ -413,7 +430,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             /// S'il a casse, on applique le contact
             if(node.comportement){
-                node.comportement_contact_elastique();
+                //node.comportement_contact_elastique();
+                node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
                 node.check_comportement_contact_elastique();
@@ -421,6 +439,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface contact parfait
     else if(Inter.comp == Interface::comp_contact_parfait){
@@ -433,9 +453,9 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
             //integration
-            Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-            Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface contact elastique
     else if(Inter.comp == Interface::comp_contact_elastique){
@@ -448,6 +468,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
     /// Interface cohesive
     else if(Inter.comp == Interface::comp_cohesive){
@@ -465,5 +487,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
+        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
     }
 }

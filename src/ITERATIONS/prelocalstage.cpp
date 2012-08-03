@@ -132,7 +132,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique) {
+        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique or Inter[i_inter].comp==Interface::comp_cassable_elastique or Inter[i_inter].comp==Interface::comp_cassable_parfait) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
