@@ -118,6 +118,10 @@ struct Interface
             Vector oldW;    /// deplacements a l'iteration (en latin) ou au pas de temps (en incremental) precedent
             Vector oldWp;   /// vitesses a l'iteration (en latin) ou au pas de temps (en incremental) precedent
             Vector d;       /// endommagement des elements de l'interface
+            
+            Vector dPrecharge;        /// increment de précharge
+            Vector dEp_imposee;       /// increment d epaisseur imposee
+            
             void allocations(unsigned sizenodeeq,bool endommageable);
         };
         Vec<Time> t;        /// Vecteurs piquet de temps

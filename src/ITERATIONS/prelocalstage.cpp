@@ -19,19 +19,9 @@ void assign_CL_spatial_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL,Sca
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodeeq[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
         }
-        Point old_data;
-        bool derivee = (CL.comp.find("depl") < CL.comp.size());
-        if(derivee){
-            for(unsigned i_dir=0;i_dir<DIM;++i_dir){
-                old_data[i_dir] = CL.fcts_spatiales[i_dir];                 /// Recuperation des anciennes valeurs de la CL
-            }
-        }
         Point data;
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             data[i_dir] = CL.fcts_spatiales[i_dir].updateValue(values);     /// Evaluation des composantes de la CL
-        }
-        if(derivee){
-            data = (data - old_data)/dt;                                    /// Calcul de la derivee
         }
         V[range(i*DIM,(i+1)*DIM)]=data;                                     /// Stockage du resultat
     }
@@ -45,12 +35,7 @@ void assign_CL_spatial_temporel_normale(Vector &V, Vec<Point > &nodeeq, Vector &
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodeeq[i][i_dir]; /// Chargement des coordonnees du point
         }
-        Scalar old_data = CL.fcts_spatiales[0];                 /// Recuperation de l'ancienne valeur normale de la CL
-        bool derivee = (CL.comp.find("depl") < CL.comp.size()); /// Indique si on doit calculer la derivee temporelle
         Scalar data = CL.fcts_spatiales[0].updateValue(values); /// Evaluation de la composante normale
-        if(derivee){
-            data = (data - old_data)/dt;                        /// Calcul de la derivee
-        }
         Point temp=V[range(i*DIM,(i+1)*DIM)];                   /// Recuperation de la valeur actuelle sur l'interface
         Point neq = neqs[range(i*DIM,(i+1)*DIM)];               /// Recuperation de la normale de l'element
         V[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+data*neq;     /// Calcul et stockage du resultat
@@ -147,34 +132,37 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        }/* else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
+        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
-                Vector dep_jeu = Inter[i_inter].Ep_impose - Inter[i_inter].oldEp_impose ;
+                Vector dep_jeu = Inter[i_inter].Ep_imposee - Inter[i_inter].old_Ep_imposee ;
+                Vector dep_precharge = Inter[i_inter].precharge - Inter[i_inter].old_precharge ;
+                
                 Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 
-                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] = Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] + R1 * dep_jeu;
-                Inter[i_inter].side[0].t[process.temps->pt-1].W = Inter[i_inter].side[0].t[process.temps->pt-1].W - 1. * R0 * dep_jeu;
+                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
+                Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-                Inter[i_inter].oldEp_impose = Inter[i_inter].Ep_impose;
+//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
+//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
+//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
                 
-                if(Inter[i_inter].id==8){
+//                 if(Inter[i_inter].id==12){
                     PRINT("  ");
                     PRINT(R0);
                     PRINT(R1);
                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
                     PRINT("on est dans prélocal stage");
                     PRINT(Inter[i_inter].id);
-                    PRINT(Inter[i_inter].side[0].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
-                    PRINT(Inter[i_inter].side[1].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
+                    PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
                     PRINT("  ");
-                }
+//                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
-        }*/
+        }
      
         std::cout << std::endl;
     }
