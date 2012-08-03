@@ -78,7 +78,7 @@ void Interface::NodalState::check_comportement_elastique(){
 
 
 void Interface::NodalState::comportement_cohesif(){
-    Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
+    //Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
     const unsigned max_iter = 1000;
     Scalar epsilon = 1.0e-6;
     Scalar dmax = 1.0-1.0e-3;
@@ -167,20 +167,19 @@ void Interface::NodalState::comportement_cassable(){
         Scalar R = (matprop->Fcr_t*matprop->Fcr_t);
         Scalar k = R/(matprop->Fcr_n*matprop->Fcr_n);
         
-        if(N>matprop->Fcr_n){
-          PRINT(N2);
-          PRINT(T2);
-          PRINT(dot(F1,n1));
-          PRINT(k * N2 + T2);
-          PRINT(R);
-        }
+//         if(N>matprop->Fcr_n){
+//           PRINT(N2);
+//           PRINT(T2);
+//           PRINT(dot(F1,n1));
+//           PRINT(k * N2 + T2);
+//           PRINT(R);
+//         }
         
         
         if (k * N2 + T2 > R){
             ///David dit de mettre 10% de plus (A QUOI ???)
             /// on a franchi la limite de rupture
             comportement = true;
-            PRINT("on casse");
             interface.convergence++;
         }
     }
