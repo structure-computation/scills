@@ -94,10 +94,14 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
-            } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul 
-                   or Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
+            } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul) {
+                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
+                Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+            } else if(Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
-                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
@@ -113,7 +117,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
-            } else if(Inter[i_inter].comp == Interface::comp_deplacement_normal or Inter[i_inter].comp == Interface::comp_vitesse_normale) {
+            } else if(Inter[i_inter].comp == Interface::comp_vitesse_normale) {
                 if(process.temps->pt_cur==1) {
                     assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
                     if(process.reprise_calcul==0)
@@ -128,11 +132,27 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+            } else if(Inter[i_inter].comp == Interface::comp_deplacement_normal) {
+                if(process.temps->pt_cur==1) {
+                    assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
+                    Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
+                    if(process.reprise_calcul==0)
+                        Inter[i_inter].side[0].t[1].Fchap.set(0.0);
+                } else {
+                    Vector Wchapnormal;
+                    Wchapnormal.resize(Inter[i_inter].side[0].t[1].Wpchap.size(),0.0);
+                    assign_CL_spatial_temporel_normale(Wchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);
+                    Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap) + (Wchapnormal - Inter[i_inter].side[0].Pn(Inter[i_inter].side[0].t[0].Wchap))/dt;
+                }
+                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else {
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique or Inter[i_inter].comp==Interface::comp_cassable_elastique or Inter[i_inter].comp==Interface::comp_cassable_parfait) {
+        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique or Inter[i_inter].comp==Interface::comp_cassable_elastique or Inter[i_inter].comp==Interface::comp_cassable_parfait or Inter[i_inter].comp==Interface::comp_cohesive) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
@@ -145,19 +165,15 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
-//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
-//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
-                
 //                 if(Inter[i_inter].id==12){
-                    PRINT("  ");
-                    PRINT(R0);
-                    PRINT(R1);
-                    PRINT(dep_jeu[LMT::range(0,DIM*1)]);
-                    PRINT("on est dans prélocal stage");
-                    PRINT(Inter[i_inter].id);
-                    PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
-                    PRINT("  ");
+//                     PRINT("  ");
+//                     PRINT(R0);
+//                     PRINT(R1);
+//                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
+//                     PRINT("on est dans prélocal stage");
+//                     PRINT(Inter[i_inter].id);
+//                     PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
+//                     PRINT("  ");
 //                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;

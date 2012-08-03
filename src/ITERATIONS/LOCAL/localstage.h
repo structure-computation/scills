@@ -54,9 +54,9 @@ struct etape_locale_inter {
                 compt_parfait(Inter,*process.temps);
             }
         } else if (Inter.type == Interface::type_int) {
-            if (Inter.comp == Interface::comp_periodique) {
-                compt_parfait(Inter,*process.temps);
-            } else
+//             if (Inter.comp == Interface::comp_periodique) {
+//                 compt_parfait(Inter,*process.temps);
+//             } else
             comportement_local_interface(Inter,process.temps->pt,process.temps->dt);
             /*if (Inter.comp==Interface::comp_parfait) {
                 compt_parfait(Inter,process.temps->pt);

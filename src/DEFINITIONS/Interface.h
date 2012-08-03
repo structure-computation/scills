@@ -119,9 +119,6 @@ struct Interface
             Vector oldWp;   /// vitesses a l'iteration (en latin) ou au pas de temps (en incremental) precedent
             Vector d;       /// endommagement des elements de l'interface
             
-            Vector dPrecharge;        /// increment de précharge
-            Vector dEp_imposee;       /// increment d epaisseur imposee
-            
             void allocations(unsigned sizenodeeq,bool endommageable);
         };
         Vec<Time> t;        /// Vecteurs piquet de temps
@@ -142,7 +139,7 @@ struct Interface
     Vector old_Ep_elastique;    /// valeurs de Ep_elastique au pas de temps precedent
     Vector precharge;           /// précharge imposee par l'utilisateur sur l'interface
     Vector old_precharge;       /// précharge imposee par l'utilisateur sur l'interface
-    Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
+    Vec<unsigned> comportement;     /// indique pour chaque element s'il y a modification du comportement, si on casse ou non
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
                                 ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
     
@@ -166,10 +163,36 @@ struct Interface
         unsigned id;                /// Numero du noeud
         unsigned i_time;            /// Numero du noeud
         Scalar dt;                  /// Numero du noeud
-        bool comportement;          /// Cohesion entre les cotes?
+        
+        /// Vecteurs globaux renumerotees (_F1 = side[0].F[list1] par exemple)
+        Vec<unsigned> _comportement;/// Cohesion entre les cotes?
+        Vector _coeffrottement;     /// Coefficient de frottement
+        Vector _n1;                 /// Normale du bord 1 vers le bord 2
+        Vector _F1;                 /// Efforts sur le bord 1 (etape lineaire)
+        Vector _F2;                 /// Efforts sur le bord 2 (etape lineaire)
+        Vector _Wp1;                /// Vitessse de deplacement du bord 1 (etape lineaire)
+        Vector _Wp2;                /// Vitessse de deplacement du bord 2 (etape lineaire)
+        Vector _old_Wchap1;         /// Ancienne valeur du deplacement du bord 1 (etape locale au pas de temps precedent)
+        Vector _old_Wchap2;         /// Ancienne valeur du deplacement du bord 2 (etape locale au pas de temps precedent)
+        Vector _Fchap1;             /// Efforts sur le bord 1 (etape locale)
+        Vector _Fchap2;             /// Efforts sur le bord 2 (etape locale)
+        Vector _Wpchap1;            /// Vitessse de deplacement du bord 1 (etape locale)
+        Vector _Wpchap2;            /// Vitessse de deplacement du bord 2 (etape locale)
+        Vector _Wchap1;             /// Deplacement du bord 1 (etape locale)
+        Vector _Wchap2;             /// Deplacement du bord 2 (etape locale)
+        Vector _Precharge;          /// Precharge dans l'interface
+        Vector _old_Precharge;      /// Ancienne valeur de la precharge
+        Vector _Ep_imposee;         /// Epaisseur imposee par l'utilisateur
+        Vector _old_Ep_imposee;     /// Ancienne valeur de l'epaisseur imposee par l'utilisateur
+        Vector _Ep_elastique;       /// Modification de l'epaisseur de l'interface due a l'elasticite
+        Vector _old_Ep_elastique;   /// Ancienne valeur de la modification de l'epaisseur due a l'elasticite
+        Vector _d;                  /// Endommagement
+        Vector _old_d;              /// Ancienne valeur de l'endommagement (pas de temps precedent)
+        
+        /// Valeurs locals des grandeurs de l'interface
+        unsigned comportement;      /// Cohesion entre les cotes?
         Scalar coeffrottement;      /// Coefficient de frottement
         Point n1;                   /// Normale du bord 1 vers le bord 2
-        Point n2;                   /// Normale du bord 2 vers le bord 1
         Point F1;                   /// Efforts sur le bord 1 (etape lineaire)
         Point F2;                   /// Efforts sur le bord 2 (etape lineaire)
         Point Wp1;                  /// Vitessse de deplacement du bord 1 (etape lineaire)
@@ -178,6 +201,8 @@ struct Interface
         Point Fchap2;               /// Efforts sur le bord 2 (etape locale)
         Point Wpchap1;              /// Vitessse de deplacement du bord 1 (etape locale)
         Point Wpchap2;              /// Vitessse de deplacement du bord 2 (etape locale)
+        Point Wchap1;               /// Deplacement du bord 1 (etape locale)
+        Point Wchap2;               /// Deplacement du bord 2 (etape locale)
         Point Ep_imposee;           /// Epaisseur imposee par l'utilisateur
         Point old_Ep_imposee;       /// Ancienne valeur de l'epaisseur imposee par l'utilisateur
         Point Ep_elastique;         /// Modification de l'epaisseur de l'interface due a l'elasticite
@@ -188,15 +213,17 @@ struct Interface
         Point old_Wchap1;           /// Ancienne valeur du deplacement du bord 1 (etape locale au pas de temps precedent)
         Point old_Wchap2;           /// Ancienne valeur du deplacement du bord 2 (etape locale au pas de temps precedent)
         Scalar old_d;               /// Ancienne valeur de l'endommagement (pas de temps precedent)
+        
         LocalOperator k1;           /// Direction (en raideur) de recherche sur le bord 1
         LocalOperator k2;           /// Direction (en raideur) de recherche sur le bord 2
         LocalOperator h1;           /// Direction (en souplesse) de recherche sur le bord 1
         LocalOperator h2;           /// Direction (en souplesse) de recherche sur le bord 2
         LocalOperator K;            /// Operateur d'elasticite
         
-        NodalState(Interface &I,unsigned pt,Scalar dt_);
-        void set_node(unsigned i_node);
-        void store_results();
+        NodalState(Interface &I,unsigned pt,Scalar dt_);    /// Construit un NodalState associee a l'interface I, au pas de temps pt (dt_ permet de calculer les derivees)
+        void set_node(unsigned i_node);                     /// Positionne le NodalState au noeud indice i_node
+        void store_results();                               /// Conserve les resultats dans un stockage intermediaire
+        void save_results();                                /// Sauvegarde les resultats sur l'interface
         
         void comportement_parfait();
         void comportement_elastique();
@@ -215,9 +242,9 @@ struct Interface
     };
     
     #if DIM==2
-    static const   int nb_nodes_by_element=2;
+    static const int nb_nodes_by_element=2;
     #else
-    static const   int nb_nodes_by_element=3;
+    static const int nb_nodes_by_element=3;
     #endif  
     BasicVec<BasicVec<Scalar>,DIM> nodes; ///< coordonnées des noeuds de peau d'une sst pour la sortie hdf
     BasicVec<BasicVec<int> > mesh_connectivities; ///< connectivites du maillage de peau d'une sst pour la sortie hdf (tient compte de la numérotation globale des noeuds)
@@ -228,6 +255,7 @@ struct Interface
     //*******************************************************************************************
     // methodes de la class
     //*******************************************************************************************
+    void allocate(unsigned nbpastemps);
     void free();
     void init(unsigned pt);
     void affiche();

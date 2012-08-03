@@ -136,7 +136,7 @@ void Interface::NodalState::comportement_cohesif(){
     d = std::max(d,old_d);
     if(d > dmax){
         /// Ruine du materiau
-        comportement = true;
+        comportement++;
     }
     else{
         /// Le materiau survit au chargement
@@ -145,6 +145,9 @@ void Interface::NodalState::comportement_cohesif(){
         Wpchap1 = h1*(Fchap1 - F1) + Wp1;
         Wpchap2 = h2*(Fchap2 - F2) + Wp2;
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -156,7 +159,7 @@ void Interface::NodalState::check_comportement_cohesif(){
 void Interface::NodalState::comportement_cassable(){
     /// !!! On suppose qu'un comportement parfait ou elastique a deja ete calcule
     /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
-    if (comportement == false){
+    if (comportement <= 3){
         /// test contact normal : apres le calcul en supposant la cohesion des 2 cotes (c.f. comportement_local_interface, plus bas)
         /// on verifie si (< -Fchap1_n >+ / Fcr_n)^2 + (Fchap1_t / Fcr_t)^2 > 1 avec < >+ la partie positive
         /// que l'on reecrit k * N2 + T2 > R en multipliant par Fcr_t ^ 2
@@ -179,7 +182,7 @@ void Interface::NodalState::comportement_cassable(){
         if (k * N2 + T2 > R){
             ///David dit de mettre 10% de plus (A QUOI ???)
             /// on a franchi la limite de rupture
-            comportement = true;
+            comportement++;
             interface.convergence++;
         }
     }
@@ -194,11 +197,11 @@ void Interface::NodalState::check_comportement_cassable(){
 void Interface::NodalState::comportement_contact_parfait(){
     /// Quelques grandeurs utiles
     Scalar Ep_n = dot(Ep_imposee,n1);
-    Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
-    Scalar dEp_n = dot(dEp,n1);
-    Point dEp_t = ProjT(dEp,n1);
-    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
-    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
+//     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
+//     Scalar dEp_n = dot(dEp,n1);
+//     Point dEp_t = ProjT(dEp,n1);
+//     Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+//     Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     
 
@@ -217,21 +220,20 @@ void Interface::NodalState::comportement_contact_parfait(){
         Wpchap2 = Wp2 - h2*F2;
     }
     else{
-//         if( interface.id == 12){
-//             PRINT(F1);
-//             PRINT(F2);
-//             PRINT(Wp1);
-//             PRINT(Wp2);
-//             PRINT(Ep_elastique);
-//             PRINT(Fchap1);
-//             PRINT(Fchap2);
-//             PRINT(Wpchap1);
-//             PRINT(Wpchap2);
-//             PRINT(old_Wchap1);
-//             PRINT(old_Wchap2);
-//             PRINT(dWchap_n);
-//             PRINT(Ep_n);
-//         }
+        if( interface.id == 3){
+            PRINT(F1);
+            PRINT(F2);
+            PRINT(Wp1);
+            PRINT(Wp2);
+            PRINT(Ep_elastique);
+            PRINT(Fchap1);
+            PRINT(Fchap2);
+            PRINT(Wpchap1);
+            PRINT(Wpchap2);
+            PRINT(old_Wchap1);
+            PRINT(old_Wchap2);
+            PRINT(dWchap_n);
+        }
         /// collision des bords
         /// Calcul des valeurs normales : on conserve la partie normale d'un calcul d'interface parfaite
         Scalar Fchap1n = (  dot(n1,(old_Wchap2-old_Wchap1)/dt) + dot(n1,(Wp2-Wp1)) -h2.kn*dot(n1,F2) + h1.kn*dot(n1,F1) )/(h2.kn+h1.kn);
@@ -241,7 +243,7 @@ void Interface::NodalState::comportement_contact_parfait(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t) / (h1.kt+h2.kt) - dPrecharge_t;
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1))) / (h1.kt+h2.kt);
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
@@ -266,6 +268,9 @@ void Interface::NodalState::comportement_contact_parfait(){
         Fchap1 = Fchap1n*n1 + Fchap1t;
         Fchap2 = Fchap2n*n1 + Fchap2t;
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -277,11 +282,11 @@ void Interface::NodalState::check_comportement_contact_parfait(){
 void Interface::NodalState::comportement_contact_elastique(){
     /// Quelques grandeurs utiles
     Scalar Ep_n = dot(Ep_imposee,n1);
-    Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
-    Scalar dEp_n = dot(dEp,n1);
-    Point dEp_t = ProjT(dEp,n1);
-    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
-    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
+//     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
+//     Scalar dEp_n = dot(dEp,n1);
+//     Point dEp_t = ProjT(dEp,n1);
+//     Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+//     Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
@@ -304,7 +309,7 @@ void Interface::NodalState::comportement_contact_elastique(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt)) - dPrecharge_t;
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt));
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
@@ -335,6 +340,9 @@ void Interface::NodalState::comportement_contact_elastique(){
         H.kt = 1/K.kt;
         Ep_elastique = H*(Fchap1 + (Precharge - old_Precharge));
     }
+    
+    Wchap1 = old_Wchap1 + dt * Wpchap1;
+    Wchap2 = old_Wchap2 + dt * Wpchap2;
 }
 
 
@@ -347,6 +355,7 @@ void Interface::NodalState::check_comportement_contact_elastique(){
 void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
     const unsigned nb_nodes = Inter.side[0].nodeeq.size();
     Interface::NodalState node(Inter,pt,dt);
+    int nb_iter_before_break = 3;
     
     /// Interface parfaite
     if(Inter.comp == Interface::comp_parfait){
@@ -363,8 +372,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             /// On sauvegarde les resultats
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface elastique
     else if(Inter.comp == Interface::comp_elastique){
@@ -377,15 +385,14 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface parfaite cassable
     else if(Inter.comp == Interface::comp_cassable_parfait){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(not node.comportement){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -398,7 +405,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            if(node.comportement){
+            if(node.comportement > nb_iter_before_break){
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -407,15 +414,14 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface elastique cassable
     else if(Inter.comp == Interface::comp_cassable_elastique){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(not node.comportement){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_elastique();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -428,7 +434,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            if(node.comportement){
+            if(node.comportement > nb_iter_before_break){
                 //node.comportement_contact_elastique();
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
@@ -438,8 +444,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface contact parfait
     else if(Inter.comp == Interface::comp_contact_parfait){
@@ -451,10 +456,8 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             node.check_comportement_contact_parfait();
             #endif
             node.store_results();
-            //integration
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface contact elastique
     else if(Inter.comp == Interface::comp_contact_elastique){
@@ -467,17 +470,16 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             #endif
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
     /// Interface cohesive
     else if(Inter.comp == Interface::comp_cohesive){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
-            if(not node.comportement){
+            if(node.comportement <= nb_iter_before_break){
                 node.comportement_cohesif();
             }
-            if(node.comportement){
+            if(node.comportement > nb_iter_before_break){
                 node.comportement_contact_parfait();    /// L'interface est ruinee d'ou un contact parfait et non elastique
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -486,7 +488,6 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             }
             node.store_results();
         }
-        Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
-        Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
+        node.save_results();
     }
 }
