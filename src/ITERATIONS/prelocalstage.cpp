@@ -13,7 +13,7 @@ using namespace Codegen;
 
 
 /// Calcul des valeurs numeriques des fonctions spatiales de la CL et assignation dans le vecteur V associe au chargement defini (Fchap ou Wpchap)
-void assign_CL_spatial_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL,unsigned step) {
+void assign_CL_spatial_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL,Scalar dt) {
     Ex::MapExNum values = Boundary::CL_parameters.getParentsValues();               /// Recuperation des parametres temporels et de multiresolution
     for(unsigned i=0;i<nodeeq.size();++i){
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
@@ -21,15 +21,15 @@ void assign_CL_spatial_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL,uns
         }
         Point data;
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
-            data[i_dir] = CL.fcts_spatiales[i_dir].updateValue(values); /// Evaluation des composantes de la CL
+            data[i_dir] = CL.fcts_spatiales[i_dir].updateValue(values);     /// Evaluation des composantes de la CL
         }
-        V[range(i*DIM,(i+1)*DIM)]=data;                                 /// Stockage du resultat
+        V[range(i*DIM,(i+1)*DIM)]=data;                                     /// Stockage du resultat
     }
 }
 
 
 /// Calcul des valeurs numeriques des fonctions spatiales de la CL en deplacement normal et assignation dans le vecteur V associe (Wpchap)
-void assign_CL_spatial_temporel_normale(Vector &V, Vec<Point > &nodeeq, Vector &neqs, Boundary &CL,unsigned step) {
+void assign_CL_spatial_temporel_normale(Vector &V, Vec<Point > &nodeeq, Vector &neqs, Boundary &CL,Scalar dt) {
     Ex::MapExNum values = Boundary::CL_parameters.getParentsValues();   /// Recuperation des parametres temporels et de multiresolution
     for(unsigned i=0;i<nodeeq.size();++i){
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
@@ -78,26 +78,25 @@ void initialise_CL_values(PointedInterfaces &Inter, Boundaries &CL){
 
 
 /// Mise a jour des CL et assignation des nouvelles valeurs a Fchap et Wpchap (pour une iteration incrementale)
-//*
 void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process, DataUser &data_user ) {
-    unsigned step = process.temps->step_cur;
+    Scalar dt = process.temps->dt;
     std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
         std::cout << "\tid : " << Inter[i_inter].id  << "\ttype : " << Inter[i_inter].type << "\tcomportement : " << Inter[i_inter].comp << "\tvaleur : ";
         if (Inter[i_inter].type == Interface::type_ext and Inter[i_inter].comp != Interface::comp_periodique) {
             if(Inter[i_inter].comp == Interface::comp_effort) {
-                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],step);
+                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_effort_normal) {
-                assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],step);
+                assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul 
                    or Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
-                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],step);
+                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
                 //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
@@ -105,7 +104,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
             } else if(Inter[i_inter].comp == Interface::comp_symetrie) {
                 if(process.temps->pt_cur==1) {
                     if(process.reprise_calcul==0){
-                        assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],step);
+                        assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
                     }
                     if(process.reprise_calcul==0){
                         Inter[i_inter].side[0].t[1].Fchap.set(0.0);
@@ -116,13 +115,13 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_deplacement_normal or Inter[i_inter].comp == Interface::comp_vitesse_normale) {
                 if(process.temps->pt_cur==1) {
-                    assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],step);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
+                    assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
                     if(process.reprise_calcul==0)
                         Inter[i_inter].side[0].t[1].Fchap.set(0.0);
                 } else {
                     Vector Wpchapnormal;
                     Wpchapnormal.resize(Inter[i_inter].side[0].t[1].Wpchap.size(),0.0);
-                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],step);
+                    assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);
                     Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap)+Wpchapnormal;
                 }
                 //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
@@ -133,34 +132,39 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        } else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
+        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique or Inter[i_inter].comp==Interface::comp_cassable_elastique or Inter[i_inter].comp==Interface::comp_cassable_parfait) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
-                Vector dep_jeu = Inter[i_inter].jeu - Inter[i_inter].oldjeu ;
+                Vector dep_jeu = Inter[i_inter].Ep_imposee - Inter[i_inter].old_Ep_imposee ;
+                Vector dep_precharge = Inter[i_inter].precharge - Inter[i_inter].old_precharge ;
+                
                 Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
-              
-                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] = Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] + R1 * dep_jeu;
-                Inter[i_inter].side[0].t[process.temps->pt-1].W = Inter[i_inter].side[0].t[process.temps->pt-1].W - 1. * R0 * dep_jeu;
                 
-                Inter[i_inter].oldjeu = Inter[i_inter].jeu;
+                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
+                Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-                if(Inter[i_inter].id==8){
+//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
+//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
+//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
+                
+//                 if(Inter[i_inter].id==12){
                     PRINT("  ");
                     PRINT(R0);
                     PRINT(R1);
                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
                     PRINT("on est dans prélocal stage");
                     PRINT(Inter[i_inter].id);
-                    PRINT(Inter[i_inter].side[0].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
-                    PRINT(Inter[i_inter].side[1].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
+                    PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
                     PRINT("  ");
-                }
+//                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
         }
+     
         std::cout << std::endl;
     }
+    std::cout << "Fin de la mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
 }

@@ -54,7 +54,27 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
                     for(unsigned pt=0;pt<(nbpastemps+1);pt++){
                         if (process.parallelisation->is_local_cpu()) {
                             /// Allocation des vecteurs de resultats. Endommagement uniquement si matprop existe et matprop->degradable vaut true
-                            SubI[i].side[j].t[pt].allocations(SubI[i].side[j].nodeeq.size()*DIM,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);
+                            unsigned sizenodeeq = SubI[i].side[j].nodeeq.size()*DIM;
+                            SubI[i].Ep_imposee.resize(sizenodeeq);
+                            SubI[i].Ep_imposee.set(0.0);
+                            SubI[i].old_Ep_imposee.resize(sizenodeeq);
+                            SubI[i].old_Ep_imposee.set(0.0);
+                            SubI[i].Ep_elastique.resize(sizenodeeq);
+                            SubI[i].Ep_elastique.set(0.0);
+                            SubI[i].old_Ep_elastique.resize(sizenodeeq);
+                            SubI[i].old_Ep_elastique.set(0.0);
+                            SubI[i].precharge.resize(sizenodeeq);
+                            SubI[i].precharge.set(0.0);
+                            SubI[i].old_precharge.resize(sizenodeeq);
+                            SubI[i].old_precharge.set(0.0);
+                            /// Si les bords peuvent se dissocier
+                            if(SubI[i].comp == Interface::comp_cassable_parfait or 
+                               SubI[i].comp == Interface::comp_cassable_elastique or 
+                               SubI[i].comp == Interface::comp_cohesive){
+                                SubI[i].comportement.resize(sizenodeeq);
+                                SubI[i].comportement.set(false);
+                            }
+                            SubI[i].side[j].t[pt].allocations(sizenodeeq,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);
                         }
                     }
                 }
@@ -139,6 +159,9 @@ void assign_quantities_current_to_old(PointedSubstructures &SubS, PointedInterfa
             SubI[i].side[j].t[0].Wchap=SubI[i].side[j].t[1].Wchap;
             SubI[i].side[j].t_post[process.temps->pt_cur]=SubI[i].side[j].t[1];
         }
+        SubI[i].old_Ep_imposee   = SubI[i].Ep_imposee;
+        SubI[i].old_Ep_elastique = SubI[i].Ep_elastique;
+        SubI[i].old_precharge    = SubI[i].precharge;
     }
 }
 

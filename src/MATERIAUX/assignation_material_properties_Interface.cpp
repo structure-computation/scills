@@ -18,37 +18,71 @@ void read_propinter(Vec<InterCarac> &propinter,const DataUser &data_user, BasicV
     unsigned nbliaisons = data_user.links_vec.size();
     //propinter.resize(nbliaisons);   // Fais dans le Process::read_data_user
     for(unsigned i=0;i<nbliaisons;++i) {
-        propinter[i].id = data_user.links_vec[i].id_in_calcul;
-        switch(data_user.links_vec[i].type_num){
+        const DataUser::Json_links &link = data_user.links_vec[i];
+        propinter[i].id = link.id_in_calcul;
+        switch(link.type_num){
             case 0:
                 propinter[i].type = "parfait";
-                propinter[i].comp="Parfait";
+                propinter[i].comp = "Parfait";
                 break;
             case 1:
                 propinter[i].type = "elastique";
-                propinter[i].comp="Parfait";
+                propinter[i].comp = "Elastique";
                 break;
             case 2:
-                propinter[i].type = "contact_ep";
-                propinter[i].comp="Contact_ep";
+                propinter[i].type = "contact parfait";
+                propinter[i].comp="Contact Parfait";
                 break;
             case 3:
-                propinter[i].type = "cohesive";
-                propinter[i].comp="Cohesive";
+                propinter[i].type = "parfait cassable";
+                propinter[i].comp = "Parfait Cassable";
                 break;
             case 4:
-                propinter[i].type = "breakable";
-                propinter[i].comp="Breakable";
+                propinter[i].type = "elastique cassable";
+                propinter[i].comp = "Elastique Cassable";
+                break;
+            case 5:
+                propinter[i].type = "cohesive";
+                propinter[i].comp = "Cohesive";
                 break;
             default:
-                std::cerr  << "comportement d'interface non reconnu" << std::endl;
+                std::cerr  << "comportement d'interface non reconnu : type_num = " << link.type_num << std::endl;
                 assert(0);
         }
-        propinter[i].f_coeffrottement = data_user.links_vec[i].f;   /// coeff frottement analytique
-        propinter[i].f_jeu            = data_user.links_vec[i].Ep;  /// jeux ou epaisseur negative  
-        //propinter[i].f_precharge      = data_user.links_vec[i].precharge;  /// précharge positive ou négative 
-        propinter[i].Gcrit            = data_user.links_vec[i].Lr;  /// limite en rupture    
-        propinter[i].f_raideur        = data_user.links_vec[i].R;   /// coeff frottement analytique
+        /// Caracteristique du prechargement
+        propinter[i].Ep_Type        = link.Ep_type;     /// Type de condition interne (epaisseur/precharge impose(e)/normal(e))
+        propinter[i].Ep_n           = link.Ep_n;        /// jeux ou epaisseur normal
+        propinter[i].Ep_x           = link.Ep_x;        /// jeux ou epaisseur selon x
+        propinter[i].Ep_y           = link.Ep_y;        /// jeux ou epaisseur selon y
+        propinter[i].Ep_z           = link.Ep_z;        /// jeux ou epaisseur selon z
+        propinter[i].Preload_n      = link.Preload_n;   /// precharge normale
+        propinter[i].Preload_x      = link.Preload_x;   /// precharge selon x
+        propinter[i].Preload_y      = link.Preload_y;   /// precharge selon y
+        propinter[i].Preload_z      = link.Preload_z;   /// precharge selon z
+        
+        /// Caracteristiques pour le contact avec frottement
+        propinter[i].f              = link.f;           /// coefficient de frottement
+        
+        /// Caracteristiques pour le comportement cassable
+        propinter[i].Fcr_n          = link.Fcr_n;       /// limite en rupture normale
+        propinter[i].Fcr_t          = link.Fcr_t;       /// limite en rupture tangentielle
+        
+        /// Caracteristiques pour le comportement elastique
+        propinter[i].Kn             = link.Kn;          /// Raideur normale (globale ou en traction) de l'interface
+        propinter[i].Kt             = link.Kt;          /// Raideur tangentielle de l'interface
+        propinter[i].Knc            = link.Knc;         /// Raideur normale en compression de l'interface
+        
+        /// Caracteristiques pour le comportement plastique
+        propinter[i].Rop            = link.Rop;         /// Contrainte initiale de plastification
+        propinter[i].kp             = link.kp;          /// Multiplicateur de la loi d'ecrouissage
+        propinter[i].mp             = link.np;          /// Exposant de la loi d'ecrouissage
+        
+        /// Caracteristiques pour les interfaces cohesives (type mesomodele)
+        propinter[i].Yo             = link.Yo;          /// Valeur minimale d'effort thermodynamique equivalent pour amorcer l'endommagement
+        propinter[i].Yc             = link.Yc;          /// Valeur critique d'effort thermodynamique equivalent pour l'endommagement
+        propinter[i].alpha          = link.alpha;       /// exposant dans le calcul de l'effort thermodynamique equivalent
+        propinter[i].gamma          = link.gamma;       /// couplage normal/tangentiel dans le calcul de l'effort thermodynamique equivalent
+        propinter[i].n              = link.n;           /// coefficient dans le calcul de l'endommagement associe a un effort thermodynamique
     }
     /*
     unsigned nbliaisons = data_user.behaviour_links.size();

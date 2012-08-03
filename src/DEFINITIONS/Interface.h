@@ -5,7 +5,12 @@
 #include "SstCarac_InterCarac.h"
 #include "../COMPUTE/DataUser.h"
 #include "../GEOMETRY/GeometryUser.h"
-
+/*
+namespace Metil {
+template<class n >
+struct N;
+}
+*/
 //***********************************
 // classe Interface parametrable
 //***********************************
@@ -19,10 +24,13 @@ struct Interface
     static Sc2String type_ext;  /// Nom pour le type interface exterieure (CL)
     static Sc2String type_int;  /// Nom pour le type interface interieure (liaison)
     
-    static Sc2String comp_parfait;      /// Nom pour le comportement parfait
-    static Sc2String comp_contact_ep;   /// Nom pour le comportement contact avec epaisseur
-    static Sc2String comp_cohesive;     /// Nom pour le comportement cohesif
-    static Sc2String comp_cassable;     /// Nom pour le comportement cassable
+    static Sc2String comp_parfait;              /// Nom pour le comportement parfait
+    static Sc2String comp_elastique;            /// Nom pour le comportement elastique
+    static Sc2String comp_contact_parfait;      /// Nom pour le comportement contact de type parfait
+    static Sc2String comp_contact_elastique;    /// Nom pour le comportement contact de type elastique
+    static Sc2String comp_cohesive;             /// Nom pour le comportement cohesif
+    static Sc2String comp_cassable_parfait;     /// Nom pour le comportement cassable
+    static Sc2String comp_cassable_elastique;   /// Nom pour le comportement cassable
     
     static Sc2String comp_deplacement;          /// Nom pour le comportement deplacement impose
     static Sc2String comp_deplacement_normal;   /// Nom pour le comportement deplacement normal
@@ -99,19 +107,21 @@ struct Interface
 
         /// Structure temporelle contenant les vecteurs nodaux
         struct Time{
-            Vector jeu_interne;       /// jeu ou epaisseur interne
-            Vector precharge;         /// précharge due au jeu ou epaisseur interne
-            Vector F;       /// efforts sur la face (etape )
-            Vector W;       /// deplacements sur la face (etape )
-            Vector Wp;      /// vitesses sur la face (etape )
-            Vector Fchap;   /// efforts sur la face (etape )
-            Vector Wchap;   /// deplacements sur la face (etape )
-            Vector Wpchap;  /// vitesses sur la face (etape )
-            Vector WtildeM; /// pseudo multiplicateur de
-            Vector oldF;    /// efforts a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vector oldW;    /// deplacements a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
-            Vector oldWp;   /// vitesses a l'iteration (en incremental) ou au pas de temps (en latin) precedent (pour la relaxation)
+            Vector F;       /// efforts sur la face (etape lineaire)
+            Vector W;       /// deplacements sur la face (etape lineaire)
+            Vector Wp;      /// vitesses sur la face (etape lineaire)
+            Vector Fchap;   /// efforts sur la face (etape locale)
+            Vector Wchap;   /// deplacements sur la face (etape locale)
+            Vector Wpchap;  /// vitesses sur la face (etape locale)
+            Vector WtildeM; /// pseudo multiplicateur de Lagrange (c.f. pb macro)
+            Vector oldF;    /// efforts a l'iteration (en latin) ou au pas de temps (en incremental) precedent
+            Vector oldW;    /// deplacements a l'iteration (en latin) ou au pas de temps (en incremental) precedent
+            Vector oldWp;   /// vitesses a l'iteration (en latin) ou au pas de temps (en incremental) precedent
             Vector d;       /// endommagement des elements de l'interface
+            
+            Vector dPrecharge;        /// increment de précharge
+            Vector dEp_imposee;       /// increment d epaisseur imposee
+            
             void allocations(unsigned sizenodeeq,bool endommageable);
         };
         Vec<Time> t;        /// Vecteurs piquet de temps
@@ -126,15 +136,83 @@ struct Interface
 
     Scalar coeffrottement;      /// coefficient de frottement global
     Vector coeffrottement_vec;  /// vecteur des valeurs du coefficient de frottement
-    Vector jeu ;                /// vecteur des valeurs de jeu sur l'interface
-    Vector oldjeu ;             /// vecteur des valeurs de jeu au pas de temps précédent sur l'interface
-    Vector precharge ;          /// vecteur des valeurs de jeu sur l'interface
-    Vector oldprecharge ;       /// vecteur des valeurs de jeu au pas de temps précédent sur l'interface
-    Vector raideur;             /// vecteur des valeurs de raideur sur l'interface
+    Vector Ep_imposee;          /// valeurs du jeu ou de l'epaisseur imposee par l'utilisateur sur l'interface
+    Vector old_Ep_imposee;      /// valeurs de Ep_impose au pas de temps precedent
+    Vector Ep_elastique;        /// jeu ou epaisseur cree par l'elasticite de l'interface
+    Vector old_Ep_elastique;    /// valeurs de Ep_elastique au pas de temps precedent
+    Vector precharge;           /// précharge imposee par l'utilisateur sur l'interface
+    Vector old_precharge;       /// précharge imposee par l'utilisateur sur l'interface
     Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
                                 ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
     
+    /// Structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
+    /// S'utilise ensuite comme une matrice
+    struct LocalOperator{
+        /// Rigidites normale (kn) et tangentielle (kt)
+        Scalar kn,kt;
+        /// Vecteur normal
+        Point n;
+        /// Surcharge pour la multiplication d'un vecteur W
+        template<class TV> Point operator*(TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
+        /// Surcharge pour la multiplication d'un vecteur W constant
+        template<class TV> Point operator*(const TV &W){return kn*n*dot(n,W)+kt*(W-n*dot(n,W));}
+    };
+    
+    /// Structure pour simplifier l'acces aux donnees en un noeud de l'interface
+    struct NodalState {
+        Interface &interface;       /// Pointeur sur l'interface associee
+        InterCarac *matprop;        /// Pointeur sur les caracteristiques associees
+        unsigned id;                /// Numero du noeud
+        unsigned i_time;            /// Numero du noeud
+        Scalar dt;                  /// Numero du noeud
+        bool comportement;          /// Cohesion entre les cotes?
+        Scalar coeffrottement;      /// Coefficient de frottement
+        Point n1;                   /// Normale du bord 1 vers le bord 2
+        Point n2;                   /// Normale du bord 2 vers le bord 1
+        Point F1;                   /// Efforts sur le bord 1 (etape lineaire)
+        Point F2;                   /// Efforts sur le bord 2 (etape lineaire)
+        Point Wp1;                  /// Vitessse de deplacement du bord 1 (etape lineaire)
+        Point Wp2;                  /// Vitessse de deplacement du bord 2 (etape lineaire)
+        Point Fchap1;               /// Efforts sur le bord 1 (etape locale)
+        Point Fchap2;               /// Efforts sur le bord 2 (etape locale)
+        Point Wpchap1;              /// Vitessse de deplacement du bord 1 (etape locale)
+        Point Wpchap2;              /// Vitessse de deplacement du bord 2 (etape locale)
+        Point Ep_imposee;           /// Epaisseur imposee par l'utilisateur
+        Point old_Ep_imposee;       /// Ancienne valeur de l'epaisseur imposee par l'utilisateur
+        Point Ep_elastique;         /// Modification de l'epaisseur de l'interface due a l'elasticite
+        Point old_Ep_elastique;     /// Ancienne valeur de la modification de l'epaisseur due a l'elasticite
+        Point Precharge;            /// Precharge dans l'interface
+        Point old_Precharge;        /// Ancienne valeur de la precharge
+        Scalar d;                   /// Endommagement
+        Point old_Wchap1;           /// Ancienne valeur du deplacement du bord 1 (etape locale au pas de temps precedent)
+        Point old_Wchap2;           /// Ancienne valeur du deplacement du bord 2 (etape locale au pas de temps precedent)
+        Scalar old_d;               /// Ancienne valeur de l'endommagement (pas de temps precedent)
+        LocalOperator k1;           /// Direction (en raideur) de recherche sur le bord 1
+        LocalOperator k2;           /// Direction (en raideur) de recherche sur le bord 2
+        LocalOperator h1;           /// Direction (en souplesse) de recherche sur le bord 1
+        LocalOperator h2;           /// Direction (en souplesse) de recherche sur le bord 2
+        LocalOperator K;            /// Operateur d'elasticite
+        
+        NodalState(Interface &I,unsigned pt,Scalar dt_);
+        void set_node(unsigned i_node);
+        void store_results();
+        
+        void comportement_parfait();
+        void comportement_elastique();
+        void comportement_cassable();
+        void comportement_cohesif();
+        void comportement_contact_parfait();
+        void comportement_contact_elastique();
+        
+        void check_ddr();
+        void check_comportement_parfait();
+        void check_comportement_elastique();
+        void check_comportement_cassable();
+        void check_comportement_cohesif();
+        void check_comportement_contact_parfait();
+        void check_comportement_contact_elastique();
+    };
     
     #if DIM==2
     static const   int nb_nodes_by_element=2;
@@ -151,7 +229,7 @@ struct Interface
     // methodes de la class
     //*******************************************************************************************
     void free();
-    void init();
+    void init(unsigned pt);
     void affiche();
     void read_data_user(int index,const DataUser &data_user, const GeometryUser &geometry_user);
     

@@ -1,6 +1,10 @@
+#ifndef COMPORTEMENT_INTERFACES_H
+#define COMPORTEMENT_INTERFACES_H
+
 #include "../../DEFINITIONS/SstCarac_InterCarac.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "../../UTILITAIRES/utilitaires.h"
+#include "../../DEFINITIONS/TimeData.h"
 
 
 //interface exterieure de type deplacement impose pour tous les ddls
@@ -66,6 +70,7 @@ void compt_CL_sym (Interface &Inter,int &imic) {
 //     PRINT(Inter.side[0].t[imic].Wpchap);
 }
 
+void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt);
 
 /// Structure permettant de definir l'operateur de direction de recherche local a partir de direction normale et tangentielle
 /// S'utilise ensuite comme une matrice
@@ -86,187 +91,69 @@ struct Kloc{
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures parfaites
 */
-void compt_parfait (Interface &Inter,int &imic) {
-    LMT::Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
-    LMT::Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
-    Vector Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vector Wchap_temp=Inter.side[0].t[imic].Wpchap[list1];
-    Vector Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vector Fchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vector Fchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vector &Q1=Inter.side[0].t[imic].F[list1];
-    const Vector &Q2=Inter.side[1].t[imic].F[list2];
-    const Vector &WW1=Inter.side[0].t[imic].Wp[list1];
-    const Vector &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &neq1=(Inter.side[0].neq)[list1];
-    const Vector &JJ=Inter.jeu[list1];
-    //const Vector &neq2=(Inter.side[1].neq)[list2];
+void compt_parfait (Interface &Inter,TimeData &temps) {
+    const unsigned pt = temps.pt;
+    const Scalar dt = temps.dt;
+    
+    LMT::Vec<unsigned> &list1 = Inter.side[0].ddlcorresp;
+    LMT::Vec<unsigned> &list2 = Inter.side[1].ddlcorresp;
+    const Vector &n1_ref = Inter.side[0].neq[list1];
+    const Vector &F1_ref = Inter.side[0].t[pt].F[list1];
+    const Vector &F2_ref = Inter.side[1].t[pt].F[list2];
+    const Vector &Wp1_ref = Inter.side[0].t[pt].Wp[list1];
+    const Vector &Wp2_ref = Inter.side[1].t[pt].Wp[list2];
+    const Vector &Ep_imposee_ref = Inter.Ep_imposee[list1];
+    const Vector &old_Ep_imposee_ref = Inter.old_Ep_imposee[list1];
+    const Vector &Precharge_ref = Inter.precharge[list1];
+    const Vector &old_Precharge_ref = Inter.old_precharge[list1];
+    Vector Wpchap1 = Inter.side[0].t[pt].Wpchap[list1];
+    Vector Wpchap2 = Inter.side[1].t[pt].Wpchap[list2];
+    Vector Fchap1 = Inter.side[0].t[pt].Fchap[list1];
+    Vector Fchap2 = Inter.side[1].t[pt].Fchap[list2];
 
     /// Creation des operateurs locaux de direction de recherche
-    Kloc kloc1;
-    kloc1.kn=Inter.side[0].kn;
-    kloc1.kt=Inter.side[0].kt;
+    Kloc k1;
+    k1.kn=Inter.side[0].kn;
+    k1.kt=Inter.side[0].kt;
     
-    Kloc kloc2;
-    kloc2.kn=Inter.side[1].kn;
-    kloc2.kt=Inter.side[1].kt;
+    Kloc k2;
+    k2.kn=Inter.side[1].kn;
+    k2.kt=Inter.side[1].kt;
     
-    Kloc hloc;
-    hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
-    hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
+    Kloc h;
+    h.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
+    h.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
     
     /// Travail point par point
-    for(unsigned i=0;i<Inter.side[0].nodeeq.size();i++) {
+    for(unsigned i = 0; i < Inter.side[0].nodeeq.size(); i++) {
         /// Creation du reperage du point
-        LMT::Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
+        LMT::Vec<unsigned> rep = range(i*DIM,(i+1)*DIM);
         
         /// Recuperation des vecteurs locaux
-        Point n1 = neq1[rep];
-        Point F1 = Q1[rep];
-        Point F2 = Q2[rep];
-        Point W1 = WW1[rep];
-        Point W2 = WW2[rep];
-        Point jeu = JJ[rep];
+        Point n1 = n1_ref[rep];
+        Point F1 = F1_ref[rep];
+        Point F2 = F2_ref[rep];
+        Point Wp1 = Wp1_ref[rep];
+        Point Wp2 = Wp2_ref[rep];
+        Point dEp_imposee = (Ep_imposee_ref[rep] - old_Ep_imposee_ref[rep])/dt;
+        Point dPrecharge = Precharge_ref[rep] - old_Precharge_ref[rep];
         
         /// Creation des matrices elementaires de direction de recherche
-        kloc1.n = n1;
-        kloc2.n = n1;
-        hloc.n = n1;
+        k1.n = n1;
+        k2.n = n1;
+        h.n = n1;
         
         /// Calcul des grandeurs
-        Wchap1[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        //W1 += jeu;
-        Wchap_temp[rep]=hloc*(kloc1*W1+kloc2*W2-(F1+F2));
-        Fchap1[rep]=F1+kloc1*(Wchap_temp[rep]-W1);
+        Wpchap1[rep] = h*( (k1*Wp1 + k2*Wp2) - (F1 + F2) - k2*dEp_imposee);
+        Wpchap2[rep] = Wpchap1[rep] + dEp_imposee;
+        Fchap1[rep] = F1 + k1*(Wpchap1-Wp1) - dPrecharge;
     }
 
-    Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
-    Inter.side[1].t[imic].Wpchap[list2]=Wchap1;
-    Inter.side[0].t[imic].Fchap[list1]=Fchap1;
-    Inter.side[1].t[imic].Fchap[list2]=-1.0*Fchap1;
-    
+    Inter.side[0].t[pt].Wpchap[list1] = Wpchap1;
+    Inter.side[1].t[pt].Wpchap[list2] = Wpchap2;
+    Inter.side[0].t[pt].Fchap[list1] = Fchap1;
+    Inter.side[1].t[pt].Fchap[list2] = -1.0*Fchap1;
 }
-
-//interface interieure de type jeu impose = idem interface parfaite avec prise en compte du jeu
-//comme il y a des tests stat Qstat, on a prefere separe dans un premier temps
-/** \ingroup  etape_locale
-\relates etape_locale_inter
-\brief Procedure pour les interfaces interieures de type jeu impose
-*/
-void compt_jeu_impose (Interface &Inter,TimeData &temps) {
-int imic = temps.pt;
-    unsigned pt_cur=temps.pt_cur;
-    typedef Mat <TYPEREEL , Gen<>, SparseLine<> > TMAT;
-    Vec<unsigned> &list1=(Inter.side[0].ddlcorresp);
-    Vec<unsigned> &list2=(Inter.side[1].ddlcorresp);
-    Vec<TYPEREEL> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vec<TYPEREEL> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vec<TYPEREEL> Fchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vec<TYPEREEL> Fchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vec<TYPEREEL> &Q1=Inter.side[0].t[imic].F[list1];
-    const Vec<TYPEREEL> &Q2=Inter.side[1].t[imic].F[list2];
-    const Vec<TYPEREEL> &WW1=Inter.side[0].t[imic].Wp[list1];
-    const Vec<TYPEREEL> &WW2=Inter.side[1].t[imic].Wp[list2];
-    const Vec<TYPEREEL> &JJ=Inter.jeu[list1];
-    const Vec<TYPEREEL> &neq1=(Inter.side[0].neq)[list1];
-    //const Vec<TYPEREEL> &neq2=(Inter.side[1].neq)[list2];
-
-    //creation des operateurs locaux de direction de recherche
-    Kloc kloc1;
-    kloc1.kn=Inter.side[0].kn;
-    kloc1.kt=Inter.side[0].kt;
-    
-    Kloc kloc2;
-    kloc2.kn=Inter.side[1].kn;
-    kloc2.kt=Inter.side[1].kt;
-    
-    Kloc hloc;
-    hloc.kn=1./(Inter.side[1].kn+Inter.side[0].kn);
-    hloc.kt=1./(Inter.side[1].kt+Inter.side[0].kt);
-
-    //travail point par point    
-    for(unsigned i=0;i<Inter.side[0].nodeeq.size();i++) {
-        //creation du reperage du point
-        Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
-        //creation des matrices elementaires de direction de recherche
-        Vec<TYPEREEL,DIM> n1=neq1[rep];
-        kloc1.n=n1;
-        kloc2.n=n1;
-        hloc.n=n1;
-
-        // travail point par point
-        Vec<TYPEREEL,DIM> F1=Q1[rep],F2=Q2[rep], W1=WW1[rep],W2=WW2[rep],jeu=JJ[rep]  ;
-        if (pt_cur==1)
-            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2) -kloc2*jeu/temps.dt);
-        else
-            Wchap1[rep]=hloc * ( kloc1*W1+kloc2*W2 -(F1+F2));
-
-        Fchap1[rep]=F1+kloc1*(Wchap1[rep]-W1);
-
-    }
-
-    if(pt_cur<=3)
-        Wchap2=Wchap1+JJ/(temps.dt*3);
-    else
-        Wchap2=Wchap1;
-
-    Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
-    Inter.side[1].t[imic].Wpchap[list2]=Wchap2;
-    Inter.side[0].t[imic].Fchap[list1]=Fchap1;
-    Inter.side[1].t[imic].Fchap[list2]=-1.0*Fchap1;
-
-
-    //     int imic = temps.pt;
-    //     typedef typename INTER::T T;
-    //     Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
-    //     Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
-    //     Vec<T> Wchap1=Inter.side[0].t[imic].Wpchap[list1];
-    //     Vec<T> Wchap2=Inter.side[1].t[imic].Wpchap[list2];
-    //     Vec<T> Qchap1=Inter.side[0].t[imic].Fchap[list1];
-    //     Vec<T> Qchap2=Inter.side[1].t[imic].Fchap[list2];
-    //     const Vec<T> &Q1=Inter.side[0].t[imic].F[list1];
-    //     const Vec<T> &Q2=Inter.side[1].t[imic].F[list2];
-    //     const Vec<T> &W1=Inter.side[0].t[imic].Wp[list1];
-    //     const Vec<T> &W2=Inter.side[1].t[imic].Wp[list2];
-    //
-    //     T k1,k2;
-    //     k1 = Inter.side[0].kn;
-    //     k2 = Inter.side[1].kn;
-    //     T ktot=k1+k2;
-    //     T iktot=1/ktot;
-    //
-    //     if (temps.type_de_calcul=="Qstat") {
-    //         if (imic==1) {
-    //             Wchap1=iktot * ( k1*W1+k2*W2 -(Q1+Q2)-k2*(Inter.param_comp->jeu[list1]/temps.dt));
-    //             Wchap2=Wchap1+(Inter.param_comp->jeu[list1]/temps.dt);
-    //         } else {
-    //             Wchap1=iktot * ( k1*W1+k2*W2 -(Q1+Q2));
-    //             Wchap2=Wchap1;
-    //         }
-    //     } else if (temps.type_de_calcul=="stat") {
-    //         Wchap1=iktot * ( k1*W1+k2*W2 -(Q1+Q2) - k2*Inter.param_comp->jeu[list1]);
-    //         Wchap2=Wchap1+Inter.param_comp->jeu[list1];
-    //     } else {
-    //         cout << "comportements jeu impose : type de calcul non implemente " << endl;
-    //         assert(0);
-    //     }
-    //
-    //     Qchap1=Q1+k1*(Wchap1-W1);
-    //     Qchap2=-1.0*Qchap1;
-    //
-    //     Inter.side[0].t[imic].Wpchap[list1]=Wchap1;
-    //     Inter.side[1].t[imic].Wpchap[list2]=Wchap2;
-    //     Inter.side[0].t[imic].Fchap[list1]=Qchap1;
-    //     Inter.side[1].t[imic].Fchap[list2]=Qchap2;
-}
-
-
-struct apply_type_elem{
-  template<class TE,class TV> void operator() ( TE &e, unsigned &compt, TV &status, unsigned &dim) const{
-    e.type=status[compt*dim];
-    compt+=1;
-  }
-};
 
 
 //interface interieure de type contact avec frottement
@@ -274,31 +161,25 @@ struct apply_type_elem{
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures de type contact avec frottement, avec jeu ou non
 */
-void compt_contact (Interface &Inter,TimeData &temps) {
-
-    const int imic = temps.pt;
-    Scalar dt = temps.dt;
-
-    Vec<unsigned> &list1=Inter.side[0].ddlcorresp;
-    Vec<unsigned> &list2=Inter.side[1].ddlcorresp;
-    Vector WWpchap1=Inter.side[0].t[imic].Wpchap[list1];
-    Vector WWpchap2=Inter.side[1].t[imic].Wpchap[list2];
-    Vector Qchap1=Inter.side[0].t[imic].Fchap[list1];
-    Vector Qchap2=Inter.side[1].t[imic].Fchap[list2];
-    const Vector &Q1=Inter.side[0].t[imic].F[list1];
-    const Vector &Q2=Inter.side[1].t[imic].F[list2];
-    const Vector &WWp1=Inter.side[0].t[imic].Wp[list1];
-    const Vector &WWp2=Inter.side[1].t[imic].Wp[list2];
-    const Vector &WWchap1old=Inter.side[0].t[imic-1].Wchap[list1];
-    const Vector &WWchap2old=Inter.side[1].t[imic-1].Wchap[list2];
-    Vector WWchap1=Inter.side[0].t[imic].Wchap[list1];
-    Vector WWchap2=Inter.side[1].t[imic].Wchap[list2];
+void compt_contact (Interface &Inter,TimeData &temps) {/*
+    const unsigned pt = temps.pt;
+    const Scalar dt = temps.dt;
     
-    const Vector &neq=Inter.side[0].neq[list1];
-
-//     if (Inter.num == 15) cout << list1 << endl;
-//     if (Inter.num == 15) cout << list2 << endl;
-//     if (Inter.num == 15) cout << Inter.side[0].neq << endl;
+    LMT::Vec<unsigned> &list1 = Inter.side[0].ddlcorresp;
+    LMT::Vec<unsigned> &list2 = Inter.side[1].ddlcorresp;
+    const Vector &n1_ref = Inter.side[0].neq[list1];
+    const Vector &F1_ref = Inter.side[0].t[pt].F[list1];
+    const Vector &F2_ref = Inter.side[1].t[pt].F[list2];
+    const Vector &Wp1_ref = Inter.side[0].t[pt].Wp[list1];
+    const Vector &Wp2_ref = Inter.side[1].t[pt].Wp[list2];
+    const Vector &Ep_imposee_ref = Inter.Ep_imposee[list1];
+    const Vector &old_Ep_imposee_ref = Inter.old_Ep_imposee[list1];
+    const Vector &old_Wchap1_ref = Inter.side[0].t[pt-1].Wp[list1];
+    const Vector &old_Wchap2_ref = Inter.side[1].t[pt-1].Wp[list2];
+    Vector Wpchap1 = Inter.side[0].t[pt].Wpchap[list1];
+    Vector Wpchap2 = Inter.side[1].t[pt].Wpchap[list2];
+    Vector Fchap1 = Inter.side[0].t[pt].Fchap[list1];
+    Vector Fchap2 = Inter.side[1].t[pt].Fchap[list2];
     
     Scalar f=Inter.coeffrottement;
 
@@ -317,46 +198,33 @@ void compt_contact (Interface &Inter,TimeData &temps) {
         /// Recuperation des indices de stockage
         Vec<unsigned> rep=range(i*DIM,(i+1)*DIM);
         /// Recuperation des vecteurs locaux
-        Point n = neq[rep];                 /// Normale de 1 vers 2
-        Point F1 = Q1[rep];                 /// Efforts du solide 1 sur l'interface calcules a l'etape lineaire
-        Point F2 = Q2[rep];                 /// Efforts du solide 2 sur l'interface calcules a l'etape lineaire
-        Point Fchap1 = Qchap1[rep];         /// Efforts du solide 1 sur l'interface calcules a l'etape locale precedente
-        Point Fchap2 = Qchap2[rep];         /// Efforts du solide 2 sur l'interface calcules a l'etape locale precedente
-        Point Wp1 = WWp1[rep];              /// Vitesse du solide 1 calculee a l'etape lineaire
-        Point Wp2 = WWp2[rep];              /// Vitesse du solide 2 calculee a l'etape lineaire
-        Point Wpchap1 = WWpchap1[rep];      /// Vitesse du solide 1 calculee a l'etape locale precedente
-        Point Wpchap2 = WWpchap2[rep];      /// Vitesse du solide 2 calculee a l'etape locale precedente
-        Point Wchap1old = WWchap1old[rep];  /// Deplacement du solide 1 calculee a la derniere etape locale du pas de temps precedent
-        Point Wchap2old = WWchap2old[rep];  /// Deplacement du solide 2 calculee a la derniere etape locale du pas de temps precedent
-        Point Wchap1 = WWchap1[rep];        /// Deplacement du solide 1 calculee a l'etape locale precedente
-        Point Wchap2 = WWchap2[rep];        /// Deplacement du solide 2 calculee a l'etape locale precedente
-
-        // test contact normal
-        Scalar N=0;
-        //if (temps.type_de_calcul=="stat")
-        //    N = ( dot(n,(Wp2-Wp1)) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
-        //else
-            N=( dot(n,(Wp2-Wp1)) + dot(n,(Wchap2old-Wchap1old)/dt) -h2n*dot(n,F2) + h1n*dot(n,F1) )/(h2n+h1n);
-
-        if (N>0.0) {
+        Point n = n1_ref[rep];                      /// Normale de 1 vers 2
+        Point F1 = F1_ref[rep];                     /// Efforts du solide 1 sur l'interface calcules a l'etape lineaire
+        Point F2 = F2_ref[rep];                     /// Efforts du solide 2 sur l'interface calcules a l'etape lineaire
+        Point Wp1 = Wp1_ref[rep];                   /// Vitesse du solide 1 calculee a l'etape lineaire
+        Point Wp2 = Wp2_ref[rep];                   /// Vitesse du solide 2 calculee a l'etape lineaire
+        Point old_Wchap1 = old_Wchap1_ref[rep];     /// Deplacement du solide 1 calculee a la derniere etape locale du pas de temps precedent
+        Point old_Wchap2 = old_Wchap2_ref[rep];     /// Deplacement du solide 2 calculee a la derniere etape locale du pas de temps precedent
+        
+        Point 
+        
+        /// Test de contact
+        Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
+        if (dWchap_n > Ep_n) {
             /// separation de l'interface
             Fchap1 = 0.0;
             Fchap2 = 0.0;
-            Wpchap1 = Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
-            Wpchap2 = Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
-/*#ifdef LOOK_CONTACT_ZONE
-            status[i*DIM]=0;
-#endif*/
+            Wpchap1[rep] = Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
+            Wpchap2[rep] = Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
         } else { 
             /// contact
             Scalar Fchap1n = N;
             Scalar Fchap2n = -1.0*Fchap1n;
-            Scalar Wpchap1n = dot(Wp1,n) + h1n*( Fchap1n - dot(n,F1) );
-            Scalar Wpchap2n = dot(Wp2,n) + h2n*( Fchap2n - dot(n,F2) );
+            Scalar Wpchap1n = dot(Wp1,n) + h1n*( Fchap1n - dot(F1,n) );
+            Scalar Wpchap2n = dot(Wp2,n) + h2n*( Fchap2n - dot(F2,n) );
 
             /// test glissement adherence
-            Point T;
-            T=(ProjT(Wp2,n)-ProjT(Wp1,n) -h2t*ProjT(F2,n) + h1t*ProjT(F1,n))/(h2t+h1t);
+            Point T = ((ProjT(Wp2,n) - ProjT(Wp1,n)) - (h2t*ProjT(F2,n) - h1t*ProjT(F1,n)) - dEp_t) / (h1t+h2t) - dPrecharge_t;
             Scalar g = f*std::abs(Fchap1n);
 
             Scalar normT = norm_2(T);
@@ -369,20 +237,19 @@ void compt_contact (Interface &Inter,TimeData &temps) {
                 Fchap2t=-1.0*Fchap1t;
                 Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t= Wpchap1t;
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*DIM]=1;
-#endif*/
+// #ifdef LOOK_CONTACT_ZONE
+//                 status[i*DIM]=1;
+// endif
             } else if (normT > g) {
                 /// glissement
                 Fchap1t=T*g/normT;
                 Fchap2t=-1.0*Fchap1t;
                 Wpchap1t= ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t= ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*DIM]=2;
-#endif*/
+// #ifdef LOOK_CONTACT_ZONE
+//                 status[i*DIM]=2;
+// #endif
             }
-
             Wpchap1=Wpchap1n*n+Wpchap1t;
             Fchap1=Fchap1n*n+Fchap1t;
             Wpchap2=Wpchap2n*n+Wpchap2t;
@@ -416,16 +283,7 @@ void compt_contact (Interface &Inter,TimeData &temps) {
     //}
     Inter.side[0].t[imic].Fchap[list1]=Qchap1;
     Inter.side[1].t[imic].Fchap[list2]=Qchap2;
-    
-/*#ifdef LOOK_CONTACT_ZONE
-    Vec<unsigned> status1,status2;status1.resize(nbpts*INTER::dim);status2.resize(nbpts*INTER::dim);
-    status1[list1]=status;
-    status2[list2]=status;
-    unsigned compt=0;
-    apply(Inter.side[0].mesh->elem_list,apply_type_elem(),compt,status1,dim);
-    compt=0;
-    apply(Inter.side[1].mesh->elem_list,apply_type_elem(),compt,status2,dim);
-#endif*/
+    //*/
 }
 
 
@@ -435,7 +293,7 @@ void compt_contact (Interface &Inter,TimeData &temps) {
 \relates etape_locale_inter
 \brief Procedure pour les interfaces interieures de type defaut de forme
 */
-void compt_contact_ep (Interface &Inter,TimeData &temps) {
+void compt_contact_ep (Interface &Inter,TimeData &temps) {/*
 
     const int imic = temps.pt;
     const Scalar dt=temps.dt;
@@ -507,9 +365,9 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
             Fchap2 = 0.0;
             Wpchap1 = Wp1-h1n*dot(n,F1)*n - h1t* ProjT(F1,n);
             Wpchap2 = Wp2-h2n*dot(n,F2)*n - h2t* ProjT(F2,n);
-/*#ifdef LOOK_CONTACT_ZONE
-            status[i*DIM]=0;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//            status[i*DIM]=0;
+//#endif
         } else {
             /// contact
             Scalar Fchap1n = N;
@@ -532,18 +390,18 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
                 Fchap2t = -1.0*Fchap1t;
                 Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t = Wpchap1t;
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*INTER::dim]=1;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//                status[i*INTER::dim]=1;
+//#endif
             } else if (normT > g) {
                 /// glissement
                 Fchap1t = Test*g/normT;
                 Fchap2t = -1.0*Fchap1t;
                 Wpchap1t = ProjT(Wp1,n) + h1t*(Fchap1t - ProjT(F1,n) );
                 Wpchap2t = ProjT(Wp2,n) + h2t*(Fchap2t - ProjT(F2,n) );
-/*#ifdef LOOK_CONTACT_ZONE
-                status[i*INTER::dim]=2;
-#endif*/
+//#ifdef LOOK_CONTACT_ZONE
+//                status[i*INTER::dim]=2;
+//#endif
             }
 
             Wpchap1 = Wpchap1n*n + Wpchap1t - jeu;
@@ -571,7 +429,7 @@ void compt_contact_ep (Interface &Inter,TimeData &temps) {
     Inter.side[1].t[imic].Wchap[list2] = WWchap2;
     Inter.side[0].t[imic].Fchap[list1] = Qchap1;
     Inter.side[1].t[imic].Fchap[list2] = Qchap2;
-}
+*/}
 
 
 
@@ -636,7 +494,7 @@ void compt_breakable (Interface &Inter,TimeData &temps) {
         
         /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
         if (Inter.convergence >= 0 and Inter.comportement[i] == false){
-            if (N > 0.0 and std::abs(dot(n,F1)) > Inter.matprop->Gcrit){
+            if (N > 0.0 and std::abs(dot(n,F1)) > Inter.matprop->Fcr_n){
                 ///David dit de mettre 10% de plus
                 Inter.comportement[i] = true;
                 Inter.convergence++;
@@ -1030,4 +888,4 @@ void compt_cohesif (Interface &Inter,TimeData &temps) {/*
     }  */
 }
 
-
+#endif // COMPORTEMENT_INTERFACES_H

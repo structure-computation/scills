@@ -29,16 +29,16 @@ void TimeData::read_data_user(const DataUser &data_user){
     const DataUser::Json_time_steps &time_steps = data_user.time_steps;
     /// Lecture du type de schema temporel
     if(time_steps.time_scheme == "static"){
-        type_de_calcul= "stat";
-        nbpastemps=1;
-        dt=0;
+        type_de_calcul = "stat";
+        nbpastemps = 1;
+        dt = 1.0;
         nb_step = 1;
         time_step.resize(nb_step);
-        nbpastemps=nb_step;
-        time_step[0].dt=1;
-        time_step[0].t_ini=0;
-        time_step[0].t_fin=0;
-        time_step[0].nb_time_step=1;
+        nbpastemps = nb_step;
+        time_step[0].dt = 1.0;
+        time_step[0].t_ini = 0.0;
+        time_step[0].t_fin = 0.0;
+        time_step[0].nb_time_step = 1;
     }else if(time_steps.time_scheme == "quasistatic"){
         type_de_calcul= "Qstat";
         nb_step = time_steps.collection_vec.size();
@@ -180,7 +180,7 @@ bool TimeData::step_changed(){
 
 void TimeData::prepareParameters(){
     /// Pas tres utile puisque 'step_changed()' devrait renvoyer 'false' (meme a la premiere iteration) dans updateParameters,
-    /// mais comme ca les parametres multi-resolution auront egalement leurs expressions assignees et pretes (comme dans les autres classes)
+    /// mais comme ca les parametres multi-resolution auront egalement leurs expressions assignees et pretes (comme pour les autres groupes de parametres)
     for(int i = 0; i < expressions.size(); i++){
         parameters.user_parameters[i]->setExpression(expressions[i][step_cur]);
     }
@@ -199,7 +199,10 @@ void TimeData::updateParameters(){
     std::cout << "Mise a jour des parametres temporels *****************************************" << std::endl;
     std::cout << t_cur.symbol << " = " << t_cur.value << std::endl;
     for(int i = 0; i < parameters.user_parameters.size(); i++){
-        std::cout << parameters.user_parameters[i]->symbol << " = " << parameters.user_parameters[i]->value << std::endl;
+        std::cout << "\t" << parameters.user_parameters[i]->symbol;
+        std::cout << " : " << parameters.user_parameters[i]->str_expr;
+        std::cout << " = " << parameters.user_parameters[i]->value;
+        std::cout << std::endl;
     }
     std::cout << "******************************************************************************" << std::endl;
     //*/
