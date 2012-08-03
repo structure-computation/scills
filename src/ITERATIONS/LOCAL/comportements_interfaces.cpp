@@ -197,11 +197,11 @@ void Interface::NodalState::check_comportement_cassable(){
 void Interface::NodalState::comportement_contact_parfait(){
     /// Quelques grandeurs utiles
     Scalar Ep_n = dot(Ep_imposee,n1);
-    Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
-    Scalar dEp_n = dot(dEp,n1);
-    Point dEp_t = ProjT(dEp,n1);
-    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
-    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
+//     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
+//     Scalar dEp_n = dot(dEp,n1);
+//     Point dEp_t = ProjT(dEp,n1);
+//     Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+//     Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     
 
@@ -244,7 +244,7 @@ void Interface::NodalState::comportement_contact_parfait(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t) / (h1.kt+h2.kt) - dPrecharge_t;
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1))) / (h1.kt+h2.kt);
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
@@ -283,11 +283,11 @@ void Interface::NodalState::check_comportement_contact_parfait(){
 void Interface::NodalState::comportement_contact_elastique(){
     /// Quelques grandeurs utiles
     Scalar Ep_n = dot(Ep_imposee,n1);
-    Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
-    Scalar dEp_n = dot(dEp,n1);
-    Point dEp_t = ProjT(dEp,n1);
-    Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
-    Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
+//     Point dEp = (Ep_imposee -old_Ep_imposee)/dt;
+//     Scalar dEp_n = dot(dEp,n1);
+//     Point dEp_t = ProjT(dEp,n1);
+//     Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
+//     Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
@@ -310,7 +310,7 @@ void Interface::NodalState::comportement_contact_elastique(){
         
         /// Test de glissement adherence
         /// Effort tangentiel
-        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) - dEp_t + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt)) - dPrecharge_t;
+        Point T = ((ProjT(Wp2,n1) - ProjT(Wp1,n1)) - (h2.kt*ProjT(F2,n1) - h1.kt*ProjT(F1,n1)) + ProjT(old_Ep_elastique,n1)/dt ) / (h1.kt + h2.kt + 1.0/(K.kt*dt));
         Scalar normT = norm_2(T);
         /// Limite d'adherence connaissant l'effort normal
         Scalar g = coeffrottement*std::abs(Fchap1n);
