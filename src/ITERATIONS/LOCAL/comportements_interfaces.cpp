@@ -20,15 +20,15 @@ void Interface::NodalState::check_ddr(){
 
 void Interface::NodalState::comportement_parfait(){
     /// Derivee temporelle de l'epaisseur imposee
-    Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
+    //Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
     /// Construction de l'operateur (ne pas oublier que les normales sont identiques et que les matrices diagonales dans une base commune sont cools)
     Interface::LocalOperator h;
     h.kn = 1.0/(k1.kn + k2.kn);
     h.kt = 1.0/(k1.kt + k2.kt);
     h.n = n1;
-    Wpchap1 = h*( (k1*Wp1 + k2*Wp2) - (F1 + F2) - k2*dEp_imposee);
+    Wpchap1 = h*( (k1*Wp1 + k2*Wp2) - (F1 + F2)); // - k2*dEp_imposee);
     //Wpchap2 = Wpchap1 + dEp_imposee;
-    Fchap1 = F1 + k1*(Wpchap1 - Wp1) - (Precharge - old_Precharge);
+    Fchap1 = F1 + k1*(Wpchap1 - Wp1); // - (Precharge - old_Precharge);
     Fchap2 = -1.0*Fchap1;
     Wpchap2 = Wp2 + h2*(Fchap2 - F2);
 }
@@ -40,16 +40,18 @@ void Interface::NodalState::check_comportement_parfait(){
 
 
 void Interface::NodalState::comportement_elastique(){
-    Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
+    //Point dEp_imposee = (Ep_imposee - old_Ep_imposee)/dt;
+//     PRINT(dEp_imposee);
     /// Construction de l'operateur (ne pas oublier que les normales sont identiques et que les matrices diagonales dans une base commune sont cools)
     Interface::LocalOperator Htilde;
     Htilde.kn = 1.0/(1.0/dt + K.kn*(h1.kn + h2.kn));
     Htilde.kt = 1.0/(1.0/dt + K.kt*(h1.kt + h2.kt));
     Htilde.n = n1;
     /// Calcul de la variation d'epaisseur due a l'elasticite
-    Ep_elastique = Htilde*( (Wp2 - Wp1) - (h2*F2 - h1*F1) - dEp_imposee + old_Ep_elastique/dt);
+    Ep_elastique = Htilde*( (Wp2 - Wp1) - (h2*F2 - h1*F1) + old_Ep_elastique/dt);
+    //Ep_elastique = Htilde*( (Wp2 - Wp1) - (h2*F2 - h1*F1) - dEp_imposee + old_Ep_elastique/dt);
     /// Calcul des autres valeurs
-    Fchap1 = (1-d)*(K*Ep_elastique) - (Precharge - old_Precharge);
+    Fchap1 = (1-d)*(K*Ep_elastique); // - (Precharge - old_Precharge);
     Fchap2 = -1.0*Fchap1;
     Wpchap1 = h1*(Fchap1 - F1) + Wp1;
     Wpchap2 = h2*(Fchap2 - F2) + Wp2;
@@ -154,7 +156,7 @@ void Interface::NodalState::check_comportement_cohesif(){
 void Interface::NodalState::comportement_cassable(){
     /// !!! On suppose qu'un comportement parfait ou elastique a deja ete calcule
     /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
-    if (interface.convergence >= 0 and comportement == false){
+    if (comportement == false){
         /// test contact normal : apres le calcul en supposant la cohesion des 2 cotes (c.f. comportement_local_interface, plus bas)
         /// on verifie si (< -Fchap1_n >+ / Fcr_n)^2 + (Fchap1_t / Fcr_t)^2 > 1 avec < >+ la partie positive
         /// que l'on reecrit k * N2 + T2 > R en multipliant par Fcr_t ^ 2
@@ -188,9 +190,16 @@ void Interface::NodalState::comportement_contact_parfait(){
     Scalar dPrecharge_n = dot(Precharge,n1) - dot(old_Precharge,n1);
     Point dPrecharge_t = ProjT(Precharge,n1) - ProjT(old_Precharge,n1);
     
+    
+
     /// Test de contact
     Scalar dWchap_n = dot(n1,(old_Wchap2-old_Wchap1)) + dt*(dot(n1,(Wp2-Wp1)) - (h2.kn*dot(n1,F2) - h1.kn*dot(n1,F1)));
-    if (dWchap_n > Ep_n) {
+
+//     PRINT(N);
+//     PRINT(dWchap_n);
+//     PRINT(Ep_n);
+    
+    if (dWchap_n > 0) {
         /// separation des bords
         Fchap1 = 0.0;
         Fchap2 = 0.0;
@@ -198,13 +207,27 @@ void Interface::NodalState::comportement_contact_parfait(){
         Wpchap2 = Wp2 - h2*F2;
     }
     else{
+//         if( interface.id == 12){
+//             PRINT(F1);
+//             PRINT(F2);
+//             PRINT(Wp1);
+//             PRINT(Wp2);
+//             PRINT(Ep_elastique);
+//             PRINT(Fchap1);
+//             PRINT(Fchap2);
+//             PRINT(Wpchap1);
+//             PRINT(Wpchap2);
+//             PRINT(old_Wchap1);
+//             PRINT(old_Wchap2);
+//             PRINT(dWchap_n);
+//             PRINT(Ep_n);
+//         }
         /// collision des bords
         /// Calcul des valeurs normales : on conserve la partie normale d'un calcul d'interface parfaite
-        comportement_parfait();
-        Scalar Wpchap1n = dot(n1,Wpchap1);
-        Scalar Wpchap2n = dot(n1,Wpchap2);
-        Scalar Fchap1n = dot(n1,Fchap1);
+        Scalar Fchap1n = (  dot(n1,(old_Wchap2-old_Wchap1)/dt) + dot(n1,(Wp2-Wp1)) -h2.kn*dot(n1,F2) + h1.kn*dot(n1,F1) )/(h2.kn+h1.kn);
         Scalar Fchap2n = -1.0*Fchap1n;
+        Scalar Wpchap1n = dot(Wp1,n1) + h1.kn*( Fchap1n - dot(n1,F1) );
+        Scalar Wpchap2n = dot(Wp2,n1) + h2.kn*( Fchap2n - dot(n1,F2) );
         
         /// Test de glissement adherence
         /// Effort tangentiel
@@ -409,6 +432,9 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
             node.check_comportement_contact_parfait();
             #endif
             node.store_results();
+            //integration
+            Inter.side[0].t[pt].Wchap = Inter.side[0].t[pt-1].Wchap + dt * Inter.side[0].t[pt].Wpchap;
+            Inter.side[1].t[pt].Wchap = Inter.side[1].t[pt-1].Wchap + dt * Inter.side[1].t[pt].Wpchap;
         }
     }
     /// Interface contact elastique

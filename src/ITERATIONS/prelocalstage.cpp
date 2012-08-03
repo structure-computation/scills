@@ -152,34 +152,37 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 std::cout << "Erreur d'interface ext - prelocalstage " << std::endl;
                 assert(0);
             }
-        }/* else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_contact_ep) {
+        } else if( Inter[i_inter].comp==Interface::comp_contact_parfait or Inter[i_inter].comp==Interface::comp_parfait or Inter[i_inter].comp==Interface::comp_elastique) {
           //else if(Inter[i_inter].comp=="Contact_jeu" or Inter[i_inter].comp=="Contact_jeu_physique" or Inter[i_inter].comp==Interface::comp_contact_ep or Inter[i_inter].comp==Interface::comp_parfait) {
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
-                Vector dep_jeu = Inter[i_inter].Ep_impose - Inter[i_inter].oldEp_impose ;
+                Vector dep_jeu = Inter[i_inter].Ep_imposee - Inter[i_inter].old_Ep_imposee ;
+                Vector dep_precharge = Inter[i_inter].precharge - Inter[i_inter].old_precharge ;
+                
                 Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 
-                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] = Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] + R1 * dep_jeu;
-                Inter[i_inter].side[0].t[process.temps->pt-1].W = Inter[i_inter].side[0].t[process.temps->pt-1].W - 1. * R0 * dep_jeu;
+                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
+                Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-                Inter[i_inter].oldEp_impose = Inter[i_inter].Ep_impose;
+//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
+//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
+//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
                 
-                if(Inter[i_inter].id==8){
+//                 if(Inter[i_inter].id==12){
                     PRINT("  ");
                     PRINT(R0);
                     PRINT(R1);
                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
                     PRINT("on est dans prélocal stage");
                     PRINT(Inter[i_inter].id);
-                    PRINT(Inter[i_inter].side[0].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
-                    PRINT(Inter[i_inter].side[1].t[process.temps->pt-1].W[LMT::range(0,DIM*1)]);
+                    PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
                     PRINT("  ");
-                }
+//                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
-        }*/
+        }
      
         std::cout << std::endl;
     }
