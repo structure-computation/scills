@@ -119,9 +119,6 @@ struct Interface
             Vector oldWp;   /// vitesses a l'iteration (en latin) ou au pas de temps (en incremental) precedent
             Vector d;       /// endommagement des elements de l'interface
             
-            Vector dPrecharge;        /// increment de précharge
-            Vector dEp_imposee;       /// increment d epaisseur imposee
-            
             void allocations(unsigned sizenodeeq,bool endommageable);
         };
         Vec<Time> t;        /// Vecteurs piquet de temps
@@ -142,7 +139,7 @@ struct Interface
     Vector old_Ep_elastique;    /// valeurs de Ep_elastique au pas de temps precedent
     Vector precharge;           /// précharge imposee par l'utilisateur sur l'interface
     Vector old_precharge;       /// précharge imposee par l'utilisateur sur l'interface
-    Vec<bool> comportement;     /// indique pour chaque element s'il y a modification du comportement
+    Vec<unsigned> comportement;     /// indique pour chaque element s'il y a modification du comportement, si on casse ou non
     int convergence;            ///< =-1 si le calcul du pas de temps ne converge pas, >=0 sinon
                                 ///< =0 après l'etape locale si aucun comportement d'element est mis à jour, >0 sinon
     
@@ -168,7 +165,7 @@ struct Interface
         Scalar dt;                  /// Numero du noeud
         
         /// Vecteurs globaux renumerotees (_F1 = side[0].F[list1] par exemple)
-        Vec<bool> _comportement;    /// Cohesion entre les cotes?
+        Vec<unsigned> _comportement;/// Cohesion entre les cotes?
         Vector _coeffrottement;     /// Coefficient de frottement
         Vector _n1;                 /// Normale du bord 1 vers le bord 2
         Vector _F1;                 /// Efforts sur le bord 1 (etape lineaire)
@@ -193,7 +190,7 @@ struct Interface
         Vector _old_d;              /// Ancienne valeur de l'endommagement (pas de temps precedent)
         
         /// Valeurs locals des grandeurs de l'interface
-        bool comportement;          /// Cohesion entre les cotes?
+        unsigned comportement;      /// Cohesion entre les cotes?
         Scalar coeffrottement;      /// Coefficient de frottement
         Point n1;                   /// Normale du bord 1 vers le bord 2
         Point F1;                   /// Efforts sur le bord 1 (etape lineaire)

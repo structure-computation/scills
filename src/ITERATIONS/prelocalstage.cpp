@@ -165,10 +165,6 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
-//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
-//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
-                
 //                 if(Inter[i_inter].id==12){
 //                     PRINT("  ");
 //                     PRINT(R0);
