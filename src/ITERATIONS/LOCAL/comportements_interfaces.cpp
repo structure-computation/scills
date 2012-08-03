@@ -136,7 +136,7 @@ void Interface::NodalState::comportement_cohesif(){
     d = std::max(d,old_d);
     if(d > dmax){
         /// Ruine du materiau
-        comportement = true;
+        comportement++;
     }
     else{
         /// Le materiau survit au chargement
@@ -156,7 +156,7 @@ void Interface::NodalState::check_comportement_cohesif(){
 void Interface::NodalState::comportement_cassable(){
     /// !!! On suppose qu'un comportement parfait ou elastique a deja ete calcule
     /// si la convergence du calcul iteratif est OK, on met à jour le comportement des elements qui ne sont pas deja casse
-    if (comportement == false){
+    if (comportement <= 3){
         /// test contact normal : apres le calcul en supposant la cohesion des 2 cotes (c.f. comportement_local_interface, plus bas)
         /// on verifie si (< -Fchap1_n >+ / Fcr_n)^2 + (Fchap1_t / Fcr_t)^2 > 1 avec < >+ la partie positive
         /// que l'on reecrit k * N2 + T2 > R en multipliant par Fcr_t ^ 2
@@ -179,7 +179,7 @@ void Interface::NodalState::comportement_cassable(){
         if (k * N2 + T2 > R){
             ///David dit de mettre 10% de plus (A QUOI ???)
             /// on a franchi la limite de rupture
-            comportement = true;
+            comportement++;
             interface.convergence++;
         }
     }
@@ -385,7 +385,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(not node.comportement){
+            if(node.comportement <= 3){
                 node.comportement_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -398,7 +398,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            if(node.comportement){
+            else{
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -415,7 +415,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
             /// On verifie si le noeud doit casser
-            if(not node.comportement){
+            if(node.comportement <= 3){
                 node.comportement_elastique();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();
@@ -428,7 +428,7 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
                 #endif
             }
             /// S'il a casse, on applique le contact
-            if(node.comportement){
+            else{
                 //node.comportement_contact_elastique();
                 node.comportement_contact_parfait();
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
@@ -474,10 +474,10 @@ void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt){
     else if(Inter.comp == Interface::comp_cohesive){
         for(unsigned i_node = 0; i_node < nb_nodes; i_node++){
             node.set_node(i_node);
-            if(not node.comportement){
+            if(node.comportement <= 3){
                 node.comportement_cohesif();
             }
-            if(node.comportement){
+            else{
                 node.comportement_contact_parfait();    /// L'interface est ruinee d'ou un contact parfait et non elastique
                 #ifdef CHECK_COMPORTEMENT_INTERFACES
                 node.check_ddr();

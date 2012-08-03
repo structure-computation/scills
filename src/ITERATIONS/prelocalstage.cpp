@@ -145,19 +145,14 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
                 
-//                 Inter[i_inter].side[1].t[process.temps->pt].dEp_imposee[Inter[i_inter].side[1].ddlcorresp] = R1 * dep_jeu;
-//                 Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee = - 1. * R0 * dep_jeu;
-//                 Inter[i_inter].old_Ep_imposee = Inter[i_inter].Ep_imposee;
-                
 //                 if(Inter[i_inter].id==12){
-                    PRINT("  ");
-                    PRINT(R0);
-                    PRINT(R1);
-                    PRINT(dep_jeu[LMT::range(0,DIM*1)]);
-                    PRINT("on est dans prélocal stage");
-                    PRINT(Inter[i_inter].id);
-                    PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
-                    PRINT("  ");
+//                     PRINT("  ");
+//                     PRINT(R0);
+//                     PRINT(R1);
+//                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
+//                     PRINT("on est dans prélocal stage");
+//                     PRINT(Inter[i_inter].id);
+//                     PRINT("  ");
 //                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;

@@ -86,11 +86,6 @@ void Interface::Side::Time::allocations(unsigned sizenodeeq,bool endommageable){
     oldWp.resize(sizenodeeq);
     oldWp.set(0.0);
     
-    dPrecharge.resize(sizenodeeq);
-    dPrecharge.set(0.0);
-    dEp_imposee.resize(sizenodeeq);
-    dEp_imposee.set(0.0);
-    
     if(endommageable){
         d.resize(sizenodeeq/DIM);
         d.set(0.0);
@@ -257,7 +252,8 @@ Interface::NodalState::NodalState(Interface &I,unsigned pt,Scalar dt_):
 interface(I),
 i_time(pt),
 dt(dt_)
-{}
+{
+}
 
 void Interface::NodalState::set_node(unsigned i_node){
     id = i_node;

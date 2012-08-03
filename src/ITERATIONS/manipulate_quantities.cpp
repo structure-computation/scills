@@ -72,7 +72,7 @@ void allocate_quantities_Sst_Inter(PointedSubstructures &SubS, PointedInterfaces
                                SubI[i].comp == Interface::comp_cassable_elastique or 
                                SubI[i].comp == Interface::comp_cohesive){
                                 SubI[i].comportement.resize(sizenodeeq);
-                                SubI[i].comportement.set(false);
+                                SubI[i].comportement.set(0);
                             }
                             SubI[i].side[j].t[pt].allocations(sizenodeeq,(SubI[i].matprop == 0)?false:SubI[i].matprop->degradable);
                         }
