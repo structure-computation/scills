@@ -19,19 +19,9 @@ void assign_CL_spatial_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL,Sca
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodeeq[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
         }
-        Point old_data;
-        bool derivee = (CL.comp.find("depl") < CL.comp.size());
-        if(derivee){
-            for(unsigned i_dir=0;i_dir<DIM;++i_dir){
-                old_data[i_dir] = CL.fcts_spatiales[i_dir];                 /// Recuperation des anciennes valeurs de la CL
-            }
-        }
         Point data;
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             data[i_dir] = CL.fcts_spatiales[i_dir].updateValue(values);     /// Evaluation des composantes de la CL
-        }
-        if(derivee){
-            data = (data - old_data)/dt;                                    /// Calcul de la derivee
         }
         V[range(i*DIM,(i+1)*DIM)]=data;                                     /// Stockage du resultat
     }
@@ -45,12 +35,7 @@ void assign_CL_spatial_temporel_normale(Vector &V, Vec<Point > &nodeeq, Vector &
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodeeq[i][i_dir]; /// Chargement des coordonnees du point
         }
-        Scalar old_data = CL.fcts_spatiales[0];                 /// Recuperation de l'ancienne valeur normale de la CL
-        bool derivee = (CL.comp.find("depl") < CL.comp.size()); /// Indique si on doit calculer la derivee temporelle
         Scalar data = CL.fcts_spatiales[0].updateValue(values); /// Evaluation de la composante normale
-        if(derivee){
-            data = (data - old_data)/dt;                        /// Calcul de la derivee
-        }
         Point temp=V[range(i*DIM,(i+1)*DIM)];                   /// Recuperation de la valeur actuelle sur l'interface
         Point neq = neqs[range(i*DIM,(i+1)*DIM)];               /// Recuperation de la normale de l'element
         V[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+data*neq;     /// Calcul et stockage du resultat
@@ -109,10 +94,14 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
-            } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul 
-                   or Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
+            } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul) {
+                assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
+                Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+            } else if(Inter[i_inter].comp == Interface::comp_vitesse or Inter[i_inter].comp == Interface::comp_vitesse_nulle) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
-                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
@@ -128,7 +117,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
-            } else if(Inter[i_inter].comp == Interface::comp_deplacement_normal or Inter[i_inter].comp == Interface::comp_vitesse_normale) {
+            } else if(Inter[i_inter].comp == Interface::comp_vitesse_normale) {
                 if(process.temps->pt_cur==1) {
                     assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wpchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
                     if(process.reprise_calcul==0)
@@ -138,6 +127,22 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                     Wpchapnormal.resize(Inter[i_inter].side[0].t[1].Wpchap.size(),0.0);
                     assign_CL_spatial_temporel_normale(Wpchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);
                     Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap)+Wpchapnormal;
+                }
+                //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+            } else if(Inter[i_inter].comp == Interface::comp_deplacement_normal) {
+                if(process.temps->pt_cur==1) {
+                    assign_CL_spatial_temporel_normale(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);//le Wpchap evolue au cours des iterations donc si on reprend on initialise avec le resultat du calcul precedent donc on fait rien...
+                    Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
+                    if(process.reprise_calcul==0)
+                        Inter[i_inter].side[0].t[1].Fchap.set(0.0);
+                } else {
+                    Vector Wchapnormal;
+                    Wchapnormal.resize(Inter[i_inter].side[0].t[1].Wpchap.size(),0.0);
+                    assign_CL_spatial_temporel_normale(Wchapnormal,Inter[i_inter].side[0].nodeeq,Inter[i_inter].side[0].neq,CL[Inter[i_inter].refCL],dt);
+                    Inter[i_inter].side[0].t[1].Wpchap = Inter[i_inter].side[0].Pt(Inter[i_inter].side[0].t[1].Wpchap) + (Wchapnormal - Inter[i_inter].side[0].Pn(Inter[i_inter].side[0].t[0].Wchap))/dt;
                 }
                 //PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
