@@ -483,7 +483,17 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
     ostringstream sp;
     sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
     Sc2String strp(sp.str());
-    dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_inter);
+    
+    ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
+    Sc2String base_filename= save_directory;
+    if(process.multiresolution->nb_calculs>1)
+        base_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    base_filename << "proc_" << process.parallelisation->rank << "_time_";
+    Sc2String namefile = base_filename;
+    namefile << process.temps->pt_cur << ".vtu";
+    
+    dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_inter);
     //dp.add_mesh(meshglob,strp.c_str(),Vec<Sc2String>("num","type","qtrans","F","W","dWn","dWt","d","dissipation"));
     if(process.affichage->save=="display")
         dp.exec();
@@ -511,13 +521,13 @@ template<class TV2,class TV1> void affich_INTER_resultat(TV2 &Inter,TV1 &S,Proce
         //process.affichage->pt=i;      /// TMP, test sauvegarde a la fin de chaque pas de temps
         process.affichage->pt=process.temps->pt_cur;        /// TMP, test sauvegarde a la fin de chaque pas de temps
         affich_inter_data_time(Inter, S, process);
-        ostringstream sp;
-        sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-        Sc2String strp(sp.str());
-        Sc2String namefile = base_filename;
-        //namefile << i << ".vtu";    /// TMP, test sauvegarde a la fin de chaque pas de temps
-        namefile << process.temps->pt_cur << ".vtu";
-        int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+//         ostringstream sp;
+//         sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+//         Sc2String strp(sp.str());
+//         Sc2String namefile = base_filename;
+//         //namefile << i << ".vtu";    /// TMP, test sauvegarde a la fin de chaque pas de temps
+//         namefile << process.temps->pt_cur << ".vtu";
+//         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
     //}     /// TMP, test sauvegarde a la fin de chaque pas de temps
 
 };
