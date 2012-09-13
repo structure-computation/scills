@@ -80,21 +80,27 @@ void write_paraview_results(PointedSubstructures &S,Process &process, DataUser &
         ///ecriture des fichiers vtu
         for(unsigned i=0;i<2;i++){
             DisplayParaview dp;
-            ///ecriture fichier paraview generique de tous les champs (volume ou peau)
-            ostringstream sp;
-            sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-            Sc2String strp(sp.str());
-            if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
-            if(i==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
-            else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
             
-            if(process.affichage->save=="display") dp.exec();
-            ///modification du nom et deplacement du fichier generique
+            ///nom du fichier paraview genere (volume ou peau)
             ostringstream ss;
             //ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";      /// TMP, test sauvegarde a la fin de chaque pas de temps
             ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<process.temps->pt_cur<<".vtu";   /// TMP, test sauvegarde a la fin de chaque pas de temps
             Sc2String namefile(ss.str());
-            int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+            
+            ///ecriture fichier paraview generique de tous les champs (volume ou peau)
+            ostringstream sp;
+            sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+            Sc2String strp(sp.str());
+            
+            if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
+            if(i==0) dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_sst_bulk);
+            else dp.add_mesh(meshglob.skin,namefile.c_str(),process.affichage->display_fields_sst_skin);
+            
+            if(process.affichage->save=="display") dp.exec();
+            
+            ///modification du nom et deplacement du fichier generique
+            
+            //int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
         }
     //}     /// TMP, test sauvegarde a la fin de chaque pas de temps
 }
@@ -180,11 +186,14 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          ostringstream sp;
          sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
          Sc2String strp(sp.str());
+         
          //ecriture fichier paraview
          if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
-         dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields);
+         dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+         
+         
+         //int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }   
    }
@@ -217,11 +226,12 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
          ostringstream sp;
          sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
          Sc2String strp(sp.str());
+         
          //ecriture fichier paraview
          if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
-         dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields);
+         dp.add_mesh(meshglob.skin,namefile.c_str(),process.affichage->display_fields);
          if(process.affichage->save=="display") dp.exec();
-         int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+         //int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
          
       }
    }
