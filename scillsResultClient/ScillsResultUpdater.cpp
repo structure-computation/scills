@@ -69,6 +69,17 @@ bool ScillsResultUpdater::run( MP mp ) {
                   //edge[ "visualization" ] = oec[ "_edge_profile.visualization" ];
                   
                   edge[ "_mesh" ] = MP::new_obj( "Mesh" );
+
+                  edge[ "_mesh.visualization" ] = MP::new_obj();
+                  edge[ "_mesh.visualization.display_style" ] = MP::new_obj( "Choice" );
+                  edge[ "_mesh.visualization.display_style.num" ] = 1;
+                  edge[ "_mesh.visualization.display_style.lst" ] = MP::new_lst();
+                  edge[ "_mesh.visualization.display_style.lst" ] << "Points";
+                  edge[ "_mesh.visualization.display_style.lst" ] << "Wireframe";
+                  edge[ "_mesh.visualization.display_style.lst" ] << "Surface";
+                  edge[ "_mesh.visualization.display_style.lst" ] << "Surface with Edges";
+                  edge[ "_mesh.visualization.point_edition" ] = false;
+
                   //qDebug() << edge ;
 
                   //ajout du maillage de peau
