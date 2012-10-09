@@ -57,10 +57,7 @@ bool ScillsResultUpdater::run( MP mp ) {
                   MP edge = MP::new_obj( "ScillsEdgeItem" );
                   Sc2String str_name_edge;
                   str_name_edge << "edge_" << geometry_user.group_interfaces[i_group].id;
-                  edge[ "_ico" ] = oec[ "_edge_profile[_ico]" ];
-                  edge[ "_name" ] = str_name_edge.c_str();  
-                  
-                  edge[ "_ico" ] = oec[ "_edge_profile[_ico]" ];
+                  edge[ "_ico" ] = oec[ "_edge_profile._ico" ]; 
                   edge[ "_name" ] = str_name_edge.c_str();
                   edge[ "_viewable" ] = true;
                   edge[ "_children" ] = MP::new_lst();
