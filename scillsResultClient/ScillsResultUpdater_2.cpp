@@ -79,53 +79,53 @@ bool ScillsResultUpdater::run( MP mp ) {
 //                   "_mesh":{"visualization":{"display_style":{"num":1, "lst":["Points", "Wireframe", "Surface", "Surface with Edges"]}}, "points":[], "_elements":[], "_selected_points":[], "_pelected_points":[], "_selected_elements":[], "_pelected_elements":[]}, 
 //                   "visualization":{"display_style":{"num":1, "lst":["Points", "Wireframe", "Surface", "Surface with Edges"]}}
                   
-                  MP om =  MP::new_obj( "Mesh" );
-                  om[ "visualization" ] = oec[ "_edge_profile.visualization" ];
-                  om[ "_selected_points" ] = oec[ "_edge_profile._selected_points" ];
-                  om[ "_pelected_points" ] = oec[ "_edge_profile._pelected_points" ];
-                  om[ "_selected_elements" ] = oec[ "_edge_profile._selected_elements" ];
-                  om[ "_pelected_elements" ] = oec[ "_edge_profile._pelected_elements" ];
-                  edge[ "_mesh" ] << om;
+//                   MP om =  MP::new_obj( "Mesh" );
+//                   om[ "visualization" ] = oec[ "_edge_profile.visualization" ];
+//                   om[ "_selected_points" ] = oec[ "_edge_profile._selected_points" ];
+//                   om[ "_pelected_points" ] = oec[ "_edge_profile._pelected_points" ];
+//                   om[ "_selected_elements" ] = oec[ "_edge_profile._selected_elements" ];
+//                   om[ "_pelected_elements" ] = oec[ "_edge_profile._pelected_elements" ];
+//                   edge[ "_mesh" ] << om;
+//                   
+//                   //MP om =  edge[ "_mesh" ];
+//                   
+//                   //ajout du maillage de peau
+//                   //MP om = edge[ "_mesh" ];
+//                   om[ "points" ].clear();
+//                   om[ "_elements" ].clear();
+//                   
+//                   for(int i=0; i<geometry_user.group_interfaces[i_group].local_nodes[0].size(); i++){
+//                       MP pos = MP::new_lst( "Vec_3" );
+//                       for(int d=0; d<geometry_user.group_interfaces[i_group].local_nodes.size(); d++){
+//                         pos << geometry_user.group_interfaces[i_group].local_nodes[d][i];
+//                       }
+//                       //PRINT(geometry_user.group_interfaces[i_group].local_nodes[0][i]);
+//                       MP pnt = MP::new_obj( "Point" );
+//                       pnt[ "pos" ] = pos;
+// 
+//                       om[ "points" ] << pnt;  
+//                   }
+//                   
+// 
+//                   TypedArray<int> *connectivity = new TypedArray<int>;
+//                   for(int i=0; i<geometry_user.group_interfaces[i_group].local_connectivities[0].size(); i++){
+//                       
+//                       for(int d=0; d<geometry_user.group_interfaces[i_group].local_connectivities.size(); d++){
+//                           connectivity->_data << geometry_user.group_interfaces[i_group].local_connectivities[d][i];
+//                       }
+//                       
+//                   }
+//                   connectivity->_size.resize( 2 );
+//                   connectivity->_size[ 0 ] = 3;
+//                   connectivity->_size[ 1 ] = connectivity->_data.size() / 3;
+//                   
+//                   MP triangles = MP::new_obj( "Element_TriangleList" );
+//                   triangles[ "indices" ] = connectivity;
+//                   om[ "_elements" ] << triangles;
                   
-                  //MP om =  edge[ "_mesh" ];
                   
-                  //ajout du maillage de peau
-                  //MP om = edge[ "_mesh" ];
-                  om[ "points" ].clear();
-                  om[ "_elements" ].clear();
-                  
-                  for(int i=0; i<geometry_user.group_interfaces[i_group].local_nodes[0].size(); i++){
-                      MP pos = MP::new_lst( "Vec_3" );
-                      for(int d=0; d<geometry_user.group_interfaces[i_group].local_nodes.size(); d++){
-                        pos << geometry_user.group_interfaces[i_group].local_nodes[d][i];
-                      }
-                      //PRINT(geometry_user.group_interfaces[i_group].local_nodes[0][i]);
-                      MP pnt = MP::new_obj( "Point" );
-                      pnt[ "pos" ] = pos;
-
-                      om[ "points" ] << pnt;  
-                  }
-                  
-
-                  TypedArray<int> *connectivity = new TypedArray<int>;
-                  for(int i=0; i<geometry_user.group_interfaces[i_group].local_connectivities[0].size(); i++){
-                      
-                      for(int d=0; d<geometry_user.group_interfaces[i_group].local_connectivities.size(); d++){
-                          connectivity->_data << geometry_user.group_interfaces[i_group].local_connectivities[d][i];
-                      }
-                      
-                  }
-                  connectivity->_size.resize( 2 );
-                  connectivity->_size[ 0 ] = 3;
-                  connectivity->_size[ 1 ] = connectivity->_data.size() / 3;
-                  
-                  MP triangles = MP::new_obj( "Element_TriangleList" );
-                  triangles[ "indices" ] = connectivity;
-                  om[ "_elements" ] << triangles;
-                  
-                  
-                  qDebug() <<  oec[ "_edge_profile" ];
-                  qDebug() <<  edge ;
+                  //qDebug() <<  oec[ "_edge_profile" ];
+                  //qDebug() <<  edge ;
                   
                   
                   oec[ "_children" ] << edge;
