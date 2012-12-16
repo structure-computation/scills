@@ -31,8 +31,8 @@
 /**
 Fonction permettant le calcul des resultantes sur une interface de contact.
 */
-template <class TV1,class TV2>
-void calcul_resultante(TV1 &S, TV2 &Inter,Process &process) {
+template <class TV1,class TV2, class TV3>
+void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     Vector resultante;
     resultante.set(0.);
     
@@ -47,7 +47,9 @@ void calcul_resultante(TV1 &S, TV2 &Inter,Process &process) {
     
     ofstream os( namefile.c_str() );
     if (process.parallelisation->is_master_cpu())  os << "Numero interface ; Numero resolution ; Numero pas de temps ; Comportement interface ; Numero SST cote ; Numero SST cote 2 ; Materiau 1 ; Materiau 2 ; Fx ; Fy ; Fz ; Ux ; Uy ; Uz;" << endl;
-    std::cout << S.size() << endl;
+//     std::cout << S.size() << endl;
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
     
     for(unsigned j=0;j<S.size();j++) {
         for(unsigned e=0;e<S[j].edge.size();++e) {
@@ -104,11 +106,11 @@ void calcul_resultante(TV1 &S, TV2 &Inter,Process &process) {
 			    resz = dot(vecz,vectemp);
 			}
 			///Ecriture dans le fichiers
-			os << i << ";" << ";" << k << ";" << Inter[i].comp << ";" << nums1 << ";" << nums2 << ";" << S[nums1].typmat << ";" ;
+			os << i << ";" << ";" << k << ";" << Inter[i].comp << ";" << nums1 << ";" << nums2 << ";" << SS[nums1].typmat << ";" ;
 			if (nums2 == -1) 
 			  os <<  ";" ;
 			else
-			  os << S[nums2].typmat << ";";
+			  os << SS[nums2].typmat << ";";
 			os << resx << ";" << resy << ";" << resz << ";" ;
 
 			///Résultante déplacement
@@ -133,24 +135,41 @@ void calcul_resultante(TV1 &S, TV2 &Inter,Process &process) {
     ///Fin des écritures
     if (process.parallelisation->is_multi_cpu()) {
       process.parallelisation->synchronisation();
-      ///concaténation des fichiers
-      Sc2String cmd;
-      cmd << "cat ";
-      for (unsigned i=0;i<process.parallelisation->size;i++)
-	cmd << base_filename << i << ".csv ";
-      cmd << "> " << save_directory;
-      if(process.multiresolution->nb_calculs>1)
-        cmd<<"resolution_"<<process.multiresolution->m<<"_";
-      cmd << "resultante.csv" ; 
-      system(cmd.c_str());
       
-      Sc2String cmd2;
-      cmd2 << "rm ";
-      for (unsigned i=0;i<process.parallelisation->size;i++)
-	cmd2 << base_filename << i << ".csv ";
-      system(cmd2.c_str());
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".csv ";
+	cmd << "> " << save_directory;
+	if(process.multiresolution->nb_calculs>1)
+	  cmd<<"resolution_"<<process.multiresolution->m<<"_";
+	cmd << "resultante.csv" ; 
+	system(cmd.c_str());
+// 	std::cout << cmd << endl;
+	
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".csv ";
+	system(cmd2.c_str());
+// 	std::cout << cmd2 << endl;
+      }
+    } else
+    {
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".csv ";
+	cmd << " " << save_directory;
+	if(process.multiresolution->nb_calculs>1)
+	  cmd<<"resolution_"<<process.multiresolution->m<<"_";
+	cmd << "resultante.csv" ; 
+	system(cmd.c_str());
+      
       
     }
+    
+    os.close();
 }
 #endif //CALCULS_RESULTANTES_H
 

@@ -563,7 +563,7 @@ void Process::boucle_temporelle(){
         std::cout << "******************************************************************************" << std::endl;*/
     }
     ///Affichage des résultantes sur les interfaces
-    calcul_resultante(*SubS,*Inter,*this);
+    calcul_resultante(*SubS,*S,*Inter,*this);
 
     #ifdef INFO_TIME
     print_duration(tic2);
