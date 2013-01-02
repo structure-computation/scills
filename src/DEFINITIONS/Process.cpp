@@ -12,6 +12,7 @@
 #include "../ITERATIONS/prelocalstage.h"
 #include "../ITERATIONS/iterate.h"
 #include "../POSTTRAITEMENTS/affichage.h"
+#include "../POSTTRAITEMENTS/calculs_resultantes.h"
 #include "../POSTTRAITEMENTS/save_hdf_data.h"
 
 
@@ -522,6 +523,7 @@ void Process::boucle_temporelle(){
             
             print_data("*************** End time : ",temps->t_cur);
             
+            
             ///Affichage des energies
             if (affichage->trac_ener_imp == 1) {
                 affichage->param_ener[0]=1;
@@ -560,6 +562,9 @@ void Process::boucle_temporelle(){
         }
         std::cout << "******************************************************************************" << std::endl;*/
     }
+    ///Affichage des résultantes sur les interfaces
+    calcul_resultante(*SubS,*S,*Inter,*this);
+
     #ifdef INFO_TIME
     print_duration(tic2);
     #endif

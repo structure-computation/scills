@@ -1,6 +1,6 @@
 #parametres a modifier si necessaire
 #nombre de processeurs pour la compilation
-NB_COMP_PROC = 2 
+NB_COMP_PROC = 3
 #dimension du probleme
 DIM = 3
 # emplacement de la libraire MPI
@@ -15,6 +15,11 @@ LOC_MC = metil_comp
 DIR_SOURCES_SC = -Ibuild -Ibuild/problem_pb_elast -Isrc -Isrc/DEFINITIONS -Isrc/FORMULATIONS -Isrc/ITERATIONS -Isrc/ITERATIONS/LINEAR -Isrc/ITERATIONS/LOCAL -Isrc/ITERATIONS/ERROR -Isrc/MAILLAGE -Isrc/MATERIAUX -Isrc/MPI -Isrc/OPERATEURS -Isrc/OPERATEURS/INTER -Isrc/OPERATEURS/MACRO -Isrc/OPERATEURS/SST -Isrc/POSTTRAITEMENTS -Isrc/PROBMICRO -Isrc/UTILITAIRES 
 DIR_SOURCES_GEOMETRY = -Isrc -Isrc/GEOMETRY -Isrc/COMPUTE -Isrc/UTILS -Isrc/UTILS/hdf -Isrc/UTILS/xdmf -Isrc/UTILS/json_spirit 
 
+#dossiers sources pour les client SOCA
+DIR_SOURCES_SOCA = -IscillsResultClient -I/home/jbellec/code_dev_scwal/Soca/src -I/home/jbellec/code_dev_scwal/Soca/src/Soca  
+
+#dossiers sources pour scVisu
+DIR_SOURCES_SCVISU = -I/home/jbellec/code_dev/scVisu/src
 
 # options communes
 GLOB_VAR = -DDIM=$(DIM) -D$(ARCHITECTURE)  -DTYPE=double -DTYPEREEL=double  -DLDL -Dcrout_alain
@@ -66,3 +71,5 @@ clean:
 codegen_json:
 	$(LOC_MC) -o DataUserUpdater.exe $(DIR_SOURCES_LMT) -Ihome/scproduction/code_dev/Metil-test/src $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) --comp-dir build/DataUserUpdater $(CFLAGS) src/SCJSONREADER/run.cpp
 
+scills_result_client:
+	$(LOC_MC)  -o scillsResultClient.exe $(GLOB_VAR) $(DIR_SOURCES_LMT) $(DIR_SOURCES_SC) $(DIR_SOURCES_GEOMETRY) $(DIR_SOURCES_MPI) $(CFLAGS) $(LIBS) $(OPT) $(DIR_SOURCES_SCVISU) $(DIR_SOURCES_SOCA) scillsResultClient/main.cpp
