@@ -30,6 +30,7 @@ def get_elem_choice(nvi_to_subs,skin):
        DM( name='dWt', dm_type='Vec<double,%s>'%nb_dim, unit='m/s', default_value='0' ), 
        DM( name='dissipation', dm_type='Vec<double,%s>'%nb_dim, unit='J', default_value='0' ), 
        DM( name='d', dm_type='double', unit='', default_value='0' ), 
+       DM( name='group_id', dm_type='double', unit='', default_value='0' ),
         #DM( name='degr', dm_type='double', unit='', default_value='0' ),
     ]
      

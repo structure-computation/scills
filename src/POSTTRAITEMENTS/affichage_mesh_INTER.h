@@ -28,11 +28,22 @@ template<class TV2> void eclat_INTER(TV2 &Inter,Scalar ecl) {
 /** \ingroup  Post_Traitement 
 \brief Application du type d'interface et d'un numéro à chaque élément d'interface
 */
+// struct apply_type_elem_interface{
+// //template<class TE> void operator() ( TE &e, unsigned i,const int type,const int num, int &ii) const{
+// template<class TE> void operator() ( TE &e,const int type,const int num, int &ii, int group_id) const{
+//     e.type=type;
+//     e.num=num;
+//     e.group_id=group_id;
+//     e.d=ii;
+//     ii+=1;
+//   }
+// };
 struct apply_type_elem_interface{
 //template<class TE> void operator() ( TE &e, unsigned i,const int type,const int num, int &ii) const{
-template<class TE> void operator() ( TE &e,const int type,const int num, int &ii) const{
-    e.type=type;
-    e.num=num;
+template<class TE> void operator() ( TE &e, Vec<int,3> data_inter, int &ii) const{
+    e.type=data_inter[0];
+    e.num=data_inter[1];
+    e.group_id=data_inter[2];
     e.d=ii;
     ii+=1;
   }
@@ -82,37 +93,65 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
     
     ///assignation du numero et du type d'interface
     for(unsigned q=0;q<Inter.size();++q){
-                 
-         int type = Inter[q].get_type_elem();
-         int num=Inter[q].num;
+         
+	 Vec<int,3> data_inter; //data interface to pass to visu : type, num, group_id
+	 data_inter[0] = Inter[q].get_type_elem();
+	 data_inter[1] = Inter[q].num; //
+	 data_inter[2] = 0; //group_id
+	 if (data_inter[0]==0) {
+	   data_inter[2]=Inter[q].edge_id;
+	 }
+	 else{
+	   data_inter[2]=Inter[q].id_link;
+	}
          int numelem=0;
-         apply(Inter[q].side[data].mesh->elem_list,apply_type_elem_interface(),type,num,numelem);
+	 apply(Inter[q].side[data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem);
          numelem=0;
-         if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp == Interface::comp_periodique) apply(Inter[q].side[1-data].mesh->elem_list,apply_type_elem_interface(),type,num,numelem);
-      }
+         if ( Inter[q].comp=="Contact_jeu_physique" or Inter[q].comp == Interface::comp_periodique) apply(Inter[q].side[1-data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem);
+      
+    }
 
-    ///affichage
-    DisplayParaview dp;
-    InterfaceMesh meshglob;
+    ///affichage dans un seul fichier
+//     DisplayParaview dp;
+//     InterfaceMesh meshglob;
+//         for(unsigned i=0;i<Inter.size();++i) {
+//             if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
+// 	        meshglob.append(*Inter[i].side[data].mesh);
+//                 if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp == Interface::comp_periodique){
+//                     meshglob.append(*Inter[i].side[1-data].mesh);
+//                 }
+//             }
+//         }
+//     dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d","group_id"));
+//     if(process.affichage->save=="display"){
+//         dp.exec();
+//     }
+//     
+//     ///modification du nom et deplacement du fichier generique
+//     ostringstream ss;
+//     ss<<nom_generique << "_proc_"<<process.parallelisation->rank<<".vtu";
+//     Sc2String namefile(ss.str());
+//     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+    
+     
+    
         for(unsigned i=0;i<Inter.size();++i) {
             if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
-                meshglob.append(*Inter[i].side[data].mesh);
+		DisplayParaview dp;
+		InterfaceMesh meshglob;
+	        meshglob.append(*Inter[i].side[data].mesh);
                 if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp == Interface::comp_periodique){
                     meshglob.append(*Inter[i].side[1-data].mesh);
                 }
+                dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d","group_id"));
+		///modification du nom et deplacement du fichier generique
+		ostringstream ss;
+		ss<<nom_generique << "_id_"<<Inter[i].id<<".vtu";
+		Sc2String namefile(ss.str());
+		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  		
             }
         }
-    dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d"));
-    if(process.affichage->save=="display"){
-        dp.exec();
-    }
     
-    ///modification du nom et deplacement du fichier generique
-    ostringstream ss;
-    ss<<nom_generique << "_proc_"<<process.parallelisation->rank<<".vtu";
-    Sc2String namefile(ss.str());
-    int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
-
 };
 
 

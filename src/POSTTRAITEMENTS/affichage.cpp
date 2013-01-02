@@ -89,8 +89,37 @@ void affichage_inter_temps(Process &process) {
     if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 }
 
-
-
+template <class TV> 
+void create_pvd_interfaces(TV &Inter, Process &process){
+   //Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
+    
+   //creation du nom et du fichier pvd
+   std::ostringstream spvd;
+   
+   spvd<<process.affichage->repertoire_save<<"results/Geometry_inter.pvd";
+   Sc2String namepvd( spvd.str() );
+   
+   std::ofstream file_pvd;
+   file_pvd.open( (namepvd).c_str(), std::ofstream::out);
+   
+   //ecriture entete
+   file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+   
+   //ecriture des lignes correspondant aux fichier a lire
+    for(unsigned i=0;i<Inter.size();++i){
+        //nom du fichier a lire pour le piquet de temps et le processeur considere
+        std::ostringstream ss;
+        ss << process.affichage->repertoire_save<<"results/Geometry_inter_id_"<< Inter[i].id <<  ".vtu";
+        Sc2String nom1( ss.str() );
+        //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
+        std::ostringstream ss2;
+        ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<i << "\" part=\" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+        Sc2String ligne1(ss2.str()); 
+        file_pvd << ligne1;
+    }          
+   //fin du fichier pvd
+   file_pvd << " </Collection> \n </VTKFile>";   
+}
 
 /**\ingroup Post_Traitement
  \brief Affichage du maillage des sous-structures ou des interfaces avec éclaté
@@ -120,6 +149,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
                 process.affichage->type_affichage="Inter";
                 PRINT(process.affichage->type_affichage);
                 affich_INTER(Inter,Stot, process);
+		create_pvd_interfaces(Inter, process);
             } else {
                 std::cout << "erreur d'affichage" << endl;
             }

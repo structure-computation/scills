@@ -1,6 +1,6 @@
 #parametres a modifier si necessaire
 #nombre de processeurs pour la compilation
-NB_COMP_PROC = 1 
+NB_COMP_PROC = 2 
 #dimension du probleme
 DIM = 3
 # emplacement de la libraire MPI
@@ -27,7 +27,7 @@ DIR_SOURCES_MPI = -I$(MPI_LIB) -I$(MPI_LIB)/include
 # options pour la version release
 PRG_multi_release = SC_multi_$(DIM)_$(ARCHITECTURE).exe
 DIR_build_release = --comp-dir build/SC_multi_$(DIM)_$(ARCHITECTURE)_release
-OPT = -ne -j$(NB_COMP_PROC) -O3 -ffast-math -fexpensive-optimizations
+OPT = -ne -j$(NB_COMP_PROC) -O3 -ffast-math -fexpensive-optimizations -Wno-deprecated
 
 # options pour la version debug
 PRG_multi_debug = SC_multi_$(DIM)_$(ARCHITECTURE)_debug.exe
@@ -39,7 +39,9 @@ OPT_DBG = -ne -j$(NB_COMP_PROC) -g -g3 -ffast-math -fexpensive-optimizations
 PRG_test_load_data = SC_test_load_data_$(DIM).exe
 
 
-all: clean codegen_py metil_comp_multi_dbg
+all: metil_comp_multi
+
+compil_py_files : scons -j1 dep_py=1
 
 update: metil_comp_multi metil_comp_multi_dbg
 

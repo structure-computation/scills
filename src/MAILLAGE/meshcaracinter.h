@@ -64,6 +64,11 @@ template<unsigned nb_dim,unsigned nvi> class Meshcaracinter;
     struct dissipation_DM {};
 #endif // IFNDEF_dissipation_DM
 
+#ifndef IFNDEF_group_id_DM
+#define IFNDEF_group_id_DM
+    struct group_id_DM {};
+#endif // IFNDEF_group_id_DM
+
 #ifndef IFNDEF_type_DM
 #define IFNDEF_type_DM
     struct type_DM {};
@@ -81,39 +86,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -122,7 +127,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -138,34 +143,35 @@ public:
         typedef Vec<double,1> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -181,39 +187,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -222,7 +228,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -238,34 +244,35 @@ public:
         typedef Vec<double,2> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -281,39 +288,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -322,7 +329,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -338,34 +345,35 @@ public:
         typedef Vec<double,3> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -381,39 +389,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -422,7 +430,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -438,70 +446,71 @@ public:
         typedef Vec<double,1> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -517,39 +526,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -558,7 +567,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -574,70 +583,71 @@ public:
         typedef Vec<double,2> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -653,39 +663,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -694,7 +704,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -710,70 +720,71 @@ public:
         typedef Vec<double,3> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -789,39 +800,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -830,7 +841,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -846,118 +857,119 @@ public:
         typedef Vec<double,1> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -973,39 +985,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -1014,7 +1026,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -1030,142 +1042,143 @@ public:
         typedef Vec<double,2> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -1181,39 +1194,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -1222,7 +1235,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -1238,142 +1251,143 @@ public:
         typedef Vec<double,3> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<0,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -1389,39 +1403,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -1430,7 +1444,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -1446,130 +1460,131 @@ public:
         typedef Vec<double,1> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Tetra NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -1585,39 +1600,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -1626,7 +1641,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -1642,178 +1657,179 @@ public:
         typedef Vec<double,2> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Tetra NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 
@@ -1829,39 +1845,39 @@ public:
         CARACDMEXTNAME(0,T0,qtrans,"");
         CARACDMEXTNAME(1,Pvec,pos,"m");
         static const unsigned nb_params = 2;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     struct GlobalStaticData {
         VOIDDMSET;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned nvi_to_subs,unsigned skin,unsigned num_sub_element,unsigned inner=0>
     struct ElementChoice {
@@ -1870,7 +1886,7 @@ public:
         typedef VoidDMSet TData;
     };
     struct TCDM0 {
-        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0) {}
+        TCDM0():type(0),num(0),F(0),W(0),dWn(0),dWt(0),dissipation(0),d(0),group_id(0) {}
         CARACDMEXTNAME(0,double,type,"");
         CARACDMEXTNAME(1,unsigned,num,"");
         typedef Vec<unsigned> T2;
@@ -1886,202 +1902,203 @@ public:
         typedef Vec<double,3> T7;
         CARACDMEXTNAME(7,T7,dissipation,"J");
         CARACDMEXTNAME(8,double,d,"");
-        static const unsigned nb_params = 9;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value) { assert(0); /*TODO*/ }
-        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__> ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
+        CARACDMEXTNAME(9,double,group_id,"");
+        static const unsigned nb_params = 10;
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<0, 0>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<1, 1>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<2, 2>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<3, 3>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<4, 4>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<5, 5>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Mat<double, LMT::Gen<6, 6>, LMT::Dense<LMT::Col> > &value, bool disp = true ) { assert(0); /*TODO*/ }
+        template<class __G__> __G__ dm_data_get_field( const std::string field_name, StructForType<__G__>, bool disp = true ) const { assert( 0 /*TODO*/ ); return __G__( 0.0 );  }
     };
     template<unsigned inner> struct ElementChoice<0,0,0,inner> {
         typedef Tetra NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,0,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,0,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<3,0,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,0,inner> {
         typedef Triangle NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,1,inner> {
         typedef Quad NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,2,inner> {
         typedef Triangle_6 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<1,1,3,inner> {
         typedef Quad_8 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,0,inner> {
         typedef Bar NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<2,1,1,inner> {
         typedef Bar_3 NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
     template<unsigned inner> struct ElementChoice<3,1,0,inner> {
         typedef NodalElement NE;
         typedef DefaultBehavior BE;
         typedef TCDM0 TData;
-        void dm_data_set_field( const std::string field_name, Tpos value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value ) { assert(0); /*TODO*/ }
-        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, Tpos value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,1> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,2> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,3> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,4> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,5> &value, bool disp = true ) { assert(0); /*TODO*/ }
+        void dm_data_set_field( const std::string field_name, const Vec<Tpos,6> &value, bool disp = true ) { assert(0); /*TODO*/ }
     };
 };
 

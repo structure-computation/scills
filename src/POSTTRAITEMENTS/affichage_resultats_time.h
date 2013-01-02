@@ -285,12 +285,21 @@ template<class INTER,class TV1> void assignation_INTER_F_W_latin(INTER &Inter,TV
     upload_W(Inter.side[data],W);
     
     /// Assignation du type d'element
-    int type = Inter.get_type_elem();
-    int numelem1=0;
-    apply(Inter.side[data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+    Vec<int,3> data_inter; //data interface to pass to visu : type, num, group_id
+    data_inter[0] = Inter.get_type_elem();
+    data_inter[1] = Inter.num; //
+    data_inter[2] = 0; //group_id
+    if (data_inter[0]==0) {
+      data_inter[2]=Inter.edge_id;
+    }
+    else{
+      data_inter[2]=Inter.id_link;
+    }
+    int numelem1=0;    
+    apply(Inter.side[data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem1); 
     numelem1=0;
     if(Inter.comp == "Contact_jeu_physique" or Inter.comp == Interface::comp_periodique) {
-        apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+	apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem1);
     }
 
     /// Si les deux cotes de l'interface peuvent se decoller
@@ -370,13 +379,28 @@ template<class INTER,class TV1> void assignation_INTER_F_W_incr(INTER &Inter,TV1
     upload_W(Inter.side[data],W);
     
     /// Assignation du type d'element
-    int type = Inter.get_type_elem();
+    Vec<int,3> data_inter; //data interface to pass to visu : type, num, group_id
+    data_inter[0] = Inter.get_type_elem();
+    data_inter[1] = Inter.num; //
+    data_inter[2] = 0; //group_id
+    if (data_inter[0]==0) {
+      data_inter[2]=Inter.edge_id;
+    }
+    else{
+      data_inter[2]=Inter.id_link;
+    }
     int numelem1=0;
-    apply(Inter.side[data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+    apply(Inter.side[data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem1); 
     numelem1=0;
     if(Inter.comp == "Contact_jeu_physique" or Inter.comp == Interface::comp_periodique) {
-        apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+	apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),data_inter,numelem1);
     }
+    
+//     apply(Inter.side[data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+//     numelem1=0;
+//     if(Inter.comp == "Contact_jeu_physique" or Inter.comp == Interface::comp_periodique) {
+//         apply(Inter.side[1-data].mesh->elem_list,apply_type_elem_interface(),type,Inter.num,numelem1);
+//     }
     
     /// Si les deux cotes de l'interface peuvent se decoller
     if(Inter.comp == "Contact" or

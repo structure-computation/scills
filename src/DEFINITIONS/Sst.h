@@ -53,8 +53,8 @@ struct Sst
             std::cout << "repddledge : " << repddledge.size() << std::endl;
             std::cout << "repLE      : " << repLE.size() << std::endl;
             std::cout << "G          : " << G << std::endl;
-            std::cout << "nb ddl     : " << mesh->list_group_node.size() << std::endl;
-            std::cout << "nb elem    : " << mesh->list_group_elem.size() << std::endl;
+//             std::cout << "nb ddl     : " << mesh->list_group_node.size() << std::endl;
+//             std::cout << "nb elem    : " << mesh->list_group_elem.size() << std::endl;
             std::cout << "*************************************************************" << std::endl;
         }
 
@@ -102,7 +102,7 @@ struct Sst
     Vector fvol ;   /// second membre provenant des efforts ou quantites chapeaux volumiques par sous-structure
     Vector Fadd;    /// vecteur effort macro sur le bord d'une SST Fadd
 
-#warning "on suppose qu'en 2D, la connectivite vaut 2, en 3D elle vaut 3  pour les elements de peau"
+//#warning "on suppose qu'en 2D, la connectivite vaut 2, en 3D elle vaut 3  pour les elements de peau"
     static const int nb_nodes_by_element = DIM; 
 
     BasicVec<BasicVec<Scalar>,DIM> nodes;                         /// coordonnées des noeuds de peau d'une sst pour la sortie hdf
