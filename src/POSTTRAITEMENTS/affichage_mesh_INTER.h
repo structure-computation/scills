@@ -74,9 +74,10 @@ Le numéro de l'interface est aussi assigné au champ "num"
 template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &process) {
     
     Sc2String typemail=process.affichage->type_affichage;    
-    Sc2String nom_generique = process.affichage->repertoire_save +"results/Geometry_inter";
+    Sc2String nom_generique = process.affichage->repertoire_save +"Geometry/inter";
 
-    int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"results").c_str());
+    int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry").c_str());
+    int tmp2=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry/inter").c_str());
 
     ///ecriture fichier paraview generique 
     ostringstream sp;
@@ -111,7 +112,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
       
     }
 
-    ///affichage dans un seul fichier
+//     ///affichage dans un seul fichier
 //     DisplayParaview dp;
 //     InterfaceMesh meshglob;
 //         for(unsigned i=0;i<Inter.size();++i) {
@@ -133,8 +134,8 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 //     Sc2String namefile(ss.str());
 //     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
     
-     
-    
+
+    ///ecriture des maillages pour chaque interface dans un repertoire séparé
         for(unsigned i=0;i<Inter.size();++i) {
             if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
 		DisplayParaview dp;
@@ -146,12 +147,12 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
                 dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d","group_id"));
 		///modification du nom et deplacement du fichier generique
 		ostringstream ss;
-		ss<<nom_generique << "_id_"<<Inter[i].id<<".vtu";
+		ss<<nom_generique << "/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<".vtu";
 		Sc2String namefile(ss.str());
-		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  		
+		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  
             }
         }
-    
+
 };
 
 

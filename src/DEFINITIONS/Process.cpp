@@ -274,6 +274,9 @@ void Process::preparation_calcul(){
     //affichage->affich_mesh=1;
     affichage->type_affichage= "all";
     affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
+    ///creation des fichiers pvd
+    create_pvd_geometry(*SubS,*S,*Inter,*this);
+    
     #ifdef INFO_TIME
     print_duration(tic1);
     #endif
@@ -564,6 +567,8 @@ void Process::boucle_temporelle(){
     }
     ///Affichage des résultantes sur les interfaces
     calcul_resultante(*SubS,*S,*Inter,*this);
+    ///creation des fichiers pvd
+    create_pvd_results(*SubS,*S,*Inter,*this);
 
     #ifdef INFO_TIME
     print_duration(tic2);
