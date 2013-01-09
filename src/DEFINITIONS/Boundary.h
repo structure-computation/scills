@@ -29,8 +29,8 @@ struct Boundary {
     static MainParameter z;
 #endif
     
-    Id id;                                  ///  id de la condition limite, la même que dans data_user
-    Sc2String comp;                         /// type de condition aux limites
+    Id id;                                    ///  id de la condition limite, la même que dans data_user
+    Sc2String comp;                           /// type de condition aux limites
     Vec<UserParameter,DIM> fcts_spatiales;    /// Vecteur des parametres pour evaluer la CL
 };
 

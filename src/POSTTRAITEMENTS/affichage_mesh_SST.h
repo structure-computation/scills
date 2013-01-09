@@ -69,10 +69,13 @@ void affich_SST(TV1 &S,Process &process) {
     int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"results").c_str());
 
     //ecriture fichier paraview generique 
-    ostringstream sp;
-    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-    Sc2String strp(sp.str());
-
+//     ostringstream sp;
+//     sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+//     Sc2String strp(sp.str());
+    
+    Sc2String strp;
+    strp << process.affichage->repertoire_save << "results/" << "Geometry_sst_proc_" << process.parallelisation->rank << "_";
+    
     //eclate des ssts
     double ecl=1.0;
     eclat_SST(S,ecl);
@@ -98,10 +101,10 @@ void affich_SST(TV1 &S,Process &process) {
 
     if(process.affichage->save=="display") dp.exec();
     //modification du nom et deplacement du fichier generique
-    ostringstream ss;
-    ss<<nom_generique << "_proc_"<<S[0].num_proc<<".vtu";
-    Sc2String namefile(ss.str());
-    int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+//     ostringstream ss;
+//     ss<<nom_generique << "_proc_"<<S[0].num_proc<<".vtu";
+//     Sc2String namefile(ss.str());
+//     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 
 
 };
