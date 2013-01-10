@@ -106,7 +106,7 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
 			    resz = dot(vecz,vectemp);
 			}
 			///Ecriture dans le fichiers
-			os << i << ";" << ";" << k << ";" << Inter[i].comp << ";" << nums1 << ";" << nums2 << ";" << SS[nums1].typmat << ";" ;
+			os << Inter[i].id << ";" << ";" << k << ";" << Inter[i].comp << ";" << nums1 << ";" << nums2 << ";" << SS[nums1].typmat << ";" ;
 			if (nums2 == -1) 
 			  os <<  ";" ;
 			else
