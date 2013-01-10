@@ -97,6 +97,7 @@ struct Process
     
     /// Initialisation de MPI
     void initialisation_MPI(int argc,char **argv);
+    void initialisation_MPI_for_scwal();
     /// test de synchronisation de MPI
     void test_MPI();
     /// Lecture des fichier JSON et HDF5

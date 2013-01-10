@@ -91,7 +91,17 @@ void Process::free(){
     if (inter_materials         != NULL) delete inter_materials;
 }
 
+void Process::initialisation_MPI_for_scwal(){
+    affichage->name_data= "test";
 
+    parallelisation->rank=0;
+    parallelisation->size=1;
+    crout.open(parallelisation->rank);
+    #ifdef INFO_TIME
+    parallelisation->synchronisation();
+    if (parallelisation->is_master_cpu()) {tic1.init();tic1.start();}
+    #endif
+}
 
 void Process::initialisation_MPI(int argc,char **argv){
     affichage->name_data= argv[2];
@@ -265,27 +275,10 @@ void Process::preparation_calcul(){
     parallelisation->synchronisation();
     
     /// ecriture du fichier de sortie xdmf
-    if(parallelisation->is_master_cpu() and save_data==1){
-        print("Sortie XDMF");
-        //write_xdmf_file_geometry(*this, data_user);
-    }
-    
-    /// affichage du maillage si necessaire
-    //affichage->affich_mesh=1;
-    affichage->type_affichage= "all";
-    affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
-    ///creation des fichiers pvd
-    create_pvd_geometry(*SubS,*S,*Inter,*this);
-    
-    #ifdef INFO_TIME
-    print_duration(tic1);
-    #endif
-    
-    /// Verification du mode de calcul ("test" ou "normal")
-    if(data_user->options.mode == "test"){
-        print("FIN DU MODE TEST.");
-        assert(0);
-    }
+//     if(parallelisation->is_master_cpu() and save_data==1){
+//         print("Sortie XDMF");
+//         write_xdmf_file_geometry(*this, data_user);
+//     }
     
     /// Creation des liens vers les materiaux et les formulations
     print("assignation des comportements matériaux");
@@ -325,9 +318,27 @@ void Process::preparation_calcul(){
         }
     }
     
-    //     for(unsigned i = 0; i < Inter->size(); i++){
-    //         (*Inter)[i].affiche();
-    //     }
+    for(unsigned i = 0; i < Inter->size(); i++){
+        (*Inter)[i].affiche();
+    }
+    
+    /// affichage du maillage si necessaire
+    //affichage->affich_mesh=1;
+    affichage->type_affichage= "all";
+    affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
+    ///creation des fichiers pvd
+    create_pvd_geometry(*SubS,*S,*Inter,*this);
+    
+    #ifdef INFO_TIME
+    print_duration(tic1);
+    #endif
+    
+    
+    /// Verification du mode de calcul ("test" ou "normal")
+    if(data_user->options.mode == "test"){
+        print("FIN DU MODE TEST.");
+        assert(0);
+    }
     
     /// Allocations et initialisation des quantites
     print("Allocations des vecteurs de stockage des resultats");
@@ -667,9 +678,9 @@ void Process::read_data_user() {
     //for(int i = 0; i < inter_materials->size(); i++){
     //    (*inter_materials)[i].affiche();
     //}
-    //for(int i = 0; i < CL->size(); i++){
-        //    (*CL)[i].affiche();
-    //}
+    for(int i = 0; i < CL->size(); i++){
+        (*CL)[i].affiche();
+    }
     //Fvol->affiche();
     //Tload->affiche();
 };

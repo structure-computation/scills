@@ -5,6 +5,7 @@ parameters(),
 m("m")
 {
     parameters.addParameter(&m);
+    
 }
 
 void MultiResolutionData::free()
@@ -21,18 +22,22 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
         std::cerr << "Type de multi-resolution : " << type << " a implementer" << std::endl;
         assert(0);
     }else if(type == "function"){
+        PRINT(multiresolution_parameters.multiresolution_type);
+        PRINT(multiresolution_parameters.resolution_number);
         nb_calculs = multiresolution_parameters.resolution_number;
         for(unsigned i = 0; i < multiresolution_parameters.collection_vec.size(); i++){
             /// Creation de la fonction parametrique (pour le moment...)
+            PRINT(multiresolution_parameters.resolution_number);
             Sc2String function,minvalue,maxvalue,nbvalues;
             minvalue << multiresolution_parameters.collection_vec[i].min_value;
             maxvalue << multiresolution_parameters.collection_vec[i].max_value;
             nbvalues << multiresolution_parameters.collection_vec[i].nb_value;
-            if(multiresolution_parameters.collection_vec[i].nb_value>1){
-                function = minvalue + "+(" + maxvalue + "-" + minvalue + ")*m/(" + nbvalues + "-1)";
-            }else{
-                function << multiresolution_parameters.collection_vec[i].nominal_value;
-            }
+            function << multiresolution_parameters.collection_vec[i].parametric_function;
+//             if(multiresolution_parameters.collection_vec[i].nb_value>1){
+//                 function = minvalue + "+(" + maxvalue + "-" + minvalue + ")*m/(" + nbvalues + "-1)";
+//             }else{
+//                 function << multiresolution_parameters.collection_vec[i].nominal_value;
+//             }
             /// Creation du parametre
             UserParameter *PM = new UserParameter(multiresolution_parameters.collection_vec[i].name,&parameters);
             PM->setExpression(function);
@@ -56,20 +61,21 @@ void MultiResolutionData::updateParameters(){
         //Codegen::Ex::MapExNum values = user_parameters.getValuesMap();
     } else if(type == "liste"){
         parameters.updateParameters();  /// Tous les parametres sont mis a l'expression indicee calcul_cur
-    }else if(type == "function"){
+    }else if(type == "function"){    
+        affiche();
         parameters.updateParameters();  /// Une seule fonction, pour tous les calculs
     } else{
         std::cerr << "Mauvais type de calcul parametrique : '" << type << "'" << std::endl;
         assert(0);
     }
-    /* DEBUG : affichage des parametres multi-resolution apres mise a jour
+    // DEBUG : affichage des parametres multi-resolution apres mise a jour
     std::cout << "Mise a jour des parametres de multi-resolution *******************************" << std::endl;
     std::cout << m.symbol << " = " << m.value << std::endl;
     for(int i = 0; i < parameters.user_parameters.size(); i++){
         std::cout << parameters.user_parameters[i]->symbol << " = " << parameters.user_parameters[i]->value << std::endl;
     }
     std::cout << "******************************************************************************" << std::endl;
-    //*/
+    //
 }
 
 void MultiResolutionData::init(){

@@ -78,13 +78,6 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
 
     int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry").c_str());
     int tmp2=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry/inter").c_str());
-
-    ///ecriture fichier paraview generique 
-    ostringstream sp;
-    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-    Sc2String strp(sp.str());
-        
-        
         
     ///eclate des maillages d'interfaces
     double ecl=1.0;
@@ -136,23 +129,26 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
     
 
     ///ecriture des maillages pour chaque interface dans un repertoire séparé
-        for(unsigned i=0;i<Inter.size();++i) {
-            if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
-		DisplayParaview dp;
-		InterfaceMesh meshglob;
-	        meshglob.append(*Inter[i].side[data].mesh);
-                if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp == Interface::comp_periodique){
-                    meshglob.append(*Inter[i].side[1-data].mesh);
-                }
-                dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d","group_id"));
-		///modification du nom et deplacement du fichier generique
-		ostringstream ss;
-		ss<<nom_generique << "/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<".vtu";
-		Sc2String namefile(ss.str());
-		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  
+    for(unsigned i=0;i<Inter.size();++i) {
+        if (S[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){
+            DisplayParaview dp;
+            InterfaceMesh meshglob;
+            
+            Sc2String strp;
+            strp << nom_generique << "/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id;   
+            
+            meshglob.append(*Inter[i].side[data].mesh);
+            if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp == Interface::comp_periodique){
+                meshglob.append(*Inter[i].side[1-data].mesh);
             }
+            dp.add_mesh(meshglob,strp,Vec<string>("num","type","qtrans","d","group_id"));
+//             ///modification du nom et deplacement du fichier generique
+//             ostringstream ss;
+//             ss<<nom_generique << "/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<".vtu";
+//             Sc2String namefile(ss.str());
+//             int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  
         }
-
+    }
 };
 
 

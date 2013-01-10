@@ -374,12 +374,12 @@ void create_pvd_results_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     if (process.parallelisation->is_multi_cpu()) 
        process.parallelisation->synchronisation();
     
-    Sc2String local_filename="./sst_bulk/result_";
+    Sc2String local_filename="./sst_bulk/";
 //     if(j==0) local_filename="./sst_bulk/result_";
 //     else local_filename="./sst_skin/result_";
       
     if(process.multiresolution->nb_calculs>1)
-        local_filename<<"resolution_"<<process.multiresolution->m<<"_";
+        local_filename<<"resolution_"<<process.multiresolution->m<<"_result_";
     local_filename << "proc_" ; 
    
     

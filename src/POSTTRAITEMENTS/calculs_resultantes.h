@@ -46,7 +46,7 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     namefile << process.parallelisation->rank << ".csv";
     
     ofstream os( namefile.c_str() );
-    if (process.parallelisation->is_master_cpu())  os << "Numero interface ; Numero resolution ; Numero pas de temps ; Comportement interface ; Numero SST cote ; Numero SST cote 2 ; Materiau 1 ; Materiau 2 ; Fx ; Fy ; Fz ; Ux ; Uy ; Uz;" << endl;
+    if (process.parallelisation->is_master_cpu())  os << "Id interface ; Numero resolution ; Numero pas de temps ; Comportement interface ; Numero SST cote ; Numero SST cote 2 ; Materiau 1 ; Materiau 2 ; Fx ; Fy ; Fz ; Ux ; Uy ; Uz; Surface;" << endl;
 //     std::cout << S.size() << endl;
     if (process.parallelisation->is_multi_cpu()) 
        process.parallelisation->synchronisation();
@@ -121,7 +121,7 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
 			if(DIM == 3){
 			    resz = dot(vecz,vectemp)/Inter[i].measure;
 			}
-			os << resx << ";" << resy << ";" << resz << ";" << endl;
+			os << resx << ";" << resy << ";" << resz << ";" << Inter[i].measure << ";" << endl;
 		    }
 		} else {
 		    std::cout << "Nom de calcul nom pris en compte" << endl;

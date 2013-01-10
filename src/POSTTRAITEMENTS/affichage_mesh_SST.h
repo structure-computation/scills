@@ -69,48 +69,24 @@ void affich_SST(TV1 &S,Process &process) {
     int tmp=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry").c_str());
     int tmp2=system(("mkdir -p "+process.affichage->repertoire_save+"Geometry/sst").c_str());
     //ecriture fichier paraview generique 
-    ostringstream sp;
-    sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-    Sc2String strp(sp.str());
-
+//     ostringstream sp;
+//     sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
+//     Sc2String strp(sp.str());
+    
     //eclate des ssts
     double ecl=1.0;
     eclat_SST(S,ecl);
 
-//     ///maillages de toutes les sst dans un fichier par processeur
-//    //lecture des maillages
-//     SstMesh::TM meshglob;
-//     for(unsigned i=0;i<S.size();++i){
-//         meshglob.append(*S[i].mesh.m);
-//         S[i].mesh.unload();
-//     }
-//     //ecriture du maillage
-//     DisplayParaview dp;
-//     if (typemail=="Sinterieur") {
-//        dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc"));
-//     } else if (typemail=="Sbord") {
-//         meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-//         meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
-//         meshglob.update_skin();
-//         apply(meshglob.skin.elem_list,Projection_num_num_proc_on_skin(),meshglob.skin,meshglob);
-//         dp.add_mesh(meshglob.skin,strp,Vec<Sc2String>("qtrans","typmat_skin","numsst_skin","num_proc_skin"));
-//     }
-//     
-// 
-//     if(process.affichage->save=="display") dp.exec();
-//     //modification du nom et deplacement du fichier generique
-//     ostringstream ss;
-//     ss<<nom_generique << "_proc_"<<S[0].num_proc<<".vtu";
-//     Sc2String namefile(ss.str());
-//     int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
-// 
-
-    ///ecriture des maillages pour chaque sst dans un repertoire séparé
+///ecriture des maillages pour chaque sst dans un repertoire séparé
         for(unsigned i=0;i<S.size();++i) {
 		DisplayParaview dp;
 		SstMesh::TM meshglob;
 		meshglob.append(*S[i].mesh.m);
 		S[i].mesh.unload();
+                
+                Sc2String strp;
+                strp << nom_generique << "/proc_"<< process.parallelisation->rank << "_sst_id_" << S[i].id;
+                
 		if (typemail=="Sinterieur") {
 		  dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc"));
 		} else if (typemail=="Sbord") {
@@ -120,15 +96,13 @@ void affich_SST(TV1 &S,Process &process) {
 		  apply(meshglob.skin.elem_list,Projection_num_num_proc_on_skin(),meshglob.skin,meshglob);
 		  dp.add_mesh(meshglob.skin,strp,Vec<Sc2String>("qtrans","typmat_skin","numsst_skin","num_proc_skin"));
 		}
-		///modification du nom et deplacement du fichier generique
-		ostringstream ss;
-		ss<<nom_generique << "/proc_"<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<".vtu";
-		Sc2String namefile(ss.str());
-		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  
+// 		///modification du nom et deplacement du fichier generique
+// 		ostringstream ss;
+// 		ss<<nom_generique << "/proc_"<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<".vtu";
+// 		Sc2String namefile(ss.str());
+// 		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());  
 
 	}
-
-    
 };
 
 

@@ -123,23 +123,14 @@ void write_paraview_results(PointedSubstructures &S,Process &process, DataUser &
 	      ///nom du fichier paraview genere (volume ou peau)
 	      ostringstream ss;
 	      //ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";      /// TMP, test sauvegarde a la fin de chaque pas de temps
-	      ss<<generic_names[j] << "_proc_"<<S[0].num_proc<<"_sst_id_"<<S[i].id << "_time_"<<process.temps->pt_cur<<".vtu";   /// TMP, test sauvegarde a la fin de chaque pas de temps
+	      ss << generic_names[j] << "_proc_" << S[0].num_proc << "_sst_id_" << S[i].id << "_time_"<<process.temps->pt_cur;   /// TMP, test sauvegarde a la fin de chaque pas de temps
 	      Sc2String namefile(ss.str());
 	      
-	      ///ecriture fichier paraview generique de tous les champs (volume ou peau)
-	      ostringstream sp;
-	      sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-	      Sc2String strp(sp.str());
-	      
 	      if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
-	      if(j==0) dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_sst_bulk);
-	      else dp.add_mesh(meshglob.skin,strp.c_str(),process.affichage->display_fields_sst_skin);
+	      if(j==0) dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_sst_bulk);
+	      else dp.add_mesh(meshglob.skin,namefile.c_str(),process.affichage->display_fields_sst_skin);
 	      
 	      if(process.affichage->save=="display") dp.exec();
-	      
-	      ///modification du nom et deplacement du fichier generique
-	      
-	      int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 	    }
 	
 
@@ -224,20 +215,15 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	    
 	ostringstream ss;
 	if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
-	else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+	else ss << nom_generique << "_proc_" << S[0].num_proc << "_time_" << imic;
 	Sc2String namefile(ss.str());
 	
-	ostringstream sp;
-	sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-	Sc2String strp(sp.str());
 	
 	//ecriture fichier paraview
 	if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
 	dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields);
 	if(process.affichage->save=="display") dp.exec();
-	
-	
-	//int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+
 	
       }   
   }
@@ -267,15 +253,11 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
 	Sc2String namefile(ss.str());
 	
-	ostringstream sp;
-	sp<<"./tmp/paraview_"<<process.parallelisation->rank<<"_";
-	Sc2String strp(sp.str());
 	
 	//ecriture fichier paraview
 	if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
 	dp.add_mesh(meshglob.skin,namefile.c_str(),process.affichage->display_fields);
 	if(process.affichage->save=="display") dp.exec();
-	//int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 	
       }
   }
@@ -593,12 +575,12 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
 		Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
 		Sc2String base_filename= save_directory;
 		if(process.multiresolution->nb_calculs>1)
-		    base_filename<<"resolution_"<<process.multiresolution->m<<"_";
-		base_filename << "proc_" << process.parallelisation->rank << "_inter_id_"<< Inter[q].id<<"_time_";
+		    base_filename <<"resolution_" << process.multiresolution->m << "_";
+		base_filename << "proc_" << process.parallelisation->rank << "_inter_id_" << Inter[q].id <<"_time_";
 		Sc2String namefile = base_filename;
-		namefile << process.temps->pt_cur << ".vtu";	
-		dp.add_mesh(meshglob,strp.c_str(),process.affichage->display_fields_inter);
-		int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str()); 
+		namefile << process.temps->pt_cur;	
+		dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_inter);
+		//int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str()); 
 	    }
 	}
     } else {
@@ -625,11 +607,11 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
 		    Sc2String base_filename= save_directory;
 		    if(process.multiresolution->nb_calculs>1)
 			base_filename<<"resolution_"<<process.multiresolution->m<<"_";
-		    base_filename << "proc_" << process.parallelisation->rank << "_inter_id_"<< Inter[q].id<<"_time_";
+		    base_filename << "proc_" << process.parallelisation->rank << "_inter_id_" << Inter[q].id << "_time_";
 		    Sc2String namefile = base_filename;
-		    namefile << process.temps->pt_cur << ".vtu";
+		    namefile << process.temps->pt_cur;
 		    dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_inter);
-		    int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
+		    //int tmp2=system(("mv "+strp+"0.vtu "+namefile).c_str());
 		}
 	    }
 	}

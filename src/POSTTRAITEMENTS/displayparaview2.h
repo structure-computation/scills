@@ -39,7 +39,8 @@ public:
     
     template<class TM> void add_mesh(const TM &m,const Sc2String &prefix="tmp/paraview",const Vec<Sc2String> &display_fields=Vec<Sc2String>("all")) {
         std::ostringstream ss;
-        ss << prefix << pvu_files.size() << ".vtu";
+        //ss << prefix << pvu_files.size() << ".vtu";
+        ss << prefix << ".vtu";
         Sc2String pvu_name( ss.str() );
         pvu_files.push_back(pvu_name);
         std::ofstream f(pvu_name.c_str());
