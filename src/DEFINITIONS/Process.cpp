@@ -280,14 +280,6 @@ void Process::preparation_calcul(){
 //         write_xdmf_file_geometry(*this, data_user);
 //     }
     
-    /// affichage du maillage si necessaire
-    //affichage->affich_mesh=1;
-    affichage->type_affichage= "all";
-    affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
-    #ifdef INFO_TIME
-    print_duration(tic1);
-    #endif
-    
     /// Creation des liens vers les materiaux et les formulations
     print("assignation des comportements matériaux");
     apply(*S,assignation_material_to_SST(),*sst_materials,plasticite,endommagement);
@@ -328,9 +320,19 @@ void Process::preparation_calcul(){
     
     for(unsigned i = 0; i < Inter->size(); i++){
         (*Inter)[i].affiche();
-        PRINT((*Inter)[i].matprop->comp);
-        PRINT((*Inter)[i].matprop->type_num);
     }
+    
+    /// affichage du maillage si necessaire
+    //affichage->affich_mesh=1;
+    affichage->type_affichage= "all";
+    affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
+    ///creation des fichiers pvd
+    create_pvd_geometry(*SubS,*S,*Inter,*this);
+    
+    #ifdef INFO_TIME
+    print_duration(tic1);
+    #endif
+    
     
     /// Verification du mode de calcul ("test" ou "normal")
     if(data_user->options.mode == "test"){
@@ -576,6 +578,8 @@ void Process::boucle_temporelle(){
     }
     ///Affichage des résultantes sur les interfaces
     calcul_resultante(*SubS,*S,*Inter,*this);
+    ///creation des fichiers pvd
+    create_pvd_results(*SubS,*S,*Inter,*this);
 
     #ifdef INFO_TIME
     print_duration(tic2);
@@ -674,9 +678,9 @@ void Process::read_data_user() {
     //for(int i = 0; i < inter_materials->size(); i++){
     //    (*inter_materials)[i].affiche();
     //}
-    //for(int i = 0; i < CL->size(); i++){
-        //    (*CL)[i].affiche();
-    //}
+    for(int i = 0; i < CL->size(); i++){
+        (*CL)[i].affiche();
+    }
     //Fvol->affiche();
     //Tload->affiche();
 };
