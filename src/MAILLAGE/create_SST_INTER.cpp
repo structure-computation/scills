@@ -224,23 +224,38 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
     
     const int nb_inter_actuel =  nb_inter;
     const int nb_inter_total =  nb_edge + nb_inter;
-    //PRINT(nb_inter);
-    //PRINT(nb_edge);
-    //PRINT(nb_inter_total);
+    PRINT(nb_inter);
+    PRINT(nb_edge);
+    PRINT(nb_inter_total);
     /// assignation des id d'interfaces et des reference vers un comportement
     for(int i_inter=0; i_inter<nb_edge; i_inter++){
         int num_inter = nb_inter_actuel + i_inter;
         Inter[num_inter].num = rep_id_inter[i_inter];
         Inter[num_inter].id = rep_id_inter[i_inter];
-        //PRINT("ok");
+        PRINT("ok1");
+        PRINT(num_inter);
+        PRINT(Inter[num_inter].id);
+        PRINT(geometry_user.find_group_interfaces(Inter[num_inter].id)->edge_id);
+        PRINT(data_user.find_edges_pointer( Inter[num_inter].edge_id )->boundary_condition_id);
+        
         Inter[num_inter].type="Ext";
         Inter[num_inter].edge_id = geometry_user.find_group_interfaces(Inter[num_inter].id)->edge_id; 
         int id_bc = data_user.find_edges_pointer( Inter[num_inter].edge_id )->boundary_condition_id ;
         int index_bc = data_user.find_boundary_conditions_index(id_bc);
+        PRINT(id_bc);
+        PRINT(index_bc);
+        for(int i_bc = 0; i_bc<data_user.boundary_conditions_vec.size(); i_bc++){
+            PRINT("BC--------------------------------------------");
+            PRINT(data_user.boundary_conditions_vec[i_bc].id_in_calcul);
+            PRINT(data_user.boundary_conditions_vec[i_bc].condition_type);
+            PRINT("-----------------------------------------------------");
+        }
+        
+        PRINT(data_user.boundary_conditions_vec[index_bc].condition_type);
         Inter[num_inter].id_bc = id_bc;
         Inter[num_inter].refCL = index_bc;
         Inter[num_inter].comp = data_user.boundary_conditions_vec[index_bc].condition_type;
-        //PRINT("ok");
+        PRINT("ok2");
         ///ajout des numeros des Sst voisines et cotes correspondants
         Sst::Edge edge;
         edge.internum=num_inter; 
@@ -249,12 +264,12 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
         Inter[num_inter].side.resize(1);
         id_sst.resize(1);
         index_sst.resize(1);
-        //PRINT("ok");
+        PRINT("ok3");
         for(int i_group=0; i_group<1; i_group++){
             id_sst[i_group] = geometry_user.find_group_interfaces(Inter[num_inter].num)->group_elements_id[i_group];
             index_sst[i_group] = data_user.find_pieces_index(id_sst[i_group]);
         }
-        //PRINT("ok");
+        PRINT("ok4");
         edge.datanum=0;
         S[index_sst[0]].edge.push_back(edge);
         S[index_sst[0]].vois.push_back(-1);
@@ -264,16 +279,16 @@ void create_interfaces_CL(DataUser &data_user, GeometryUser &geometry_user, Subs
     
     
     /// vérification du maillage
-    //     for(int i_inter = 0; i_inter<Inter.size(); i_inter++){
-    //         PRINT("Interface--------------------------------------------");
-    //         PRINT(Inter[i_inter].id);
-    //         PRINT(Inter[i_inter].type);
-    //         PRINT(Inter[i_inter].edge_id);
-    //         PRINT(Inter[i_inter].id_bc);
-    //         PRINT(Inter[i_inter].refCL);
-    //         PRINT(Inter[i_inter].comp);
-    //         PRINT("-----------------------------------------------------");
-    //     }
+        for(int i_inter = 0; i_inter<Inter.size(); i_inter++){
+            PRINT("Interface--------------------------------------------");
+            PRINT(Inter[i_inter].id);
+            PRINT(Inter[i_inter].type);
+            PRINT(Inter[i_inter].edge_id);
+            PRINT(Inter[i_inter].id_bc);
+            PRINT(Inter[i_inter].refCL);
+            PRINT(Inter[i_inter].comp);
+            PRINT("-----------------------------------------------------");
+        }
     
 }
 
