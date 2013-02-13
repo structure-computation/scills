@@ -49,7 +49,8 @@ void fake_affichage() {
     //affichage_inter_data(Inter3, S3, process);
     affichage_resultats_inter(InterP3, S3 , process, data_user);
     affichage_energie(SP3,Inter3, process, data_user);
-    
+    create_pvd_geometry(SP3, S3, Inter3,process);
+    create_pvd_results(SP3, S3, Inter3,process);
 }
 
 
@@ -89,6 +90,204 @@ void affichage_inter_temps(Process &process) {
     if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
 }
 
+template <class TV> 
+void create_pvd_interfaces(TV &Inter, Process &process){
+   //Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
+    
+   //creation du nom et du fichier pvd
+   std::ostringstream spvd;
+   
+   spvd<<process.affichage->repertoire_save<<"results/Geometry_inter_proc"<< process.parallelisation->rank<<".pvd";
+   Sc2String namepvd( spvd.str() );
+   
+   std::ofstream file_pvd;
+   file_pvd.open( (namepvd).c_str(), std::ofstream::out);
+   
+   //ecriture entete
+   file_pvd << "<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+  
+   //ecriture des lignes correspondant aux fichier a lire
+    for(unsigned i=0;i<Inter.size();++i){
+        //nom du fichier a lire pour le piquet de temps et le processeur considere
+        std::ostringstream ss;
+        ss << process.affichage->repertoire_save<<"results/Geometry_inter/proc_"<< process.parallelisation->rank << "_Inter_"<< Inter[i].id <<  ".vtu";
+        Sc2String nom1( ss.str() );
+        //designation du dataset sous paraview (valeur du piquet de temps, processeur)    
+        std::ostringstream ss2;
+        ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<i << "\" part=\" \"\n\t\t file=\"" << nom1 << "\"/>\n" ;
+        Sc2String ligne1(ss2.str()); 
+        file_pvd << ligne1;
+    }          
+   //fin du fichier pvd
+   file_pvd << " </Collection> \n </VTKFile>";   
+}
+
+
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_geometry(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+  create_pvd_geometry_inter(S, SS, Inter,process);
+  create_pvd_geometry_sst(S, SS, Inter,process);
+}
+  
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_geometry_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"Geometry/";
+    Sc2String base_filename= save_directory;
+    base_filename << "inter_proc_" ; 
+    Sc2String namefile = base_filename;
+    namefile << process.parallelisation->rank << ".pvd";
+    
+    ofstream os( namefile.c_str() );
+    if (process.parallelisation->is_master_cpu())  os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+    unsigned data=process.affichage->side;
+    for(unsigned i=0;i<Inter.size();++i) {
+            if (SS[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){		
+      ostringstream ss, ss2;
+      ss<<"./inter/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<".vtu";
+      Sc2String namefile_entity(ss.str());
+      ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<Inter[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+      Sc2String ligne1(ss2.str()); 
+      os << ligne1;
+            }
+    }    
+    os.close();
+    
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+           
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".pvd ";
+	cmd << "> " << save_directory;
+ 	cmd << "geometry_inter.pvd" ; 
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_inter.pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".pvd ";
+	tmp=system(cmd2.c_str());
+      }
+      	process.parallelisation->synchronisation();
+
+    } else
+    {
+        
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".pvd ";
+	cmd << " " << save_directory;	
+	cmd << "geometry_inter.pvd" ; 
+	int tmp=system(cmd.c_str());  
+	
+	Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_inter.pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+    }
+    
+    
+}
+
+
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_geometry_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"Geometry/";
+    Sc2String base_filename= save_directory;
+    base_filename << "sst_proc_" ; 
+    Sc2String namefile = base_filename;
+    namefile << process.parallelisation->rank << ".pvd";
+    
+    ofstream os( namefile.c_str() );
+    if (process.parallelisation->is_master_cpu())  os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+    //     std::cout << S.size() << endl;
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+    for(unsigned i=0;i<S.size();i++) {
+      ostringstream ss, ss2;
+      ss<<"./sst/proc_"<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<".vtu";
+      Sc2String namefile_entity(ss.str());
+      ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+      Sc2String ligne1(ss2.str()); 
+      os << ligne1;
+    }
+    
+    os.close();
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+           
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".pvd ";
+	cmd << "> " << save_directory;
+ 	cmd << "geometry_sst.pvd" ; 
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_sst.pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".pvd ";
+	tmp=system(cmd2.c_str());
+// 	std::cout << cmd2 << endl;
+      }
+      	process.parallelisation->synchronisation();
+
+    } else
+    {
+        
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".pvd ";
+	cmd << " " << save_directory;	
+	cmd << "geometry_sst.pvd" ; 
+	int tmp=system(cmd.c_str());  
+	
+	Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_sst.pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+    }
+    
+    
+}
 
 
 
@@ -106,6 +305,7 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
     PRINT(process.affichage->type_affichage);
     PRINT(process.affichage->affich_mesh);
     PRINT(process.parallelisation->is_local_cpu());
+    process.affichage->affich_mesh=1;
     if (process.affichage->affich_mesh==1) {
         if (process.parallelisation->is_local_cpu()){
             std::cout << "type " << process.affichage->type_affichage << std::endl;
@@ -117,20 +317,334 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
                 process.affichage->type_affichage="Sbord";
                 PRINT(process.affichage->type_affichage);
                 affich_SST(S,process);
+		//create_pvd_by_material(S,process);
                 process.affichage->type_affichage="Inter";
                 PRINT(process.affichage->type_affichage);
                 affich_INTER(Inter,Stot, process);
+		 //create_pvd_inter_by_behaviour(Inter,S,process);
+		 //create_pvd_inter_edge(Inter,S,process);
             } else {
                 std::cout << "erreur d'affichage" << endl;
             }
         }
         process.parallelisation->synchronisation();
-        //if (process.parallelisation->is_local_cpu()){create_file_pvtu(process,process.affichage->type_affichage); Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());}
-        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
-        if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
+        if (not process.parallelisation->is_local_cpu()){
+	  //create_file_pvtu(process,"sst_"); 
+	//Sc2String cmd = "paraview"; if (process.affichage->command_file=="") int tmp=system(cmd.c_str());
+	  
+	}
+        //if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_sst");
+        //if (not process.parallelisation->is_local_cpu()) create_file_pvd_geometry(process,data_user,"Geometry_inter");
 
     }
+    //assert(0);
 }
+
+
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_results(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+  create_pvd_results_sst(S, SS, Inter,process);
+  create_pvd_results_sst_skin(S, SS, Inter,process);
+  create_pvd_results_inter(S, SS, Inter,process);
+}
+  
+
+/**
+Fonction permettant de sortir des fichiers pvd pour les résultats
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_results_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+    //for (unsigned j=0;j<2;j++) {
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"results/";
+    Sc2String base_filename= save_directory;
+    if(process.multiresolution->nb_calculs>1)
+        base_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    base_filename << "proc_" ; 
+    Sc2String namefile = base_filename;
+    namefile << process.parallelisation->rank << ".pvd";
+        
+    ofstream os( namefile.c_str() );
+    if (process.parallelisation->is_master_cpu())  os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+    //     std::cout << S.size() << endl;
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+    Sc2String local_filename="./sst_bulk/";
+//     if(j==0) local_filename="./sst_bulk/result_";
+//     else local_filename="./sst_skin/result_";
+      
+    if(process.multiresolution->nb_calculs>1)
+        local_filename<<"resolution_"<<process.multiresolution->m<<"_result_";
+    local_filename << "proc_" ; 
+   
+    
+    for(unsigned i=0;i<S.size();i++) {
+      for(unsigned k=1;k<S[i].t_post.size();k++){
+      ostringstream ss, ss2;
+      ss<<local_filename<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
+      Sc2String namefile_entity(ss.str());
+      ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+      Sc2String ligne1(ss2.str()); 
+      os << ligne1;
+      }
+    }
+    
+    os.close();
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+           
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".pvd ";
+	cmd << "> " << save_directory;
+	Sc2String name_file_output="results_sst";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+	fstream os2;
+	os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".pvd ";
+	tmp=system(cmd2.c_str());
+// 	std::cout << cmd2 << endl;
+      }
+      process.parallelisation->synchronisation();
+    } else
+    {
+        
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".pvd ";
+	cmd << " " << save_directory;
+	Sc2String name_file_output="results_sst";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+     }
+//     }
+    
+}
+
+/**
+Fonction permettant de sortir des fichiers pvd pour les résultats
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_results_sst_skin(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+    //for (unsigned j=0;j<2;j++) {
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"results/";
+    Sc2String base_filename= save_directory;
+    if(process.multiresolution->nb_calculs>1)
+        base_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    base_filename << "proc_" ; 
+    Sc2String namefile = base_filename;
+    namefile << process.parallelisation->rank << ".pvd";
+        
+    ofstream os( namefile.c_str() );
+    if (process.parallelisation->is_master_cpu())  os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+    //     std::cout << S.size() << endl;
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+    Sc2String local_filename="./sst_skin/result_";
+//     if(j==0) local_filename="./sst_bulk/result_";
+//     else local_filename="./sst_skin/result_";
+      
+    if(process.multiresolution->nb_calculs>1)
+        local_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    local_filename << "proc_" ; 
+   
+    
+    for(unsigned i=0;i<S.size();i++) {
+      for(unsigned k=1;k<S[i].t_post.size();k++){
+      ostringstream ss, ss2;
+      ss<<local_filename<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
+      Sc2String namefile_entity(ss.str());
+      ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+      Sc2String ligne1(ss2.str()); 
+      os << ligne1;
+      }
+    }
+    
+    os.close();
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+           
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".pvd ";
+	cmd << "> " << save_directory;
+	Sc2String name_file_output="results_sst_skin";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+	fstream os2;
+	os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".pvd ";
+	tmp=system(cmd2.c_str());
+// 	std::cout << cmd2 << endl;
+      }
+      process.parallelisation->synchronisation();
+    } else
+    {
+        
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".pvd ";
+	cmd << " " << save_directory;
+	Sc2String name_file_output="results_sst_skin";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+// 	if(j==0) namefile2 = process.affichage->repertoire_save+"results/results_sst.pvd";
+// 	else namefile2 = process.affichage->repertoire_save+"results/results_sst_skin.pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+     }
+//     }
+    
+}
+
+
+/**
+Fonction permettant de sortir des fichiers pvd pour les résultats
+*/
+template <class TV1,class TV2, class TV3>
+void create_pvd_results_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"results/";
+    Sc2String base_filename= save_directory;
+    if(process.multiresolution->nb_calculs>1)
+        base_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    base_filename << "proc_" ; 
+    Sc2String namefile = base_filename;
+    namefile << process.parallelisation->rank << ".pvd";
+        
+    ofstream os( namefile.c_str() );
+    if (process.parallelisation->is_master_cpu())  os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+
+    //     std::cout << S.size() << endl;
+    if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+    Sc2String local_filename="./inter/";
+      
+    if(process.multiresolution->nb_calculs>1)
+        local_filename<<"resolution_"<<process.multiresolution->m<<"_";
+    local_filename << "proc_" ; 
+   
+    unsigned data=process.affichage->side;
+    
+    for(unsigned i=0;i<Inter.size();++i) {
+            if (SS[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){	
+	      unsigned side = (Inter[i].type == Interface::type_ext)? 0 : data;
+	      for(unsigned k=1;k<Inter[i].side[side].t_post.size();k++){
+		ostringstream ss, ss2;
+		ss<<local_filename<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<"_time_"<<k<<".vtu";
+		Sc2String namefile_entity(ss.str());
+		ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<Inter[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+		Sc2String ligne1(ss2.str()); 
+		os << ligne1;
+	      }
+            }
+    }    
+    
+    os.close();
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+           
+      if (process.parallelisation->is_master_cpu()){
+	///concaténation des fichiers
+	Sc2String cmd;
+	cmd << "cat ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd << base_filename << i << ".pvd ";
+	cmd << "> " << save_directory;
+	Sc2String name_file_output="results_inter";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+	fstream os2;
+	os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+	Sc2String cmd2;
+	cmd2 << "rm ";
+	for (unsigned i=0;i<process.parallelisation->size;i++)
+	  cmd2 << base_filename << i << ".pvd ";
+	tmp=system(cmd2.c_str());
+	
+      }
+      process.parallelisation->synchronisation();
+    } else
+    {
+        
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << ".pvd ";
+	cmd << " " << save_directory;
+	Sc2String name_file_output="results_inter";
+	if(process.multiresolution->nb_calculs>1)
+	  name_file_output<<"_resolution_"<<process.multiresolution->m;
+	name_file_output<<".pvd";
+	cmd << name_file_output ;
+	int tmp=system(cmd.c_str());
+
+	Sc2String namefile2 = process.affichage->repertoire_save+"results/"+name_file_output;
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+     }    
+}
+
 
 /**\ingroup Post_Traitement
  \brief Affichage des champs après calcul sur les sous-structures

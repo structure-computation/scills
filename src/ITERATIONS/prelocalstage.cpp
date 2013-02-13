@@ -35,11 +35,14 @@ void assign_CL_spatial_temporel_normale(Vector &V, Vec<Point > &nodeeq, Vector &
         for(unsigned i_dir=0;i_dir<DIM;++i_dir){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodeeq[i][i_dir]; /// Chargement des coordonnees du point
         }
+        //PRINT(CL.fcts_spatiales);
         Scalar data = CL.fcts_spatiales[0].updateValue(values); /// Evaluation de la composante normale
+        //PRINT(data);
         Point temp=V[range(i*DIM,(i+1)*DIM)];                   /// Recuperation de la valeur actuelle sur l'interface
         Point neq = neqs[range(i*DIM,(i+1)*DIM)];               /// Recuperation de la normale de l'element
         V[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+data*neq;     /// Calcul et stockage du resultat
     }
+    PRINT(V);
 }
 
 
@@ -82,7 +85,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
     Scalar dt = process.temps->dt;
     std::cout << "Mise a jour des Conditions aux Limites sur le processeur " << process.parallelisation->rank << " : " << std::endl;
     for(unsigned i_inter=0;i_inter<Inter.size();++i_inter) {
-        std::cout << "\tid : " << Inter[i_inter].id  << "\ttype : " << Inter[i_inter].type << "\tcomportement : " << Inter[i_inter].comp << "\tvaleur : ";
+        std::cout << "\tid : " << Inter[i_inter].id  << "\ttype : " << Inter[i_inter].type << "\tcomportement : " << Inter[i_inter].comp << "\tvaleur : " << Inter[i_inter].comp;
         if (Inter[i_inter].type == Interface::type_ext and Inter[i_inter].comp != Interface::comp_periodique) {
             if(Inter[i_inter].comp == Interface::comp_effort) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Fchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);

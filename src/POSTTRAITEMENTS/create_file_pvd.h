@@ -71,7 +71,7 @@ inline void create_file_pvtu(Process &process, const Sc2String prefix="sst_", un
     }
     
     os << "</PUnstructuredGrid>\n</VTKFile>"<<std::endl;
-    if ( nbdatapoint == 0 and nbdatacell == 0) int tmp=system(("rm "+nom ).c_str());
+    //if ( nbdatapoint == 0 and nbdatacell == 0) int tmp=system(("rm "+nom ).c_str());
 }
 
 
@@ -203,5 +203,6 @@ inline void create_file_pvd_geometry(Process &process, DataUser &data_user, cons
    //fin du fichier pvd
    file_pvd << " </Collection> \n </VTKFile>";   
 }
+
 
 #endif //CREATE_FILE_PVD

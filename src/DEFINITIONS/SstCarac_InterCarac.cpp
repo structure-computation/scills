@@ -140,7 +140,7 @@ void SstCarac::read_data_user(int index, Metil::DataUser& data_user){
     }
     if (comp.find("en")<comp.size()){
         /// parametres d'endommagement
-        Yo.setExpression(new_material.Yo); /// Yo (limite initiale d'endommagement)
+        Yo.setExpression(new_material.Yo);  /// Yo (limite initiale d'endommagement)
         dmax = new_material.dmax;           /// dmax (valeur maximale de l'endommagement - pour eviter les divisions par 0)
         b_c  = new_material.b_c;            /// b_c (voir endommagement.cpp::calcul_endommagement)
     }
@@ -255,7 +255,13 @@ void InterCarac::read_data_user(int index,const DataUser &data_user){
     name = link.name;
     type_num = link.type_num;
     degradable = (type_num == 5);
-    name = link.name;
+    
+    PRINT("-----------link initialisation----------------");
+    PRINT(id);
+    PRINT(name);
+    PRINT(type_num);
+    PRINT(degradable);
+    
     switch(type_num){
         case 0:
             type = "parfait";

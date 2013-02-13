@@ -28,4 +28,5 @@ void LatinData::read_data_user(const DataUser &data_user){
     kfact = 1;
     copydirection = 0; 
     list_error= 1;
+    
 }

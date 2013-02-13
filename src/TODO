@@ -1,7 +1,0 @@
-27-04-2009 :
------------
-* Attention dans les get_attribute des xml, si la valeur est vide, le code plante... Il faut donc attribuer des valeurs par defaut a la lecture...(en theorie)
-* Regarder la sous integration en p, qui ne fonctionne plus... Pourquoi ? Idem sur vouvray
-
-
-
