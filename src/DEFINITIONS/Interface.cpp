@@ -173,6 +173,7 @@ void Interface::init(unsigned pt){
             values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = nodes[i][i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
         }
         LMT::Vec<int,DIM> rep = range(i*DIM,(i+1)*DIM);
+        //PRINT(matprop->Ep_Type);
         switch(matprop->Ep_Type){
             case 0:
                 /// Jeu normal
@@ -215,11 +216,15 @@ void Interface::init(unsigned pt){
             break;
         case 2:
             /// Precharge normal
-            precharge = side[0].Pn(preload_temp);
+            precharge = side[0].Pn(preload_temp)/measure;
+//             PRINT(preload_temp/measure);
+//             PRINT(side[0].Pn(preload_temp));
+//             PRINT(side[0].Pn(preload_temp)/measure);
+//             PRINT(measure);
             break;
         case 3:
             /// Precharge imposee
-            precharge = preload_temp;
+            precharge = preload_temp/measure;
             break;
         default:
             break;

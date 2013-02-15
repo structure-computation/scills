@@ -2,7 +2,7 @@
 #nombre de processeurs pour la compilation
 NB_COMP_PROC = 3
 #dimension du probleme
-DIM = 3
+DIM = 2
 # emplacement de la libraire MPI
 MPI_LIB = /usr/include/openmpi
 # type de machine
