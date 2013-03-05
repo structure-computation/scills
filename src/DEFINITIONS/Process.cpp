@@ -286,12 +286,12 @@ void Process::preparation_calcul(){
     
     print("assignation des comportements liaisons");
     for(unsigned i = 0; i < Inter->size(); i++){
-        //PRINT((*Inter)[i].id_link);
+        PRINT((*Inter)[i].id_link);
         if((*Inter)[i].id_link >= 0){
             int index_link = (*data_user).find_links_index((*Inter)[i].id_link);
             (*Inter)[i].matprop = &((*inter_materials)[index_link]);
-            //PRINT((*Inter)[i].matprop->comp);
-            //PRINT((*Inter)[i].matprop->type_num);
+            PRINT((*Inter)[i].matprop->comp);
+            PRINT((*Inter)[i].matprop->type_num);
             /// Assignation du type de comportement
             switch((*Inter)[i].matprop->type_num){
                 case 0:
@@ -324,6 +324,7 @@ void Process::preparation_calcul(){
     
     /// affichage du maillage si necessaire
     //affichage->affich_mesh=1;
+    print("affichage du maillage");
     affichage->type_affichage= "all";
     affichage_maillage(*SubS,*SubI,*S,*this, *data_user);
     ///creation des fichiers pvd
@@ -379,6 +380,7 @@ void Process::boucle_multi_resolution() {
     
     
     memory_free(*S,*Inter,*CL,*sst_materials,*inter_materials,*this);
+    PRINT("fin de la multiresolution");
 }
 
 

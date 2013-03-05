@@ -160,24 +160,45 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
             ///le jeu est reparti en moyenne sur chacun des deplacements des cotes 1 et 2
             //if(process.temps->pt_cur==1) {
                 Vector dep_jeu = Inter[i_inter].Ep_imposee - Inter[i_inter].old_Ep_imposee ;
-                Vector dep_precharge = Inter[i_inter].precharge - Inter[i_inter].old_precharge ;
+                Vector dep_precharge = ( Inter[i_inter].precharge - Inter[i_inter].old_precharge );
                 
                 Scalar R0 = Inter[i_inter].side[1].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 Scalar R1 = Inter[i_inter].side[0].kn/(Inter[i_inter].side[1].kn+Inter[i_inter].side[0].kn);
                 
-                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu + dt * Inter[i_inter].side[1].hglo * dep_precharge;
-                Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge;
+                Inter[i_inter].side[1].t[process.temps->pt-1].W[Inter[i_inter].side[1].ddlcorresp] += R1 * dep_jeu - dt * Inter[i_inter].side[1].hglo * dep_precharge ;
+                Inter[i_inter].side[0].t[process.temps->pt-1].W += - 1. * R0 * dep_jeu + dt * Inter[i_inter].side[0].hglo * dep_precharge ;
                 
-//                 if(Inter[i_inter].id==12){
-//                     PRINT("  ");
-//                     PRINT(R0);
-//                     PRINT(R1);
-//                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
-//                     PRINT("on est dans prélocal stage");
-//                     PRINT(Inter[i_inter].id);
-//                     PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
-//                     PRINT("  ");
-//                 }
+//                 Inter[i_inter].side[1].t[process.temps->pt-1].F[Inter[i_inter].side[1].ddlcorresp] += - 1. * dep_precharge;
+//                 Inter[i_inter].side[0].t[process.temps->pt-1].F +=  dep_precharge;
+ 
+                if(Inter[i_inter].id==5){
+                    PRINT("  ");
+                    PRINT(R0);
+                    PRINT(R1);
+                    PRINT(dep_jeu[LMT::range(0,DIM*1)]);
+                    PRINT("on est dans prélocal stage");
+                    PRINT(Inter[i_inter].id);
+                    //PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
+//                     Vector testt1 ;
+//                     testt1.resize(dep_precharge.size(),1);
+//                     Vector testt = Inter[i_inter].side[0].kglo * ( (dt * Inter[i_inter].side[0].hglo * testt1)/process.temps->dt ) ;
+//                     PRINT(testt);
+//                     
+//                     
+//                     Scalar test;
+//                     test = 0;
+//                     for(unsigned i=0;i<Inter[i_inter].side[0].nodeeq.size()*DIM;++i) {
+//                         for(unsigned j=0;j<Inter[i_inter].side[0].nodeeq.size()*DIM;++j) {
+//                             test += Inter[i_inter].side[0].kglo(i,j) * Inter[i_inter].side[0].hglo(i,j);
+//                         }
+//                     }
+//                     PRINT(test);
+//                     PRINT((1./test));
+                    PRINT(Inter[i_inter].measure);
+                    PRINT(dep_precharge[LMT::range(0,DIM*1)]);
+                    PRINT(dt);
+                    PRINT("  ");
+                }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}
