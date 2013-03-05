@@ -517,8 +517,10 @@ void Process::boucle_temporelle(){
             assign_quantities_current_to_old(*SubS,*SubI,*this);
             
             parallelisation->synchronisation();
+	    //if (multiresolution->calcul_cur==0%5){
             affichage_resultats(*SubS,*this, *data_user);
             affichage_resultats_inter(*SubI, *S ,*this, *data_user);
+	    //}
             /// Sauvegarde des resultats
             if(save_data){
                 print_title(2,"Sauvegarde des resultats au format HDF"); 
@@ -578,9 +580,11 @@ void Process::boucle_temporelle(){
     }
     ///Affichage des résultantes sur les interfaces
     calcul_resultante(*SubS,*S,*Inter,*this);
+    //if (multiresolution->calcul_cur==0%5){
     ///creation des fichiers pvd
     create_pvd_results(*SubS,*S,*Inter,*this);
-
+    //}
+    
     #ifdef INFO_TIME
     print_duration(tic2);
     #endif
