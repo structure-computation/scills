@@ -85,7 +85,7 @@ void affich_SST(TV1 &S,Process &process) {
 		S[i].mesh.unload();
                 
                 Sc2String strp;
-                strp << nom_generique << "/proc_"<< process.parallelisation->rank << "_sst_id_" << S[i].id;
+                strp << nom_generique << "/sst_id_" << S[i].id;
                 
 		if (typemail=="Sinterieur") {
 		  dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc"));

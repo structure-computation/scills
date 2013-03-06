@@ -22,6 +22,7 @@ template <class TV1,class TV2> void affichage_inter_data(TV2 &Inter, TV1 &S, Pro
 void affichage_resultats_inter(PointedInterfaces &Inter, Substructures &S , Process &process, DataUser &data_user) __attribute__((noinline));
 template <class TV3,class TV2> void affichage_energie(TV3 &S,TV2 &Inter, Process &process, DataUser &data_user) __attribute__((noinline));
 void create_pvd_geometry(PointedSubstructures &S, Substructures &SS, VecInterfaces &Inter,Process &process) __attribute__((noinline));
+template <class TV1,class TV2, class TV3> void create_pvd_geometry_sst_by_group(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) __attribute__((noinline));
 void create_pvd_results(PointedSubstructures &S, Substructures &SS, VecInterfaces &Inter,Process &process) __attribute__((noinline));
 void affichage_resultats_temps(Process &process);
 void affichage_inter_temps(Process &process);

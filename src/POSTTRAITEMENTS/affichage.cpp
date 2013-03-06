@@ -122,7 +122,6 @@ void create_pvd_interfaces(TV &Inter, Process &process){
    //fin du fichier pvd
    file_pvd << " </Collection> \n </VTKFile>";   
 }
-
   
 /**
 Fonction permettant de sortir des fichiers pvd pour la mise en donnée
@@ -147,7 +146,7 @@ void create_pvd_geometry_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     for(unsigned i=0;i<Inter.size();++i) {
             if (SS[Inter[i].vois[data*2]].num_proc==process.parallelisation->rank){		
       ostringstream ss, ss2;
-      ss<<"./inter/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<".vtu";
+      ss<<"./inter/inter_id_"<<Inter[i].id<<".vtu";
       Sc2String namefile_entity(ss.str());
       ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<Inter[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
       Sc2String ligne1(ss2.str()); 
@@ -225,7 +224,7 @@ void create_pvd_geometry_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     
     for(unsigned i=0;i<S.size();i++) {
       ostringstream ss, ss2;
-      ss<<"./sst/proc_"<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<".vtu";
+      ss<<"./sst/sst_id_"<<S[i].id<<".vtu";
       Sc2String namefile_entity(ss.str());
       ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
       Sc2String ligne1(ss2.str()); 
@@ -286,9 +285,103 @@ Fonction permettant de sortir des fichiers pvd pour la mise en donnée
 void create_pvd_geometry(PointedSubstructures &S, Substructures &SS, VecInterfaces &Inter,Process &process) {
   create_pvd_geometry_inter(S, SS, Inter,process);
   create_pvd_geometry_sst(S, SS, Inter,process);
+  //create_pvd_geometry_sst_by_group(S, SS, Inter,process);
 }
 
+template <class TV1,class TV2, class TV3>
+void create_pvd_geometry_sst_by_group(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
+/*
+     ///preparation des noms et des repertoires pour ecriture des resultats
+    Sc2String save_directory=process.affichage->repertoire_save+"Geometry/";
+    Sc2String base_filename= save_directory;
+    base_filename << "sst_proc_" ; 
+    for(unsigned j=0;j<process.sst_materials->size();j++) {
+      Sc2String namefile = base_filename;
+      namefile << process.parallelisation->rank << "_group_"<<(*process.sst_materials[j]).id<<".pvd";
+    
+      ofstream os( namefile.c_str() );
+      if (process.parallelisation->is_master_cpu()) os <<"<?xml version=\"1.0\"?>\n<VTKFile type=\"Collection\" version=\"0.1\" \n\t byte_order=\"LittleEndian\" \n\t compressor=\"vtkZLibDataCompressor\" >\n <Collection> " <<std::endl;
+    
+      if (process.parallelisation->is_multi_cpu()) 
+       process.parallelisation->synchronisation();
+    
+      for(unsigned i=0;i<S.size();i++) {
+	ostringstream ss, ss2;
+	ss<<"./sst/proc_"<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<".vtu";
+	Sc2String namefile_entity(ss.str());
+	ss2 << " <DataSet timestep=\"1\"" << " group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
+	Sc2String ligne1(ss2.str()); 
+	if(S[i].id_material==(*process.sst_materials[j]).id){
+	  os << ligne1;
+	}
+	
+      }
 
+      os.close();
+    }
+    */
+   
+    
+/*    
+    
+    ///Fin des écritures
+    if (process.parallelisation->is_multi_cpu()) {
+      process.parallelisation->synchronisation();
+      
+      
+      for(unsigned j=0;j<process.sst_materials->size();j++) {
+	Sc2String namefile = base_filename;
+	namefile << process.parallelisation->rank << "_group_"<<(*process.sst_materials[j]).id<<".pvd";
+      
+	ofstream os( namefile.c_str() );
+	
+	if (process.parallelisation->is_master_cpu()){
+	  
+	  
+	  ///concaténation des fichiers
+	  Sc2String cmd;
+	  cmd << "cat ";
+	  for (unsigned i=0;i<process.parallelisation->size;i++)
+	    cmd << base_filename << i << "_group_"<<(*process.sst_materials[j]).id << ".pvd ";
+	  cmd << "> " << save_directory;
+	  cmd << "geometry_group_ssts_"<< j<<".pvd" ; 
+	  int tmp=system(cmd.c_str());
+
+	  Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_sst_group_"<<(*process.sst_materials[j]).id<<".pvd";
+	  fstream os2;
+	  os2.open ( namefile2.c_str(), fstream::in | fstream::out | fstream::ate );
+	  os2 << " </Collection> \n </VTKFile>";
+	  os2.close();
+	  Sc2String cmd2;
+	  cmd2 << "rm ";
+	  for (unsigned i=0;i<process.parallelisation->size;i++)
+	    cmd2 << base_filename << i << "_group_"<<(*process.sst_materials[j]).id << ".pvd ";
+	  tmp=system(cmd2.c_str());
+  // 	std::cout << cmd2 << endl;
+	}
+	  process.parallelisation->synchronisation();
+      }
+
+    } else
+    {
+       
+       for(unsigned j=0;j<process.sst_materials->size();j++) { 
+	Sc2String cmd;
+	cmd << "mv " << base_filename << "0" << "_group_"<<(*process.sst_materials[j]).id << ".pvd ";
+	cmd << " " << save_directory;	
+	cmd << "geometry_sst-group_"<< (*process.sst_materials[j]).id << ".pvd" ; 
+	int tmp=system(cmd.c_str());  
+	
+	Sc2String namefile2 = process.affichage->repertoire_save+"Geometry/geometry_sst_group_"<< (*process.sst_materials[j]).id <<".pvd";
+	fstream os2;
+	os2.open ( namefile2.c_str(),fstream::in | fstream::out | fstream::ate  );
+	os2 << " </Collection> \n </VTKFile>";
+	os2.close();
+       }
+    }
+    */
+    
+}
 
 /**\ingroup Post_Traitement
  \brief Affichage du maillage des sous-structures ou des interfaces avec éclaté
@@ -362,19 +455,17 @@ void create_pvd_results_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     if (process.parallelisation->is_multi_cpu()) 
        process.parallelisation->synchronisation();
     
-    Sc2String local_filename="./sst_bulk/";
+    Sc2String local_filename="./sst_bulk/result";
 //     if(j==0) local_filename="./sst_bulk/result_";
-//     else local_filename="./sst_skin/result_";
-      
+//     else local_filename="./sst_skin/result_"; 
     if(process.multiresolution->nb_calculs>1)
-        local_filename<<"resolution_"<<process.multiresolution->m<<"_result_";
-    local_filename << "proc_" ; 
+        local_filename<<"_resolution_"<<process.multiresolution->m;
    
     
     for(unsigned i=0;i<S.size();i++) {
       for(unsigned k=1;k<S[i].t_post.size();k++){
       ostringstream ss, ss2;
-      ss<<local_filename<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
+      ss<<local_filename << "_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
       Sc2String namefile_entity(ss.str());
       ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
       Sc2String ligne1(ss2.str()); 
@@ -459,19 +550,17 @@ void create_pvd_results_sst_skin(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     if (process.parallelisation->is_multi_cpu()) 
        process.parallelisation->synchronisation();
     
-    Sc2String local_filename="./sst_skin/result_";
+    Sc2String local_filename="./sst_skin/result";
 //     if(j==0) local_filename="./sst_bulk/result_";
 //     else local_filename="./sst_skin/result_";
-      
     if(process.multiresolution->nb_calculs>1)
-        local_filename<<"resolution_"<<process.multiresolution->m<<"_";
-    local_filename << "proc_" ; 
+        local_filename<<"_resolution_"<<process.multiresolution->m;
    
     
     for(unsigned i=0;i<S.size();i++) {
       for(unsigned k=1;k<S[i].t_post.size();k++){
       ostringstream ss, ss2;
-      ss<<local_filename<< process.parallelisation->rank << "_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
+      ss<<local_filename<<"_sst_id_"<<S[i].id<<"_time_"<<k<<".vtu";
       Sc2String namefile_entity(ss.str());
       ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<S[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
       Sc2String ligne1(ss2.str()); 
@@ -558,11 +647,9 @@ void create_pvd_results_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     if (process.parallelisation->is_multi_cpu()) 
        process.parallelisation->synchronisation();
     
-    Sc2String local_filename="./inter/";
-      
+    Sc2String local_filename="./inter/result";
     if(process.multiresolution->nb_calculs>1)
-        local_filename<<"resolution_"<<process.multiresolution->m<<"_";
-    local_filename << "proc_" ; 
+        local_filename<<"resolution_"<<process.multiresolution->m;
    
     unsigned data=process.affichage->side;
     
@@ -571,7 +658,7 @@ void create_pvd_results_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
 	      unsigned side = (Inter[i].type == Interface::type_ext)? 0 : data;
 	      for(unsigned k=1;k<Inter[i].side[side].t_post.size();k++){
 		ostringstream ss, ss2;
-		ss<<local_filename<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id<<"_time_"<<k<<".vtu";
+		ss<<local_filename << "_inter_id_"<<Inter[i].id<<"_time_"<<k<<".vtu";
 		Sc2String namefile_entity(ss.str());
 		ss2 << " <DataSet timestep=\" "<< k<< " \" group=\" " <<Inter[i].id << "\" part=\" \"\n\t\t file=\"" << namefile_entity << "\"/>\n" ;
 		Sc2String ligne1(ss2.str()); 

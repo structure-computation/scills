@@ -48,12 +48,12 @@ void write_paraview_results(PointedSubstructures &S,Process &process, DataUser &
     ///preparation des noms et des repertoires pour ecriture des resultats
     Sc2String name_multiresolution="";
     if(process.multiresolution->nb_calculs>1)
-	name_multiresolution<<"resolution_"<<process.multiresolution->m<<"_";
+	name_multiresolution<<"_resolution_"<<process.multiresolution->m;
     Vec<Sc2String,2> directory_names=Vec<Sc2String>(process.affichage->repertoire_save +"results/sst_bulk",process.affichage->repertoire_save +"results/sst_skin"); 
     Vec<Sc2String,2> generic_names;
     for(int i=0;i<2;i++) {
 	int tmp=system(("mkdir -p "+directory_names[i]).c_str()); //creation des repertoires
-	generic_names[i] = directory_names[i] + "/" + name_multiresolution + process.affichage->name_data; //nom generique du fichier vtu
+	generic_names[i] = directory_names[i] + "/" + process.affichage->name_data + name_multiresolution ; //nom generique du fichier vtu
     }
     
     ///eclatement de chaque sous-structure
@@ -123,7 +123,7 @@ void write_paraview_results(PointedSubstructures &S,Process &process, DataUser &
 	      ///nom du fichier paraview genere (volume ou peau)
 	      ostringstream ss;
 	      //ss<<generic_names[i] << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";      /// TMP, test sauvegarde a la fin de chaque pas de temps
-	      ss << generic_names[j] << "_proc_" << S[0].num_proc << "_sst_id_" << S[i].id << "_time_"<<process.temps->pt_cur;   /// TMP, test sauvegarde a la fin de chaque pas de temps
+	      ss << generic_names[j] << "_sst_id_" << S[i].id << "_time_"<<process.temps->pt_cur;   /// TMP, test sauvegarde a la fin de chaque pas de temps
 	      Sc2String namefile(ss.str());
 	      
 	      if(process.parallelisation->is_multi_cpu()) process.affichage->save="save";
@@ -215,7 +215,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	    
 	ostringstream ss;
 	if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
-	else ss << nom_generique << "_proc_" << S[0].num_proc << "_time_" << imic;
+	else ss << nom_generique << "_" << S[0].num_proc << "_time_" << imic;
 	Sc2String namefile(ss.str());
 	
 	
@@ -250,7 +250,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	
 	ostringstream ss;
 	if (not process.parallelisation->is_multi_cpu()) ss<<nom_generique << "_time_"<<imic<<".vtu";
-	else ss<<nom_generique << "_proc_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
+	else ss<<nom_generique << "_"<<S[0].num_proc<<"_time_"<<imic<<".vtu";
 	Sc2String namefile(ss.str());
 	
 	
@@ -574,9 +574,10 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
 		///preparation des noms et des repertoires pour ecriture des resultats
 		Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
 		Sc2String base_filename= save_directory;
+		base_filename << "result";
 		if(process.multiresolution->nb_calculs>1)
-		    base_filename <<"resolution_" << process.multiresolution->m << "_";
-		base_filename << "proc_" << process.parallelisation->rank << "_inter_id_" << Inter[q].id <<"_time_";
+		    base_filename <<"_resolution_" << process.multiresolution->m ;
+		base_filename << "_inter_id_" << Inter[q].id <<"_time_";
 		Sc2String namefile = base_filename;
 		namefile << process.temps->pt_cur;	
 		dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_inter);
@@ -605,9 +606,10 @@ template<class TV2,class TV1> void affich_inter_data_time(TV2 &Inter, TV1 &S, Pr
 		    ///preparation des noms et des repertoires pour ecriture des resultats
 		    Sc2String save_directory=process.affichage->repertoire_save+"results/inter/";
 		    Sc2String base_filename= save_directory;
+		    base_filename << "result";
 		    if(process.multiresolution->nb_calculs>1)
-			base_filename<<"resolution_"<<process.multiresolution->m<<"_";
-		    base_filename << "proc_" << process.parallelisation->rank << "_inter_id_" << Inter[q].id << "_time_";
+			base_filename<<"_resolution_"<<process.multiresolution->m;
+		    base_filename << "_inter_id_" << Inter[q].id << "_time_";
 		    Sc2String namefile = base_filename;
 		    namefile << process.temps->pt_cur;
 		    dp.add_mesh(meshglob,namefile.c_str(),process.affichage->display_fields_inter);
