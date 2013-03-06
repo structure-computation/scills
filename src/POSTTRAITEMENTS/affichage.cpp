@@ -123,15 +123,6 @@ void create_pvd_interfaces(TV &Inter, Process &process){
    file_pvd << " </Collection> \n </VTKFile>";   
 }
 
-
-/**
-Fonction permettant de sortir des fichiers pvd pour la mise en donnée
-*/
-template <class TV1,class TV2, class TV3>
-void create_pvd_geometry(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
-  create_pvd_geometry_inter(S, SS, Inter,process);
-  create_pvd_geometry_sst(S, SS, Inter,process);
-}
   
 /**
 Fonction permettant de sortir des fichiers pvd pour la mise en donnée
@@ -289,6 +280,14 @@ void create_pvd_geometry_sst(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     
 }
 
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+void create_pvd_geometry(PointedSubstructures &S, Substructures &SS, VecInterfaces &Inter,Process &process) {
+  create_pvd_geometry_inter(S, SS, Inter,process);
+  create_pvd_geometry_sst(S, SS, Inter,process);
+}
+
 
 
 /**\ingroup Post_Traitement
@@ -338,17 +337,6 @@ void affichage_maillage(TV3 &S, TV4 &Inter,TV1 &Stot, Process &process, DataUser
 
     }
     //assert(0);
-}
-
-
-/**
-Fonction permettant de sortir des fichiers pvd pour la mise en donnée
-*/
-template <class TV1,class TV2, class TV3>
-void create_pvd_results(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
-  create_pvd_results_sst(S, SS, Inter,process);
-  create_pvd_results_sst_skin(S, SS, Inter,process);
-  create_pvd_results_inter(S, SS, Inter,process);
 }
   
 
@@ -646,12 +634,22 @@ void create_pvd_results_inter(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
 }
 
 
+/**
+Fonction permettant de sortir des fichiers pvd pour la mise en donnée
+*/
+void create_pvd_results(PointedSubstructures &S, Substructures &SS, VecInterfaces &Inter,Process &process) {
+  create_pvd_results_sst(S, SS, Inter,process);
+  create_pvd_results_sst_skin(S, SS, Inter,process);
+  create_pvd_results_inter(S, SS, Inter,process);
+}
+
+
 /**\ingroup Post_Traitement
  \brief Affichage des champs après calcul sur les sous-structures
  
  On appelle affich_SST_resultat() pour créer le fichier paraview de résultat pour chaque pas de temps.
  */
-void affichage_resultats(Vec<VecPointedValues<Sst> > &S,  Process &process, DataUser &data_user) {
+void affichage_resultats(PointedSubstructures &S,  Process &process, DataUser &data_user) {
     //PRINT(process.affichage->affich_resultat);
     
     if (process.affichage->affich_resultat==1)
