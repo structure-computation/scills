@@ -251,9 +251,9 @@ void ParameterGroup::affiche() const {
         std::cerr << i << " : " << (unsigned long) parents[i] << std::endl;
     std::cerr << "Main parameters : " << main_parameters.size() << std::endl;
     for(int i = 0; i < main_parameters.size(); i++)
-        std::cerr << i << " : " << (unsigned long) main_parameters[i] << "(" << main_parameters[i]->symbol << "," << main_parameters[i]->value << ")" << std::endl;
+        std::cerr << i << " : " << "symbol : " << main_parameters[i]->symbol << "; value : " << main_parameters[i]->value << std::endl;
     std::cerr << "Parameters : " << user_parameters.size() << std::endl;
     for(int i = 0; i < user_parameters.size(); i++)
-        std::cerr << i << " : " << (unsigned long) user_parameters[i] << "(" << user_parameters[i]->symbol << "," << user_parameters[i]->str_expr << "," << user_parameters[i]->value << ")" << std::endl;
+        std::cerr << i << " : " << "symbol : " << user_parameters[i]->symbol << "; expression : " << user_parameters[i]->str_expr << "; value : " << user_parameters[i]->value << std::endl;
     std::cerr << "********************************************************************" << std::endl << std::endl;
 }

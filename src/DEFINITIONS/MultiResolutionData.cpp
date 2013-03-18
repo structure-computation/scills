@@ -18,29 +18,24 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
     type = multiresolution_parameters.multiresolution_type;
     if(type == "off"){
         nb_calculs = 1;
-    }else if(type == "plan d'experience"){
-        std::cerr << "Type de multi-resolution : " << type << " a implementer" << std::endl;
-        assert(0);
-    }else if(type == "function"){
+    }else if(type == "sequential"){
         PRINT(multiresolution_parameters.multiresolution_type);
         PRINT(multiresolution_parameters.resolution_number);
         nb_calculs = multiresolution_parameters.resolution_number;
-        for(unsigned i = 0; i < multiresolution_parameters.collection_vec.size(); i++){
-            /// Creation de la fonction parametrique (pour le moment...)
-            PRINT(multiresolution_parameters.resolution_number);
-            Sc2String function,minvalue,maxvalue,nbvalues;
-            minvalue << multiresolution_parameters.collection_vec[i].min_value;
-            maxvalue << multiresolution_parameters.collection_vec[i].max_value;
-            nbvalues << multiresolution_parameters.collection_vec[i].nb_value;
-            function << multiresolution_parameters.collection_vec[i].parametric_function;
-//             if(multiresolution_parameters.collection_vec[i].nb_value>1){
-//                 function = minvalue + "+(" + maxvalue + "-" + minvalue + ")*m/(" + nbvalues + "-1)";
-//             }else{
-//                 function << multiresolution_parameters.collection_vec[i].nominal_value;
-//             }
-            /// Creation du parametre
-            UserParameter *PM = new UserParameter(multiresolution_parameters.collection_vec[i].name,&parameters);
-            PM->setExpression(function);
+        const int nb_parameters = multiresolution_parameters.collection_vec.size();
+        parameters_data.resize(nb_parameters);
+        for(unsigned i = 0; i < nb_parameters; i++){
+            parameters_data[i].name = multiresolution_parameters.collection_vec[i].name;
+            Sc2String type = multiresolution_parameters.collection_vec[i].type;
+            if(type == "function") {
+                parameters_data[i].type = ParameterData::Function;
+                parameters_data[i].values << multiresolution_parameters.collection_vec[i].function;
+            }
+            else if(type == "list") {
+                parameters_data[i].type = ParameterData::List;
+                parameters_data[i].values = multiresolution_parameters.collection_vec[i].values;
+            }
+            parameters_data[i].user_parameter = new UserParameter(multiresolution_parameters.collection_vec[i].name,&parameters);
         }
     }else{
         std::cerr << "Mauvais type de multi-resolution : " << type << std::endl;
@@ -49,33 +44,38 @@ void MultiResolutionData::read_data_user(const Metil::DataUser &data_user){
 }
 
 void MultiResolutionData::prepareParameters(){
+    for(int i = 0; i < parameters_data.size(); i++) {
+        switch(parameters_data[i].type) {
+            case ParameterData::Function:
+                parameters_data[i].user_parameter->setExpression(parameters_data[i].values[0]);
+                break;
+            case ParameterData::List:
+                parameters_data[i].user_parameter->setExpression(parameters_data[i].values[calcul_cur]);
+                break;
+        }
+    }
     parameters.prepareParameters();
 }
 
 void MultiResolutionData::updateParameters(){
     if(type == "off"){
         /// il n'y a rien a faire
-    } else if(type == "plan d'experience"){
-        //TODO
-        //int tmp = nb_calculs;
-        //Codegen::Ex::MapExNum values = user_parameters.getValuesMap();
-    } else if(type == "liste"){
-        parameters.updateParameters();  /// Tous les parametres sont mis a l'expression indicee calcul_cur
-    }else if(type == "function"){    
-        affiche();
+    }else if(type == "sequential"){
+        //affiche();
+        prepareParameters();            /// Necessaire pour la gestion des parametres de type "List"
         parameters.updateParameters();  /// Une seule fonction, pour tous les calculs
     } else{
         std::cerr << "Mauvais type de calcul parametrique : '" << type << "'" << std::endl;
         assert(0);
     }
-    // DEBUG : affichage des parametres multi-resolution apres mise a jour
+    //* DEBUG : affichage des parametres multi-resolution apres mise a jour
     std::cout << "Mise a jour des parametres de multi-resolution *******************************" << std::endl;
     std::cout << m.symbol << " = " << m.value << std::endl;
     for(int i = 0; i < parameters.user_parameters.size(); i++){
         std::cout << parameters.user_parameters[i]->symbol << " = " << parameters.user_parameters[i]->value << std::endl;
     }
     std::cout << "******************************************************************************" << std::endl;
-    //
+    //*/
 }
 
 void MultiResolutionData::init(){

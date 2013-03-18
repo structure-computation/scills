@@ -135,6 +135,8 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
     ///Fin des écritures
     if (process.parallelisation->is_multi_cpu()) {
       process.parallelisation->synchronisation();
+      Sc2String name_csv=process.data_user->mesh.name_calcul+".csv";
+      
       
       if (process.parallelisation->is_master_cpu()){
 	///concaténation des fichiers
@@ -145,7 +147,7 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
 	cmd << "> " << save_directory;
 	if(process.multiresolution->nb_calculs>1)
 	  cmd<<"resolution_"<<process.multiresolution->m<<"_";
-	cmd << "resultante.csv" ; 
+	cmd << name_csv ; 
 	system(cmd.c_str());
 // 	std::cout << cmd << endl;
 	
@@ -158,12 +160,13 @@ void calcul_resultante(TV1 &S, TV3 &SS, TV2 &Inter,Process &process) {
       }
     } else
     {
+       Sc2String name_csv=process.data_user->mesh.name_calcul+".csv";
 	Sc2String cmd;
 	cmd << "mv " << base_filename << "0" << ".csv ";
 	cmd << " " << save_directory;
 	if(process.multiresolution->nb_calculs>1)
 	  cmd<<"resolution_"<<process.multiresolution->m<<"_";
-	cmd << "resultante.csv" ; 
+	cmd << name_csv ; 
 	system(cmd.c_str());
       
       

@@ -97,7 +97,7 @@ void multiscale_operateurs(PointedSubstructures &Stot,
             tic1.start();
         }
 #endif
-    }
+    //}
 
     if (process.parallelisation->is_master_cpu()) std::cout << "Calcul des Quantites par SST" << endl;
     create_op_SST(Stot,Inter,SubS,SubI,process, data_user);
@@ -138,5 +138,7 @@ void multiscale_operateurs(PointedSubstructures &Stot,
         crout << process.parallelisation->rank << " : Op Macro : "  ;
         tic.stop();
         process.parallelisation->synchronisation();
+    }
+    
     }
 }

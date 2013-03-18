@@ -135,7 +135,7 @@ template<class TV2, class TV1> void affich_INTER(TV2 &Inter,TV1 &S, Process &pro
             InterfaceMesh meshglob;
             
             Sc2String strp;
-            strp << nom_generique << "/proc_"<< process.parallelisation->rank << "_inter_id_"<<Inter[i].id;   
+            strp << nom_generique << "/inter_id_"<<Inter[i].id;   
             
             meshglob.append(*Inter[i].side[data].mesh);
             if ( Inter[i].comp=="Contact_jeu_physique" or Inter[i].comp == Interface::comp_periodique){

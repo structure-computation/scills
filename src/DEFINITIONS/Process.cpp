@@ -18,8 +18,6 @@
 
 Process::Process()
 {
-    std::cout << "\\a:" << "\a" << "..." << std::endl;
-    std::cout << "\\b:" << "\b" << "..." << std::endl;
     // initialisation des valeurs
     sousint=1;
     type_sousint="p";
@@ -340,7 +338,7 @@ void Process::preparation_calcul(){
         print("FIN DU MODE TEST.");
         assert(0);
     }
-    
+    /*
     /// Allocations et initialisation des quantites
     print("Allocations des vecteurs de stockage des resultats");
     allocate_quantities_Sst_Inter(*SubS,*SubI,*this);
@@ -360,6 +358,7 @@ void Process::preparation_calcul(){
             std::cout << "\t" << nb_nodes << std::endl;
         }
     }
+    //*/
 }
 
 
@@ -391,6 +390,26 @@ void Process::boucle_temporelle(){
     TicTac tic2;
     if (parallelisation->is_master_cpu()) {tic2.init();tic2.start();}
     #endif
+    
+    /// Allocations et initialisation des quantites
+    print("Allocations des vecteurs de stockage des resultats");
+    allocate_quantities_Sst_Inter(*SubS,*SubI,*this);
+    allocate_quantities_post(*SubS,*SubI,*this);
+    #ifdef PRINT_ALLOC
+    disp_alloc(to_string(parallelisation->rank)+" : Memoire apres allocations : ",1);
+    #endif
+    print("Repartition des solides");
+    if(parallelisation->is_master_cpu()){
+        for(int i = 0; i < parallelisation->repartition_sst.size(); i++){
+            std::cout << "\t" << i << " :";
+            unsigned nb_nodes = 0;
+            for(int j = 0; j < parallelisation->repartition_sst[i].size(); j++){
+                std::cout << "\t" << parallelisation->repartition_sst[i][j];
+                nb_nodes += (*S)[parallelisation->repartition_sst[i][j]].mesh.elem_list_size;
+            }
+            std::cout << "\t" << nb_nodes << std::endl;
+        }
+    }
     
     /// Boucle sur les steps temporels
     print_title(1,"DEBUT DU CALCUL ITERATIF ");
@@ -519,8 +538,10 @@ void Process::boucle_temporelle(){
             assign_quantities_current_to_old(*SubS,*SubI,*this);
             
             parallelisation->synchronisation();
+	    //if (multiresolution->calcul_cur==0%5){
             affichage_resultats(*SubS,*this, *data_user);
             affichage_resultats_inter(*SubI, *S ,*this, *data_user);
+	    //}
             /// Sauvegarde des resultats
             if(save_data){
                 print_title(2,"Sauvegarde des resultats au format HDF"); 
@@ -580,9 +601,11 @@ void Process::boucle_temporelle(){
     }
     ///Affichage des résultantes sur les interfaces
     calcul_resultante(*SubS,*S,*Inter,*this);
+    //if (multiresolution->calcul_cur==0%5){
     ///creation des fichiers pvd
     create_pvd_results(*SubS,*S,*Inter,*this);
-
+    //}
+    
     #ifdef INFO_TIME
     print_duration(tic2);
     #endif
