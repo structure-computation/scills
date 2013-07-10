@@ -9,7 +9,7 @@
 using namespace LMT;
 
 //fichiers de definition des variables 
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 

@@ -48,6 +48,7 @@ struct Projection_num_num_proc_on_skin{
     e.numsst_skin = parent.numsst;
     e.num_proc_skin = parent.num_proc;
     e.typmat_skin = parent.typmat;
+    e.id_group_skin = parent.id_group;
   }
 };
 
@@ -88,13 +89,13 @@ void affich_SST(TV1 &S,Process &process) {
                 strp << nom_generique << "/sst_id_" << S[i].id;
                 
 		if (typemail=="Sinterieur") {
-		  dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc"));
+		  dp.add_mesh(meshglob,strp,Vec<Sc2String>("qtrans","typmat","numsst","num_proc","id_group"));
 		} else if (typemail=="Sbord") {
 		  meshglob.sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
 		  meshglob.sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( meshglob, meshglob.elem_list.size() /2 +1);
 		  meshglob.update_skin();
 		  apply(meshglob.skin.elem_list,Projection_num_num_proc_on_skin(),meshglob.skin,meshglob);
-		  dp.add_mesh(meshglob.skin,strp,Vec<Sc2String>("qtrans","typmat_skin","numsst_skin","num_proc_skin"));
+		  dp.add_mesh(meshglob.skin,strp,Vec<Sc2String>("qtrans","typmat_skin","numsst_skin","num_proc_skin","id_group_skin"));
 		}
 // 		///modification du nom et deplacement du fichier generique
 // 		ostringstream ss;

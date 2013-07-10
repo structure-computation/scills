@@ -2,7 +2,7 @@
 #define PRELOCALSTAGE_H
 
 #include "../DEFINITIONS/structure_typedef.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../COMPUTE/DataUser.h"
 
 

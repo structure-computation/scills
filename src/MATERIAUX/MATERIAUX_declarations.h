@@ -4,7 +4,7 @@
 #include "../COMPUTE/DataUser.h"
 #include "../COMPUTE/FieldStructureUser.h"
 
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
 #include "../DEFINITIONS/SstCarac_InterCarac.h"

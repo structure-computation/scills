@@ -1,4 +1,4 @@
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/structure_typedef.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"

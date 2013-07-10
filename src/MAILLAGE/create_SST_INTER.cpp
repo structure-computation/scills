@@ -23,12 +23,15 @@ void create_SST_typmat(DataUser &data_user, GeometryUser &geometry_user,Substruc
         S[i].id = geometry_user.group_elements[i].id;
     }
     
-    /// assignation des numero de materiaux aux sst
+    /// assignation des numero de materiaux et de groupe aux sst
     for(int i_data_group=0; i_data_group<data_user.pieces_vec.size(); i_data_group++){
         int id_mat = data_user.find_materials_pointer(data_user.pieces_vec[i_data_group].material_id)->id_in_calcul;
+        int id_group = data_user.pieces_vec[i_data_group].group;
+        //PRINT(id_group);
         int index_mat = data_user.find_materials_index(data_user.pieces_vec[i_data_group].material_id);
         Sst::find_sst(S,data_user.pieces_vec[i_data_group].id_in_calcul)->id_material = id_mat;
         Sst::find_sst(S,data_user.pieces_vec[i_data_group].id_in_calcul)->typmat = index_mat;
+        Sst::find_sst(S,data_user.pieces_vec[i_data_group].id_in_calcul)->id_group = id_group;
     }
 }
 
@@ -52,6 +55,7 @@ void create_maillage_SST(DataUser &data_user, GeometryUser &geometry_user, Subst
         S[i].mesh.name=namein;
         S[i].mesh.load(geometry_user, S[i].id);
         S[i].mesh.load();
+        //PRINT(S[i].id_group);
         S[i].mesh->update_skin();
         geometry_user.find_group_elements(S[i].id)->nb_elements_skin=S[i].mesh->skin.elem_list.size();
         geometry_user.find_group_elements(S[i].id)->nb_nodes_skin=S[i].mesh->skin.node_list.size();

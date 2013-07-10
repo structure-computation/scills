@@ -1,7 +1,7 @@
 
 
 #include "DEFINITIONS/Structure.h"
-#include "DEFINITIONS/Process.h"
+#include "Process.h"
 #include "DEFINITIONS/Sst.h"
 #include "DEFINITIONS/Interface.h"
 #include "DEFINITIONS/Boundary.h"

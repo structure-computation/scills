@@ -1,7 +1,7 @@
 #ifndef MESOMODELE_H
 #define MESOMODELE_H
 
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/structure_typedef.h"
 
 

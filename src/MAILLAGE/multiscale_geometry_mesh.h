@@ -2,7 +2,7 @@
 #define MULTISCALE_GEOMETRY_MESH_H
 
 #include "../DEFINITIONS/structure_typedef.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 
 /** \defgroup Maillage_geometrie Création des sous-structures et interfaces
  \ brief Génération des maillages et géométrie des sous-structures, inte*rfaces.

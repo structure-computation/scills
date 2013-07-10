@@ -20,7 +20,7 @@
 #include <map>
 
 // fichiers de definition des variables
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../DEFINITIONS/SavingData.h"
 #include "../DEFINITIONS/LatinData.h"
 #include "../DEFINITIONS/Sst.h"

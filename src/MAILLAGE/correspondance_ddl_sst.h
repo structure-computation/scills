@@ -1,7 +1,7 @@
 #ifndef CALC_SST_CORRESPDDL
 #define CALC_SST_CORRESPDDL
 #include "../DEFINITIONS/main_typedef.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../DEFINITIONS/Sst.h"
 
 using namespace LMT;

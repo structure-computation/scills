@@ -2,7 +2,7 @@
 #define AFFICHAGE_H
 
 
-//#include "../DEFINITIONS/Process.h"
+//#include "Process.h"
 //#include "../DEFINITIONS/Sst.h"
 //#include "../DEFINITIONS/Interface.h"
 //#include "../COMPUTE/DataUser.h"

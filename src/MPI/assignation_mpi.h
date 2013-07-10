@@ -16,7 +16,7 @@
 #include "mpi_lmt_functions.h"
 #include <fstream>
 #include "crout.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../GEOMETRY/GeometryUser.h"
 #include "../../LMT/include/containers/algo.h"
 
@@ -132,6 +132,7 @@ void mpi_repartition(TS &S, TI &Inter,TP &process,T1 &Stot, T1 &SubS,T2 &SubI, G
         S[i].mesh.typmat=S[i].typmat;
         S[i].mesh.numsst=S[i].num;
         S[i].mesh.num_proc=S[i].num_proc;
+        S[i].mesh.id_group=S[i].id_group;
         // assignation du materiau aux elements du maillage ainsi que le numero de la sst (pour affichage)
 //         apply(S[i].mesh->elem_list,apply_mat_elem(),S[i].typmat,S[i].num,S[i].num_proc);
     }

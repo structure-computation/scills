@@ -44,8 +44,9 @@ struct Interface
     static Sc2String comp_periodique;           /// Nom pour le comportement periodique
     
     /// Geometrie
-    int id;     /// id du group d'interface de geometry_user
-    int num;    /// numero de l'interface 
+    int id;                     /// id du group d'interface de geometry_user
+    int num;                    /// numero de l'interface 
+    int id_group;               /// id du group auquel appartient l'interface
     
     Point G;                /// centre de gravite
     Vec<Point, DIM> BPI;    /// Base principale d'inertie de l'interface

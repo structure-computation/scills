@@ -4,7 +4,7 @@
 #include "../COMPUTE/DataUser.h"
 #include "../GEOMETRY/GeometryUser.h"
 
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../DEFINITIONS/structure_typedef.h"
 
 using namespace Metil;

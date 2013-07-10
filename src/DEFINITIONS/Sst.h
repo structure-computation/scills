@@ -25,6 +25,7 @@ struct Sst
     Scalar measure;     /// mesure de la sst
     int num;            /// numero de la sous-structure
     int id;             /// id de la sous-structure
+    int id_group;       /// id du group auquel appartient la sous-structure
     int num_proc;       /// numero du processeur qui traite la sous-structure
     LMT::Vec<int> vois; /// sous-structures voisines (-1 pour le bord)
     

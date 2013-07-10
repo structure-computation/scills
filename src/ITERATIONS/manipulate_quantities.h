@@ -3,8 +3,8 @@
 
 #include "../COMPUTE/DataUser.h"
 
-#include "../DEFINITIONS/Process.h"
-#include "../DEFINITIONS/Structure.h"
+#include "Process.h"
+//#include "../DEFINITIONS/Structure.h"
 #include "../DEFINITIONS/MacroProblem.h"
 
 using namespace LMT;

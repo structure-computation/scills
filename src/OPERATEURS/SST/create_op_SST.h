@@ -4,7 +4,7 @@
 #include "../../../LMT/include/containers/vec_mt.h"
 
 //fichiers de definition des variables
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/LatinData.h"
 #include "../../DEFINITIONS/MultiScaleData.h"
 #include "../../DEFINITIONS/ParallelisationData.h"

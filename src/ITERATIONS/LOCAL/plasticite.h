@@ -2,7 +2,7 @@
 #define PLASTICITE_H
 
 #include "../../MAILLAGE/mesh_data_accessors_sst.h"
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "../../UTILS/utils_2.h"

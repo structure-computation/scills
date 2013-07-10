@@ -1,4 +1,4 @@
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/Interface.h"
 #include "../../DEFINITIONS/TimeData.h"
 #include "../../DEFINITIONS/LatinData.h"

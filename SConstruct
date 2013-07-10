@@ -135,9 +135,11 @@ pb_libs=make_pb(
     additional_fields = {
         "qtrans" : Variable(unit='mm',T='Vec<double,DIM>', default_value='0'),
         "typmat" : Variable(interpolation='elementary',unit='',default_value='0'),
+        "id_group" : Variable(interpolation='elementary',unit='',default_value='0'),
         "numsst" : Variable(interpolation='elementary',unit='',default_value='0'),
         "num_proc" : Variable(interpolation='elementary',unit='',default_value='0'),
         "typmat_skin" : Variable(interpolation='skin_elementary',unit='',default_value='0'),
+        "id_group_skin" : Variable(interpolation='skin_elementary',unit='',default_value='0'),
         "numsst_skin" : Variable(interpolation='skin_elementary',unit='',default_value='0'),
         "num_proc_skin" : Variable(interpolation='skin_elementary',unit='',default_value='0'),
 },

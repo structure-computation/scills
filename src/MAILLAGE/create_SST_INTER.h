@@ -5,7 +5,7 @@
 #include "../DEFINITIONS/Interface.h"
 #include "../DEFINITIONS/MacroProblem.h"
 #include "../DEFINITIONS/Boundary.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 
 #include "../GEOMETRY/GeometryUser.h"
 #include "../COMPUTE/DataUser.h"

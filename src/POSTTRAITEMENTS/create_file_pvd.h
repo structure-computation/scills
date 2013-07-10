@@ -5,7 +5,7 @@
 #include "../DEFINITIONS/TimeData.h"
 #include "../DEFINITIONS/LatinData.h"
 #include "../DEFINITIONS/MultiResolutionData.h"
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 
 #include <fstream>
 

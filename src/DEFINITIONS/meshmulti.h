@@ -29,12 +29,20 @@ using namespace __gnu_cxx;
 ///application de flag indiquant le type de materiau et le numero de la sst pour chaque element (utile pour l'affichage)
 struct apply_mat_elem {
     template<class TE>
-    void operator() ( TE &e, const int &typmat, const int &numsst,const int &num_proc) const {
+    void operator() ( TE &e, const int &typmat, const int &numsst, const int &num_proc) const {
         e.typmat=typmat;
         e.numsst=numsst;
         e.num_proc=num_proc;
     }
 };
+///application de flag indiquant le groupe de la sst pour chaque element (utile pour l'affichage)
+struct apply_group_elem {
+    template<class TE>
+    void operator() ( TE &e, const int &id_group) const {
+        e.id_group=id_group;
+    }
+};
+
 
 /** \ingroup  maillages 
 \brief Structure pour le hashage du maillage cf. p_surdiscretise_SST
@@ -297,7 +305,7 @@ struct Meshmulti {
     Sc2String name;//nom du maillage a lire
     Sc2String sousintegration;//type de sousintegration
     bool flag;//flag permettant de savoir si le maillage est chargé ou non
-    int typmat,numsst,num_proc;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
+    int typmat,numsst,num_proc,id_group;// caractéristiques associés a la sous-structure que l'on remet automatiquement à la relecteur d'un maillages
     unsigned node_list_size,elem_list_size;// caractéristiques utilisés sans besoin de travailler sur le maillage, on peut ne pas charger le maillage
     Sc2String type_formulation;
     
@@ -308,6 +316,7 @@ struct Meshmulti {
     Meshmulti() {
         flag=0;
         typmat=0;
+        id_group=0;
         numsst=0;
         num_proc=0;
     }
@@ -333,9 +342,13 @@ struct Meshmulti {
             read_mesh_sst_geometry_user(*m, *geometry_user, id_sst);
             flag=1;
             //affiche();
-            if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
+            if (typmat!=0 or numsst!=0 or num_proc!=0 or id_group!=0){
+              apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
+              apply(m->elem_list,apply_group_elem(),id_group);
+            }
             if (sousintegration == "p") sousint();
         }
+       
     }
     void load(GeometryUser &geometry_user_,int id_sst_) {///chargement du maillage à partir de geometry_user
         if (name != "" and flag == 0) {
@@ -375,7 +388,10 @@ struct Meshmulti {
         flag=1;
         m->sub_mesh(LMT::Number<1>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
         m->sub_mesh(LMT::Number<2>()).elem_list.change_hash_size( *m, m->elem_list.size() /2 +1);
-        if (typmat!=0 or numsst!=0 or num_proc!=0) apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
+        if (typmat!=0 or numsst!=0 or num_proc!=0 or id_group!=0) {
+          apply(m->elem_list,apply_mat_elem(),typmat,numsst,num_proc);
+          apply(m->elem_list,apply_group_elem(),id_group);
+        }
         node_list_size=m->node_list.size();
         elem_list_size=m->elem_list.size();
     }
@@ -383,6 +399,7 @@ struct Meshmulti {
     void affiche(){/// affiche les infos du maillage pour vérification
         PRINT("---------------affich maillage-------------------");
         PRINT(typmat);
+        PRINT(id_group);
         PRINT(numsst);
         PRINT(num_proc);
         PRINT(m->elem_list.size());

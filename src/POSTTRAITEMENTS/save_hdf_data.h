@@ -13,6 +13,7 @@ struct Projection_data_elements_0_on_skin_sst{
         e.numsst_skin = parent.numsst;
         e.num_proc_skin = parent.num_proc;
         e.typmat_skin = parent.typmat;
+        e.id_group_skin = parent.id_group;
     }
 };
 
@@ -28,6 +29,7 @@ struct Projection_fields_on_skin_sst{
       e.numsst_skin = parent.numsst;
       e.num_proc_skin = parent.num_proc;
       e.typmat_skin = parent.typmat;
+      e.id_group_skin = parent.id_group;
 
 //#warning A modifier pour les comportements orthotrope
       #ifdef FORMUORTHO

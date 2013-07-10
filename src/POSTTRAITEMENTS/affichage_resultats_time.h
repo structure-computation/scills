@@ -1,7 +1,7 @@
 #ifndef AFFICHAGE_RESULTATS_TIME_H
 #define AFFICHAGE_RESULTATS_TIME_H
 
-#include "../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../DEFINITIONS/Sst.h"
 #include "../DEFINITIONS/Interface.h"
 #include "../DEFINITIONS/MultiResolutionData.h"
@@ -28,9 +28,7 @@ struct Projection_sigma_epsilon_on_skin{
 	e.numsst_skin = parent.numsst;
 	e.num_proc_skin = parent.num_proc;
 	e.typmat_skin = parent.typmat;
-	e.numsst_skin = parent.numsst;
-	e.num_proc_skin = parent.num_proc;
-	e.typmat_skin = parent.typmat;
+        e.id_group_skin = parent.id_group;
 	
 	//e.epsilon_skin[0] =parent.Yde[0];
 	//e.epsilon_skin[1] =parent.Yde[1];
@@ -165,9 +163,10 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	process.affichage->display_fields[6]= "numsst";
 	process.affichage->display_fields[7]= "f_vol_e";
 	process.affichage->display_fields[8]= "num_proc";
+        process.affichage->display_fields[9]= "id_group";
     }
     else if(process.affichage->type_affichage== "Sbord"){
-	process.affichage->display_fields.resize(8);
+	process.affichage->display_fields.resize(9);
 	process.affichage->display_fields[0]= "dep";
 	process.affichage->display_fields[1]= "qtrans";
 	process.affichage->display_fields[2]= "sigma_skin";
@@ -175,6 +174,7 @@ template<class TV1> void affich_SST_resultat_latin(TV1 &S,Process &process, Data
 	process.affichage->display_fields[5]= "sigma_mises_skin";
 	process.affichage->display_fields[6]= "numsst_skin";
 	process.affichage->display_fields[7]= "num_proc_skin";
+        process.affichage->display_fields[8]= "id_group_skin";
     }
   
   

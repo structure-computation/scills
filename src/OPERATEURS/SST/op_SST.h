@@ -3,7 +3,7 @@
 
 #include "../../COMPUTE/DataUser.h"
 
-#include "../../DEFINITIONS/Process.h"
+#include "Process.h"
 #include "../../DEFINITIONS/Sst.h"
 #include "../../DEFINITIONS/Interface.h"
 
