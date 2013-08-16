@@ -12,6 +12,7 @@ MultiScaleData::MultiScaleData(){
 
 void MultiScaleData::read_data_user(const DataUser &data_user) {
     //multiechelle = (data_user.mesh.nb_groups_elem > 2); /// Uniquement si 3 pieces ou plus
+    multiechelle = data_user.options.convergence_method_LATIN.multiscale;
     type_base_macro = 3;
     opti_multi = 0;
     erreur_macro = 0.000001;

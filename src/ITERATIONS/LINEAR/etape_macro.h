@@ -4,6 +4,7 @@
 #include "../../DEFINITIONS/structure_typedef.h"
 #include "../../DEFINITIONS/TimeData.h"
 #include "../../DEFINITIONS/MacroProblem.h"
+#include "../../DEFINITIONS/Process.h"
 
 /** \ingroup etape_lineaire
  \relates macroassemble
@@ -45,8 +46,11 @@ void add_bigF_CLsym(Vector &bigF, Interface &inter, unsigned &data,int &imic) {
  - Si l'interface est de type symetrie ou deplacement normal donne, on utilise la fonction add_bigF_CLsym().
  */
 struct macroassemble {
-    void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps, MacroProblem &Global) const {
-        int imic=temps.pt;   
+//     void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps,Boundaries &CL, MacroProblem &Global) const {
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process, MacroProblem &Global) const {
+        Boundaries CL = *(process.CL);
+        int imic=process.temps->pt;
+//         int imic=temps.pt;   
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned q=S.edge[j].internum;
             unsigned data=S.edge[j].datanum;
@@ -56,10 +60,13 @@ struct macroassemble {
                 /// participation des efforts de l'etape micro 1
                 Global.bigF[repF] -= S.Fadd[repFadd];
                 /// participation des efforts imposes
-                if(Inter[q].comp == Interface::comp_effort or Inter[q].comp == Interface::comp_effort_normal) {
+                if(Inter[q].comp == Interface::comp_effort or Inter[q].comp == Interface::comp_effort_normal ) {
                     Global.bigF[repF] += trans(Inter[q].side[data].MeM)*Inter[q].side[data].t[imic].Fchap;
                 } else if(Inter[q].comp == Interface::comp_symetrie or Inter[q].comp == Interface::comp_deplacement_normal or Inter[q].comp == Interface::comp_vitesse_normale) {
                     add_bigF_CLsym(Global.bigF,Inter[q],data,imic);
+                } else if(Inter[q].comp == Interface::comp_cinetic_torseur) {
+                    Inter[q].assign_F_CL_torseur_cinetic_temporel(Inter[q].side[data].t[imic].Fchap,Inter[q].side[data].nodeeq,CL[Inter[q].refCL]);
+                    Global.bigF[repF] += trans(Inter[q].side[data].MeM)*Inter[q].side[data].t[imic].Fchap;
                 }
             }
         }
@@ -106,8 +113,11 @@ void modif_WtildeM_CLsym(Interface &Inter,Vector &bigW, unsigned &data,int &imic
  
  */
 struct interextrmacro {
-    void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps, MacroProblem &Global) const {
-        int imic=temps.pt;
+//     void operator()(Sst &S,VecInterfaces &Inter,TimeData &temps, Boundaries &CL, MacroProblem &Global) const {
+    void operator()(Sst &S,VecInterfaces &Inter,Process &process, MacroProblem &Global) const {
+        Boundaries CL = *(process.CL);
+        int imic=process.temps->pt;
+//         int imic=temps.pt;
         for(unsigned j=0;j<S.edge.size();++j) {
             unsigned data=S.edge[j].datanum;
             unsigned q=S.edge[j].internum;
@@ -115,6 +125,9 @@ struct interextrmacro {
                 Inter[q].side[data].t[imic].WtildeM.set(0.0);
             } else if (Inter[q].comp == Interface::comp_symetrie or Inter[q].comp == Interface::comp_deplacement_normal or Inter[q].comp == Interface::comp_vitesse_normale) {
                 modif_WtildeM_CLsym(Inter[q],Global.bigW,data,imic);
+            } else if (Inter[q].comp == Interface::comp_cinetic_torseur) {
+                Inter[q].side[data].t[imic].WtildeM=Inter[q].side[data].eM * Global.bigW[Inter[q].repddl];
+                Inter[q].assign_W_CL_torseur_cinetic_temporel(Inter[q].side[data].t[imic].WtildeM,Inter[q].side[0].nodeeq,CL[Inter[q].refCL],false);
             } else {
                 Inter[q].side[data].t[imic].WtildeM=Inter[q].side[data].eM * Global.bigW[Inter[q].repddl];
             }

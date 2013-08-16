@@ -21,6 +21,7 @@ Sc2String Interface::comp_effort = "effort";                            /// Nom 
 Sc2String Interface::comp_effort_normal = "effort_normal";              /// Nom pour le comportement effort normal (pression)
 Sc2String Interface::comp_symetrie = "sym";                             /// Nom pour le comportement symetrie
 Sc2String Interface::comp_periodique = "periodique";                    /// Nom pour le comportement periodique
+Sc2String Interface::comp_cinetic_torseur = "cinetic_torseur";          /// Nom pour le comportement torseur cinetic
 //-----------------------------------------------------------------------------//
 
 Interface::Side::Side(){
@@ -285,8 +286,10 @@ int Interface::get_type_elem() const {
         type_elem = 6;
     } else if (type == type_ext and (comp == comp_periodique)){
         type_elem = 7;
-    } else {
+    } else if (type == type_ext and (comp == comp_cinetic_torseur)){
         type_elem = 8;
+    } else {
+        type_elem = 9;
     }
     return type_elem;
 }
@@ -294,6 +297,441 @@ int Interface::get_type_elem() const {
 Interface::Interface() {matprop = 0;id_link = -1;}
 Interface::~Interface() {free();}
 
+
+/**********************************************************************************************
+*                                                                                             *
+*                                         comportement d'interface ext                        *
+*                                                                                             *
+**********************************************************************************************/
+struct calcul_mesure_e{
+    template<typename Te> void operator()(Te &e, Vector &VME, int &indice) const{
+        VME[indice]=measure(e);
+        indice+=1;
+    }
+};
+// fonction permettant le calcul des tailles de chaque élément
+Vector Interface::vec_mesure_e(){
+    Vector VME;
+    VME.resize(side[0].nodeeq.size());
+    int indice = 0;
+    apply(side[0].mesh->elem_list,calcul_mesure_e(),VME,indice);
+    return VME;
+}
+
+#include "../../UTILITAIRES/algebre.h"
+template<>
+void Interface::assign_W_CL_torseur_cinetic_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL, bool imp_comp) {
+    Ex::MapExNum values = Boundary::CL_parameters.getParentsValues();               /// Recuperation des parametres temporels et de multiresolution
+
+    PRINT(V[range(12)]);
+    
+    /// récupération des paramètre imposés
+    for(unsigned i_dir=0;i_dir<DIM;++i_dir){
+        values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = CL.Centre[i_dir];  /// Chargement des coordonnees du point (main_parameters pointe vers x, y et z)
+    }
+    Vec<Scalar,3> data_vitesse;
+    Vec<Scalar,3> data_rotation;
+    for(unsigned i_dir=0;i_dir<3;++i_dir){
+        if(imp_comp){
+            data_vitesse[i_dir] = CL.vitesse[i_dir].updateValue(values);                    /// Evaluation des composantes de la CL
+            data_rotation[i_dir] = CL.rotation[i_dir].updateValue(values);                  /// Evaluation des composantes de la CL
+        }else{
+            data_vitesse[i_dir] = 0.;                    /// Evaluation des composantes de la CL
+            data_rotation[i_dir] = 0.;                   /// Evaluation des composantes de la CL
+        }
+    }
+    
+    unsigned nb_nodes = nodeeq.size();
+    ///initialisation des variables
+    Vec<Scalar,3> vit, rot, vit_1, rot_1;
+    for(unsigned i=0;i<3;++i){
+      vit[i] = 0.;
+      rot[i] = 0.;
+      vit_1[i] = 0.;
+      rot_1[i] = 0.;
+    }
+
+    /// calcul de la vitesse moyenne
+    for( unsigned d=0;d<DIM;d++ ) {
+        vit[d] = 0.;
+        for( unsigned i=0;i<nb_nodes;i++ ) {
+            vit[d] += V[DIM*i+d];                               // vitesse suivant d
+        }
+        vit[d] = vit[d]/nb_nodes;
+    }
+
+    /// calcul de la rotation moyenne
+    Vector rotation_moyenne;
+    rotation_moyenne.resize(V.size(),0.);
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Scalar drot = 0.;  
+        Vec<Scalar,3> Vn, MC, dir;
+        Vn.set(0);
+        MC.set(0);
+        dir.set(0);
+
+        MC[range(DIM)] = CL.Centre[range(DIM)]-nodeeq[i];      // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ){
+          Vn[d] = V[DIM*i+d] - vit[d];
+        }
+
+        if(norm_2(Vn) != 0 and norm_2(MC) != 0){ 
+          dir= vect_prod(Vn,MC);
+          dir = dir/norm_2(dir);
+          drot = norm_2(Vn)/norm_2(MC);
+        }
+        rotation_moyenne += drot * dir / nb_nodes;
+    }
+    rot = rotation_moyenne;
+    
+    PRINT(rot);
+    PRINT(vit);
+    
+    /// déplacement du centre d'intertie G au point central de la liaison C
+    Vec<Scalar,3> GC;
+    GC.set(0.);  
+    GC[range(DIM)] = CL.Centre[range(DIM)] - G ;
+    vit = vit + vect_prod(GC,rot);
+    PRINT(GC);
+    PRINT(vit);
+    
+    
+    /// changement de repère
+    orthonormalisation_schmidt(CL.Base);
+    Mat<Scalar, Gen<3>, Dense<> > I1;
+    for(unsigned i = 0; i < 3; ++i){
+        for(unsigned j = 0; j < 3; ++j){
+            I1(i,j) = CL.Base[i][j];
+        }
+    }
+    vit_1 = I1*vit;
+    rot_1 = I1*rot;
+    
+    
+    /// assignation de composantes imposées
+    for( unsigned d=0;d<3;d++ ) {
+        if(CL.imp_vitesse[d]){
+            vit_1[d] = data_vitesse[d];
+        }
+        if(CL.imp_rotation[d]){
+            rot_1[d] = data_rotation[d];
+        }
+    }
+    PRINT(rot_1);
+    PRINT(vit_1);
+    
+    /// changement de repère inverse
+    Mat<Scalar, Gen<3>, Dense<> > I2 = inverse(I1);
+    vit = I2*vit_1;
+    rot = I2*rot_1;
+    
+    PRINT(rot);
+    PRINT(vit);
+    
+    /// projection sur les noeuds
+    Vector Vrot;
+    Vrot.resize(V.size(),0.);
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, MC, Vr;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          MC[ii] = 0.;
+          Vr[ii] = 0.;
+        }
+        MC[range(DIM)] = CL.Centre[range(DIM)]-nodeeq[i];      // vecteur entre le point central du bord et le neud courant
+        Vn = vit + vect_prod(MC,rot);
+        Vr = vect_prod(MC,rot);
+        for( unsigned d=0;d<DIM;d++ ) {
+            V[DIM*i+d] = Vn[d];                                // déplacement au noeud courant
+            Vrot[DIM*i+d] = Vr[d];
+        }
+    }
+    PRINT(V[range(12)]);
+    PRINT(Vrot[range(12)]);
+    
+}
+
+template<>
+void Interface::assign_F_CL_torseur_cinetic_temporel(Vector &V, Vec<Point > &nodeeq, Boundary &CL) {
+    Ex::MapExNum values = Boundary::CL_parameters.getParentsValues();               /// Recuperation des parametres temporels et de multiresolution
+
+//     PRINT("-------------assign_F_CL_torseur_cinetic_temporel----------- ");
+    /// récupération des paramètre imposés
+    Vec<Scalar,3> data_vitesse;
+    Vec<Scalar,3> data_rotation;
+    for(unsigned i_dir=0;i_dir<3;++i_dir){
+        data_vitesse[i_dir] = 0.;                    /// Evaluation des composantes de la CL
+        data_rotation[i_dir] = 0.;                   /// Evaluation des composantes de la CL
+    }
+    
+    unsigned nb_nodes = nodeeq.size();
+    ///initialisation des variables
+    Vec<Scalar,3> res, mom, res_1, mom_1, res_2, mom_2;
+    for(unsigned i=0;i<3;++i){
+      res[i] = 0.;
+      mom[i] = 0.;
+      res_1[i] = 0.;
+      mom_1[i] = 0.;
+      res_2[i] = 0.;
+      mom_2[i] = 0.;
+    }
+
+    Vector VME = vec_mesure_e();
+    
+    /// calcul de la resesse moyenne (résultante)
+    for( unsigned d=0;d<DIM;d++ ) {
+        res[d] = 0.;
+        for( unsigned i=0;i<nb_nodes;i++ ) {
+            res[d] += V[DIM*i+d] * VME[i];                               // résutante suivant d
+        }
+        res[d] = res[d] ; // /measure;
+    }
+
+    /// calcul de la momation moyenne (moment)
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, CM;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          CM[ii] = 0.;
+        }
+        CM[range(DIM)] = nodeeq[i]-CL.Centre[range(DIM)];       // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ) {
+            Vn[d] = V[DIM*i+d] * VME[i];                                 // moment au noeud courant
+        }
+        mom = mom + vect_prod(CM,Vn);                           // moment suivant d
+    }
+    
+//     for( unsigned d=0;d<3;d++ ) {
+//         mom[d] = mom[d]/measure;
+//     }
+    
+    /// changement de repère
+    orthonormalisation_schmidt(CL.Base);
+    Mat<Scalar, Gen<3>, Dense<> > I1;
+    for(unsigned i = 0; i < 3; ++i){
+        for(unsigned j = 0; j < 3; ++j){
+            I1(i,j) = CL.Base[i][j];
+        }
+    }
+    res_1 = I1*res;
+    mom_1 = I1*mom;
+    
+    /// assignation de composantes imposées
+    for( unsigned d=0;d<3;d++ ) {
+        if(!CL.imp_vitesse[d]){
+            res_2[d] = res_1[d];                // composante à annuler
+        }
+        if(!CL.imp_rotation[d]){
+            mom_2[d] = mom_1[d];                // composante à annuler
+        }
+    }
+    
+    /// changement de repère inverse
+    Mat<Scalar, Gen<3>, Dense<> > I2 = inverse(I1);
+    res = I2*res_2;
+    mom = I2*mom_2;
+//     PRINT(res);
+//     PRINT(mom);
+    
+    
+    /// annulation de composante, passage aux grandeurs 3D
+    //calcul du vecteur des tailles d'éléments
+    
+    
+    /// correction
+    Vector correction_res, correction_mom;
+    correction_res.resize(V.size(),0.);
+    correction_mom.resize(V.size(),0.);
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, MC, Vmcorr;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          MC[ii] = 0.;
+          Vmcorr[ii] = 0.;
+        }
+        MC[range(DIM)] = CL.Centre[range(DIM)]-nodeeq[i];      // vecteur entre le point central du bord et le neud courant
+        Vn = res/measure ;
+        
+        Vec<Scalar,3> dir ;
+        dir.set(0);
+        if(norm_2(mom) != 0 and norm_2(MC) != 0){
+          dir= vect_prod(MC,mom);
+          dir = dir/norm_2(dir);
+        }
+        Vmcorr = norm_2(MC) * dir;
+//         PRINT(dir);
+        
+        for( unsigned d=0;d<DIM;d++ ) {
+            correction_res[DIM*i+d] = Vn[d];  
+            correction_mom[DIM*i+d] = Vmcorr[d];  
+            //V[DIM*i+d] = V[DIM*i+d]+Vn[d];                                // correction au neud courant
+        }
+    }
+    
+    /// calcul du coefficient correcteur
+    Vec<Scalar,3> mom_cor;
+    mom_cor.set(0.);
+
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, CM;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          CM[ii] = 0.;
+        }
+        CM[range(DIM)] = nodeeq[i]-CL.Centre[range(DIM)];       // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ) {
+            Vn[d] = correction_mom[DIM*i+d] * VME[i] ;                                 // resesse au noeud courant
+        }
+        if(norm_2(Vn) != 0 and norm_2(CM) != 0){
+            mom_cor = mom_cor + vect_prod(CM,Vn) ;                           // moment suivant d
+        }
+    } 
+    Scalar coeff_moment = 0.;
+    if(norm_2(mom_cor) != 0){coeff_moment = norm_2(mom)/norm_2(mom_cor);}
+    correction_mom = coeff_moment * correction_mom;
+    
+    
+    /// vérification
+    Vec<Scalar,3>res_verif, mom_verif;
+    res_verif.set(0.);
+    mom_verif.set(0.);
+    
+    for( unsigned d=0;d<DIM;d++ ) {
+        res_verif[d] = 0.;
+        for( unsigned i=0;i<nb_nodes;i++ ) {
+            res_verif[d] += correction_res[DIM*i+d] * VME[i];                               // resesse suivant d
+        }
+        res_verif[d] = res_verif[d];
+    }
+    
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, CM;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          CM[ii] = 0.;
+        }
+        CM[range(DIM)] = nodeeq[i]-CL.Centre[range(DIM)];       // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ) {
+            Vn[d] = correction_mom[DIM*i+d] * VME[i];                                 // resesse au noeud courant
+        }
+        mom_verif = mom_verif + vect_prod(CM,Vn);                           // moment suivant d
+    }
+//     PRINT(res_verif);
+//     PRINT(mom_verif);
+//     
+    /// correction
+//     PRINT(V);
+//     PRINT(correction_res);
+//     PRINT(correction_mom);
+    
+    for(int i; i<V.size(); i++){
+        V[i] -= (correction_res[i] + correction_mom[i]);
+    }
+//     PRINT(V);
+}
+
+
+
+void Interface::cinetic_rigid_body_interface(Vector &V){
+    unsigned nb_nodes = side[0].nodeeq.size();
+    ///initialisation des variables
+    Vec<Scalar,3> vit, rot, vit_1, rot_1;
+    for(unsigned i=0;i<3;++i){
+      vit[i] = 0.;
+      rot[i] = 0.;
+      vit_1[i] = 0.;
+      rot_1[i] = 0.;
+    }
+
+    /// calcul de la vitesse moyenne
+    for( unsigned d=0;d<DIM;d++ ) {
+        vit[d] = 0.;
+        for( unsigned i=0;i<nb_nodes;i++ ) {
+            vit[d] += V[DIM*i+d];                               // vitesse suivant d
+        }
+        vit[d] = vit[d]/nb_nodes;
+    }
+
+    /// calcul de la rotation moyenne
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, CM;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          CM[ii] = 0.;
+        }
+        CM[range(DIM)] = side[0].nodeeq[i]-G[range(DIM)];       // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ) {
+            Vn[d] = V[DIM*i+d];                                 // vitesse au noeud courant
+        }
+        rot = rot + vect_prod(CM,Vn);                           // moment suivant d
+    }
+  
+    /// projection sur les noeuds
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, MC;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          MC[ii] = 0.;
+        }
+        MC[range(DIM)] = G[range(DIM)]-side[0].nodeeq[i];      // vecteur entre le point central du bord et le neud courant
+        Vn = vit + vect_prod(MC,rot);
+        for( unsigned d=0;d<DIM;d++ ) {
+            V[DIM*i+d] = Vn[d];                                // déplacement au noeud courant
+        }
+    }
+  
+}
+
+void Interface::static_rigid_body_interface(Vector &V){
+    unsigned nb_nodes = side[0].nodeeq.size();
+    ///initialisation des variables
+    Vec<Scalar,3> mom, res, mom_1, res_1;
+    for(unsigned i=0;i<3;++i){
+      mom[i] = 0.;
+      res[i] = 0.;
+      mom_1[i] = 0.;
+      res_1[i] = 0.;
+    }
+
+    /// calcul de la résultante
+    for( unsigned d=0;d<DIM;d++ ) {
+        mom[d] = 0.;
+        for( unsigned i=0;i<nb_nodes;i++ ) {
+            mom[d] += V[DIM*i+d];                               // momesse suivant d
+        }
+//         mom[d] = mom[d]/measure;
+    }
+
+    /// calcul du moment
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, CM;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          CM[ii] = 0.;
+        }
+        CM[range(DIM)] = side[0].nodeeq[i]-G[range(DIM)];       // vecteur entre le point central du bord et le neud courant
+        for( unsigned d=0;d<DIM;d++ ) {
+            Vn[d] = V[DIM*i+d];                                 // momesse au noeud courant
+        }
+        res = res + vect_prod(CM,Vn);                           // moment suivant d
+    }
+  
+    /// projection sur les noeuds
+    for( unsigned i=0;i<nb_nodes;i++ ) {
+        Vec<Scalar,3> Vn, MC;
+        for(unsigned ii=0;ii<3;++ii){
+          Vn[ii] = 0.;
+          MC[ii] = 0.;
+        }
+        MC[range(DIM)] = G[range(DIM)]-side[0].nodeeq[i];      // vecteur entre le point central du bord et le neud courant
+        Vn = mom/measure;
+        Vn = Vn + vect_prod(MC,res);
+        for( unsigned d=0;d<DIM;d++ ) {
+            V[DIM*i+d] = Vn[d];                                // déplacement au noeud courant
+        }
+    }
+  
+}
 
 
 /**********************************************************************************************

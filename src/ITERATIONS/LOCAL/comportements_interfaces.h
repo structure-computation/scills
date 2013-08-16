@@ -13,7 +13,17 @@
 \brief Procedure pour les interfaces exterieures à deplacement (ou vitesse) impose
 */
 void compt_CL_vit (Interface &Inter,int &imic) {
+//     PRINT("------------compt_CL_vit---------------");
+//     PRINT(Inter.side[0].t[imic].Wp);
+//     PRINT(Inter.side[0].t[imic].F);
+//     PRINT(Inter.side[0].kglo);
+  
+  
     Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + Inter.side[0].kglo*(Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp);
+//     PRINT("------------depl imp---------------");
+//     PRINT(Inter.side[0].t[imic].Wpchap);
+//     PRINT(Inter.side[0].t[imic].Fchap);
+//     PRINT("------------fin depl imp---------------");
 }
 
 //interface exterieure de type effort impose pour tous les ddls
@@ -69,6 +79,40 @@ void compt_CL_sym (Interface &Inter,int &imic) {
     
 //     PRINT(Inter.side[0].t[imic].Wpchap);
 }
+
+
+#include "../DEFINITIONS/Boundary.h"
+//interface exterieure de type torseur cinetic impose pour tous les ddls
+/** \ingroup  etape_locale
+\relates etape_locale_inter
+\brief Procedure pour les interfaces exterieures à torseur cinetic impose
+*/
+void compt_CL_torseur_cinetic (Interface &Inter,int &imic, Boundaries &CL) {
+  
+    // imposition des contraintes sur Wp
+    Vector wptemp = Inter.side[0].t[imic].Wp;
+    Inter.assign_W_CL_torseur_cinetic_temporel(wptemp,Inter.side[0].nodeeq,CL[Inter.refCL],true);
+    Vector wtemp = (Inter.side[0].hglo * Inter.side[0].t[imic].F);
+    Inter.assign_W_CL_torseur_cinetic_temporel(wtemp,Inter.side[0].nodeeq,CL[Inter.refCL],false);
+    Inter.side[0].t[imic].Wpchap.set(0.);
+    Inter.side[0].t[imic].Wpchap=wptemp - wtemp; 
+    
+    
+    //     PRINT("------------Calcul de Fchap---------------");
+    Vector w1temp = Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp;
+    Vector f1temp = Inter.side[0].kglo*w1temp;
+    // imposition des contraintes sur F   
+    Inter.assign_F_CL_torseur_cinetic_temporel(Inter.side[0].t[imic].F,Inter.side[0].nodeeq,CL[Inter.refCL]);
+    Inter.assign_F_CL_torseur_cinetic_temporel(f1temp,Inter.side[0].nodeeq,CL[Inter.refCL]);
+    
+    Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + f1temp;
+    
+//     Inter.side[0].t[imic].Fchap=Inter.side[0].t[imic].F + Inter.side[0].kglo*(Inter.side[0].t[imic].Wpchap - Inter.side[0].t[imic].Wp);
+//     Inter.assign_F_CL_torseur_cinetic_temporel(Inter.side[0].t[imic].Fchap,Inter.side[0].nodeeq,CL[Inter.refCL]);
+    PRINT("#############################");
+}
+
+
 
 void comportement_local_interface(Interface &Inter, unsigned pt, Scalar dt);
 

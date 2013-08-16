@@ -193,7 +193,7 @@ void etape_lineaire(PointedSubstructures &S, VecInterfaces &Inter,Process &proce
     if (process.multiscale->multiechelle ==1) {
         /// Assemblage du probleme macro
         Global.bigF.set(0.0);
-        if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,macroassemble(),Inter,*process.temps,Global);
+        if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,macroassemble(),Inter,process,Global);
         if (get_durations) {crout << process.parallelisation->rank<<" : macroassemble :"; tic1.stop();}
         
         /// Deploiement de bigF sur le master
@@ -235,7 +235,7 @@ void etape_lineaire(PointedSubstructures &S, VecInterfaces &Inter,Process &proce
 //         }
         
         /// Assemblage du multiplicateur WtildeM
-        if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,interextrmacro(),Inter,*process.temps,Global);
+        if (process.parallelisation->is_local_cpu()) apply_mt(S,nb_threads,interextrmacro(),Inter,process,Global);
         if (get_durations) {crout << process.parallelisation->rank<<" : interextrmacro :"; tic1.stop();tic1.start();}
         
         /// Resolution du probleme micro2

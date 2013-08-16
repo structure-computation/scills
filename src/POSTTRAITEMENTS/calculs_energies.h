@@ -245,6 +245,7 @@ void calcul_ener_imp_chap(TV1 &S, TI &Inter,Vector &dissipation,Process &process
                 Inter[i].comp == Interface::comp_vitesse or 
                 Inter[i].comp == Interface::comp_vitesse_normale or 
                 Inter[i].comp == Interface::comp_effort or 
+                Inter[i].comp == Interface::comp_cinetic_torseur or 
                 Inter[i].comp == Interface::comp_effort_normal/*or 
                 Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);
@@ -321,6 +322,7 @@ void calcul_ener_imp_lin(TV1 &S, TI &Inter,Vector &dissipation,Process &process)
                 Inter[i].comp == Interface::comp_vitesse or 
                 Inter[i].comp == Interface::comp_vitesse_normale or 
                 Inter[i].comp == Interface::comp_effort or 
+                Inter[i].comp == Interface::comp_cinetic_torseur or 
                 Inter[i].comp == Interface::comp_effort_normal/*or 
                 Inter[i].comp=="Jeu_impose"*/) and data == 0) {
                 dissi_inter.set(0.);

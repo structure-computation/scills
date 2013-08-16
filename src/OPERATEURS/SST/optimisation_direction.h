@@ -54,6 +54,11 @@ void modification_direction_CL(Interface &Inter, Scalar &kn, Scalar &kt, Scalar 
             hn = hn / facteur ;
             kt = kt / facteur ;
             ht = ht * facteur ;
+        } else if(Inter.comp == Interface::comp_cinetic_torseur) {
+//             kn = kn * 10;
+//             hn = hn / 10;
+//             kt = kt * 10;
+//             ht = ht / 10;
         } else if(Inter.comp == Interface::comp_periodique) {
             //ben on fait rien :)
         } else {

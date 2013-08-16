@@ -32,6 +32,15 @@ struct Boundary {
     Id id;                                    ///  id de la condition limite, la même que dans data_user
     Sc2String comp;                           /// type de condition aux limites
     Vec<UserParameter,DIM> fcts_spatiales;    /// Vecteur des parametres pour evaluer la CL
+    
+    //pour les conditions limites de type torseur cinetique
+    Vec<Scalar,3> Centre;                               /// point central du torseur
+    Vec<Vec<Scalar,3>, 3> Base;                 /// Base associée au torseur
+
+    Vec<UserParameter,3> vitesse;               /// vitesse du torseur
+    Vec<UserParameter,3> rotation;              /// rotation du torseur
+    Vec<bool, 3> imp_vitesse;                   /// composante imposée ou non
+    Vec<bool, 3> imp_rotation;                  /// composante imposée ou non
 };
 
 #endif //BOUNDARY_H

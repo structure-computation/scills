@@ -195,6 +195,7 @@ void macro_CL(Vec<Interface> &Inter, Process &process,Vec<unsigned> &repddlMbloq
             Inter[q].comp == Interface::comp_deplacement or
             Inter[q].comp == Interface::comp_deplacement_nul or
             Inter[q].comp == Interface::comp_vitesse or
+            Inter[q].comp == Interface::comp_cinetic_torseur or
             Inter[q].comp == Interface::comp_vitesse_nulle) ){
             //ddl bloques
             repddlMbloq.append(Inter[q].repddl);

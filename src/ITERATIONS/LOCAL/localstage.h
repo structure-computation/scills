@@ -52,6 +52,8 @@ struct etape_locale_inter {
                 compt_CL_sym(Inter,process.temps->pt);
             } else if (Inter.comp == Interface::comp_periodique) {
                 compt_parfait(Inter,*process.temps);
+            } else if (Inter.comp == Interface::comp_cinetic_torseur) {
+                compt_CL_torseur_cinetic(Inter, process.temps->pt, *process.CL);
             }
         } else if (Inter.type == Interface::type_int) {
 //             if (Inter.comp == Interface::comp_periodique) {

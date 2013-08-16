@@ -8,8 +8,10 @@
 #include "../UTILITAIRES/utilitaires.h"
 #include "../../LMT/include/codegen/codegen.h"
 #include "../../LMT/include/containers/basicops.h"
+#include "../../UTILITAIRES/algebre.h"
 
 using namespace Codegen;
+
 
 
 /// Calcul des valeurs numeriques des fonctions spatiales de la CL et assignation dans le vecteur V associe au chargement defini (Fchap ou Wpchap)
@@ -100,6 +102,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
             } else if(Inter[i_inter].comp == Interface::comp_deplacement or Inter[i_inter].comp == Interface::comp_deplacement_nul) {
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
                 Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
+                PRINT(Inter[i_inter].side[0].t[1].Wpchap);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
@@ -108,6 +111,11 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";
+            } else if(Inter[i_inter].comp == Interface::comp_cinetic_torseur) {
+                Inter[i_inter].assign_W_CL_torseur_cinetic_temporel(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],true);
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[0] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[1] << " ; ";
+                //std::cout << Inter[i_inter].side[0].t[1].Fchap[2] << " ; ";
             } else if(Inter[i_inter].comp == Interface::comp_symetrie) {
                 if(process.temps->pt_cur==1) {
                     if(process.reprise_calcul==0){
@@ -171,34 +179,34 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
 //                 Inter[i_inter].side[1].t[process.temps->pt-1].F[Inter[i_inter].side[1].ddlcorresp] += - 1. * dep_precharge;
 //                 Inter[i_inter].side[0].t[process.temps->pt-1].F +=  dep_precharge;
  
-                if(Inter[i_inter].id==5){
-                    PRINT("  ");
-                    PRINT(R0);
-                    PRINT(R1);
-                    PRINT(dep_jeu[LMT::range(0,DIM*1)]);
-                    PRINT("on est dans prélocal stage");
-                    PRINT(Inter[i_inter].id);
-                    //PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
-//                     Vector testt1 ;
-//                     testt1.resize(dep_precharge.size(),1);
-//                     Vector testt = Inter[i_inter].side[0].kglo * ( (dt * Inter[i_inter].side[0].hglo * testt1)/process.temps->dt ) ;
-//                     PRINT(testt);
-//                     
-//                     
-//                     Scalar test;
-//                     test = 0;
-//                     for(unsigned i=0;i<Inter[i_inter].side[0].nodeeq.size()*DIM;++i) {
-//                         for(unsigned j=0;j<Inter[i_inter].side[0].nodeeq.size()*DIM;++j) {
-//                             test += Inter[i_inter].side[0].kglo(i,j) * Inter[i_inter].side[0].hglo(i,j);
-//                         }
-//                     }
-//                     PRINT(test);
-//                     PRINT((1./test));
-                    PRINT(Inter[i_inter].measure);
-                    PRINT(dep_precharge[LMT::range(0,DIM*1)]);
-                    PRINT(dt);
-                    PRINT("  ");
-                }
+//                 if(Inter[i_inter].id==5){
+//                     PRINT("  ");
+//                     PRINT(R0);
+//                     PRINT(R1);
+//                     PRINT(dep_jeu[LMT::range(0,DIM*1)]);
+//                     PRINT("on est dans prélocal stage");
+//                     PRINT(Inter[i_inter].id);
+//                     //PRINT(Inter[i_inter].side[0].t[process.temps->pt].dEp_imposee[LMT::range(0,DIM*1)]);
+// //                     Vector testt1 ;
+// //                     testt1.resize(dep_precharge.size(),1);
+// //                     Vector testt = Inter[i_inter].side[0].kglo * ( (dt * Inter[i_inter].side[0].hglo * testt1)/process.temps->dt ) ;
+// //                     PRINT(testt);
+// //                     
+// //                     
+// //                     Scalar test;
+// //                     test = 0;
+// //                     for(unsigned i=0;i<Inter[i_inter].side[0].nodeeq.size()*DIM;++i) {
+// //                         for(unsigned j=0;j<Inter[i_inter].side[0].nodeeq.size()*DIM;++j) {
+// //                             test += Inter[i_inter].side[0].kglo(i,j) * Inter[i_inter].side[0].hglo(i,j);
+// //                         }
+// //                     }
+// //                     PRINT(test);
+// //                     PRINT((1./test));
+//                     PRINT(Inter[i_inter].measure);
+//                     PRINT(dep_precharge[LMT::range(0,DIM*1)]);
+//                     PRINT(dt);
+//                     PRINT("  ");
+//                 }
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 0) : " << Inter[i_inter].side[0].t[0].Wchap << endl;
                 //if (Inter[i_inter].num == 15 ) std::cout << "Jeu (cote 1) : " << Inter[i_inter].side[1].t[0].Wchap << endl;
             //}

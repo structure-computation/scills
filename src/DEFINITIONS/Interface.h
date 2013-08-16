@@ -42,6 +42,7 @@ struct Interface
     static Sc2String comp_effort_normal;        /// Nom pour le comportement effort normal (pression)
     static Sc2String comp_symetrie;             /// Nom pour le comportement symetrie
     static Sc2String comp_periodique;           /// Nom pour le comportement periodique
+    static Sc2String comp_cinetic_torseur;      /// Nom pour le comportement torseur cinetic
     
     /// Geometrie
     int id;                     /// id du group d'interface de geometry_user
@@ -261,6 +262,12 @@ struct Interface
     void init(unsigned pt);
     void affiche();
     void read_data_user(int index,const DataUser &data_user, const GeometryUser &geometry_user);
+    
+    Vector vec_mesure_e();
+    template<class B> void assign_W_CL_torseur_cinetic_temporel(Vector &V, Vec<Point > &nodeeq, B &CL, bool imp_comp);
+    template<class B> void assign_F_CL_torseur_cinetic_temporel(Vector &V, Vec<Point > &nodeeq, B &CL);
+    void cinetic_rigid_body_interface(Vector &V);
+    void static_rigid_body_interface(Vector &V);
     
     /// Retourne le type d'element de l'interface sous forme d'un entier
     int get_type_elem() const;
