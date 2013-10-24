@@ -97,6 +97,7 @@ void Boundary::prepareParameters(){
 
 void Boundary::updateParameters(){
     /// Remettre ici les fonctions dans les fichiers prelocalstage
+    std::cout << "update boudaries ok" << std::endl;
 }
 
 void Boundary::affiche(){

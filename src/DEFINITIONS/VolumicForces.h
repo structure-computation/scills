@@ -22,7 +22,10 @@ struct VolumicForces{
             values[Fvol.z.self_ex] = G[2];
             #endif
             for(unsigned d=0;d<DIM;++d){
-                e.f_vol_e[d] = density * Fvol.force[d].updateValue(values);// * LMT::measure(e);// Inutile on dirait...
+                //e.f_vol_e[d] = density * Fvol.force[d].updateValue(values);// * LMT::measure(e);// Inutile on dirait...
+                e.f_vol_e[d] = Fvol.force[d].updateValue(values);// * LMT::measure(e);// Inutile on dirait...
+                //std::cout << density << endl;
+                //std::cout << e.f_vol_e[d] << endl;
             }
         }
     };
@@ -34,12 +37,12 @@ struct VolumicForces{
     void updateParameters();
     
     void apply_on_sst(Sst &S){
-        /*
+        
         std::cout << "Application des efforts volumiques sur S (id " << S.id << "):" << std::endl;
         for(int i = 0; i < DIM; i++){
             std::cout << "\t" << force[i].str_expr << std::endl;
         }
-        //*/
+        //
         Codegen::Ex::MapExNum values = parameters.getParentsValues();
         LMT::apply(S.mesh->elem_list,AssignOnElement(),S.mesh->density,*this, values);
     }

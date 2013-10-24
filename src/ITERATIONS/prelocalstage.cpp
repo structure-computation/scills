@@ -61,22 +61,22 @@ void initialise_CL_values(PointedInterfaces &Inter, Boundaries &CL){
             for(unsigned i_dir = 0; i_dir < DIM; ++i_dir){
                 values[Boundary::CL_parameters.main_parameters[i_dir]->self_ex] = Inter[i_inter].side[0].nodeeq[i][i_dir];
             }
-            if(depl){
-                /// Cas d'un deplacement impose
-                Point data;
-                for(unsigned i_dir = 0; i_dir < DIM; i_dir++){
-                    data[i_dir] = (Scalar)CL[Inter[i_inter].refCL].fcts_spatiales[i_dir].updateValue(values);
-                }
-                Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)]=data;
-            }else if(depl_normal){
-                /// Cas d'un deplacement normal
-                Scalar data = (Scalar)CL[Inter[i_inter].refCL].fcts_spatiales[0].updateValue(values);
-                Point neq = Inter[i_inter].side[0].neq[range(i*DIM,(i+1)*DIM)];
-                Point temp=Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)];
-                Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+data*neq;
-            }else{
-                /// Rien a faire pour les autres type de CL
-            }
+//             if(depl){
+//                 /// Cas d'un deplacement impose
+//                 Point data;
+//                 for(unsigned i_dir = 0; i_dir < DIM; i_dir++){
+//                     data[i_dir] = (Scalar)CL[Inter[i_inter].refCL].fcts_spatiales[i_dir].updateValue(values);
+//                 }
+//                 Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)]=data;
+//             }else if(depl_normal){
+//                 /// Cas d'un deplacement normal
+//                 Scalar data = (Scalar)CL[Inter[i_inter].refCL].fcts_spatiales[0].updateValue(values);
+//                 Point neq = Inter[i_inter].side[0].neq[range(i*DIM,(i+1)*DIM)];
+//                 Point temp=Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)];
+//                 Inter[i_inter].side[0].t[0].W[range(i*DIM,(i+1)*DIM)]=ProjT(temp,neq)+data*neq;
+//             }else{
+//                 /// Rien a faire pour les autres type de CL
+//             }
         }
     }
 }
@@ -103,6 +103,7 @@ void update_CL_values(PointedInterfaces &Inter, Boundaries &CL, Process &process
                 assign_CL_spatial_temporel(Inter[i_inter].side[0].t[1].Wchap,Inter[i_inter].side[0].nodeeq,CL[Inter[i_inter].refCL],dt);
                 Inter[i_inter].side[0].t[1].Wpchap = (Inter[i_inter].side[0].t[1].Wchap - Inter[i_inter].side[0].t[0].Wchap)/dt;
                 PRINT(Inter[i_inter].side[0].t[1].Wpchap);
+                PRINT(Inter[i_inter].side[0].t[0].W);
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[0] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[1] << " ; ";
                 //std::cout << Inter[i_inter].side[0].t[1].Wpchap[2] << " ; ";

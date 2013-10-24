@@ -225,9 +225,12 @@ void ParameterGroup::prepareParameters(){
 
 /// Retourne la table qui va permettre d'evaluer les expressions des parametres utilisateur. Ne contient PAS les parametres de controle (pour assignation manuelle)
 Codegen::Ex::MapExNum ParameterGroup::getParentsValues(){
+    //std::cout << "ParameterGroup getParentsValues"<< std::endl;
     Codegen::Ex::MapExNum values;
     std::vector<ParameterAncestor*> parent_parameters = getParentsParameters();
+    //std::cout << "ParameterGroup getParentsValues 2 "<< std::endl;
     for(int i = 0; i < parent_parameters.size(); i++){
+        //std::cerr << i << " : " << "symbol : " << parent_parameters[i]->symbol << "; value : " << parent_parameters[i]->value << std::endl;
         values[parent_parameters[i]->self_ex] = parent_parameters[i]->value;
     }
     return values;

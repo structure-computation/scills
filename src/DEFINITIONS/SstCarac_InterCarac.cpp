@@ -155,6 +155,9 @@ void SstCarac::read_data_user(int index, Metil::DataUser& data_user){
         a            = new_material.a;              /// a
         tau_c        = new_material.tau_c;          /// tau_c
     }//*/
+    
+    
+    affiche();
 }
 
 void SstCarac::prepareParameters(){
@@ -332,7 +335,9 @@ void InterCarac::prepareParameters(){
 }
 
 void InterCarac::updateParameters(){
+    //inter_materials_parameters.affiche();
     inter_materials_parameters.updateParameters();
+    std::cout << "update InterCarac ok"<< std::endl;
 }
 
 void InterCarac::affiche(){
